@@ -1,0 +1,149 @@
+package uk.gov.companieshouse.officerfiling.api.model.dto;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringJoiner;
+import java.util.function.Consumer;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Address;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+
+public class AddressDto {
+
+    private String addressLine1;
+    private String addressLine2;
+    private String careOf;
+    private String country;
+    private String locality;
+    private String poBox;
+    private String postalCode;
+    private String premises;
+    private String region;
+
+    private AddressDto () {}
+
+    public String getAddressLine1() {
+        return addressLine1;
+    }
+
+    public String getAddressLine2() {
+        return addressLine2;
+    }
+
+    public String getCareOf() {
+        return careOf;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public String getLocality() {
+        return locality;
+    }
+
+    public String getPoBox() {
+        return poBox;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public String getPremises() {
+        return premises;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private final List<Consumer<AddressDto>> buildSteps;
+
+        public Builder() {
+            this.buildSteps = new ArrayList<>();
+        }
+
+        public Builder addressLine1(String value) {
+
+            buildSteps.add(data -> data.addressLine1 = value);
+            return this;
+        }
+
+        public Builder addressLine2(String value) {
+
+            buildSteps.add(data -> data.addressLine2 = value);
+            return this;
+        }
+
+        public Builder careOf(String value) {
+
+            buildSteps.add(data -> data.careOf = value);
+            return this;
+        }
+
+        public Builder country(String value) {
+
+            buildSteps.add(data -> data.country = value);
+            return this;
+        }
+
+        public Builder locality(String value) {
+
+            buildSteps.add(data -> data.locality = value);
+            return this;
+        }
+
+        public Builder poBox(String value) {
+
+            buildSteps.add(data -> data.poBox = value);
+            return this;
+        }
+
+        public Builder postalCode(String value) {
+
+            buildSteps.add(data -> data.postalCode = value);
+            return this;
+        }
+
+        public Builder premises(String value) {
+
+            buildSteps.add(data -> data.premises = value);
+            return this;
+        }
+
+        public Builder region(String value) {
+
+            buildSteps.add(data -> data.region = value);
+            return this;
+        }
+
+        public AddressDto build() {
+
+            AddressDto data = new AddressDto();
+            buildSteps.forEach(step -> step.accept(data));
+
+            return data;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", AddressDto.class.getSimpleName() + "[", "]").add(
+                "addressLine1='" + addressLine1 + "'")
+            .add("addressLine2='" + addressLine2 + "'")
+            .add("careOf='" + careOf + "'")
+            .add("country='" + country + "'")
+            .add("locality='" + locality + "'")
+            .add("poBox='" + poBox + "'")
+            .add("postalCode='" + postalCode + "'")
+            .add("premises='" + premises + "'")
+            .add("region='" + region + "'")
+            .toString();
+    }
+}
