@@ -2,10 +2,9 @@ package uk.gov.companieshouse.officerfiling.api.model.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
-import uk.gov.companieshouse.officerfiling.api.model.entity.Address;
-import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 
 public class AddressDto {
 
@@ -130,6 +129,32 @@ public class AddressDto {
 
             return data;
         }
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final AddressDto that = (AddressDto) o;
+        return Objects.equals(getAddressLine1(), that.getAddressLine1()) &&
+                Objects.equals(getAddressLine2(), that.getAddressLine2()) &&
+                Objects.equals(getCareOf(), that.getCareOf()) &&
+                Objects.equals(getCountry(), that.getCountry()) &&
+                Objects.equals(getLocality(), that.getLocality()) &&
+                Objects.equals(getPoBox(), that.getPoBox()) &&
+                Objects.equals(getPostalCode(), that.getPostalCode()) &&
+                Objects.equals(getPremises(), that.getPremises()) &&
+                Objects.equals(getRegion(), that.getRegion());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getAddressLine1(), getAddressLine2(), getCareOf(), getCountry(),
+                getLocality(), getPoBox(), getPostalCode(), getPremises(), getRegion());
     }
 
     @Override

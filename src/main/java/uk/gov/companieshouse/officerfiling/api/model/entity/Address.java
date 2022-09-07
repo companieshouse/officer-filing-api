@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -71,27 +70,26 @@ public class Address {
         }
         Address address = (Address) o;
         return getAddressLine1().equals(address.getAddressLine1()) &&
-            Objects.equals(getAddressLine2(), address.getAddressLine2()) &&
-            Objects.equals(getCareOf(), address.getCareOf()) &&
-            getCountry().equals(address.getCountry()) &&
-            Objects.equals(getLocality(), address.getLocality()) &&
-            Objects.equals(getPoBox(), address.getPoBox()) &&
-            getPostalCode().equals(address.getPostalCode()) &&
-            Objects.equals(getPremises(), address.getPremises()) &&
-            Objects.equals(getRegion(), address.getRegion());
+                Objects.equals(getAddressLine2(), address.getAddressLine2()) &&
+                Objects.equals(getCareOf(), address.getCareOf()) &&
+                getCountry().equals(address.getCountry()) &&
+                Objects.equals(getLocality(), address.getLocality()) &&
+                Objects.equals(getPoBox(), address.getPoBox()) &&
+                getPostalCode().equals(address.getPostalCode()) &&
+                Objects.equals(getPremises(), address.getPremises()) &&
+                Objects.equals(getRegion(), address.getRegion());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getAddressLine1(), getAddressLine2(), getCareOf(), getCountry(),
-            getLocality(), getPoBox(), getPostalCode(), getPremises(), getRegion());
+                getLocality(), getPoBox(), getPostalCode(), getPremises(), getRegion());
     }
 
-    public static Builder address() {
+    public static Builder builder() {
         return new Builder();
     }
 
-    @JsonPOJOBuilder(buildMethodName="address", withPrefix="with")
     public static class Builder {
 
         List<Consumer<Address>> buildSteps;
@@ -102,55 +100,55 @@ public class Address {
 
         }
 
-        public Builder withAddressLine1(String value) {
+        public Builder addressLine1(String value) {
 
             buildSteps.add(data -> data.addressLine1 = value);
             return this;
         }
 
-        public Builder withAddressLine2(String value) {
+        public Builder addressLine2(String value) {
 
             buildSteps.add(data -> data.addressLine2 = value);
             return this;
         }
 
-        public Builder withCareOf(String value) {
+        public Builder careOf(String value) {
 
             buildSteps.add(data -> data.careOf = value);
             return this;
         }
 
-        public Builder withCountry(String value) {
+        public Builder country(String value) {
 
             buildSteps.add(data -> data.country = value);
             return this;
         }
 
-        public Builder withLocality(String value) {
+        public Builder locality(String value) {
 
             buildSteps.add(data -> data.locality = value);
             return this;
         }
 
-        public Builder withPoBox(String value) {
+        public Builder poBox(String value) {
 
             buildSteps.add(data -> data.poBox = value);
             return this;
         }
 
-        public Builder withPostalCode(String value) {
+        public Builder postalCode(String value) {
 
             buildSteps.add(data -> data.postalCode = value);
             return this;
         }
 
-        public Builder withPremises(String value) {
+        public Builder premises(String value) {
 
             buildSteps.add(data -> data.premises = value);
             return this;
         }
 
-        public Builder withRegion(String value) {
+        public Builder region(String value) {
 
             buildSteps.add(data -> data.region = value);
             return this;

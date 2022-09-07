@@ -2,6 +2,7 @@ package uk.gov.companieshouse.officerfiling.api.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Identification {
@@ -19,11 +20,6 @@ public class Identification {
         this.legalForm = legalForm;
         this.placeRegistered = placeRegistered;
         this.registrationNumber = registrationNumber;
-    }
-
-    public Identification(Identification other) {
-        this(other.identificationType, other.legalAuthority, other.legalForm,
-            other.placeRegistered, other.registrationNumber);
     }
 
     public String getIdentificationType() {
@@ -66,5 +62,16 @@ public class Identification {
     public int hashCode() {
         return Objects.hash(getIdentificationType(), getLegalAuthority(), getLegalForm(),
             getPlaceRegistered(), getRegistrationNumber());
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", Identification.class.getSimpleName() + "[", "]").add(
+                        "identificationType='" + identificationType + "'")
+                .add("legalAuthority='" + legalAuthority + "'")
+                .add("legalForm='" + legalForm + "'")
+                .add("placeRegistered='" + placeRegistered + "'")
+                .add("registrationNumber='" + registrationNumber + "'")
+                .toString();
     }
 }

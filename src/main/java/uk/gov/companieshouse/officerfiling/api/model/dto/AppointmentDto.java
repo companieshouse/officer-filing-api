@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.function.Consumer;
 
 public class AppointmentDto {
@@ -30,6 +32,150 @@ public class AppointmentDto {
     private boolean residentialAddressSameAsCorrespondenceAddress;
 
     private AppointmentDto() {
+    }
+
+    public AddressDto getAddress() {
+        return address;
+    }
+
+    public boolean isAddressSameAsRegisteredOfficeAddress() {
+        return addressSameAsRegisteredOfficeAddress;
+    }
+
+    public LocalDate getAppointedOn() {
+        return appointedOn;
+    }
+
+    public String getCountryOfResidence() {
+        return countryOfResidence;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public String geteTag() {
+        return eTag;
+    }
+
+    public List<FormerNameDto> getFormerNames() {
+        return formerNames;
+    }
+
+    public IdentificationDto getIdentification() {
+        return identification;
+    }
+
+    public String getKind() {
+        return kind;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getNationality() {
+        return nationality;
+    }
+
+    public String getOccupation() {
+        return occupation;
+    }
+
+    public String getOfficerRole() {
+        return officerRole;
+    }
+
+    public String getReferenceOfficerListETag() {
+        return referenceOfficerListETag;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public AddressDto getResidentialAddress() {
+        return residentialAddress;
+    }
+
+    public boolean isResidentialAddressSameAsCorrespondenceAddress() {
+        return residentialAddressSameAsCorrespondenceAddress;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final AppointmentDto that = (AppointmentDto) o;
+        return isAddressSameAsRegisteredOfficeAddress() ==
+                that.isAddressSameAsRegisteredOfficeAddress() &&
+                isResidentialAddressSameAsCorrespondenceAddress() ==
+                        that.isResidentialAddressSameAsCorrespondenceAddress() &&
+                Objects.equals(getAddress(), that.getAddress()) &&
+                Objects.equals(getAppointedOn(), that.getAppointedOn()) &&
+                Objects.equals(getCountryOfResidence(), that.getCountryOfResidence()) &&
+                Objects.equals(getCreatedAt(), that.getCreatedAt()) &&
+                Objects.equals(getDateOfBirth(), that.getDateOfBirth()) &&
+                Objects.equals(geteTag(), that.geteTag()) &&
+                Objects.equals(getFormerNames(), that.getFormerNames()) &&
+                Objects.equals(getIdentification(), that.getIdentification()) &&
+                Objects.equals(getKind(), that.getKind()) &&
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getNationality(), that.getNationality()) &&
+                Objects.equals(getOccupation(), that.getOccupation()) &&
+                Objects.equals(getOfficerRole(), that.getOfficerRole()) &&
+                Objects.equals(getReferenceOfficerListETag(), that.getReferenceOfficerListETag()) &&
+                Objects.equals(getStatus(), that.getStatus()) &&
+                Objects.equals(getUpdatedAt(), that.getUpdatedAt()) &&
+                Objects.equals(getResidentialAddress(), that.getResidentialAddress());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getAddress(), isAddressSameAsRegisteredOfficeAddress(),
+                getAppointedOn(), getCountryOfResidence(), getCreatedAt(), getDateOfBirth(),
+                geteTag(), getFormerNames(), getIdentification(), getKind(), getName(),
+                getNationality(), getOccupation(), getOfficerRole(), getReferenceOfficerListETag(),
+                getStatus(), getUpdatedAt(), getResidentialAddress(),
+                isResidentialAddressSameAsCorrespondenceAddress());
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", AppointmentDto.class.getSimpleName() + "[", "]").add(
+                        "address=" + address)
+                .add("addressSameAsRegisteredOfficeAddress=" + addressSameAsRegisteredOfficeAddress)
+                .add("appointedOn=" + appointedOn)
+                .add("countryOfResidence='" + countryOfResidence + "'")
+                .add("createdAt=" + createdAt)
+                .add("dateOfBirth=" + dateOfBirth)
+                .add("eTag='" + eTag + "'")
+                .add("formerNames=" + formerNames)
+                .add("identification=" + identification)
+                .add("kind='" + kind + "'")
+                .add("name='" + name + "'")
+                .add("nationality='" + nationality + "'")
+                .add("occupation='" + occupation + "'")
+                .add("officerRole='" + officerRole + "'")
+                .add("referenceOfficerListETag='" + referenceOfficerListETag + "'")
+                .add("status='" + status + "'")
+                .add("updatedAt=" + updatedAt)
+                .add("residentialAddress=" + residentialAddress)
+                .add("residentialAddressSameAsCorrespondenceAddress=" +
+                        residentialAddressSameAsCorrespondenceAddress)
+                .toString();
     }
 
     public static Builder builder() {

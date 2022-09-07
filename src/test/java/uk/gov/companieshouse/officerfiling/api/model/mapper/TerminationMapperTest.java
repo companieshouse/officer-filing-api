@@ -3,38 +3,28 @@ package uk.gov.companieshouse.officerfiling.api.model.mapper;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-
 import java.time.Instant;
 import java.time.LocalDate;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
-import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.officerfiling.api.model.dto.TerminationDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 
-@ExtendWith(MockitoExtension.class)
-class TerminationMapperImplTest {
+class TerminationMapperTest {
 
-    static TerminationDto testTerminationDto;
-    static OfficerFiling officerFiling;
-    static TerminationMapper testTerminationMapper;
+    private TerminationMapper testMapper;
 
-    @BeforeAll
-    static void setUp() {
-        testTerminationDto = new TerminationDto("123456", "234567", LocalDate.of(2022, 8, 14));
-        officerFiling =
-            OfficerFiling.builder().referenceETag("123456").referenceOfficerId("234567")
-                .resignedOn(Instant.parse("2022-08-14T00:00:00Z")).build();
-        testTerminationMapper = TerminationMapper.INSTANCE;
+    @BeforeEach
+    void setUp() {
+        testMapper = Mappers.getMapper(TerminationMapper.class);
     }
 
     @Test
     void terminationDtoToOfficerFiling() {
+        var dto = new TerminationDto("123456", "234567", LocalDate.of(2022, 8, 14));
 
-        OfficerFiling actual =
-            testTerminationMapper.terminationDtoToOfficerFiling(testTerminationDto);
+        OfficerFiling actual = testMapper.map(dto);
 
         assertThat(actual.getReferenceETag(), is("123456"));
         assertThat(actual.getReferenceOfficerId(), is("234567"));
@@ -43,9 +33,13 @@ class TerminationMapperImplTest {
 
     @Test
     void officerFilingToTerminationDto() {
+        var filing = OfficerFiling.builder()
+                .referenceETag("123456")
+                .referenceOfficerId("234567")
+                .resignedOn(Instant.parse("2022-08-14T00:00:00Z"))
+                .build();
 
-        TerminationDto actual =
-            testTerminationMapper.officerFilingToTerminationDto(officerFiling);
+        TerminationDto actual = testMapper.map(filing);
 
         assertThat(actual.getReferenceETag(), is("123456"));
         assertThat(actual.getReferenceOfficerId(), is("234567"));

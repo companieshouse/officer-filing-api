@@ -2,6 +2,7 @@ package uk.gov.companieshouse.officerfiling.api.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FormerName {
@@ -9,14 +10,9 @@ public class FormerName {
     String forenames;
     String surname;
 
-    public FormerName(String forenames, String surnames) {
+    public FormerName(String forenames, String surname) {
         this.forenames = forenames;
-        this.surname = surnames;
-    }
-
-    public FormerName(FormerName other) {
-        this.forenames = other.forenames;
-        this.surname = other.surname;
+        this.surname = surname;
     }
 
     public String getForenames() {
@@ -28,20 +24,26 @@ public class FormerName {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        FormerName that = (FormerName) o;
+        final FormerName that = (FormerName) o;
         return Objects.equals(getForenames(), that.getForenames()) &&
-            Objects.equals(getSurname(), that.getSurname());
+                Objects.equals(getSurname(), that.getSurname());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getForenames(), getSurname());
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", FormerName.class.getSimpleName() + "[", "]").add(
+                "forenames='" + forenames + "'").add("surname='" + surname + "'").toString();
     }
 }

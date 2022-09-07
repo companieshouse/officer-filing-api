@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.function.Consumer;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -67,7 +69,7 @@ public class OfficerFiling {
         return dateOfBirth;
     }
 
-    public String getETag() {
+    public String geteTag() {
         return eTag;
     }
 
@@ -129,6 +131,83 @@ public class OfficerFiling {
 
     public boolean isResidentialAddressSameAsCorrespondenceAddress() {
         return residentialAddressSameAsCorrespondenceAddress;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final OfficerFiling that = (OfficerFiling) o;
+        return isAddressSameAsRegisteredOfficeAddress() ==
+                that.isAddressSameAsRegisteredOfficeAddress() &&
+                isResidentialAddressSameAsCorrespondenceAddress() ==
+                        that.isResidentialAddressSameAsCorrespondenceAddress() &&
+                Objects.equals(getId(), that.getId()) &&
+                Objects.equals(getAddress(), that.getAddress()) &&
+                Objects.equals(getAppointedOn(), that.getAppointedOn()) &&
+                Objects.equals(getCountryOfResidence(), that.getCountryOfResidence()) &&
+                Objects.equals(getCreatedAt(), that.getCreatedAt()) &&
+                Objects.equals(getDateOfBirth(), that.getDateOfBirth()) &&
+                Objects.equals(geteTag(), that.geteTag()) &&
+                Objects.equals(getFormerNames(), that.getFormerNames()) &&
+                Objects.equals(getIdentification(), that.getIdentification()) &&
+                Objects.equals(getKind(), that.getKind()) &&
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getNationality(), that.getNationality()) &&
+                Objects.equals(getOccupation(), that.getOccupation()) &&
+                Objects.equals(getOfficerRole(), that.getOfficerRole()) &&
+                Objects.equals(getReferenceETag(), that.getReferenceETag()) &&
+                Objects.equals(getReferenceOfficerId(), that.getReferenceOfficerId()) &&
+                Objects.equals(getReferenceOfficerListETag(), that.getReferenceOfficerListETag()) &&
+                Objects.equals(getResignedOn(), that.getResignedOn()) &&
+                Objects.equals(getStatus(), that.getStatus()) &&
+                Objects.equals(getUpdatedAt(), that.getUpdatedAt()) &&
+                Objects.equals(getResidentialAddress(), that.getResidentialAddress());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getAddress(), isAddressSameAsRegisteredOfficeAddress(),
+                getAppointedOn(), getCountryOfResidence(), getCreatedAt(), getDateOfBirth(),
+                geteTag(), getFormerNames(), getIdentification(), getKind(), getName(),
+                getNationality(), getOccupation(), getOfficerRole(), getReferenceETag(),
+                getReferenceOfficerId(), getReferenceOfficerListETag(), getResignedOn(),
+                getStatus(), getUpdatedAt(), getResidentialAddress(),
+                isResidentialAddressSameAsCorrespondenceAddress());
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", OfficerFiling.class.getSimpleName() + "[", "]").add(
+                        "id='" + id + "'")
+                .add("address=" + address)
+                .add("addressSameAsRegisteredOfficeAddress=" + addressSameAsRegisteredOfficeAddress)
+                .add("appointedOn=" + appointedOn)
+                .add("countryOfResidence='" + countryOfResidence + "'")
+                .add("createdAt=" + createdAt)
+                .add("dateOfBirth=" + dateOfBirth)
+                .add("eTag='" + eTag + "'")
+                .add("formerNames=" + formerNames)
+                .add("identification=" + identification)
+                .add("kind='" + kind + "'")
+                .add("name='" + name + "'")
+                .add("nationality='" + nationality + "'")
+                .add("occupation='" + occupation + "'")
+                .add("officerRole='" + officerRole + "'")
+                .add("referenceETag='" + referenceETag + "'")
+                .add("referenceOfficerId='" + referenceOfficerId + "'")
+                .add("referenceOfficerListETag='" + referenceOfficerListETag + "'")
+                .add("resignedOn=" + resignedOn)
+                .add("status='" + status + "'")
+                .add("updatedAt=" + updatedAt)
+                .add("residentialAddress=" + residentialAddress)
+                .add("residentialAddressSameAsCorrespondenceAddress=" +
+                        residentialAddressSameAsCorrespondenceAddress)
+                .toString();
     }
 
     public static Builder builder() {
@@ -193,7 +272,7 @@ public class OfficerFiling {
 
         public Builder identification(Identification value) {
 
-            buildSteps.add(data -> data.identification = new Identification(value));
+            buildSteps.add(data -> data.identification = value);
             return this;
         }
 
