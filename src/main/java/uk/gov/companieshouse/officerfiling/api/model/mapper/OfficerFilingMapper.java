@@ -5,18 +5,15 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import uk.gov.companieshouse.officerfiling.api.model.dto.AppointmentDto;
+import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 
 @Mapper(componentModel = "spring")
-public interface AppointmentMapper {
-    @Mapping(target = "referenceETag", ignore = true)
-    @Mapping(target = "referenceOfficerId", ignore = true)
-    @Mapping(target = "resignedOn", ignore = true)
-    OfficerFiling map(AppointmentDto appointmentDto);
+public interface OfficerFilingMapper {
 
-    AppointmentDto map(OfficerFiling officerFiling);
+    OfficerFiling map(OfficerFilingDto officerFilingDto);
+
+    OfficerFilingDto map(OfficerFiling officerFiling);
 
     default Instant map(LocalDate date) {
         if (date == null) {
