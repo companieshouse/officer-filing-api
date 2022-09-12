@@ -21,11 +21,12 @@ public class OfficerFiling {
     private Instant appointedOn;
     private String countryOfResidence;
     private Instant createdAt;
-    private Instant dateOfBirth;
+    private Date3Tuple dateOfBirth;
     private String eTag;
     private List<FormerName> formerNames;
     private Identification identification;
     private String kind;
+    private Links links;
     private String name;
     private String nationality;
     private String occupation;
@@ -65,7 +66,7 @@ public class OfficerFiling {
         return createdAt;
     }
 
-    public Instant getDateOfBirth() {
+    public Date3Tuple getDateOfBirth() {
         return dateOfBirth;
     }
 
@@ -83,6 +84,10 @@ public class OfficerFiling {
 
     public String getKind() {
         return kind;
+    }
+
+    public Links getLinks() {
+        return links;
     }
 
     public String getName() {
@@ -156,6 +161,7 @@ public class OfficerFiling {
                 Objects.equals(getFormerNames(), that.getFormerNames()) &&
                 Objects.equals(getIdentification(), that.getIdentification()) &&
                 Objects.equals(getKind(), that.getKind()) &&
+                Objects.equals(getLinks(), that.getLinks()) &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getNationality(), that.getNationality()) &&
                 Objects.equals(getOccupation(), that.getOccupation()) &&
@@ -173,7 +179,7 @@ public class OfficerFiling {
     public int hashCode() {
         return Objects.hash(getId(), getAddress(), isAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getCreatedAt(), getDateOfBirth(),
-                geteTag(), getFormerNames(), getIdentification(), getKind(), getName(),
+                geteTag(), getFormerNames(), getIdentification(), getKind(), getLinks(), getName(),
                 getNationality(), getOccupation(), getOfficerRole(), getReferenceETag(),
                 getReferenceOfficerId(), getReferenceOfficerListETag(), getResignedOn(),
                 getStatus(), getUpdatedAt(), getResidentialAddress(),
@@ -194,6 +200,7 @@ public class OfficerFiling {
                 .add("formerNames=" + formerNames)
                 .add("identification=" + identification)
                 .add("kind='" + kind + "'")
+                .add("links=" + links)
                 .add("name='" + name + "'")
                 .add("nationality='" + nationality + "'")
                 .add("occupation='" + occupation + "'")
@@ -252,7 +259,7 @@ public class OfficerFiling {
             return this;
         }
 
-        public Builder dateOfBirth(Instant value) {
+        public Builder dateOfBirth(Date3Tuple value) {
 
             buildSteps.add(data -> data.dateOfBirth = value);
             return this;
@@ -279,6 +286,12 @@ public class OfficerFiling {
         public Builder kind(String value) {
 
             buildSteps.add(data -> data.kind = value);
+            return this;
+        }
+
+        public Builder links(Links value) {
+
+            buildSteps.add(data -> data.links = value);
             return this;
         }
 

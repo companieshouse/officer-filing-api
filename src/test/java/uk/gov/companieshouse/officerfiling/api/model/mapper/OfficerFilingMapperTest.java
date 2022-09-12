@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -13,13 +14,17 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import uk.gov.companieshouse.officerfiling.api.model.dto.Date3TupleDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
+import uk.gov.companieshouse.officerfiling.api.model.dto.LinksDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.FormerNameDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.IdentificationDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Address;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
 import uk.gov.companieshouse.officerfiling.api.model.entity.FormerName;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Identification;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 
 class OfficerFilingMapperTest {
@@ -28,12 +33,14 @@ class OfficerFilingMapperTest {
     private AddressDto addressDto;
     private LocalDate localDate1;
     private LocalDate localDate2;
+    private Date3Tuple dob1;
     private Instant instant1;
     private List<FormerNameDto> nameDtoList;
     private List<FormerName> nameList;
     private IdentificationDto identificationDto;
     private Identification identification;
     private OfficerFilingMapper testMapper;
+    private Links links;
 
     @BeforeEach
     void setUp() {
@@ -62,6 +69,7 @@ class OfficerFilingMapperTest {
                 .build();
         localDate1 = LocalDate.of(2019, 11, 5);
         localDate2 = LocalDate.of(1970, 1, 1);
+        dob1 = new Date3Tuple(12, 9, 1970);
         instant1 = Instant.parse("2019-11-05T00:00:00Z");
         nameDtoList = List.of(new FormerNameDto("f1", "n1"), new FormerNameDto("f2", "n2"),
                 new FormerNameDto("f3", "n3"));
@@ -69,6 +77,9 @@ class OfficerFilingMapperTest {
                 new FormerName("f3", "n3"));
         identification = new Identification("type", "auth", "legal", "place", "number");
         identificationDto = new IdentificationDto("type", "auth", "legal", "place", "number");
+        links = new Links(URI.create(
+                "/transactions/197315-203316-322377/officers/3AftpfAa8RAq7EC3jKC6l7YDJ88="),
+                "status");
     }
 
     @Test
@@ -79,11 +90,12 @@ class OfficerFilingMapperTest {
                 .appointedOn(localDate1)
                 .countryOfResidence("countryOfResidence")
                 .createdAt(instant1)
-                .dateOfBirth(localDate2)
+                .dateOfBirth(new Date3TupleDto(dob1.getDay(), dob1.getMonth(), dob1.getYear()))
                 .eTag("eTag")
                 .formerNames(nameDtoList)
                 .identification(identificationDto)
                 .kind("kind")
+                .links(new LinksDto(links.getSelf(), links.getValidationStatus()))
                 .name("name")
                 .officerRole("role")
                 .referenceETag("referenceETag")
@@ -106,12 +118,12 @@ class OfficerFilingMapperTest {
                 is(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC)));
         assertThat(filing.getCountryOfResidence(), is("countryOfResidence"));
         assertThat(filing.getCreatedAt(), is(instant1));
-        assertThat(filing.getDateOfBirth(),
-                is(localDate2.atStartOfDay().toInstant(ZoneOffset.UTC)));
+        assertThat(filing.getDateOfBirth(), is(dob1));
         assertThat(filing.geteTag(), is("eTag"));
         assertThat(filing.getFormerNames(), is(equalTo(nameList)));
         assertThat(filing.getIdentification(), is(equalTo(identification)));
         assertThat(filing.getKind(), is("kind"));
+        assertThat(filing.getLinks(), is(equalTo(links)));
         assertThat(filing.getName(), is("name"));
         assertThat(filing.getOfficerRole(), is("role"));
         assertThat(filing.getReferenceETag(), is("referenceETag"));
@@ -156,11 +168,12 @@ class OfficerFilingMapperTest {
                 .appointedOn(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC))
                 .countryOfResidence("countryOfResidence")
                 .createdAt(instant1)
-                .dateOfBirth(localDate2.atStartOfDay().toInstant(ZoneOffset.UTC))
+                .dateOfBirth(dob1)
                 .eTag("eTag")
                 .formerNames(nameList)
                 .identification(identification)
                 .kind("kind")
+                .links(links)
                 .name("name")
                 .officerRole("role")
                 .nationality("nation")
@@ -182,11 +195,13 @@ class OfficerFilingMapperTest {
         assertThat(dto.getAppointedOn(), is(localDate1));
         assertThat(dto.getCountryOfResidence(), is("countryOfResidence"));
         assertThat(dto.getCreatedAt(), is(instant1));
-        assertThat(dto.getDateOfBirth(), is(localDate2));
+        assertThat(dto.getDateOfBirth(),
+                is(new Date3TupleDto(dob1.getDay(), dob1.getMonth(), dob1.getYear())));
         assertThat(dto.geteTag(), is("eTag"));
         assertThat(dto.getFormerNames(), is(equalTo(nameDtoList)));
         assertThat(dto.getIdentification(), is(equalTo(identificationDto)));
         assertThat(dto.getKind(), is("kind"));
+        assertThat(dto.getLinks(), is(new LinksDto(links.getSelf(), links.getValidationStatus())));
         assertThat(dto.getName(), is("name"));
         assertThat(dto.getOfficerRole(), is("role"));
         assertThat(dto.getReferenceETag(), is("referenceETag"));
