@@ -2,5 +2,5 @@ app_name: officer-filing-api
 group: api    
 weight: 900
 routes:
-  1: ^/officers/.*
-  2: ^/transactions/.*/officers/.*
+  1: ^/officers
+  2: ^/transactions/.*/officers
