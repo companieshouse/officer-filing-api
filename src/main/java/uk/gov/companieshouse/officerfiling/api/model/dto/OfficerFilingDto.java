@@ -338,7 +338,7 @@ public class OfficerFilingDto {
             return this;
         }
 
-        public Builder residentialAddressSameAsCorrespondenceAddress(boolean value) {
+        public Builder residentialAddressSameAsCorrespondenceAddress(Boolean value) {
 
             buildSteps.add(data -> data.residentialAddressSameAsCorrespondenceAddress = value);
             return this;

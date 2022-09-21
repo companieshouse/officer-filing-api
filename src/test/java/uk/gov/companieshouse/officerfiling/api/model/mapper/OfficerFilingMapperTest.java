@@ -254,9 +254,6 @@ class OfficerFilingMapperTest {
         final var dto = testMapper.map(filing);
 
         assertThat(dto, is(equalTo(emptyDto)));
-        assertThat(dto.getAddressSameAsRegisteredOfficeAddress(), is(nullValue()));
-        assertThat(dto.getResidentialAddressSameAsCorrespondenceAddress(), is(nullValue()));
-
     }
 
     @Test
@@ -269,6 +266,8 @@ class OfficerFilingMapperTest {
         final var dto = testMapper.map(filing);
 
         assertThat(dto, is(equalTo(emptyDto)));
+        assertThat(dto.getAddressSameAsRegisteredOfficeAddress(), is(nullValue()));
+        assertThat(dto.getResidentialAddressSameAsCorrespondenceAddress(), is(nullValue()));
     }
 
 }

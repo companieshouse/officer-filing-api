@@ -227,7 +227,7 @@ public class OfficerFiling {
             return this;
         }
 
-        public Builder addressSameAsRegisteredOfficeAddress(boolean value) {
+        public Builder addressSameAsRegisteredOfficeAddress(Boolean value) {
 
             buildSteps.add(data -> data.addressSameAsRegisteredOfficeAddress = value);
             return this;
@@ -347,7 +347,7 @@ public class OfficerFiling {
             return this;
         }
 
-        public Builder residentialAddressSameAsCorrespondenceAddress(boolean value) {
+        public Builder residentialAddressSameAsCorrespondenceAddress(Boolean value) {
 
             buildSteps.add(data -> data.residentialAddressSameAsCorrespondenceAddress = value);
             return this;
