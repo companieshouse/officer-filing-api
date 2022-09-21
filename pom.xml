@@ -30,6 +30,8 @@
         <mockito-core.version>4.7.0</mockito-core.version>
         <equalsverifier.version>3.7.2</equalsverifier.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
+        <!--- CH -->
+        <structured-logging.version>1.9.14</structured-logging.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -63,6 +65,11 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>structured-logging</artifactId>
+            <version>${structured-logging.version}</version>
         </dependency>
 
         <!-- test -->

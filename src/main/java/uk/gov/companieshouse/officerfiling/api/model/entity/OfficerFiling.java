@@ -10,19 +10,18 @@ import java.util.function.Consumer;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "officer-filing")
+@Document(collection = "officer_filing")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OfficerFiling {
 
     @Id
     private String id;
     private Address address;
-    private boolean addressSameAsRegisteredOfficeAddress;
+    private Boolean addressSameAsRegisteredOfficeAddress;
     private Instant appointedOn;
     private String countryOfResidence;
     private Instant createdAt;
     private Date3Tuple dateOfBirth;
-    private String eTag;
     private List<FormerName> formerNames;
     private Identification identification;
     private String kind;
@@ -38,7 +37,7 @@ public class OfficerFiling {
     private String status;
     private Instant updatedAt;
     private Address residentialAddress;
-    private boolean residentialAddressSameAsCorrespondenceAddress;
+    private Boolean residentialAddressSameAsCorrespondenceAddress;
 
     private OfficerFiling() {}
 
@@ -50,7 +49,7 @@ public class OfficerFiling {
         return address;
     }
 
-    public boolean isAddressSameAsRegisteredOfficeAddress() {
+    public Boolean getAddressSameAsRegisteredOfficeAddress() {
         return addressSameAsRegisteredOfficeAddress;
     }
 
@@ -68,10 +67,6 @@ public class OfficerFiling {
 
     public Date3Tuple getDateOfBirth() {
         return dateOfBirth;
-    }
-
-    public String geteTag() {
-        return eTag;
     }
 
     public List<FormerName> getFormerNames() {
@@ -134,7 +129,7 @@ public class OfficerFiling {
         return residentialAddress;
     }
 
-    public boolean isResidentialAddressSameAsCorrespondenceAddress() {
+    public Boolean getResidentialAddressSameAsCorrespondenceAddress() {
         return residentialAddressSameAsCorrespondenceAddress;
     }
 
@@ -147,17 +142,13 @@ public class OfficerFiling {
             return false;
         }
         final OfficerFiling that = (OfficerFiling) o;
-        return isAddressSameAsRegisteredOfficeAddress() ==
-                that.isAddressSameAsRegisteredOfficeAddress() &&
-                isResidentialAddressSameAsCorrespondenceAddress() ==
-                        that.isResidentialAddressSameAsCorrespondenceAddress() &&
-                Objects.equals(getId(), that.getId()) &&
-                Objects.equals(getAddress(), that.getAddress()) &&
+        return Objects.equals(getAddress(), that.getAddress()) &&
+                Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
+                        that.getAddressSameAsRegisteredOfficeAddress()) &&
                 Objects.equals(getAppointedOn(), that.getAppointedOn()) &&
                 Objects.equals(getCountryOfResidence(), that.getCountryOfResidence()) &&
                 Objects.equals(getCreatedAt(), that.getCreatedAt()) &&
                 Objects.equals(getDateOfBirth(), that.getDateOfBirth()) &&
-                Objects.equals(geteTag(), that.geteTag()) &&
                 Objects.equals(getFormerNames(), that.getFormerNames()) &&
                 Objects.equals(getIdentification(), that.getIdentification()) &&
                 Objects.equals(getKind(), that.getKind()) &&
@@ -172,18 +163,20 @@ public class OfficerFiling {
                 Objects.equals(getResignedOn(), that.getResignedOn()) &&
                 Objects.equals(getStatus(), that.getStatus()) &&
                 Objects.equals(getUpdatedAt(), that.getUpdatedAt()) &&
-                Objects.equals(getResidentialAddress(), that.getResidentialAddress());
+                Objects.equals(getResidentialAddress(), that.getResidentialAddress()) &&
+                Objects.equals(getResidentialAddressSameAsCorrespondenceAddress(),
+                        that.getResidentialAddressSameAsCorrespondenceAddress());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getAddress(), isAddressSameAsRegisteredOfficeAddress(),
+        return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getCreatedAt(), getDateOfBirth(),
-                geteTag(), getFormerNames(), getIdentification(), getKind(), getLinks(), getName(),
+                getFormerNames(), getIdentification(), getKind(), getLinks(), getName(),
                 getNationality(), getOccupation(), getOfficerRole(), getReferenceETag(),
                 getReferenceOfficerId(), getReferenceOfficerListETag(), getResignedOn(),
                 getStatus(), getUpdatedAt(), getResidentialAddress(),
-                isResidentialAddressSameAsCorrespondenceAddress());
+                getResidentialAddressSameAsCorrespondenceAddress());
     }
 
     @Override
@@ -196,7 +189,6 @@ public class OfficerFiling {
                 .add("countryOfResidence='" + countryOfResidence + "'")
                 .add("createdAt=" + createdAt)
                 .add("dateOfBirth=" + dateOfBirth)
-                .add("eTag='" + eTag + "'")
                 .add("formerNames=" + formerNames)
                 .add("identification=" + identification)
                 .add("kind='" + kind + "'")
@@ -235,7 +227,7 @@ public class OfficerFiling {
             return this;
         }
 
-        public Builder addressSameAsRegisteredOfficeAddress(boolean value) {
+        public Builder addressSameAsRegisteredOfficeAddress(Boolean value) {
 
             buildSteps.add(data -> data.addressSameAsRegisteredOfficeAddress = value);
             return this;
@@ -262,12 +254,6 @@ public class OfficerFiling {
         public Builder dateOfBirth(Date3Tuple value) {
 
             buildSteps.add(data -> data.dateOfBirth = value);
-            return this;
-        }
-
-        public Builder eTag(String value) {
-
-            buildSteps.add(data -> data.eTag = value);
             return this;
         }
 
@@ -361,7 +347,7 @@ public class OfficerFiling {
             return this;
         }
 
-        public Builder residentialAddressSameAsCorrespondenceAddress(boolean value) {
+        public Builder residentialAddressSameAsCorrespondenceAddress(Boolean value) {
 
             buildSteps.add(data -> data.residentialAddressSameAsCorrespondenceAddress = value);
             return this;
