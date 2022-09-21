@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "officer-filing")
+@Document(collection = "officer_filing")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OfficerFiling {
 
