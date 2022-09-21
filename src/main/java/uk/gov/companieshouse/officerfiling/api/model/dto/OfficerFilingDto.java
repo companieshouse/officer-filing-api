@@ -12,12 +12,11 @@ public class OfficerFilingDto {
 
 
     private AddressDto address;
-    private boolean addressSameAsRegisteredOfficeAddress;
+    private Boolean addressSameAsRegisteredOfficeAddress;
     private LocalDate appointedOn;
     private String countryOfResidence;
     private Instant createdAt;
     private Date3TupleDto dateOfBirth;
-    private String eTag;
     private List<FormerNameDto> formerNames;
     private IdentificationDto identification;
     private String kind;
@@ -33,7 +32,7 @@ public class OfficerFilingDto {
     private String status;
     private Instant updatedAt;
     private AddressDto residentialAddress;
-    private boolean residentialAddressSameAsCorrespondenceAddress;
+    private Boolean residentialAddressSameAsCorrespondenceAddress;
 
     private OfficerFilingDto() {
     }
@@ -42,7 +41,7 @@ public class OfficerFilingDto {
         return address;
     }
 
-    public boolean isAddressSameAsRegisteredOfficeAddress() {
+    public Boolean getAddressSameAsRegisteredOfficeAddress() {
         return addressSameAsRegisteredOfficeAddress;
     }
 
@@ -60,10 +59,6 @@ public class OfficerFilingDto {
 
     public Date3TupleDto getDateOfBirth() {
         return dateOfBirth;
-    }
-
-    public String geteTag() {
-        return eTag;
     }
 
     public List<FormerNameDto> getFormerNames() {
@@ -126,7 +121,7 @@ public class OfficerFilingDto {
         return residentialAddress;
     }
 
-    public boolean isResidentialAddressSameAsCorrespondenceAddress() {
+    public Boolean getResidentialAddressSameAsCorrespondenceAddress() {
         return residentialAddressSameAsCorrespondenceAddress;
     }
 
@@ -139,16 +134,13 @@ public class OfficerFilingDto {
             return false;
         }
         final OfficerFilingDto that = (OfficerFilingDto) o;
-        return isAddressSameAsRegisteredOfficeAddress() ==
-                that.isAddressSameAsRegisteredOfficeAddress() &&
-                isResidentialAddressSameAsCorrespondenceAddress() ==
-                        that.isResidentialAddressSameAsCorrespondenceAddress() &&
-                Objects.equals(getAddress(), that.getAddress()) &&
+        return Objects.equals(getAddress(), that.getAddress()) &&
+                Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
+                        that.getAddressSameAsRegisteredOfficeAddress()) &&
                 Objects.equals(getAppointedOn(), that.getAppointedOn()) &&
                 Objects.equals(getCountryOfResidence(), that.getCountryOfResidence()) &&
                 Objects.equals(getCreatedAt(), that.getCreatedAt()) &&
                 Objects.equals(getDateOfBirth(), that.getDateOfBirth()) &&
-                Objects.equals(geteTag(), that.geteTag()) &&
                 Objects.equals(getFormerNames(), that.getFormerNames()) &&
                 Objects.equals(getIdentification(), that.getIdentification()) &&
                 Objects.equals(getKind(), that.getKind()) &&
@@ -163,18 +155,20 @@ public class OfficerFilingDto {
                 Objects.equals(getResignedOn(), that.getResignedOn()) &&
                 Objects.equals(getStatus(), that.getStatus()) &&
                 Objects.equals(getUpdatedAt(), that.getUpdatedAt()) &&
-                Objects.equals(getResidentialAddress(), that.getResidentialAddress());
+                Objects.equals(getResidentialAddress(), that.getResidentialAddress()) &&
+                Objects.equals(getResidentialAddressSameAsCorrespondenceAddress(),
+                        that.getResidentialAddressSameAsCorrespondenceAddress());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAddress(), isAddressSameAsRegisteredOfficeAddress(),
+        return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getCreatedAt(), getDateOfBirth(),
-                geteTag(), getFormerNames(), getIdentification(), getKind(), getLinks(), getName(),
+                getFormerNames(), getIdentification(), getKind(), getLinks(), getName(),
                 getNationality(), getOccupation(), getOfficerRole(), getReferenceETag(),
                 getReferenceOfficerId(), getReferenceOfficerListETag(), getResignedOn(),
                 getStatus(), getUpdatedAt(), getResidentialAddress(),
-                isResidentialAddressSameAsCorrespondenceAddress());
+                getResidentialAddressSameAsCorrespondenceAddress());
     }
 
     @Override
@@ -186,7 +180,6 @@ public class OfficerFilingDto {
                 .add("countryOfResidence='" + countryOfResidence + "'")
                 .add("createdAt=" + createdAt)
                 .add("dateOfBirth=" + dateOfBirth)
-                .add("eTag='" + eTag + "'")
                 .add("formerNames=" + formerNames)
                 .add("identification=" + identification)
                 .add("kind='" + kind + "'")
@@ -252,12 +245,6 @@ public class OfficerFilingDto {
         public Builder dateOfBirth(Date3TupleDto value) {
 
             buildSteps.add(data -> data.dateOfBirth = value);
-            return this;
-        }
-
-        public Builder eTag(String value) {
-
-            buildSteps.add(data -> data.eTag = value);
             return this;
         }
 
