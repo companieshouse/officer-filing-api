@@ -197,7 +197,7 @@ public class OfficerFiling {
                 .add("nationality='" + nationality + "'")
                 .add("occupation='" + occupation + "'")
                 .add("officerRole='" + officerRole + "'")
-                .add("referenceETag='" + referenceEtag + "'")
+                .add("referenceEtag='" + referenceEtag + "'")
                 .add("referenceOfficerId='" + referenceOfficerId + "'")
                 .add("referenceOfficerListEtag='" + referenceOfficerListEtag + "'")
                 .add("resignedOn=" + resignedOn)
