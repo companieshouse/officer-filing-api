@@ -7,11 +7,11 @@ import java.util.StringJoiner;
 
 public class IdentificationDto {
 
-    private String identificationType;
-    private String legalAuthority;
-    private String legalForm;
-    private String placeRegistered;
-    private String registrationNumber;
+    private final String identificationType;
+    private final String legalAuthority;
+    private final String legalForm;
+    private final String placeRegistered;
+    private final String registrationNumber;
 
     @JsonCreator
     public IdentificationDto(@JsonProperty("identification_type") final String identificationType,

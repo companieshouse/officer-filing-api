@@ -10,7 +10,9 @@ public class FormerNameDto {
     String forenames;
     String surname;
 
-    public FormerNameDto(String forenames, String surname) {
+    @JsonCreator
+    public FormerNameDto(@JsonProperty("forenames") final String forenames,
+            @JsonProperty("surname") final String surname) {
         this.forenames = forenames;
         this.surname = surname;
     }

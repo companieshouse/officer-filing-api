@@ -64,23 +64,23 @@ public class Address {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Address address = (Address) o;
-        return getAddressLine1().equals(address.getAddressLine1()) &&
-                Objects.equals(getAddressLine2(), address.getAddressLine2()) &&
-                Objects.equals(getCareOf(), address.getCareOf()) &&
-                getCountry().equals(address.getCountry()) &&
-                Objects.equals(getLocality(), address.getLocality()) &&
-                Objects.equals(getPoBox(), address.getPoBox()) &&
-                getPostalCode().equals(address.getPostalCode()) &&
-                Objects.equals(getPremises(), address.getPremises()) &&
-                Objects.equals(getRegion(), address.getRegion());
+        final Address address = (Address) o;
+        return getAddressLine1().equals(address.getAddressLine1())
+                && Objects.equals(getAddressLine2(), address.getAddressLine2())
+                && Objects.equals(getCareOf(), address.getCareOf())
+                && getCountry().equals(address.getCountry())
+                && Objects.equals(getLocality(), address.getLocality())
+                && Objects.equals(getPoBox(), address.getPoBox())
+                && getPostalCode().equals(address.getPostalCode())
+                && Objects.equals(getPremises(), address.getPremises())
+                && Objects.equals(getRegion(), address.getRegion());
     }
 
     @Override
@@ -93,6 +93,10 @@ public class Address {
         return new Builder();
     }
 
+    public static Builder builder(final Address other) {
+        return new Builder(other);
+    }
+
     public static class Builder {
 
         List<Consumer<Address>> buildSteps;
@@ -103,55 +107,69 @@ public class Address {
 
         }
 
-        public Builder addressLine1(String value) {
+        public Builder(final Address other) {
+            this();
+            this.addressLine1(other.getAddressLine1())
+                    .addressLine2(other.getAddressLine2())
+                    .careOf(other.getCareOf())
+                    .country(other.getCountry())
+                    .locality(other.getLocality())
+                    .poBox(other.getPoBox())
+                    .postalCode(other.getPostalCode())
+                    .premises(other.getPremises())
+                    .region(other.getRegion());
+
+        }
+
+        public Builder addressLine1(final String value) {
 
             buildSteps.add(data -> data.addressLine1 = value);
             return this;
         }
 
-        public Builder addressLine2(String value) {
+        public Builder addressLine2(final String value) {
 
             buildSteps.add(data -> data.addressLine2 = value);
             return this;
         }
 
-        public Builder careOf(String value) {
+        public Builder careOf(final String value) {
 
             buildSteps.add(data -> data.careOf = value);
             return this;
         }
 
-        public Builder country(String value) {
+        public Builder country(final String value) {
 
             buildSteps.add(data -> data.country = value);
             return this;
         }
 
-        public Builder locality(String value) {
+        public Builder locality(final String value) {
 
             buildSteps.add(data -> data.locality = value);
             return this;
         }
 
-        public Builder poBox(String value) {
+        public Builder poBox(final String value) {
 
             buildSteps.add(data -> data.poBox = value);
             return this;
         }
 
-        public Builder postalCode(String value) {
+        public Builder postalCode(final String value) {
 
             buildSteps.add(data -> data.postalCode = value);
             return this;
         }
 
-        public Builder premises(String value) {
+        public Builder premises(final String value) {
 
             buildSteps.add(data -> data.premises = value);
             return this;
         }
 
-        public Builder region(String value) {
+        public Builder region(final String value) {
 
             buildSteps.add(data -> data.region = value);
             return this;
@@ -159,7 +177,7 @@ public class Address {
 
         public Address build() {
 
-            var data = new Address();
+            final var data = new Address();
             buildSteps.forEach(step -> step.accept(data));
             return data;
         }

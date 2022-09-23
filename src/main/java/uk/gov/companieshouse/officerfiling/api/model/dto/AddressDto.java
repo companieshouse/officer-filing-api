@@ -21,7 +21,8 @@ public class AddressDto {
     private String premises;
     private String region;
 
-    private AddressDto () {}
+    private AddressDto() {
+    }
 
     public String getAddressLine1() {
         return addressLine1;
@@ -63,6 +64,10 @@ public class AddressDto {
         return new Builder();
     }
 
+    public static Builder builder(final AddressDto other) {
+        return new Builder(other);
+    }
+
     public static class Builder {
 
         private final List<Consumer<AddressDto>> buildSteps;
@@ -71,55 +76,68 @@ public class AddressDto {
             this.buildSteps = new ArrayList<>();
         }
 
-        public Builder addressLine1(String value) {
+        public Builder(final AddressDto other) {
+            this();
+            this.addressLine1(other.getAddressLine1())
+                    .addressLine2(other.getAddressLine2())
+                    .careOf(other.getCareOf())
+                    .country(other.getCountry())
+                    .locality(other.getLocality())
+                    .poBox(other.getPoBox())
+                    .postalCode(other.getPostalCode())
+                    .premises(other.getPremises())
+                    .region(other.getRegion());
+        }
+
+        public Builder addressLine1(final String value) {
 
             buildSteps.add(data -> data.addressLine1 = value);
             return this;
         }
 
-        public Builder addressLine2(String value) {
+        public Builder addressLine2(final String value) {
 
             buildSteps.add(data -> data.addressLine2 = value);
             return this;
         }
 
-        public Builder careOf(String value) {
+        public Builder careOf(final String value) {
 
             buildSteps.add(data -> data.careOf = value);
             return this;
         }
 
-        public Builder country(String value) {
+        public Builder country(final String value) {
 
             buildSteps.add(data -> data.country = value);
             return this;
         }
 
-        public Builder locality(String value) {
+        public Builder locality(final String value) {
 
             buildSteps.add(data -> data.locality = value);
             return this;
         }
 
-        public Builder poBox(String value) {
+        public Builder poBox(final String value) {
 
             buildSteps.add(data -> data.poBox = value);
             return this;
         }
 
-        public Builder postalCode(String value) {
+        public Builder postalCode(final String value) {
 
             buildSteps.add(data -> data.postalCode = value);
             return this;
         }
 
-        public Builder premises(String value) {
+        public Builder premises(final String value) {
 
             buildSteps.add(data -> data.premises = value);
             return this;
         }
 
-        public Builder region(String value) {
+        public Builder region(final String value) {
 
             buildSteps.add(data -> data.region = value);
             return this;
@@ -127,7 +145,7 @@ public class AddressDto {
 
         public AddressDto build() {
 
-            AddressDto data = new AddressDto();
+            final AddressDto data = new AddressDto();
             buildSteps.forEach(step -> step.accept(data));
 
             return data;
@@ -143,15 +161,15 @@ public class AddressDto {
             return false;
         }
         final AddressDto that = (AddressDto) o;
-        return Objects.equals(getAddressLine1(), that.getAddressLine1()) &&
-                Objects.equals(getAddressLine2(), that.getAddressLine2()) &&
-                Objects.equals(getCareOf(), that.getCareOf()) &&
-                Objects.equals(getCountry(), that.getCountry()) &&
-                Objects.equals(getLocality(), that.getLocality()) &&
-                Objects.equals(getPoBox(), that.getPoBox()) &&
-                Objects.equals(getPostalCode(), that.getPostalCode()) &&
-                Objects.equals(getPremises(), that.getPremises()) &&
-                Objects.equals(getRegion(), that.getRegion());
+        return Objects.equals(getAddressLine1(), that.getAddressLine1())
+                && Objects.equals(getAddressLine2(), that.getAddressLine2())
+                && Objects.equals(getCareOf(), that.getCareOf())
+                && Objects.equals(getCountry(), that.getCountry())
+                && Objects.equals(getLocality(), that.getLocality())
+                && Objects.equals(getPoBox(), that.getPoBox())
+                && Objects.equals(getPostalCode(), that.getPostalCode())
+                && Objects.equals(getPremises(), that.getPremises())
+                && Objects.equals(getRegion(), that.getRegion());
     }
 
     @Override
@@ -163,15 +181,15 @@ public class AddressDto {
     @Override
     public String toString() {
         return new StringJoiner(", ", AddressDto.class.getSimpleName() + "[", "]").add(
-                "addressLine1='" + addressLine1 + "'")
-            .add("addressLine2='" + addressLine2 + "'")
-            .add("careOf='" + careOf + "'")
-            .add("country='" + country + "'")
-            .add("locality='" + locality + "'")
-            .add("poBox='" + poBox + "'")
-            .add("postalCode='" + postalCode + "'")
-            .add("premises='" + premises + "'")
-            .add("region='" + region + "'")
-            .toString();
+                        "addressLine1='" + addressLine1 + "'")
+                .add("addressLine2='" + addressLine2 + "'")
+                .add("careOf='" + careOf + "'")
+                .add("country='" + country + "'")
+                .add("locality='" + locality + "'")
+                .add("poBox='" + poBox + "'")
+                .add("postalCode='" + postalCode + "'")
+                .add("premises='" + premises + "'")
+                .add("region='" + region + "'")
+                .toString();
     }
 }
