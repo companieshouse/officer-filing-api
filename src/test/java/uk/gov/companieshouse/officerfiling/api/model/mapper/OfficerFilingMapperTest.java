@@ -95,11 +95,11 @@ class OfficerFilingMapperTest {
                 .links(new LinksDto(links.getSelf(), links.getValidationStatus()))
                 .name("name")
                 .officerRole("role")
-                .referenceETag("referenceETag")
+                .referenceEtag("referenceEtag")
                 .referenceOfficerId("referenceOfficerId")
                 .nationality("nation")
                 .occupation("work")
-                .referenceOfficerListETag("list")
+                .referenceOfficerListEtag("list")
                 .residentialAddress(addressDto)
                 .residentialAddressSameAsCorrespondenceAddress(true)
                 .resignedOn(localDate1)
@@ -122,13 +122,13 @@ class OfficerFilingMapperTest {
         assertThat(filing.getLinks(), is(equalTo(links)));
         assertThat(filing.getName(), is("name"));
         assertThat(filing.getOfficerRole(), is("role"));
-        assertThat(filing.getReferenceETag(), is("referenceETag"));
+        assertThat(filing.getReferenceEtag(), is("referenceEtag"));
         assertThat(filing.getReferenceOfficerId(), is("referenceOfficerId"));
         assertThat(filing.getNationality(), is("nation"));
         assertThat(filing.getOccupation(), is("work"));
-        assertThat(filing.getReferenceETag(), is("referenceETag"));
+        assertThat(filing.getReferenceEtag(), is("referenceEtag"));
         assertThat(filing.getReferenceOfficerId(), is("referenceOfficerId"));
-        assertThat(filing.getReferenceOfficerListETag(), is("list"));
+        assertThat(filing.getReferenceOfficerListEtag(), is("list"));
         assertThat(filing.getResignedOn(), is(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC)));
         assertThat(filing.getResidentialAddress(), is(equalTo(address)));
         assertThat(filing.getResidentialAddressSameAsCorrespondenceAddress(), is(true));
@@ -188,9 +188,9 @@ class OfficerFilingMapperTest {
                 .officerRole("role")
                 .nationality("nation")
                 .occupation("work")
-                .referenceETag("referenceETag")
+                .referenceEtag("referenceEtag")
                 .referenceOfficerId("referenceOfficerId")
-                .referenceOfficerListETag("list")
+                .referenceOfficerListEtag("list")
                 .residentialAddress(address)
                 .residentialAddressSameAsCorrespondenceAddress(true)
                 .resignedOn(instant1)
@@ -213,11 +213,11 @@ class OfficerFilingMapperTest {
         assertThat(dto.getLinks(), is(new LinksDto(links.getSelf(), links.getValidationStatus())));
         assertThat(dto.getName(), is("name"));
         assertThat(dto.getOfficerRole(), is("role"));
-        assertThat(dto.getReferenceETag(), is("referenceETag"));
+        assertThat(dto.getReferenceEtag(), is("referenceEtag"));
         assertThat(dto.getReferenceOfficerId(), is("referenceOfficerId"));
         assertThat(dto.getNationality(), is("nation"));
         assertThat(dto.getOccupation(), is("work"));
-        assertThat(dto.getReferenceOfficerListETag(), is("list"));
+        assertThat(dto.getReferenceOfficerListEtag(), is("list"));
         assertThat(dto.getResidentialAddress(), is(equalTo(addressDto)));
         assertThat(dto.getResidentialAddressSameAsCorrespondenceAddress(), is(true));
         assertThat(dto.getResignedOn(), is(localDate1));

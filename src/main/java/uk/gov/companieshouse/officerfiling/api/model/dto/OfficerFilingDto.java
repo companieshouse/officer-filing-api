@@ -10,7 +10,6 @@ import java.util.function.Consumer;
 
 public class OfficerFilingDto {
 
-
     private AddressDto address;
     private Boolean addressSameAsRegisteredOfficeAddress;
     private LocalDate appointedOn;
@@ -25,9 +24,9 @@ public class OfficerFilingDto {
     private String nationality;
     private String occupation;
     private String officerRole;
-    private String referenceETag;
+    private String referenceEtag;
     private String referenceOfficerId;
-    private String referenceOfficerListETag;
+    private String referenceOfficerListEtag;
     private LocalDate resignedOn;
     private String status;
     private Instant updatedAt;
@@ -93,8 +92,8 @@ public class OfficerFilingDto {
         return officerRole;
     }
 
-    public String getReferenceETag() {
-        return referenceETag;
+    public String getReferenceEtag() {
+        return referenceEtag;
     }
 
     public String getReferenceOfficerId() {
@@ -105,8 +104,8 @@ public class OfficerFilingDto {
         return resignedOn;
     }
 
-    public String getReferenceOfficerListETag() {
-        return referenceOfficerListETag;
+    public String getReferenceOfficerListEtag() {
+        return referenceOfficerListEtag;
     }
 
     public String getStatus() {
@@ -149,9 +148,9 @@ public class OfficerFilingDto {
                 Objects.equals(getNationality(), that.getNationality()) &&
                 Objects.equals(getOccupation(), that.getOccupation()) &&
                 Objects.equals(getOfficerRole(), that.getOfficerRole()) &&
-                Objects.equals(getReferenceETag(), that.getReferenceETag()) &&
+                Objects.equals(getReferenceEtag(), that.getReferenceEtag()) &&
                 Objects.equals(getReferenceOfficerId(), that.getReferenceOfficerId()) &&
-                Objects.equals(getReferenceOfficerListETag(), that.getReferenceOfficerListETag()) &&
+                Objects.equals(getReferenceOfficerListEtag(), that.getReferenceOfficerListEtag()) &&
                 Objects.equals(getResignedOn(), that.getResignedOn()) &&
                 Objects.equals(getStatus(), that.getStatus()) &&
                 Objects.equals(getUpdatedAt(), that.getUpdatedAt()) &&
@@ -165,8 +164,8 @@ public class OfficerFilingDto {
         return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getCreatedAt(), getDateOfBirth(),
                 getFormerNames(), getIdentification(), getKind(), getLinks(), getName(),
-                getNationality(), getOccupation(), getOfficerRole(), getReferenceETag(),
-                getReferenceOfficerId(), getReferenceOfficerListETag(), getResignedOn(),
+                getNationality(), getOccupation(), getOfficerRole(), getReferenceEtag(),
+                getReferenceOfficerId(), getReferenceOfficerListEtag(), getResignedOn(),
                 getStatus(), getUpdatedAt(), getResidentialAddress(),
                 getResidentialAddressSameAsCorrespondenceAddress());
     }
@@ -188,9 +187,9 @@ public class OfficerFilingDto {
                 .add("nationality='" + nationality + "'")
                 .add("occupation='" + occupation + "'")
                 .add("officerRole='" + officerRole + "'")
-                .add("referenceETag='" + referenceETag + "'")
+                .add("referenceEtag='" + referenceEtag + "'")
                 .add("referenceOfficerId='" + referenceOfficerId + "'")
-                .add("referenceOfficerListETag='" + referenceOfficerListETag + "'")
+                .add("referenceOfficerListEtag='" + referenceOfficerListEtag + "'")
                 .add("resignedOn=" + resignedOn)
                 .add("status='" + status + "'")
                 .add("updatedAt=" + updatedAt)
@@ -296,9 +295,9 @@ public class OfficerFilingDto {
             return this;
         }
 
-        public Builder referenceETag(String value) {
+        public Builder referenceEtag(String value) {
 
-            buildSteps.add(data -> data.referenceETag = value);
+            buildSteps.add(data -> data.referenceEtag = value);
             return this;
         }
 
@@ -308,9 +307,9 @@ public class OfficerFilingDto {
             return this;
         }
 
-        public Builder referenceOfficerListETag(String value) {
+        public Builder referenceOfficerListEtag(String value) {
 
-            buildSteps.add(data -> data.referenceOfficerListETag = value);
+            buildSteps.add(data -> data.referenceOfficerListEtag = value);
             return this;
         }
 
