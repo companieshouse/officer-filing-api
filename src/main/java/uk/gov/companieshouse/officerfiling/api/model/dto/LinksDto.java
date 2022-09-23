@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.net.URI;
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -8,7 +10,8 @@ public class LinksDto {
     private URI self;
     private String validationStatus;
 
-    public LinksDto(final URI self, final String validationStatus) {
+    @JsonCreator
+    public LinksDto(@JsonProperty("self") final URI self, @JsonProperty("validation_status") final String validationStatus) {
         this.self = self;
         this.validationStatus = validationStatus;
     }

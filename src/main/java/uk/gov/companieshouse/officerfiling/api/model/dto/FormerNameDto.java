@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -30,8 +32,8 @@ public class FormerNameDto {
             return false;
         }
         final FormerNameDto that = (FormerNameDto) o;
-        return Objects.equals(getForenames(), that.getForenames()) &&
-                Objects.equals(getSurname(), that.getSurname());
+        return Objects.equals(getForenames(), that.getForenames()) && Objects.equals(getSurname(),
+                that.getSurname());
     }
 
     @Override

@@ -1,14 +1,18 @@
 package uk.gov.companieshouse.officerfiling.api.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 import java.util.StringJoiner;
 
 public class Date3TupleDto {
-        private int day;
-        private int month;
-        private int year;
+    private final int day;
+    private final int month;
+    private final int year;
 
-    public Date3TupleDto(final int day, final int month, final int year) {
+    @JsonCreator
+    public Date3TupleDto(@JsonProperty("day") final int day, @JsonProperty("month") final int month,
+            @JsonProperty("year") final int year) {
         this.day = day;
         this.month = month;
         this.year = year;
@@ -35,9 +39,8 @@ public class Date3TupleDto {
             return false;
         }
         final Date3TupleDto that = (Date3TupleDto) o;
-        return Objects.equals(getDay(), that.getDay()) &&
-                Objects.equals(getMonth(), that.getMonth()) &&
-                Objects.equals(getYear(), that.getYear());
+        return Objects.equals(getDay(), that.getDay()) && Objects.equals(getMonth(),
+                that.getMonth()) && Objects.equals(getYear(), that.getYear());
     }
 
     @Override

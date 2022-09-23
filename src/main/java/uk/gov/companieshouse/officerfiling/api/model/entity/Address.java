@@ -6,12 +6,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import javax.validation.constraints.NotNull;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Address {
 
     @NotNull
+    @Field("address_line_1")
     private String addressLine1;
+    @Field("address_line_2")
     private String addressLine2;
     private String careOf;
     private String country;
