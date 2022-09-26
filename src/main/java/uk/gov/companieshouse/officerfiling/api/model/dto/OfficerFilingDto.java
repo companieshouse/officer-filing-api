@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.model.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@JsonDeserialize(builder = OfficerFilingDto.Builder.class)
 public class OfficerFilingDto {
 
     private AddressDto address;
@@ -162,6 +165,7 @@ public class OfficerFilingDto {
         return new Builder();
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
 
         private final List<Consumer<OfficerFilingDto>> buildSteps;

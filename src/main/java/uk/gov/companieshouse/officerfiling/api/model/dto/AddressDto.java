@@ -1,12 +1,15 @@
 package uk.gov.companieshouse.officerfiling.api.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
 
+@JsonDeserialize(builder = AddressDto.Builder.class)
 public class AddressDto {
 
     @JsonProperty("address_line_1")
@@ -68,6 +71,7 @@ public class AddressDto {
         return new Builder(other);
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
 
         private final List<Consumer<AddressDto>> buildSteps;
@@ -89,12 +93,14 @@ public class AddressDto {
                     .region(other.getRegion());
         }
 
+        @JsonProperty("address_line_1")
         public Builder addressLine1(final String value) {
 
             buildSteps.add(data -> data.addressLine1 = value);
             return this;
         }
 
+        @JsonProperty("address_line_2")
         public Builder addressLine2(final String value) {
 
             buildSteps.add(data -> data.addressLine2 = value);
