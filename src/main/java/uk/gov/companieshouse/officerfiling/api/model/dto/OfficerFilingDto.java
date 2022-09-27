@@ -1,35 +1,34 @@
 package uk.gov.companieshouse.officerfiling.api.model.dto;
 
-import java.time.Instant;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+@JsonDeserialize(builder = OfficerFilingDto.Builder.class)
 public class OfficerFilingDto {
 
     private AddressDto address;
     private Boolean addressSameAsRegisteredOfficeAddress;
     private LocalDate appointedOn;
     private String countryOfResidence;
-    private Instant createdAt;
     private Date3TupleDto dateOfBirth;
     private List<FormerNameDto> formerNames;
     private IdentificationDto identification;
-    private String kind;
-    private LinksDto links;
     private String name;
     private String nationality;
     private String occupation;
-    private String officerRole;
     private String referenceEtag;
     private String referenceOfficerId;
     private String referenceOfficerListEtag;
     private LocalDate resignedOn;
-    private String status;
-    private Instant updatedAt;
     private AddressDto residentialAddress;
     private Boolean residentialAddressSameAsCorrespondenceAddress;
 
@@ -52,10 +51,6 @@ public class OfficerFilingDto {
         return countryOfResidence;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
     public Date3TupleDto getDateOfBirth() {
         return dateOfBirth;
     }
@@ -68,14 +63,6 @@ public class OfficerFilingDto {
         return identification;
     }
 
-    public String getKind() {
-        return kind;
-    }
-
-    public LinksDto getLinks() {
-        return links;
-    }
-
     public String getName() {
         return name;
     }
@@ -86,10 +73,6 @@ public class OfficerFilingDto {
 
     public String getOccupation() {
         return occupation;
-    }
-
-    public String getOfficerRole() {
-        return officerRole;
     }
 
     public String getReferenceEtag() {
@@ -106,14 +89,6 @@ public class OfficerFilingDto {
 
     public String getReferenceOfficerListEtag() {
         return referenceOfficerListEtag;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
     }
 
     public AddressDto getResidentialAddress() {
@@ -133,40 +108,33 @@ public class OfficerFilingDto {
             return false;
         }
         final OfficerFilingDto that = (OfficerFilingDto) o;
-        return Objects.equals(getAddress(), that.getAddress()) &&
-                Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
-                        that.getAddressSameAsRegisteredOfficeAddress()) &&
-                Objects.equals(getAppointedOn(), that.getAppointedOn()) &&
-                Objects.equals(getCountryOfResidence(), that.getCountryOfResidence()) &&
-                Objects.equals(getCreatedAt(), that.getCreatedAt()) &&
-                Objects.equals(getDateOfBirth(), that.getDateOfBirth()) &&
-                Objects.equals(getFormerNames(), that.getFormerNames()) &&
-                Objects.equals(getIdentification(), that.getIdentification()) &&
-                Objects.equals(getKind(), that.getKind()) &&
-                Objects.equals(getLinks(), that.getLinks()) &&
-                Objects.equals(getName(), that.getName()) &&
-                Objects.equals(getNationality(), that.getNationality()) &&
-                Objects.equals(getOccupation(), that.getOccupation()) &&
-                Objects.equals(getOfficerRole(), that.getOfficerRole()) &&
-                Objects.equals(getReferenceEtag(), that.getReferenceEtag()) &&
-                Objects.equals(getReferenceOfficerId(), that.getReferenceOfficerId()) &&
-                Objects.equals(getReferenceOfficerListEtag(), that.getReferenceOfficerListEtag()) &&
-                Objects.equals(getResignedOn(), that.getResignedOn()) &&
-                Objects.equals(getStatus(), that.getStatus()) &&
-                Objects.equals(getUpdatedAt(), that.getUpdatedAt()) &&
-                Objects.equals(getResidentialAddress(), that.getResidentialAddress()) &&
-                Objects.equals(getResidentialAddressSameAsCorrespondenceAddress(),
-                        that.getResidentialAddressSameAsCorrespondenceAddress());
+        return Objects.equals(getAddress(), that.getAddress())
+                && Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
+                that.getAddressSameAsRegisteredOfficeAddress())
+                && Objects.equals(getAppointedOn(), that.getAppointedOn())
+                && Objects.equals(getCountryOfResidence(), that.getCountryOfResidence())
+                && Objects.equals(getDateOfBirth(), that.getDateOfBirth())
+                && Objects.equals(getFormerNames(), that.getFormerNames())
+                && Objects.equals(getIdentification(), that.getIdentification())
+                && Objects.equals(getName(), that.getName())
+                && Objects.equals(getNationality(), that.getNationality())
+                && Objects.equals(getOccupation(), that.getOccupation())
+                && Objects.equals(getReferenceEtag(), that.getReferenceEtag())
+                && Objects.equals(getReferenceOfficerId(), that.getReferenceOfficerId())
+                && Objects.equals(getReferenceOfficerListEtag(), that.getReferenceOfficerListEtag())
+                && Objects.equals(getResignedOn(), that.getResignedOn())
+                && Objects.equals(getResidentialAddress(), that.getResidentialAddress())
+                && Objects.equals(getResidentialAddressSameAsCorrespondenceAddress(),
+                that.getResidentialAddressSameAsCorrespondenceAddress());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
-                getAppointedOn(), getCountryOfResidence(), getCreatedAt(), getDateOfBirth(),
-                getFormerNames(), getIdentification(), getKind(), getLinks(), getName(),
-                getNationality(), getOccupation(), getOfficerRole(), getReferenceEtag(),
-                getReferenceOfficerId(), getReferenceOfficerListEtag(), getResignedOn(),
-                getStatus(), getUpdatedAt(), getResidentialAddress(),
+                getAppointedOn(), getCountryOfResidence(), getDateOfBirth(), getFormerNames(),
+                getIdentification(), getName(), getNationality(), getOccupation(),
+                getReferenceEtag(), getReferenceOfficerId(), getReferenceOfficerListEtag(),
+                getResignedOn(), getResidentialAddress(),
                 getResidentialAddressSameAsCorrespondenceAddress());
     }
 
@@ -177,25 +145,19 @@ public class OfficerFilingDto {
                 .add("addressSameAsRegisteredOfficeAddress=" + addressSameAsRegisteredOfficeAddress)
                 .add("appointedOn=" + appointedOn)
                 .add("countryOfResidence='" + countryOfResidence + "'")
-                .add("createdAt=" + createdAt)
                 .add("dateOfBirth=" + dateOfBirth)
                 .add("formerNames=" + formerNames)
                 .add("identification=" + identification)
-                .add("kind='" + kind + "'")
-                .add("links=" + links)
                 .add("name='" + name + "'")
                 .add("nationality='" + nationality + "'")
                 .add("occupation='" + occupation + "'")
-                .add("officerRole='" + officerRole + "'")
                 .add("referenceEtag='" + referenceEtag + "'")
                 .add("referenceOfficerId='" + referenceOfficerId + "'")
                 .add("referenceOfficerListEtag='" + referenceOfficerListEtag + "'")
                 .add("resignedOn=" + resignedOn)
-                .add("status='" + status + "'")
-                .add("updatedAt=" + updatedAt)
                 .add("residentialAddress=" + residentialAddress)
-                .add("residentialAddressSameAsCorrespondenceAddress=" +
-                        residentialAddressSameAsCorrespondenceAddress)
+                .add("residentialAddressSameAsCorrespondenceAddress="
+                        + residentialAddressSameAsCorrespondenceAddress)
                 .toString();
     }
 
@@ -203,6 +165,7 @@ public class OfficerFilingDto {
         return new Builder();
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
 
         private final List<Consumer<OfficerFilingDto>> buildSteps;
@@ -211,133 +174,113 @@ public class OfficerFilingDto {
             this.buildSteps = new ArrayList<>();
         }
 
-        public Builder address(AddressDto value) {
+        public Builder address(final AddressDto value) {
 
-            buildSteps.add(data -> data.address = value);
+            buildSteps.add(data -> data.address = Optional.ofNullable(value)
+                    .map(v -> AddressDto.builder(v)
+                            .build())
+                    .orElse(null));
             return this;
         }
 
-        public Builder addressSameAsRegisteredOfficeAddress(Boolean value) {
+        public Builder addressSameAsRegisteredOfficeAddress(final Boolean value) {
 
             buildSteps.add(data -> data.addressSameAsRegisteredOfficeAddress = value);
             return this;
         }
 
-        public Builder appointedOn(LocalDate value) {
+        public Builder appointedOn(final LocalDate value) {
 
             buildSteps.add(data -> data.appointedOn = value);
             return this;
         }
 
-        public Builder countryOfResidence(String value) {
+        public Builder countryOfResidence(final String value) {
 
             buildSteps.add(data -> data.countryOfResidence = value);
             return this;
         }
 
-        public Builder createdAt(Instant value) {
+        public Builder dateOfBirth(final Date3TupleDto value) {
 
-            buildSteps.add(data -> data.createdAt = value);
+            buildSteps.add(data -> data.dateOfBirth = Optional.ofNullable(value)
+                    .map(v -> new Date3TupleDto(v.getDay(), v.getMonth(), v.getYear()))
+                    .orElse(null));
             return this;
         }
 
-        public Builder dateOfBirth(Date3TupleDto value) {
+        public Builder formerNames(final List<FormerNameDto> value) {
 
-            buildSteps.add(data -> data.dateOfBirth = value);
+            buildSteps.add(data -> data.formerNames = value == null
+                    ? null
+                    : value.stream()
+                            .flatMap(Stream::ofNullable)
+                            .map(v -> new FormerNameDto(v.getForenames(), v.getSurname()))
+                            .collect(Collectors.toList()));
             return this;
         }
 
-        public Builder formerNames(List<FormerNameDto> value) {
+        public Builder identification(final IdentificationDto value) {
 
-            buildSteps.add(data -> data.formerNames = value);
+            buildSteps.add(data -> data.identification = Optional.ofNullable(value)
+                    .map(v -> new IdentificationDto(v.getIdentificationType(), v.getLegalAuthority(),
+                            v.getLegalForm(), v.getPlaceRegistered(), v.getRegistrationNumber()))
+                    .orElse(null));
             return this;
         }
 
-        public Builder identification(IdentificationDto value) {
-
-            buildSteps.add(data -> data.identification = value);
-            return this;
-        }
-
-        public Builder kind(String value) {
-
-            buildSteps.add(data -> data.kind = value);
-            return this;
-        }
-
-        public Builder links(LinksDto value) {
-
-            buildSteps.add(data -> data.links = value);
-            return this;
-        }
-
-        public Builder name(String value) {
+        public Builder name(final String value) {
 
             buildSteps.add(data -> data.name = value);
             return this;
         }
 
-        public Builder nationality(String value) {
+        public Builder nationality(final String value) {
 
             buildSteps.add(data -> data.nationality = value);
             return this;
         }
 
-        public Builder occupation(String value) {
+        public Builder occupation(final String value) {
 
             buildSteps.add(data -> data.occupation = value);
             return this;
         }
 
-        public Builder officerRole(String value) {
-
-            buildSteps.add(data -> data.officerRole = value);
-            return this;
-        }
-
-        public Builder referenceEtag(String value) {
+        public Builder referenceEtag(final String value) {
 
             buildSteps.add(data -> data.referenceEtag = value);
             return this;
         }
 
-        public Builder referenceOfficerId(String value) {
+        public Builder referenceOfficerId(final String value) {
 
             buildSteps.add(data -> data.referenceOfficerId = value);
             return this;
         }
 
-        public Builder referenceOfficerListEtag(String value) {
+        public Builder referenceOfficerListEtag(final String value) {
 
             buildSteps.add(data -> data.referenceOfficerListEtag = value);
             return this;
         }
 
-        public Builder resignedOn(LocalDate value) {
+        public Builder resignedOn(final LocalDate value) {
 
             buildSteps.add(data -> data.resignedOn = value);
             return this;
         }
 
-        public Builder status(String value) {
+        public Builder residentialAddress(final AddressDto value) {
 
-            buildSteps.add(data -> data.status = value);
+            buildSteps.add(data -> data.residentialAddress = Optional.ofNullable(value)
+                    .map(v -> AddressDto.builder(v)
+                            .build())
+                    .orElse(null));
             return this;
         }
 
-        public Builder updatedAt(Instant value) {
-
-            buildSteps.add(data -> data.updatedAt = value);
-            return this;
-        }
-
-        public Builder residentialAddress(AddressDto value) {
-
-            buildSteps.add(data -> data.residentialAddress = value);
-            return this;
-        }
-
-        public Builder residentialAddressSameAsCorrespondenceAddress(Boolean value) {
+        public Builder residentialAddressSameAsCorrespondenceAddress(final Boolean value) {
 
             buildSteps.add(data -> data.residentialAddressSameAsCorrespondenceAddress = value);
             return this;
@@ -345,7 +288,7 @@ public class OfficerFilingDto {
 
         public OfficerFilingDto build() {
 
-            OfficerFilingDto data = new OfficerFilingDto();
+            final OfficerFilingDto data = new OfficerFilingDto();
             buildSteps.forEach(step -> step.accept(data));
 
             return data;

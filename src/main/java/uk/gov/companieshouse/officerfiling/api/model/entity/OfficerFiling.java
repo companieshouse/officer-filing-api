@@ -5,8 +5,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -39,7 +42,8 @@ public class OfficerFiling {
     private Address residentialAddress;
     private Boolean residentialAddressSameAsCorrespondenceAddress;
 
-    private OfficerFiling() {}
+    private OfficerFiling() {
+    }
 
     public String getId() {
         return id;
@@ -142,30 +146,30 @@ public class OfficerFiling {
             return false;
         }
         final OfficerFiling that = (OfficerFiling) o;
-        return Objects.equals(getAddress(), that.getAddress()) &&
-                Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
-                        that.getAddressSameAsRegisteredOfficeAddress()) &&
-                Objects.equals(getAppointedOn(), that.getAppointedOn()) &&
-                Objects.equals(getCountryOfResidence(), that.getCountryOfResidence()) &&
-                Objects.equals(getCreatedAt(), that.getCreatedAt()) &&
-                Objects.equals(getDateOfBirth(), that.getDateOfBirth()) &&
-                Objects.equals(getFormerNames(), that.getFormerNames()) &&
-                Objects.equals(getIdentification(), that.getIdentification()) &&
-                Objects.equals(getKind(), that.getKind()) &&
-                Objects.equals(getLinks(), that.getLinks()) &&
-                Objects.equals(getName(), that.getName()) &&
-                Objects.equals(getNationality(), that.getNationality()) &&
-                Objects.equals(getOccupation(), that.getOccupation()) &&
-                Objects.equals(getOfficerRole(), that.getOfficerRole()) &&
-                Objects.equals(getReferenceEtag(), that.getReferenceEtag()) &&
-                Objects.equals(getReferenceOfficerId(), that.getReferenceOfficerId()) &&
-                Objects.equals(getReferenceOfficerListEtag(), that.getReferenceOfficerListEtag()) &&
-                Objects.equals(getResignedOn(), that.getResignedOn()) &&
-                Objects.equals(getStatus(), that.getStatus()) &&
-                Objects.equals(getUpdatedAt(), that.getUpdatedAt()) &&
-                Objects.equals(getResidentialAddress(), that.getResidentialAddress()) &&
-                Objects.equals(getResidentialAddressSameAsCorrespondenceAddress(),
-                        that.getResidentialAddressSameAsCorrespondenceAddress());
+        return Objects.equals(getAddress(), that.getAddress())
+                && Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
+                that.getAddressSameAsRegisteredOfficeAddress())
+                && Objects.equals(getAppointedOn(), that.getAppointedOn())
+                && Objects.equals(getCountryOfResidence(), that.getCountryOfResidence())
+                && Objects.equals(getCreatedAt(), that.getCreatedAt())
+                && Objects.equals(getDateOfBirth(), that.getDateOfBirth())
+                && Objects.equals(getFormerNames(), that.getFormerNames())
+                && Objects.equals(getIdentification(), that.getIdentification())
+                && Objects.equals(getKind(), that.getKind())
+                && Objects.equals(getLinks(), that.getLinks())
+                && Objects.equals(getName(), that.getName())
+                && Objects.equals(getNationality(), that.getNationality())
+                && Objects.equals(getOccupation(), that.getOccupation())
+                && Objects.equals(getOfficerRole(), that.getOfficerRole())
+                && Objects.equals(getReferenceEtag(), that.getReferenceEtag())
+                && Objects.equals(getReferenceOfficerId(), that.getReferenceOfficerId())
+                && Objects.equals(getReferenceOfficerListEtag(), that.getReferenceOfficerListEtag())
+                && Objects.equals(getResignedOn(), that.getResignedOn())
+                && Objects.equals(getStatus(), that.getStatus())
+                && Objects.equals(getUpdatedAt(), that.getUpdatedAt())
+                && Objects.equals(getResidentialAddress(), that.getResidentialAddress())
+                && Objects.equals(getResidentialAddressSameAsCorrespondenceAddress(),
+                that.getResidentialAddressSameAsCorrespondenceAddress());
     }
 
     @Override
@@ -204,13 +208,17 @@ public class OfficerFiling {
                 .add("status='" + status + "'")
                 .add("updatedAt=" + updatedAt)
                 .add("residentialAddress=" + residentialAddress)
-                .add("residentialAddressSameAsCorrespondenceAddress=" +
-                        residentialAddressSameAsCorrespondenceAddress)
+                .add("residentialAddressSameAsCorrespondenceAddress="
+                        + residentialAddressSameAsCorrespondenceAddress)
                 .toString();
     }
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    public static Builder builder(final OfficerFiling other) {
+        return new Builder(other);
     }
 
     public static class Builder {
@@ -221,140 +229,191 @@ public class OfficerFiling {
             buildSteps = new ArrayList<>();
         }
 
-        public Builder address(Address value) {
+        public Builder(final OfficerFiling other) {
+            this();
+            this.id(other.getId())
+                    .address(other.getAddress())
+                    .addressSameAsRegisteredOfficeAddress(
+                            other.getAddressSameAsRegisteredOfficeAddress())
+                    .appointedOn(other.getAppointedOn())
+                    .countryOfResidence(other.getCountryOfResidence())
+                    .createdAt(other.getCreatedAt())
+                    .dateOfBirth(other.getDateOfBirth())
+                    .formerNames(other.getFormerNames())
+                    .identification(other.getIdentification())
+                    .kind(other.getKind())
+                    .links(other.getLinks())
+                    .name(other.getName())
+                    .nationality(other.getNationality())
+                    .occupation(other.getOccupation())
+                    .officerRole(other.getOfficerRole())
+                    .referenceEtag(other.getReferenceEtag())
+                    .referenceOfficerId(other.getReferenceOfficerId())
+                    .referenceOfficerListEtag(other.getReferenceOfficerListEtag())
+                    .residentialAddress(other.getResidentialAddress())
+                    .residentialAddressSameAsCorrespondenceAddress(
+                            other.getResidentialAddressSameAsCorrespondenceAddress())
+                    .resignedOn(other.getResignedOn())
+                    .status(other.getStatus())
+                    .updatedAt(other.getUpdatedAt());
+        }
 
-            buildSteps.add(data -> data.address = value);
+        public Builder id(final String value) {
+            buildSteps.add(data -> data.id = value);
             return this;
         }
 
-        public Builder addressSameAsRegisteredOfficeAddress(Boolean value) {
+        public Builder address(final Address value) {
+
+            buildSteps.add(data -> data.address = Optional.ofNullable(value)
+                    .map(v -> Address.builder(v)
+                            .build())
+                    .orElse(null));
+            return this;
+        }
+
+        public Builder addressSameAsRegisteredOfficeAddress(final Boolean value) {
 
             buildSteps.add(data -> data.addressSameAsRegisteredOfficeAddress = value);
             return this;
         }
 
-        public Builder appointedOn(Instant value) {
+        public Builder appointedOn(final Instant value) {
 
             buildSteps.add(data -> data.appointedOn = value);
             return this;
         }
 
-        public Builder countryOfResidence(String value) {
+        public Builder countryOfResidence(final String value) {
 
             buildSteps.add(data -> data.countryOfResidence = value);
             return this;
         }
 
-        public Builder createdAt(Instant value) {
+        public Builder createdAt(final Instant value) {
 
             buildSteps.add(data -> data.createdAt = value);
             return this;
         }
 
-        public Builder dateOfBirth(Date3Tuple value) {
+        public Builder dateOfBirth(final Date3Tuple value) {
 
-            buildSteps.add(data -> data.dateOfBirth = value);
+            buildSteps.add(data -> data.dateOfBirth = Optional.ofNullable(value)
+                    .map(v -> new Date3Tuple(v.getDay(), v.getMonth(), v.getYear()))
+                    .orElse(null));
             return this;
         }
 
-        public Builder formerNames(List<FormerName> value) {
-
-            buildSteps.add(data -> data.formerNames = value);
+        public Builder formerNames(final List<FormerName> value) {
+            buildSteps.add(data -> data.formerNames = value == null
+                    ? null
+                    : value.stream()
+                            .flatMap(Stream::ofNullable)
+                            .map(v -> new FormerName(v.getForenames(), v.getSurname()))
+                            .collect(Collectors.toList()));
             return this;
         }
 
-        public Builder identification(Identification value) {
+        public Builder identification(final Identification value) {
 
-            buildSteps.add(data -> data.identification = value);
+            buildSteps.add(data -> data.identification = Optional.ofNullable(value)
+                    .map(v -> new Identification(v.getIdentificationType(), v.getLegalAuthority(),
+                            v.getLegalForm(), v.getPlaceRegistered(), v.getRegistrationNumber()))
+                    .orElse(null));
             return this;
         }
 
-        public Builder kind(String value) {
+        public Builder kind(final String value) {
 
             buildSteps.add(data -> data.kind = value);
             return this;
         }
 
-        public Builder links(Links value) {
+        public Builder links(final Links value) {
 
-            buildSteps.add(data -> data.links = value);
+            buildSteps.add(data -> data.links = Optional.ofNullable(value)
+                    .map(v -> new Links(v.getSelf(), v.getValidationStatus()))
+                    .orElse(null));
             return this;
         }
 
-        public Builder name(String value) {
+        public Builder name(final String value) {
 
             buildSteps.add(data -> data.name = value);
             return this;
         }
 
-        public Builder nationality(String value) {
+        public Builder nationality(final String value) {
 
             buildSteps.add(data -> data.nationality = value);
             return this;
         }
 
-        public Builder occupation(String value) {
+        public Builder occupation(final String value) {
 
             buildSteps.add(data -> data.occupation = value);
             return this;
         }
 
-        public Builder officerRole(String value) {
+        public Builder officerRole(final String value) {
 
             buildSteps.add(data -> data.officerRole = value);
             return this;
         }
 
-        public Builder referenceEtag(String value) {
+        public Builder referenceEtag(final String value) {
 
             buildSteps.add(data -> data.referenceEtag = value);
             return this;
         }
 
-        public Builder referenceOfficerId(String value) {
+        public Builder referenceOfficerId(final String value) {
 
             buildSteps.add(data -> data.referenceOfficerId = value);
             return this;
         }
 
-        public Builder referenceOfficerListEtag(String value) {
+        public Builder referenceOfficerListEtag(final String value) {
 
             buildSteps.add(data -> data.referenceOfficerListEtag = value);
             return this;
         }
 
-        public Builder resignedOn(Instant value) {
+        public Builder resignedOn(final Instant value) {
 
             buildSteps.add(data -> data.resignedOn = value);
             return this;
         }
 
-        public Builder status(String value) {
+        public Builder status(final String value) {
 
             buildSteps.add(data -> data.status = value);
             return this;
         }
 
-        public Builder updatedAt(Instant value) {
+        public Builder updatedAt(final Instant value) {
 
             buildSteps.add(data -> data.updatedAt = value);
             return this;
         }
 
-        public Builder residentialAddress(Address value) {
+        public Builder residentialAddress(final Address value) {
 
-            buildSteps.add(data -> data.residentialAddress = value);
+            buildSteps.add(data -> data.residentialAddress = Optional.ofNullable(value)
+                    .map(v -> Address.builder(v)
+                            .build())
+                    .orElse(null));
             return this;
         }
 
-        public Builder residentialAddressSameAsCorrespondenceAddress(Boolean value) {
+        public Builder residentialAddressSameAsCorrespondenceAddress(final Boolean value) {
 
             buildSteps.add(data -> data.residentialAddressSameAsCorrespondenceAddress = value);
             return this;
         }
 
         public OfficerFiling build() {
-            var officerFiling = new OfficerFiling();
+            final var officerFiling = new OfficerFiling();
             buildSteps.forEach(s -> s.accept(officerFiling));
 
             return officerFiling;

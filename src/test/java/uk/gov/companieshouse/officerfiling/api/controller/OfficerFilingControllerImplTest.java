@@ -39,6 +39,7 @@ class OfficerFilingControllerImplTest {
     @Test
     void createFiling() {
         when(filingMapper.map(dto)).thenReturn(filing);
+        when(officerFilingService.save(filing)).thenReturn(OfficerFiling.builder().id("1001001").build());
 
         final var response = testController.createFiling("id", dto, result);
 
