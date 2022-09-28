@@ -10,7 +10,7 @@ public class FormerName {
     String forenames;
     String surname;
 
-    public FormerName(String forenames, String surname) {
+    public FormerName(final String forenames, final String surname) {
         this.forenames = forenames;
         this.surname = surname;
     }
