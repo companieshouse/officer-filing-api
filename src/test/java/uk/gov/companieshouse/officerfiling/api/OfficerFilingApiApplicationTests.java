@@ -11,9 +11,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class OfficerFilingApiApplicationTests {
 
-	@Test
-	void contextLoads() {
+    @Test
+    void contextLoads() {
         assertThat("TODO", is(not(emptyString())));
-	}
+    }
 
 }
