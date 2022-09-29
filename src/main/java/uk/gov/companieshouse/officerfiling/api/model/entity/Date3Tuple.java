@@ -4,9 +4,9 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 public class Date3Tuple {
-        private int day;
-        private int month;
-        private int year;
+        private final int day;
+        private final int month;
+        private final int year;
 
     public Date3Tuple(final int day, final int month, final int year) {
         this.day = day;

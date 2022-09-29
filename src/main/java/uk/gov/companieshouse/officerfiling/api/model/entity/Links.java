@@ -5,10 +5,10 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 public class Links {
-    private URI self;
-    private String validationStatus;
+    private final URI self;
+    private final URI validationStatus;
 
-    public Links(final URI self, final String validationStatus) {
+    public Links(final URI self, final URI validationStatus) {
         this.self = self;
         this.validationStatus = validationStatus;
     }
@@ -17,7 +17,7 @@ public class Links {
         return self;
     }
 
-    public String getValidationStatus() {
+    public URI getValidationStatus() {
         return validationStatus;
     }
 
@@ -30,8 +30,8 @@ public class Links {
             return false;
         }
         final Links links = (Links) o;
-        return Objects.equals(getSelf(), links.getSelf()) &&
-                Objects.equals(getValidationStatus(), links.getValidationStatus());
+        return Objects.equals(getSelf(), links.getSelf()) && Objects.equals(getValidationStatus(),
+                links.getValidationStatus());
     }
 
     @Override
@@ -42,7 +42,7 @@ public class Links {
     @Override
     public String toString() {
         return new StringJoiner(", ", Links.class.getSimpleName() + "[", "]").add("self=" + self)
-                .add("validationStatus='" + validationStatus + "'")
+                .add("validationStatus=" + validationStatus)
                 .toString();
     }
 }

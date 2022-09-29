@@ -28,6 +28,8 @@ import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 
 class OfficerFilingMapperTest {
 
+    public static final String SELF_URI =
+            "/transactions/197315-203316-322377/officers/3AftpfAa8RAq7EC3jKC6l7YDJ88=";
     private Address address;
     private AddressDto addressDto;
     private LocalDate localDate1;
@@ -74,9 +76,7 @@ class OfficerFilingMapperTest {
                 new FormerName("f3", "n3"));
         identification = new Identification("type", "auth", "legal", "place", "number");
         identificationDto = new IdentificationDto("type", "auth", "legal", "place", "number");
-        links = new Links(URI.create(
-                "/transactions/197315-203316-322377/officers/3AftpfAa8RAq7EC3jKC6l7YDJ88="),
-                "status");
+        links = new Links(URI.create(SELF_URI), URI.create(SELF_URI + "validation_status"));
     }
 
     @Test

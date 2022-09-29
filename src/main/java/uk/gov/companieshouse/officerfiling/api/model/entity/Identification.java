@@ -7,14 +7,14 @@ import java.util.StringJoiner;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Identification {
 
-    private String identificationType;
-    private String legalAuthority;
-    private String legalForm;
-    private String placeRegistered;
-    private String registrationNumber;
+    private final String identificationType;
+    private final String legalAuthority;
+    private final String legalForm;
+    private final String placeRegistered;
+    private final String registrationNumber;
 
-    public Identification(String identificationType, String legalAuthority, String legalForm,
-                          String placeRegistered, String registrationNumber) {
+    public Identification(final String identificationType, final String legalAuthority, final String legalForm,
+                          final String placeRegistered, final String registrationNumber) {
         this.identificationType = identificationType;
         this.legalAuthority = legalAuthority;
         this.legalForm = legalForm;
@@ -43,14 +43,14 @@ public class Identification {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Identification that = (Identification) o;
+        final Identification that = (Identification) o;
         return Objects.equals(getIdentificationType(), that.getIdentificationType()) &&
             Objects.equals(getLegalAuthority(), that.getLegalAuthority()) &&
             Objects.equals(getLegalForm(), that.getLegalForm()) &&

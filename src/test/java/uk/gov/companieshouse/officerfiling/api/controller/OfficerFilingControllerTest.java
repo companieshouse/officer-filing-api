@@ -3,6 +3,7 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -18,11 +19,13 @@ class OfficerFilingControllerTest {
     private OfficerFilingDto dto;
     @Mock
     private BindingResult bindingResult;
+    @Mock
+    private HttpServletRequest request;
 
     @Test
     void createFiling() {
         final var response = new OfficerFilingController() {
-        }.createFiling("trans-id", dto, bindingResult);
+        }.createFiling("trans-id", dto, bindingResult, request);
 
         assertThat(response.getStatusCode(), is(HttpStatus.NOT_IMPLEMENTED));
     }
