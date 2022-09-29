@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
@@ -12,8 +13,9 @@ import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 
 public interface OfficerFilingController {
     @PostMapping
-    default ResponseEntity<Object> createFiling(@PathVariable("transId") String transId,
-            @RequestBody @Valid @NotNull OfficerFilingDto dto, BindingResult result) {
+    default ResponseEntity<Object> createFiling(@PathVariable("transId") final String transId,
+            @RequestBody @Valid @NotNull final OfficerFilingDto dto, final BindingResult result,
+            final HttpServletRequest request) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 }

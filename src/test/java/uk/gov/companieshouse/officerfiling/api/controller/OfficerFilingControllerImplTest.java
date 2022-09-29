@@ -2,9 +2,18 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.officerfiling.api.controller.OfficerFilingControllerImpl.VALIDATION_STATUS;
 
+import java.net.URI;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,38 +21,104 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.util.UriComponentsBuilder;
+import uk.gov.companieshouse.api.model.transaction.Resource;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
+import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
+import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 @ExtendWith(MockitoExtension.class)
 class OfficerFilingControllerImplTest {
+    public static final String TRANS_ID = "117524-754816-491724";
+    private static final String PASSTHROUGH_HEADER = "passthrough";
+    public static final String FILING_ID = "6332aa6ed28ad2333c3a520a";
+    private static final URI REQUEST_URI = URI.create("/transactions/" + TRANS_ID + "/officers");
+    private static final Instant FIRST_INSTANT = Instant.parse("2022-10-15T09:44:08.108Z");
+
+
     private OfficerFilingController testController;
     @Mock
     private OfficerFilingService officerFilingService;
+    @Mock
+    private TransactionService transactionService;
+    @Mock
+    private Clock clock;
+    @Mock
+    private Logger logger;
     @Mock
     private OfficerFilingMapper filingMapper;
     @Mock
     private OfficerFilingDto dto;
     @Mock
-    private OfficerFiling filing;
-    @Mock
     private BindingResult result;
+    @Mock
+    private HttpServletRequest request;
+    @Mock
+    private Transaction transaction;
+
+    private OfficerFiling filing;
+    private Links links;
+    private Map<String, Resource> resourceMap;
 
     @BeforeEach
     void setUp() {
-        testController = new OfficerFilingControllerImpl(officerFilingService, filingMapper);
+        testController = new OfficerFilingControllerImpl(transactionService, officerFilingService,
+                filingMapper, clock, logger);
+        filing = OfficerFiling.builder()
+                .referenceOfficerId("off-id")
+                .referenceEtag("etag")
+                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+                .build();
+        final var builder = UriComponentsBuilder.fromUri(REQUEST_URI);
+        links = new Links(builder.pathSegment(FILING_ID)
+                .build().toUri(), builder.pathSegment("validation_status")
+                .build().toUri());
+        resourceMap = createResources();
     }
 
     @Test
     void createFiling() {
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(
+                PASSTHROUGH_HEADER);
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(
+                transaction);
         when(filingMapper.map(dto)).thenReturn(filing);
-        when(officerFilingService.save(filing)).thenReturn(OfficerFiling.builder().id("1001001").build());
 
-        final var response = testController.createFiling("id", dto, result);
+        final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
+                .build();
+        final var withLinks = OfficerFiling.builder(withFilingId).links(links)
+                .build();
+        when(officerFilingService.save(filing)).thenReturn(withFilingId);
+        when(officerFilingService.save(withLinks)).thenReturn(withLinks);
+        when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
 
-        verify(officerFilingService).save(filing);
+        final var response = testController.createFiling(TRANS_ID, dto, result, request);
+
+        // refEq needed to compare Map value objects; Resource does not override equals()
+        verify(transaction).setResources(refEq(resourceMap));
+        verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
+    }
+
+    private Map<String, Resource> createResources() {
+        final Map<String, Resource> resourceMap = new HashMap<>();
+        final var resource = new Resource();
+        final var self = REQUEST_URI + "/" + FILING_ID;
+        final var linksMap = Map.of("resource", self, VALIDATION_STATUS,
+                REQUEST_URI + "/" + FILING_ID + "/" + VALIDATION_STATUS);
+
+        resource.setKind("officer-filing");
+        resource.setLinks(linksMap);
+        resource.setUpdatedAt(FIRST_INSTANT.atZone(ZoneId.systemDefault()).toLocalDateTime());
+        resourceMap.put(self, resource);
+
+        return resourceMap;
     }
 }

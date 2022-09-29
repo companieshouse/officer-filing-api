@@ -6,7 +6,7 @@ import uk.gov.companieshouse.officerfiling.api.repository.OfficerFilingRepositor
 
 @Service
 public class OfficerFilingServiceImpl implements OfficerFilingService {
-    private OfficerFilingRepository repository;
+    private final OfficerFilingRepository repository;
 
     public OfficerFilingServiceImpl(final OfficerFilingRepository repository) {
         this.repository = repository;
