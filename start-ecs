@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec java ${JAVA_MEM_ARGS} -jar -Dserver.port="${PORT}" "/opt/officer-filing-api/officer-filing-api.jar"
