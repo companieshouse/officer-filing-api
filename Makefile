@@ -1,7 +1,7 @@
 artifact_name       := officer-filing-api
 version             := unversioned
 
-.PHONY
+.PHONY: all
 all: build
 
 .PHONY: clean
