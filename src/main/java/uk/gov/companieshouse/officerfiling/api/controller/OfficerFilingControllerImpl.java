@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.error.InvalidFilingException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
@@ -28,8 +29,7 @@ import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 @RestController
-@RequestMapping(value = "/transactions/{transId}/officers", produces = {"application/json"},
-        consumes = {"application/json"})
+@RequestMapping("/transactions/{transId}/officers")
 public class OfficerFilingControllerImpl implements OfficerFilingController {
     public static final String VALIDATION_STATUS = "validation_status";
     private final TransactionService transactionService;
@@ -49,14 +49,18 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     }
 
     @Override
-    @PostMapping
+    @PostMapping(produces = {"application/json"}, consumes = {"application/json"})
     public ResponseEntity<Object> createFiling(@PathVariable final String transId,
-            @RequestBody @Valid @NotNull final OfficerFilingDto dto, final BindingResult result,
+            @RequestBody @Valid @NotNull final OfficerFilingDto dto, final BindingResult bindingResult,
             final HttpServletRequest request) {
         final Map<String, Object> logMap = new HashMap<>();
 
         logMap.put("transactionId", transId);
         logger.debugRequest(request, "POST", logMap);
+
+        if (bindingResult != null && bindingResult.hasErrors()) {
+            throw new InvalidFilingException(bindingResult.getFieldErrors());
+        }
 
         final var passthroughHeader =
                 request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
@@ -87,8 +91,8 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         return resourceMap;
     }
 
-    private Links saveFilingWithLinks(final OfficerFiling entity, final String transId, final HttpServletRequest request,
-            final Map<String, Object> logMap) {
+    private Links saveFilingWithLinks(final OfficerFiling entity, final String transId,
+            final HttpServletRequest request, final Map<String, Object> logMap) {
         final var saved = officerFilingService.save(entity);
         final var links = buildLinks(saved, request);
         final var updated = OfficerFiling.builder(saved).links(links)
@@ -111,4 +115,5 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
         return new Links(selfUri, validateUri);
     }
+
 }
