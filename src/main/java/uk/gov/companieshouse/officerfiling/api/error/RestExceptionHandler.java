@@ -39,13 +39,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
         final ContentCachingRequestWrapper nativeRequest =
                 (ContentCachingRequestWrapper) ((ServletWebRequest) request).getNativeRequest();
-        final String requestBodyAsString = new String(nativeRequest.getContentAsByteArray());
+        final String unquotedRequestBodyAsString =
+                new String(nativeRequest.getContentAsByteArray()).replaceAll("(?:(^\")|(\"$))", "");
 
-        final var cause =
-                ex.getMostSpecificCause().getMessage().replaceAll("Source: (:?[^;]*); ", "");
-        final var bodyError = buildRequestBodyError(cause, "$", null);
-
-        bodyError.addErrorValue("body", requestBodyAsString);
+        final var msg = ex.getMostSpecificCause()
+                .getMessage()
+                .replaceAll("(?s).*(line.*)", "JSON parse error: [$1");
+        final var bodyError = buildRequestBodyError(msg, "$", unquotedRequestBodyAsString);
 
         return ResponseEntity.status(status).body(new ApiErrors(List.of(bodyError)));
     }
@@ -93,7 +93,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public ApiErrors handleAllUncaughtException(RuntimeException ex, WebRequest request) {
+    public ApiErrors handleAllUncaughtException(final RuntimeException ex,
+            final WebRequest request) {
         CH_LOGGER.error("Unknown error occurred", ex);
         final var error = new ApiError(ex.getMessage(), getRequestURI(request),
                 LocationType.RESOURCE.getValue(), ErrorType.SERVICE.getType());

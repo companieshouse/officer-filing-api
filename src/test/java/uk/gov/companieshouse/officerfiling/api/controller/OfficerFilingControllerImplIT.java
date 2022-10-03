@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,6 +39,7 @@ class OfficerFilingControllerImplIT {
     private static final String TM01_FRAGMENT = "\"reference_etag\": \"etag\","
             + "\"reference_officer_id\": \"id\","
             + "\"resigned_on\": \"2022-09-13\"";
+    public static final String MALFORMED_JSON_QUOTED = "\"{\"";
     private static final Instant FIRST_INSTANT = Instant.parse("2022-10-15T09:44:08.108Z");
 
     @MockBean
@@ -100,6 +102,37 @@ class OfficerFilingControllerImplIT {
                 .andExpect(header().string("Location", locationUri.toUriString()))
                 .andExpect(jsonPath("$").doesNotExist());
         verify(filingMapper).map(dto);
+    }
+
+    @Test
+    void createFilingWhenRequestBodyMalformedThenResponse400() throws Exception {
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(MALFORMED_JSON_QUOTED)
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(header().doesNotExist("Location"))
+                .andExpect(content().json(
+                        "{errors=[{\"error\":\"JSON parse error: [line: 1, column: 1]\","
+                                + "\"error_values\":{\"rejected\":\"{\"},"
+                                + "\"location\":\"$\","
+                                + "\"location_type\":\"json-path\",\"type\":\"ch:validation\"}]}"));
+    }
+
+    @Test
+    void createFilingWhenRequestBodyIncompleteThenResponse400() throws Exception {
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content("{" + TM01_FRAGMENT)
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(header().doesNotExist("Location"))
+                .andExpect(content().json(
+                        "{\"errors\":[{\"error\":\"JSON parse error: [line: 1, column: 83]\","
+                                + "\"error_values\":{\"rejected\":\"{\\\"reference_etag\\\": "
+                                + "\\\"etag\\\",\\\"reference_officer_id\\\": \\\"id\\\","
+                                + "\\\"resigned_on\\\": \\\"2022-09-13\"},\"location\":\"$\","
+                                + "\"location_type\":\"json-path\",\"type\":\"ch:validation\"}]}"));
     }
 
 }
