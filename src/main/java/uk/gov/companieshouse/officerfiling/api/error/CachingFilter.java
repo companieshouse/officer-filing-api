@@ -19,7 +19,7 @@ public class CachingFilter implements Filter {
     @Override
     public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
             final FilterChain filterChain) throws IOException, ServletException {
-        final ContentCachingRequestWrapper contentCachingRequestWrapper =
+        final var contentCachingRequestWrapper =
                 new ContentCachingRequestWrapper((HttpServletRequest) servletRequest);
         filterChain.doFilter(contentCachingRequestWrapper, servletResponse);
     }

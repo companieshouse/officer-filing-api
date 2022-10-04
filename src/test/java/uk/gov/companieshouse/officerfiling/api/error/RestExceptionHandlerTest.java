@@ -85,7 +85,7 @@ class RestExceptionHandlerTest {
     @Test
     void handleInvalidFilingException() {
         final var fieldError = new FieldError("object", "field", "error");
-        final String[] codes = {"code1", "code2.name", "code3"};
+        final var codes = new String[]{"code1", "code2.name", "code3"};
         final var fieldErrorWithRejectedValue =
                 new FieldError("object", "field", "rejectedValue", false, codes, null,
                         "errorWithRejectedValue");

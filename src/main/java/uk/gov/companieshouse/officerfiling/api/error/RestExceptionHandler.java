@@ -37,14 +37,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
             final HttpMessageNotReadableException ex, final HttpHeaders headers,
             final HttpStatus status, final WebRequest request) {
 
-        final ContentCachingRequestWrapper nativeRequest =
+        final var nativeRequest =
                 (ContentCachingRequestWrapper) ((ServletWebRequest) request).getNativeRequest();
-        final String unquotedRequestBodyAsString =
-                new String(nativeRequest.getContentAsByteArray()).replaceAll("(?:(^\")|(\"$))", "");
+        final var unquotedRequestBodyAsString =
+                new String(nativeRequest.getContentAsByteArray()).replaceAll("(^\")|(\"$)", "");
 
-        final var msg = ex.getMostSpecificCause()
-                .getMessage()
-                .replaceAll("(?s).*(line.*)", "JSON parse error: [$1");
+        final var cause = ex.getMostSpecificCause().getMessage();
+        final var msg = "JSON parse error: [" + cause.substring(cause.lastIndexOf("line:"));
         final var bodyError = buildRequestBodyError(msg, "$", unquotedRequestBodyAsString);
 
         return ResponseEntity.status(status).body(new ApiErrors(List.of(bodyError)));
