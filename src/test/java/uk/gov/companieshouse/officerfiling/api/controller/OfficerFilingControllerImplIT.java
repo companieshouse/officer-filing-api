@@ -1,9 +1,11 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -13,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -135,4 +138,40 @@ class OfficerFilingControllerImplIT {
                                 + "\"location_type\":\"json-path\",\"type\":\"ch:validation\"}]}"));
     }
 
+    @Test
+    void getFilingForReviewThenResponse200() throws Exception {
+        final var dto = OfficerFilingDto.builder()
+            .referenceEtag("etag")
+            .referenceOfficerId("id")
+            .resignedOn(LocalDate.of(2022, 9, 13))
+            .build();
+        final var filing = OfficerFiling.builder()
+            .referenceEtag("etag")
+            .referenceOfficerId("id")
+            .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+            .build();
+
+        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.of(filing));
+
+        when(filingMapper.map(filing)).thenReturn(dto);
+
+        mockMvc.perform(get("/transactions/{id}/officers/{filingId}", TRANS_ID, FILING_ID)
+            .headers(httpHeaders))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.reference_etag", is("etag")))
+            .andExpect(jsonPath("$.reference_officer_id", is("id")))
+            .andExpect(jsonPath("$.resigned_on", is("2022-09-13")));
+    }
+
+    @Test
+    void getFilingForReviewNotFoundThenResponse404() throws Exception {
+
+        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/transactions/{id}/officers/{filingId}", TRANS_ID, FILING_ID)
+                .headers(httpHeaders))
+            .andDo(print())
+            .andExpect(status().isNotFound());
+    }
 }

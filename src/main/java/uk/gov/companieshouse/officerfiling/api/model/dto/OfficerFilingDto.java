@@ -107,7 +107,7 @@ public class OfficerFilingDto {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final OfficerFilingDto that = (OfficerFilingDto) o;
+        final var that = (OfficerFilingDto) o;
         return Objects.equals(getAddress(), that.getAddress())
                 && Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
                 that.getAddressSameAsRegisteredOfficeAddress())
@@ -288,7 +288,7 @@ public class OfficerFilingDto {
 
         public OfficerFilingDto build() {
 
-            final OfficerFilingDto data = new OfficerFilingDto();
+            final var data = new OfficerFilingDto();
             buildSteps.forEach(step -> step.accept(data));
 
             return data;

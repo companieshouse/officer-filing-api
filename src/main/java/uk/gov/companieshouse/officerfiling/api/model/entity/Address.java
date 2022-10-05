@@ -71,7 +71,7 @@ public class Address {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final Address address = (Address) o;
+        final var address = (Address) o;
         return getAddressLine1().equals(address.getAddressLine1())
                 && Objects.equals(getAddressLine2(), address.getAddressLine2())
                 && Objects.equals(getCareOf(), address.getCareOf())

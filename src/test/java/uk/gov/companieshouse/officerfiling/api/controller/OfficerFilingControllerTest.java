@@ -29,4 +29,12 @@ class OfficerFilingControllerTest {
 
         assertThat(response.getStatusCode(), is(HttpStatus.NOT_IMPLEMENTED));
     }
+
+    @Test
+    void getFilingForReview() {
+        final var response = new OfficerFilingController() {
+        }.getFilingForReview("trans-id", "filing-resource");
+
+        assertThat(response.getStatusCode(), is(HttpStatus.NOT_IMPLEMENTED));
+    }
 }
