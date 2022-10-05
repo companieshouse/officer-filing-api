@@ -169,12 +169,16 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <skipTests>${skip.unit.tests}</skipTests>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven-failsafe-plugin.version}</version>
                 <configuration>
+                    <skipTests>${skip.integration.tests}</skipTests>
                     <!--suppress UnresolvedMavenProperty -->
                     <argLine>${failsafeArgLine}</argLine>
                     <!--This is a workaround for failsafe not running integration tests-->
