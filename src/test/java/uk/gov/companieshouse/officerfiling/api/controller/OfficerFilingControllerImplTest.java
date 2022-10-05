@@ -2,6 +2,8 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,19 +14,24 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.error.InvalidFilingException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
@@ -82,8 +89,9 @@ class OfficerFilingControllerImplTest {
         resourceMap = createResources();
     }
 
-    @Test
-    void createFiling() {
+    @ParameterizedTest(name = "[{index}] null binding result={0}")
+    @ValueSource(booleans = {true, false})
+    void createFiling(final boolean nullBindingResult) {
         when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(
                 PASSTHROUGH_HEADER);
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(
@@ -99,12 +107,31 @@ class OfficerFilingControllerImplTest {
         when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
         when(clock.instant()).thenReturn(FIRST_INSTANT);
 
-        final var response = testController.createFiling(TRANS_ID, dto, result, request);
+        final var response =
+                testController.createFiling(TRANS_ID, dto, nullBindingResult ? null : result,
+                        request);
 
         // refEq needed to compare Map value objects; Resource does not override equals()
         verify(transaction).setResources(refEq(resourceMap));
         verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
+    }
+
+    @Test
+    void createFilingWhenRequestHasBindingError() {
+        final String[] codes = {"code1", "code2.name", "code3"};
+        final var fieldErrorWithRejectedValue =
+                new FieldError("object", "field", "rejectedValue", false, codes, null,
+                        "errorWithRejectedValue");
+        final var errorList = List.of(fieldErrorWithRejectedValue);
+
+        when(result.hasErrors()).thenReturn(true);
+        when(result.getFieldErrors()).thenReturn(errorList);
+
+        final var exception = assertThrows(InvalidFilingException.class,
+                () -> testController.createFiling(TRANS_ID, dto, result, request));
+
+        assertThat(exception.getFieldErrors(), contains(fieldErrorWithRejectedValue));
     }
 
     private Map<String, Resource> createResources() {
@@ -121,4 +148,5 @@ class OfficerFilingControllerImplTest {
 
         return resourceMap;
     }
+
 }
