@@ -4,3 +4,4 @@ weight: 900
 routes:
   1: ^/officers
   2: ^/transactions/.*/officers
+  3: ^/private/transactions/.*/officers

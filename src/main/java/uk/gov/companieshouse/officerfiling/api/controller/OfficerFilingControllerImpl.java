@@ -110,7 +110,9 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         final var uriBuilder = UriComponentsBuilder.fromUriString(request.getRequestURI())
                 .pathSegment(objectId.toHexString());
         final var selfUri = uriBuilder.build().toUri();
-        final var validateUri = uriBuilder.pathSegment(VALIDATION_STATUS)
+        final var privateUriBuilder = UriComponentsBuilder.fromUriString("private/" + request.getRequestURI())
+                .pathSegment(objectId.toHexString());
+        final var validateUri = privateUriBuilder.pathSegment(VALIDATION_STATUS)
                 .build().toUri();
 
         return new Links(selfUri, validateUri);
