@@ -17,6 +17,7 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -121,7 +122,7 @@ class OfficerFilingControllerImplTest {
 
     @Test
     void createFilingWhenRequestHasBindingError() {
-        final String[] codes = {"code1", "code2.name", "code3"};
+        final var codes = new String[]{"code1", "code2.name", "code3"};
         final var fieldErrorWithRejectedValue =
                 new FieldError("object", "field", "rejectedValue", false, codes, null,
                         "errorWithRejectedValue");
@@ -151,4 +152,28 @@ class OfficerFilingControllerImplTest {
         return resourceMap;
     }
 
+    @Test
+    void getFilingForReviewWhenFound() {
+
+        when(filingMapper.map(filing)).thenReturn(dto);
+
+        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.of(filing));
+
+        final var response =
+            testController.getFilingForReview(TRANS_ID, FILING_ID);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody(), is(dto));
+    }
+
+    @Test
+    void getFilingForReviewNotFound() {
+
+        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.empty());
+
+        final var response =
+            testController.getFilingForReview(TRANS_ID, FILING_ID);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.NOT_FOUND));
+    }
 }

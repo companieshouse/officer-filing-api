@@ -13,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -69,14 +70,26 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         final var transaction = transactionService.getTransaction(transId, passthroughHeader);
 
         final var entity = filingMapper.map(dto);
-        final Links links = saveFilingWithLinks(entity, transId, request, logMap);
-        final Map<String, Resource> resourceMap = buildResourceMap(links);
+        final var links = saveFilingWithLinks(entity, transId, request, logMap);
+        final var resourceMap = buildResourceMap(links);
 
         transaction.setResources(resourceMap);
         transactionService.updateTransaction(transaction, passthroughHeader);
 
         return ResponseEntity.created(links.getSelf())
                 .build();
+    }
+
+    @Override
+    @GetMapping(value = "/{filingResourceId}", produces = {"application/json"})
+    public ResponseEntity<OfficerFilingDto> getFilingForReview(@PathVariable("transId") final String transId,
+                                                            @PathVariable("filingResourceId") final String filingResource) {
+
+        var maybeOfficerFiling = officerFilingService.get(filingResource);
+
+        var maybeDto = maybeOfficerFiling.map(filingMapper::map);
+
+        return maybeDto.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     private Map<String, Resource> buildResourceMap(final Links links) {

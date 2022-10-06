@@ -151,7 +151,7 @@ public class AddressDto {
 
         public AddressDto build() {
 
-            final AddressDto data = new AddressDto();
+            final var data = new AddressDto();
             buildSteps.forEach(step -> step.accept(data));
 
             return data;
@@ -166,7 +166,7 @@ public class AddressDto {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final AddressDto that = (AddressDto) o;
+        final var that = (AddressDto) o;
         return Objects.equals(getAddressLine1(), that.getAddressLine1())
                 && Objects.equals(getAddressLine2(), that.getAddressLine2())
                 && Objects.equals(getCareOf(), that.getCareOf())
