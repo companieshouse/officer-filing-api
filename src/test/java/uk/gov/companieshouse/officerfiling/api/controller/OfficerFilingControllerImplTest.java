@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.officerfiling.api.controller.OfficerFilingControllerImpl.VALIDATION_STATUS;
+import static uk.gov.companieshouse.officerfiling.api.model.entity.Links.PREFIX_PRIVATE;
 
 import java.net.URI;
 import java.time.Clock;
@@ -84,8 +85,9 @@ class OfficerFilingControllerImplTest {
                 .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
                 .build();
         final var builder = UriComponentsBuilder.fromUri(REQUEST_URI);
+        final var privateBuilder = UriComponentsBuilder.fromUri(URI.create(PREFIX_PRIVATE + "/" + REQUEST_URI));
         links = new Links(builder.pathSegment(FILING_ID)
-                .build().toUri(), builder.pathSegment("validation_status")
+                .build().toUri(), privateBuilder.pathSegment(FILING_ID).pathSegment("validation_status")
                 .build().toUri());
         resourceMap = createResources();
     }
@@ -140,7 +142,7 @@ class OfficerFilingControllerImplTest {
         final var resource = new Resource();
         final var self = REQUEST_URI + "/" + FILING_ID;
         final var linksMap = Map.of("resource", self, VALIDATION_STATUS,
-                REQUEST_URI + "/" + FILING_ID + "/" + VALIDATION_STATUS);
+                PREFIX_PRIVATE + "/" + REQUEST_URI + "/" + FILING_ID + "/" + VALIDATION_STATUS);
 
         resource.setKind("officer-filing");
         resource.setLinks(linksMap);
