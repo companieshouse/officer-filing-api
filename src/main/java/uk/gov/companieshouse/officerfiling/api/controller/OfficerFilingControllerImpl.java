@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import static uk.gov.companieshouse.officerfiling.api.model.entity.Links.PREFIX_PRIVATE;
+
 import java.time.Clock;
 import java.time.ZoneId;
 import java.util.HashMap;
@@ -110,7 +112,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         final var uriBuilder = UriComponentsBuilder.fromUriString(request.getRequestURI())
                 .pathSegment(objectId.toHexString());
         final var selfUri = uriBuilder.build().toUri();
-        final var privateUriBuilder = UriComponentsBuilder.fromUriString("private/" + request.getRequestURI())
+        final var privateUriBuilder = UriComponentsBuilder.fromUriString(PREFIX_PRIVATE + "/" + request.getRequestURI())
                 .pathSegment(objectId.toHexString());
         final var validateUri = privateUriBuilder.pathSegment(VALIDATION_STATUS)
                 .build().toUri();

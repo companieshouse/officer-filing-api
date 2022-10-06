@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
+import static uk.gov.companieshouse.officerfiling.api.model.entity.Links.PREFIX_PRIVATE;
+
 import java.io.IOException;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
@@ -36,7 +38,7 @@ public class TransactionServiceImpl implements TransactionService {
     public void updateTransaction(final Transaction transaction, final String ericPassThroughHeader)
             throws TransactionServiceException {
         try {
-            final var uri = "/private/transactions/" + transaction.getId();
+            final var uri = PREFIX_PRIVATE + "/transactions/" + transaction.getId();
             final var resp = apiClientService.getInternalOauthAuthenticatedClient(ericPassThroughHeader)
                     .privateTransaction()
                     .patch(uri, transaction)

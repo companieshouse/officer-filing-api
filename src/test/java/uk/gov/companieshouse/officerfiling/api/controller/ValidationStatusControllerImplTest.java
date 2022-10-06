@@ -5,7 +5,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 
 class ValidationStatusControllerImplTest {
 
@@ -22,6 +21,6 @@ class ValidationStatusControllerImplTest {
     void validate() {
         final var response= testController.validate(TRANS_ID, FILING_ID);
 
-        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.isValid(), is(true));
     }
 }

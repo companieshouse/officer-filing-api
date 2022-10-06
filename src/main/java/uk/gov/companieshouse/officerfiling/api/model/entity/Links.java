@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 public class Links {
+    public static final String PREFIX_PRIVATE = "/private";
     private final URI self;
     private final URI validationStatus;
 
