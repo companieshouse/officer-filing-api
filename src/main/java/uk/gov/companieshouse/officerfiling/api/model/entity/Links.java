@@ -29,7 +29,7 @@ public class Links {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final Links links = (Links) o;
+        final var links = (Links) o;
         return Objects.equals(getSelf(), links.getSelf()) && Objects.equals(getValidationStatus(),
                 links.getValidationStatus());
     }
