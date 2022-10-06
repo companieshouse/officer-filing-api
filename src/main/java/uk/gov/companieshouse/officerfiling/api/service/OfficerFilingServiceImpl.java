@@ -1,6 +1,8 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.repository.OfficerFilingRepository;
@@ -20,6 +22,14 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
 
     @Override
     public Optional<OfficerFiling> get(String officerFilingId) {
+
         return repository.findById(officerFilingId);
+    }
+
+    @Override
+    public List<OfficerFiling> getFilingsData(String officerFilingId) {
+
+        return repository.findById(officerFilingId).stream().collect(
+            Collectors.toList());
     }
 }
