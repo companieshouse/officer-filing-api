@@ -7,17 +7,17 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import uk.gov.companieshouse.officerfiling.api.exception.NotImplementedException;
 
-class ValidationStatusControllerTest {
+class OfficerFilingDataControllerTest {
 
     @Mock
     private HttpServletRequest request;
 
     @Test
-    void validate() {
+    void getFilingsData() {
 
-        var testController = new ValidationStatusController() {};
+        var testController = new OfficerFilingDataController(){};
 
-        assertThrows(NotImplementedException.class, () -> testController.validate("trans-id", "filing-id", request));
-
+        assertThrows(NotImplementedException.class,
+            () -> testController.getFilingsData("trans-id", "filing-id", request));
     }
 }
