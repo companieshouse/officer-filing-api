@@ -5,14 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.officerfiling.api.exception.NotImplementedException;
 
-class ValidationStatusControllerTest {
+class OfficerFilingDataControllerTest {
 
     @Test
-    void validate() {
+    void getFilingsData() {
 
-        var testController = new ValidationStatusController() {};
+        var testController = new OfficerFilingDataController(){};
 
-        assertThrows(NotImplementedException.class, () -> testController.validate("trans-id", "filing-id"));
-
+        assertThrows(NotImplementedException.class,
+            () -> testController.getFilingsData("trans-id", "filing-id"));
     }
 }
