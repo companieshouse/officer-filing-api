@@ -89,7 +89,7 @@ class TransactionServiceImplTest {
         when(apiResponseVoid.getStatusCode()).thenReturn(HttpStatusCodes.STATUS_CODE_NO_CONTENT);
         testService.updateTransaction(testTransaction, PASSTHROUGH_HEADER);
 
-        verify(apiResponseVoid, times(1)).getStatusCode();
+        verify(apiResponseVoid).getStatusCode();
     }
 
     @Test
