@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +35,9 @@ class OfficerFilingDataControllerImplTest {
     @Mock
     private Logger logger;
 
+    @Mock
+    private HttpServletRequest request;
+
     private OfficerFilingDataControllerImpl testController;
 
     @BeforeEach
@@ -46,7 +50,7 @@ class OfficerFilingDataControllerImplTest {
 
         var filing = OfficerFiling.builder().build();
         when(officerFilingService.getFilingsData(FILING_ID)).thenReturn(Collections.singletonList(filing));
-        final var filingsList= testController.getFilingsData(TRANS_ID, FILING_ID);
+        final var filingsList= testController.getFilingsData(TRANS_ID, FILING_ID, request);
 
         assertThat(filingsList.get(0), is(filing));
         assertThat(filingsList, hasSize(1));
@@ -58,6 +62,6 @@ class OfficerFilingDataControllerImplTest {
         when(officerFilingService.getFilingsData(FILING_ID)).thenReturn(Collections.emptyList());
 
         assertThrows(
-            ResourceNotFoundException.class, () -> testController.getFilingsData(TRANS_ID, FILING_ID));
+            ResourceNotFoundException.class, () -> testController.getFilingsData(TRANS_ID, FILING_ID, request));
     }
 }

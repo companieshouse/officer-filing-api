@@ -8,14 +8,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 
@@ -28,6 +31,10 @@ class ValidationStatusControllerImplIT {
 
     @MockBean
     private OfficerFilingService officerFilingService;
+    @MockBean
+    private HttpServletRequest request;
+    @MockBean
+    private Logger logger;
 
     private HttpHeaders httpHeaders;
 
@@ -45,7 +52,7 @@ class ValidationStatusControllerImplIT {
         final var filing = OfficerFiling.builder().build();
         when(officerFilingService.get(FILING_ID)).thenReturn(Optional.of(filing));
 
-        mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID)
+        mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID, request)
             .headers(httpHeaders))
             .andDo(print())
             .andExpect(status().isOk())
@@ -56,7 +63,7 @@ class ValidationStatusControllerImplIT {
     void validationStatusWhenNotFound() throws Exception {
         when(officerFilingService.get(FILING_ID)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID)
+        mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID, request)
                         .headers(httpHeaders))
                 .andDo(print())
                 .andExpect(status().isNotFound())

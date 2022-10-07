@@ -1,6 +1,9 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,13 +28,22 @@ public class OfficerFilingDataControllerImpl implements OfficerFilingDataControl
     @Override
     @GetMapping(value = "/{filingResourceId}/filings", produces = {"application/json"})
     public List<OfficerFiling> getFilingsData(@PathVariable("transId") final String transId,
-                                             @PathVariable("filingResourceId") final String filingResource) {
+                                              @PathVariable("filingResourceId") final String filingResource,
+                                              final HttpServletRequest request) {
+
+        final Map<String, Object> logMap = new HashMap<>();
+
+        logMap.put("filingId", filingResource);
+        logger.debugRequest(request, "GET /private/transactions/{transId}/officers{filingId}/filings", logMap);
 
         var officerFilings = officerFilingService.getFilingsData(filingResource);
 
         if (officerFilings.isEmpty()) {
             throw new ResourceNotFoundException();
         }
+
+        logMap.put("officerFilings", officerFilings);
+        logger.infoContext(transId, "Officer filing data", logMap);
 
         return officerFilings;
     }
