@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
-import java.util.List;
 import java.util.Optional;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 
@@ -9,5 +8,4 @@ public interface OfficerFilingService {
 
     Optional<OfficerFiling> get(String officerFilingId);
 
-    List<OfficerFiling> getFilingsData(String officerFilingId);
 }

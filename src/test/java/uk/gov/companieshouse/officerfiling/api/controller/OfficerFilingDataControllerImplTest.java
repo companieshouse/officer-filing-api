@@ -2,23 +2,21 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-
-import java.util.Collections;
-import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
-import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
+import uk.gov.companieshouse.officerfiling.api.service.FilingService;
 
 @ExtendWith(MockitoExtension.class)
 class OfficerFilingDataControllerImplTest {
@@ -30,7 +28,7 @@ class OfficerFilingDataControllerImplTest {
     private OfficerFiling officerFiling;
 
     @Mock
-    private OfficerFilingService officerFilingService;
+    private FilingService filingService;
 
     @Mock
     private Logger logger;
@@ -42,26 +40,25 @@ class OfficerFilingDataControllerImplTest {
 
     @BeforeEach
     void setUp() {
-        testController = new OfficerFilingDataControllerImpl(officerFilingService, logger);
+        testController = new OfficerFilingDataControllerImpl(filingService, logger);
     }
 
     @Test
     void getFilingsData() {
-
-        var filing = OfficerFiling.builder().build();
-        when(officerFilingService.getFilingsData(FILING_ID)).thenReturn(Collections.singletonList(filing));
+        var filingApi = new FilingApi();
+        when(filingService.generateOfficerFiling(FILING_ID)).thenReturn(filingApi);
         final var filingsList= testController.getFilingsData(TRANS_ID, FILING_ID, request);
 
-        assertThat(filingsList.get(0), is(filing));
-        assertThat(filingsList, hasSize(1));
+        assertThat(filingsList, Matchers.contains(filingApi));
     }
 
     @Test
     void getFilingsDataWhenNotFound() {
 
-        when(officerFilingService.getFilingsData(FILING_ID)).thenReturn(Collections.emptyList());
+        when(filingService.generateOfficerFiling(FILING_ID)).thenThrow(new ResourceNotFoundException("Test Resource not found"));
 
-        assertThrows(
-            ResourceNotFoundException.class, () -> testController.getFilingsData(TRANS_ID, FILING_ID, request));
+        final var exception = assertThrows(ResourceNotFoundException.class,
+                () -> testController.getFilingsData(TRANS_ID, FILING_ID, request));
+        assertThat(exception.getMessage(), is("Test Resource not found"));
     }
 }
