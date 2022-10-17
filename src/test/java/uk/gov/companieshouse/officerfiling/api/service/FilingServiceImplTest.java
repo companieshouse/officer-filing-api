@@ -2,11 +2,12 @@ package uk.gov.companieshouse.officerfiling.api.service;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ class FilingServiceImplTest {
     private static final String FILING_ID = "6332aa6ed28ad2333c3a520a";
     private static final String REF_OFFICER_ID = "12345";
     private static final String REF_ETAG = "6789";
-    private static final String RESIGNED_ON = "2022-10-05";
+    private static final String RESIGNED_ON_STR = "2022-10-05";
     private static final Instant RESIGNED_ON_INS = Instant.parse("2022-10-05T00:00:00Z");
     @Mock
     private OfficerFilingService officerFilingService;
@@ -42,29 +43,34 @@ class FilingServiceImplTest {
 
     @Test
     void generateOfficerFilingWhenFound() {
-        var filingData = new FilingData(REF_ETAG, REF_OFFICER_ID, RESIGNED_ON);
-        var officerFiling = OfficerFiling.builder().referenceOfficerId(REF_OFFICER_ID).referenceEtag(REF_ETAG)
-                .resignedOn(RESIGNED_ON_INS).build();
+        final var filingData = new FilingData(REF_ETAG, REF_OFFICER_ID, RESIGNED_ON_STR);
+        final var officerFiling = OfficerFiling.builder()
+                .referenceOfficerId(REF_OFFICER_ID)
+                .referenceEtag(REF_ETAG)
+                .resignedOn(RESIGNED_ON_INS)
+                .build();
 
         when(officerFilingService.get(FILING_ID)).thenReturn(Optional.of(officerFiling));
         when(officerFilingMapper.mapFiling(officerFiling)).thenReturn(filingData);
 
         final var filingApi = testService.generateOfficerFiling(FILING_ID);
+
+        final Map<String, Object> expectedMap =
+                Map.of("reference_etag", REF_ETAG, "reference_officer_id", REF_OFFICER_ID,
+                        "resigned_on", RESIGNED_ON_STR);
+
+        assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#termination"));
-        assertThat(filingApi.getData(), hasEntry(is("referenceEtag"), is(REF_ETAG)));
-        assertThat(filingApi.getData(), hasEntry(is("referenceOfficerId"), is(REF_OFFICER_ID)));
-        assertThat(filingApi.getData(), hasEntry(is("resignedOn"), is(RESIGNED_ON)));
     }
 
     @Test
     void generateOfficerFilingWhenNotFound() {
-        var filingData = new FilingData(REF_ETAG, REF_OFFICER_ID, RESIGNED_ON);
-        var officerFiling = OfficerFiling.builder().referenceOfficerId(REF_OFFICER_ID).referenceEtag(REF_ETAG)
-                .resignedOn(RESIGNED_ON_INS).build();
-
         when(officerFilingService.get(FILING_ID)).thenReturn(Optional.empty());
 
-        final var exception = assertThrows(ResourceNotFoundException.class, () -> testService.generateOfficerFiling(FILING_ID));
-        assertThat(exception.getMessage(), is("Officer not found when generating filing for " + FILING_ID));
+        final var exception = assertThrows(ResourceNotFoundException.class,
+                () -> testService.generateOfficerFiling(FILING_ID));
+
+        assertThat(exception.getMessage(),
+                is("Officer not found when generating filing for " + FILING_ID));
     }
 }
