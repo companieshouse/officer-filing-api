@@ -8,43 +8,41 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
-import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.service.FilingService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 
 @RestController
 @RequestMapping("/private/transactions/{transId}/officers")
 public class OfficerFilingDataControllerImpl implements OfficerFilingDataController {
     public static final String VALIDATION_STATUS = "validation_status";
-    private final OfficerFilingService officerFilingService;
+    private final FilingService filingService;
     private final Logger logger;
 
-    public OfficerFilingDataControllerImpl(final OfficerFilingService officerFilingService, final Logger logger) {
-        this.officerFilingService = officerFilingService;
+    public OfficerFilingDataControllerImpl(final FilingService filingService,
+                                           final Logger logger) {
+        this.filingService = filingService;
         this.logger = logger;
     }
 
     @Override
     @GetMapping(value = "/{filingResourceId}/filings", produces = {"application/json"})
-    public List<OfficerFiling> getFilingsData(@PathVariable("transId") final String transId,
-                                              @PathVariable("filingResourceId") final String filingResource,
-                                              final HttpServletRequest request) {
+    public List<FilingApi> getFilingsData(@PathVariable("transId") final String transId,
+                                          @PathVariable("filingResourceId") final String filingResource,
+                                          final HttpServletRequest request) {
 
         final Map<String, Object> logMap = new HashMap<>();
 
         logMap.put("filingId", filingResource);
         logger.debugRequest(request, "GET /private/transactions/{transId}/officers{filingId}/filings", logMap);
 
-        var officerFilings = officerFilingService.getFilingsData(filingResource);
+        var filingApi = filingService.generateOfficerFiling(filingResource);
 
-        if (officerFilings.isEmpty()) {
-            throw new ResourceNotFoundException();
-        }
-
-        logMap.put("officerFilings", officerFilings);
+        logMap.put("officer filing:", filingApi);
         logger.infoContext(transId, "Officer filing data", logMap);
 
-        return officerFilings;
+        return List.of(filingApi);
     }
 }

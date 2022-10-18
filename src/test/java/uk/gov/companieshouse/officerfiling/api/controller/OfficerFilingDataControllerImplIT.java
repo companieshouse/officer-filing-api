@@ -1,7 +1,14 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import java.util.Collections;
-import java.util.List;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -11,19 +18,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.service.FilingService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Tag("web")
 @WebMvcTest(controllers = OfficerFilingDataController.class)
@@ -31,10 +30,13 @@ class OfficerFilingDataControllerImplIT {
     private static final String TRANS_ID = "4f56fdf78b357bfc";
     private static final String FILING_ID = "632c8e65105b1b4a9f0d1f5e";
     private static final String PASSTHROUGH_HEADER = "passthrough";
-
+    private static final String REF_OFFICER_ID = "12345";
+    private static final String REF_ETAG = "6789";
+    private static final String RESIGNED_ON = "2022-10-05";
+    @MockBean
+    private FilingService filingService;
     @MockBean
     private OfficerFilingService officerFilingService;
-
     @MockBean
     private Logger logger;
 
@@ -50,22 +52,27 @@ class OfficerFilingDataControllerImplIT {
     }
 
     @Test
-    void validationStatusWhenFound() throws Exception {
+    void getFilingsWhenFound() throws Exception {
         final var filing = OfficerFiling.builder().name("test").kind("kind").build();
-        when(officerFilingService.getFilingsData(FILING_ID)).thenReturn(List.of(filing));
+        final var filingApi = new FilingApi();
+        filingApi.setKind("officer-filing#termination");
+        final Map<String, Object> dataMap =
+                Map.of("referenceEtag", REF_ETAG, "referenceOfficerId", REF_OFFICER_ID, "resignedOn", RESIGNED_ON);
+        filingApi.setData(dataMap);
+        when(filingService.generateOfficerFiling(FILING_ID)).thenReturn(filingApi);
 
         mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/filings", TRANS_ID, FILING_ID)
             .headers(httpHeaders))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(1)))
-            .andExpect(jsonPath("$[0].name", is("test")))
-            .andExpect(jsonPath("$[0].keys()", containsInAnyOrder("name","kind")));
+            .andExpect(jsonPath("$[0].data", is(dataMap)))
+            .andExpect(jsonPath("$[0].kind", is("officer-filing#termination")));
     }
 
     @Test
-    void validationStatusWhenNotFound() throws Exception {
-        when(officerFilingService.getFilingsData(FILING_ID)).thenReturn(Collections.emptyList());
+    void getFilingsWhenNotFound() throws Exception {
+        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/filing", TRANS_ID, FILING_ID)
                         .headers(httpHeaders))

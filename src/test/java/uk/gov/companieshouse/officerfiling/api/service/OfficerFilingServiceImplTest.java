@@ -1,7 +1,11 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +16,7 @@ import uk.gov.companieshouse.officerfiling.api.repository.OfficerFilingRepositor
 
 @ExtendWith(MockitoExtension.class)
 class OfficerFilingServiceImplTest {
+    public static final String FILING_ID = "6332aa6ed28ad2333c3a520a";
     private OfficerFilingService testService;
 
     @Mock
@@ -30,4 +35,22 @@ class OfficerFilingServiceImplTest {
 
         verify(repository).save(filing);
     }
+
+    @Test
+    void getWhenFound() {
+        var filing = OfficerFiling.builder().build();
+        when(repository.findById(FILING_ID)).thenReturn(Optional.of(filing));
+        final var officerFiling = testService.get(FILING_ID);
+
+        assertThat(officerFiling.isPresent(), is(true));
+    }
+
+    @Test
+    void getWhenNotFound() {
+        when(repository.findById(FILING_ID)).thenReturn(Optional.empty());
+        final var officerFiling = testService.get(FILING_ID);
+
+        assertThat(officerFiling.isPresent(), is(false));
+    }
+
 }

@@ -4,10 +4,12 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.model.filing.FilingData;
 
 @Mapper(componentModel = "spring")
 public interface OfficerFilingMapper {
@@ -37,4 +39,13 @@ public interface OfficerFilingMapper {
         return LocalDate.ofInstant(instant, ZoneId.of("UTC"));
     }
 
+    FilingData mapFiling(final OfficerFiling entity);
+
+    @Mapping(target = "resignedOn", source = "resignedOn")
+    default String isoDate(Instant instant) {
+        if (instant == null) {
+            return null;
+        }
+        return DateTimeFormatter.ISO_LOCAL_DATE.format(instant.atOffset(ZoneOffset.UTC));
+    }
 }
