@@ -24,6 +24,7 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
+import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.exception.TransactionServiceException;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -61,6 +62,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .collect(Collectors.toList());
 
         return new ApiErrors(errorList);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Resource not found")
+    public ResponseEntity<Void> handleResourceNotFoundException(final ResourceNotFoundException ex) {
+        return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(TransactionServiceException.class)
