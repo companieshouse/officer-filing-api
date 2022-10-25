@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Map;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -20,12 +19,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.service.FilingService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 
 @Tag("web")
-@WebMvcTest(controllers = OfficerFilingDataController.class)
+@WebMvcTest(controllers = OfficerFilingDataControllerImpl.class)
 class OfficerFilingDataControllerImplIT {
     private static final String TRANS_ID = "4f56fdf78b357bfc";
     private static final String FILING_ID = "632c8e65105b1b4a9f0d1f5e";
@@ -53,7 +52,6 @@ class OfficerFilingDataControllerImplIT {
 
     @Test
     void getFilingsWhenFound() throws Exception {
-        final var filing = OfficerFiling.builder().name("test").kind("kind").build();
         final var filingApi = new FilingApi();
         filingApi.setKind("officer-filing#termination");
         final Map<String, Object> dataMap =
@@ -72,12 +70,15 @@ class OfficerFilingDataControllerImplIT {
 
     @Test
     void getFilingsWhenNotFound() throws Exception {
-        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.empty());
+        when(filingService.generateOfficerFiling(FILING_ID)).thenThrow(new ResourceNotFoundException("for Not Found scenario"));
 
-        mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/filing", TRANS_ID, FILING_ID)
-                        .headers(httpHeaders))
+        mockMvc.perform(
+                        get("/private/transactions/{id}/officers/{filingId}/filings", TRANS_ID,
+                                FILING_ID).headers(httpHeaders))
                 .andDo(print())
                 .andExpect(status().isNotFound())
+                .andExpect(status().reason(is("Resource not found")))
                 .andExpect(jsonPath("$").doesNotExist());
+
     }
 }
