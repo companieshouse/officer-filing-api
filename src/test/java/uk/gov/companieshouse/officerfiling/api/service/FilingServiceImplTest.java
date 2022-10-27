@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.filing.FilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
@@ -28,9 +29,10 @@ class FilingServiceImplTest {
     private static final String REF_ETAG = "6789";
     private static final String RESIGNED_ON_STR = "2022-10-05";
     private static final Instant RESIGNED_ON_INS = Instant.parse("2022-10-05T00:00:00Z");
-    public static final String FIRSTNAME = "FIRSTNAME";
-    public static final String LASTNAME = "LASTNAME";
-    public static final String DATE_OF_BIRTH_STR = "2000-01-01";
+    public static final String FIRSTNAME = "JOE";
+    public static final String LASTNAME = "BLOGGS";
+    public static final String DATE_OF_BIRTH_STR = "2000-10-20";
+    public static final Date3Tuple DATE_OF_BIRTH_TUPLE = new Date3Tuple(20, 10, 2000);
     @Mock
     private OfficerFilingService officerFilingService;
     @Mock
@@ -50,7 +52,10 @@ class FilingServiceImplTest {
         final var officerFiling = OfficerFiling.builder()
                 .referenceOfficerId(REF_OFFICER_ID)
                 .referenceEtag(REF_ETAG)
+                .firstName(FIRSTNAME)
+                .lastName(LASTNAME)
                 .resignedOn(RESIGNED_ON_INS)
+                .dateOfBirth(DATE_OF_BIRTH_TUPLE)
                 .build();
 
         when(officerFilingService.get(FILING_ID)).thenReturn(Optional.of(officerFiling));
