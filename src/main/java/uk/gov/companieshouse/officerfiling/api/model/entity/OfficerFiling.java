@@ -30,6 +30,8 @@ public class OfficerFiling {
     private String kind;
     private Links links;
     private String name;
+    private String firstName;
+    private String lastName;
     private String nationality;
     private String occupation;
     private String officerRole;
@@ -91,6 +93,14 @@ public class OfficerFiling {
 
     public String getName() {
         return name;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
     }
 
     public String getNationality() {
@@ -158,6 +168,8 @@ public class OfficerFiling {
                 && Objects.equals(getKind(), that.getKind())
                 && Objects.equals(getLinks(), that.getLinks())
                 && Objects.equals(getName(), that.getName())
+                && Objects.equals(getFirstName(), that.getFirstName())
+                && Objects.equals(getLastName(), that.getLastName())
                 && Objects.equals(getNationality(), that.getNationality())
                 && Objects.equals(getOccupation(), that.getOccupation())
                 && Objects.equals(getOfficerRole(), that.getOfficerRole())
@@ -174,12 +186,11 @@ public class OfficerFiling {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
-                getAppointedOn(), getCountryOfResidence(), getCreatedAt(), getDateOfBirth(),
-                getFormerNames(), getIdentification(), getKind(), getLinks(), getName(),
-                getNationality(), getOccupation(), getOfficerRole(), getReferenceEtag(),
-                getReferenceOfficerId(), getReferenceOfficerListEtag(), getResignedOn(),
-                getStatus(), getUpdatedAt(), getResidentialAddress(),
+        return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(), getAppointedOn(),
+                getCountryOfResidence(), getCreatedAt(), getDateOfBirth(), getFormerNames(), getIdentification(),
+                getKind(), getLinks(), getName(), getFirstName(), getLastName(), getNationality(), getOccupation(),
+                getOfficerRole(), getReferenceEtag(), getReferenceOfficerId(), getReferenceOfficerListEtag(),
+                getResignedOn(), getStatus(), getUpdatedAt(), getResidentialAddress(),
                 getResidentialAddressSameAsCorrespondenceAddress());
     }
 
@@ -198,6 +209,8 @@ public class OfficerFiling {
                 .add("kind='" + kind + "'")
                 .add("links=" + links)
                 .add("name='" + name + "'")
+                .add("firstName='" + firstName + "'")
+                .add("lastName='" + lastName + "'")
                 .add("nationality='" + nationality + "'")
                 .add("occupation='" + occupation + "'")
                 .add("officerRole='" + officerRole + "'")
@@ -244,6 +257,8 @@ public class OfficerFiling {
                     .kind(other.getKind())
                     .links(other.getLinks())
                     .name(other.getName())
+                    .firstName(other.getFirstName())
+                    .lastName(other.getLastName())
                     .nationality(other.getNationality())
                     .occupation(other.getOccupation())
                     .officerRole(other.getOfficerRole())
@@ -340,6 +355,18 @@ public class OfficerFiling {
         public Builder name(final String value) {
 
             buildSteps.add(data -> data.name = value);
+            return this;
+        }
+
+        public Builder firstName(final String value) {
+
+            buildSteps.add(data -> data.firstName = value);
+            return this;
+        }
+
+        public Builder lastName(final String value) {
+
+            buildSteps.add(data -> data.lastName = value);
             return this;
         }
 

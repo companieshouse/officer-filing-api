@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.filing.FilingData;
 
@@ -47,5 +48,13 @@ public interface OfficerFilingMapper {
             return null;
         }
         return DateTimeFormatter.ISO_LOCAL_DATE.format(instant.atOffset(ZoneOffset.UTC));
+    }
+
+    @Mapping(target = "dateOfBirth", source = "dateOfBirth")
+    default String isoDateOfBirth(Date3Tuple tuple) {
+        if (tuple == null) {
+            return null;
+        }
+        return String.format("%d-%d-%d", tuple.getYear(), tuple.getMonth(), tuple.getDay());
     }
 }

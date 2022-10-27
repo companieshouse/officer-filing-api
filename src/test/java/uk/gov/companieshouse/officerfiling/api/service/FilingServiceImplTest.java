@@ -28,6 +28,9 @@ class FilingServiceImplTest {
     private static final String REF_ETAG = "6789";
     private static final String RESIGNED_ON_STR = "2022-10-05";
     private static final Instant RESIGNED_ON_INS = Instant.parse("2022-10-05T00:00:00Z");
+    public static final String FIRSTNAME = "FIRSTNAME";
+    public static final String LASTNAME = "LASTNAME";
+    public static final String DATE_OF_BIRTH_STR = "2000-01-01";
     @Mock
     private OfficerFilingService officerFilingService;
     @Mock
@@ -43,7 +46,7 @@ class FilingServiceImplTest {
 
     @Test
     void generateOfficerFilingWhenFound() {
-        final var filingData = new FilingData(REF_ETAG, REF_OFFICER_ID, RESIGNED_ON_STR);
+        final var filingData = new FilingData(FIRSTNAME, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR);
         final var officerFiling = OfficerFiling.builder()
                 .referenceOfficerId(REF_OFFICER_ID)
                 .referenceEtag(REF_ETAG)
@@ -56,7 +59,8 @@ class FilingServiceImplTest {
         final var filingApi = testService.generateOfficerFiling(FILING_ID);
 
         final Map<String, Object> expectedMap =
-                Map.of("reference_etag", REF_ETAG, "reference_officer_id", REF_OFFICER_ID,
+                Map.of("first_name", FIRSTNAME, "last_name", LASTNAME,
+                        "date_of_birth", DATE_OF_BIRTH_STR,
                         "resigned_on", RESIGNED_ON_STR);
 
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
