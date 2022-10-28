@@ -1,13 +1,17 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -15,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -25,6 +30,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.util.UriComponentsBuilder;
+import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
@@ -42,7 +48,7 @@ class OfficerFilingControllerImplIT {
     private static final String TM01_FRAGMENT = "\"reference_etag\": \"etag\","
             + "\"reference_officer_id\": \"id\","
             + "\"resigned_on\": \"2022-09-13\"";
-    public static final String MALFORMED_JSON_QUOTED = "\"{\"";
+    public static final String MALFORMED_JSON_QUOTED = "\"\"";
     private static final Instant FIRST_INSTANT = Instant.parse("2022-10-15T09:44:08.108Z");
 
     @MockBean
@@ -109,33 +115,123 @@ class OfficerFilingControllerImplIT {
 
     @Test
     void createFilingWhenRequestBodyMalformedThenResponse400() throws Exception {
+        final var expectedError = createExpectedError(
+                "JSON parse error: Cannot coerce empty String (\\\"\\\") to `uk.gov"
+                        + ".companieshouse.officerfiling.api.model.dto.OfficerFilingDto$Builder` "
+                        + "value (but could if coercion was enabled using `CoercionConfig`)\\n at"
+                        + " [Source: (org.springframework.util.StreamUtils$NonClosingInputStream)"
+                        + "; line: 1, column: 1]", "$", 1, 1);
+
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(MALFORMED_JSON_QUOTED)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(header().doesNotExist("Location"))
-                .andExpect(content().json(
-                        "{errors=[{\"error\":\"JSON parse error: [line: 1, column: 1]\","
-                                + "\"error_values\":{\"rejected\":\"{\"},"
-                                + "\"location\":\"$\","
-                                + "\"location_type\":\"json-path\",\"type\":\"ch:validation\"}]}"));
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0]",
+                        allOf(hasEntry("location", expectedError.getLocation()),
+                                hasEntry("location_type", expectedError.getLocationType()),
+                                hasEntry("type", expectedError.getType()))))
+                .andExpect(jsonPath("$.errors[0].error", containsString(
+                        "Cannot coerce empty String")))
+                .andExpect(jsonPath("$.errors[0].error_values",
+                        is(Map.of("offset", "line: 1, column: 1", "line", "1", "column", "1"))));
+    }
+
+    @Test
+    void createFilingWhenDateUnparseableThenResponse400() throws Exception {
+        final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "ABC") + "}";
+        final var expectedError = createExpectedError(
+                "JSON parse error:", "$..resigned_on", 1, 71);
+
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(header().doesNotExist("Location"))
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0]",
+                        allOf(hasEntry("location", expectedError.getLocation()),
+                                hasEntry("location_type", expectedError.getLocationType()),
+                                hasEntry("type", expectedError.getType()))))
+                .andExpect(jsonPath("$.errors[0].error", containsString(
+                        "JSON parse error: Cannot deserialize value of type `java.time.LocalDate`"
+                                + " from String \"ABC\"")))
+                .andExpect(jsonPath("$.errors[0].error_values",
+                        is(Map.of("offset", "line: 1, column: 71", "line", "1", "column", "71"))));
+    }
+
+    @Test
+    void createFilingWhenResignedOnInvalidThenResponse400() throws Exception {
+        final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "3000-09-13") + "}";
+        final var expectedError = createExpectedError(
+                "JSON parse error:", "$.resigned_on", 1, 71);
+
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(header().doesNotExist("Location"))
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0]",
+                        allOf(hasEntry("location", expectedError.getLocation()),
+                                hasEntry("location_type", expectedError.getLocationType()),
+                                hasEntry("type", expectedError.getType()))))
+                .andExpect(jsonPath("$.errors[0].error", containsString(
+                        "must be a date in the past or in the present")))
+                .andExpect(jsonPath("$.errors[0].error_values",
+                        is(Map.of("rejected", "3000-09-13"))));
+    }
+
+    @Test
+    void createFilingWhenResignedOnBlankThenResponse400() throws Exception {
+        final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "") + "}";
+        final var expectedError = createExpectedError(
+                "JSON parse error:", "$.resigned_on", 1, 71);
+
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(header().doesNotExist("Location"))
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0]",
+                        allOf(hasEntry("location", expectedError.getLocation()),
+                                hasEntry("location_type", expectedError.getLocationType()),
+                                hasEntry("type", expectedError.getType()))))
+                .andExpect(jsonPath("$.errors[0].error", containsString("must not be null")))
+                .andExpect(jsonPath("$.errors[0].error_values", is(nullValue())));
     }
 
     @Test
     void createFilingWhenRequestBodyIncompleteThenResponse400() throws Exception {
+        final var expectedError = createExpectedError(
+                "JSON parse error: Unexpected end-of-input: expected close marker for Object "
+                        + "(start marker at [Source: (org.springframework.util"
+                        + ".StreamUtils$NonClosingInputStream); line: 1, column: 1])\n"
+                        + " at [Source: (org.springframework.util"
+                        + ".StreamUtils$NonClosingInputStream); line: 1, column: 83]", "$", 1, 83);
+
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content("{" + TM01_FRAGMENT)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(header().doesNotExist("Location"))
-                .andExpect(content().json(
-                        "{\"errors\":[{\"error\":\"JSON parse error: [line: 1, column: 83]\","
-                                + "\"error_values\":{\"rejected\":\"{\\\"reference_etag\\\": "
-                                + "\\\"etag\\\",\\\"reference_officer_id\\\": \\\"id\\\","
-                                + "\\\"resigned_on\\\": \\\"2022-09-13\"},\"location\":\"$\","
-                                + "\"location_type\":\"json-path\",\"type\":\"ch:validation\"}]}"));
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0]",
+                        allOf(hasEntry("location", expectedError.getLocation()),
+                                hasEntry("location_type", expectedError.getLocationType()),
+                                hasEntry("type", expectedError.getType()))))
+                .andExpect(jsonPath("$.errors[0].error", containsString(
+                        "JSON parse error: Unexpected end-of-input: expected close marker for "
+                                + "Object")))
+                .andExpect(jsonPath("$.errors[0].error_values",
+                        is(Map.of("offset", "line: 1, column: 83", "line", "1", "column", "83"))));
     }
 
     @Test
@@ -174,4 +270,16 @@ class OfficerFilingControllerImplIT {
             .andDo(print())
             .andExpect(status().isNotFound());
     }
+
+    private ApiError createExpectedError(final String msg, final String location, final int line,
+            final int column) {
+        final var expectedError = new ApiError(msg, location, "json-path", "ch:validation");
+
+        expectedError.addErrorValue("offset", String.format("line: %d, column: %d", line, column));
+        expectedError.addErrorValue("line", String.valueOf(line));
+        expectedError.addErrorValue("column", String.valueOf(column));
+
+        return expectedError;
+    }
+
 }
