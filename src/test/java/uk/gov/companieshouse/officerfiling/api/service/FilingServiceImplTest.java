@@ -25,7 +25,7 @@ import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 class FilingServiceImplTest {
 
     private static final String FILING_ID = "6332aa6ed28ad2333c3a520a";
-    private static final String REF_OFFICER_ID = "12345";
+    private static final String REF_APPOINTMENT_ID = "12345";
     private static final String REF_ETAG = "6789";
     private static final String RESIGNED_ON_STR = "2022-10-05";
     private static final Instant RESIGNED_ON_INS = Instant.parse("2022-10-05T00:00:00Z");
@@ -50,7 +50,7 @@ class FilingServiceImplTest {
     void generateOfficerFilingWhenFound() {
         final var filingData = new FilingData(FIRSTNAME, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR);
         final var officerFiling = OfficerFiling.builder()
-                .referenceOfficerId(REF_OFFICER_ID)
+                .referenceAppointmentId(REF_APPOINTMENT_ID)
                 .referenceEtag(REF_ETAG)
                 .firstName(FIRSTNAME)
                 .lastName(LASTNAME)

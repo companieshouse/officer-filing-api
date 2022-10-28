@@ -36,7 +36,7 @@ public class OfficerFiling {
     private String occupation;
     private String officerRole;
     private String referenceEtag;
-    private String referenceOfficerId;
+    private String referenceAppointmentId;
     private String referenceOfficerListEtag;
     private Instant resignedOn;
     private String status;
@@ -119,8 +119,8 @@ public class OfficerFiling {
         return referenceEtag;
     }
 
-    public String getReferenceOfficerId() {
-        return referenceOfficerId;
+    public String getreferenceAppointmentId() {
+        return referenceAppointmentId;
     }
 
     public String getReferenceOfficerListEtag() {
@@ -174,7 +174,7 @@ public class OfficerFiling {
                 && Objects.equals(getOccupation(), that.getOccupation())
                 && Objects.equals(getOfficerRole(), that.getOfficerRole())
                 && Objects.equals(getReferenceEtag(), that.getReferenceEtag())
-                && Objects.equals(getReferenceOfficerId(), that.getReferenceOfficerId())
+                && Objects.equals(getreferenceAppointmentId(), that.getreferenceAppointmentId())
                 && Objects.equals(getReferenceOfficerListEtag(), that.getReferenceOfficerListEtag())
                 && Objects.equals(getResignedOn(), that.getResignedOn())
                 && Objects.equals(getStatus(), that.getStatus())
@@ -189,7 +189,7 @@ public class OfficerFiling {
         return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(), getAppointedOn(),
                 getCountryOfResidence(), getCreatedAt(), getDateOfBirth(), getFormerNames(), getIdentification(),
                 getKind(), getLinks(), getName(), getFirstName(), getLastName(), getNationality(), getOccupation(),
-                getOfficerRole(), getReferenceEtag(), getReferenceOfficerId(), getReferenceOfficerListEtag(),
+                getOfficerRole(), getReferenceEtag(), getreferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getStatus(), getUpdatedAt(), getResidentialAddress(),
                 getResidentialAddressSameAsCorrespondenceAddress());
     }
@@ -215,7 +215,7 @@ public class OfficerFiling {
                 .add("occupation='" + occupation + "'")
                 .add("officerRole='" + officerRole + "'")
                 .add("referenceEtag='" + referenceEtag + "'")
-                .add("referenceOfficerId='" + referenceOfficerId + "'")
+                .add("referenceAppointmentId='" + referenceAppointmentId + "'")
                 .add("referenceOfficerListEtag='" + referenceOfficerListEtag + "'")
                 .add("resignedOn=" + resignedOn)
                 .add("status='" + status + "'")
@@ -263,7 +263,7 @@ public class OfficerFiling {
                     .occupation(other.getOccupation())
                     .officerRole(other.getOfficerRole())
                     .referenceEtag(other.getReferenceEtag())
-                    .referenceOfficerId(other.getReferenceOfficerId())
+                    .referenceAppointmentId(other.getreferenceAppointmentId())
                     .referenceOfficerListEtag(other.getReferenceOfficerListEtag())
                     .residentialAddress(other.getResidentialAddress())
                     .residentialAddressSameAsCorrespondenceAddress(
@@ -394,9 +394,9 @@ public class OfficerFiling {
             return this;
         }
 
-        public Builder referenceOfficerId(final String value) {
+        public Builder referenceAppointmentId(final String value) {
 
-            buildSteps.add(data -> data.referenceOfficerId = value);
+            buildSteps.add(data -> data.referenceAppointmentId = value);
             return this;
         }
 

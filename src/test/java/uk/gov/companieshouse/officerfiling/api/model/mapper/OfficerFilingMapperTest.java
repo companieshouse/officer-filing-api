@@ -91,7 +91,7 @@ class OfficerFilingMapperTest {
                 .identification(identificationDto)
                 .name("name")
                 .referenceEtag("referenceEtag")
-                .referenceOfficerId("referenceOfficerId")
+                .referenceAppointmentId("referenceAppointmentId")
                 .nationality("nation")
                 .occupation("work")
                 .referenceOfficerListEtag("list")
@@ -116,11 +116,11 @@ class OfficerFilingMapperTest {
         assertThat(filing.getName(), is("name"));
         assertThat(filing.getOfficerRole(), is(nullValue()));
         assertThat(filing.getReferenceEtag(), is("referenceEtag"));
-        assertThat(filing.getReferenceOfficerId(), is("referenceOfficerId"));
+        assertThat(filing.getreferenceAppointmentId(), is("referenceAppointmentId"));
         assertThat(filing.getNationality(), is("nation"));
         assertThat(filing.getOccupation(), is("work"));
         assertThat(filing.getReferenceEtag(), is("referenceEtag"));
-        assertThat(filing.getReferenceOfficerId(), is("referenceOfficerId"));
+        assertThat(filing.getreferenceAppointmentId(), is("referenceAppointmentId"));
         assertThat(filing.getReferenceOfficerListEtag(), is("list"));
         assertThat(filing.getResignedOn(), is(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC)));
         assertThat(filing.getResidentialAddress(), is(equalTo(address)));
@@ -182,7 +182,7 @@ class OfficerFilingMapperTest {
                 .nationality("nation")
                 .occupation("work")
                 .referenceEtag("referenceEtag")
-                .referenceOfficerId("referenceOfficerId")
+                .referenceAppointmentId("referenceAppointmentId")
                 .referenceOfficerListEtag("list")
                 .residentialAddress(address)
                 .residentialAddressSameAsCorrespondenceAddress(true)
@@ -203,7 +203,7 @@ class OfficerFilingMapperTest {
         assertThat(dto.getIdentification(), is(equalTo(identificationDto)));
         assertThat(dto.getName(), is("name"));
         assertThat(dto.getReferenceEtag(), is("referenceEtag"));
-        assertThat(dto.getReferenceOfficerId(), is("referenceOfficerId"));
+        assertThat(dto.getReferenceAppointmentId(), is("referenceAppointmentId"));
         assertThat(dto.getNationality(), is("nation"));
         assertThat(dto.getOccupation(), is("work"));
         assertThat(dto.getReferenceOfficerListEtag(), is("list"));
