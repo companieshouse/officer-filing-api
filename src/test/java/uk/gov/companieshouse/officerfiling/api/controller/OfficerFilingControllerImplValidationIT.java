@@ -9,7 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.Clock;
-import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -73,7 +74,7 @@ class OfficerFilingControllerImplValidationIT {
     }
 
     @Test
-    void createFilingWhenReferenceReferenceOfficerIdBlankThenResponse400() throws Exception {
+    void createFilingWhenReferenceReferenceAppointmentIdBlankThenResponse400() throws Exception {
         final var body = "{" + TM01_FRAGMENT.replace("id_value", "") + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
@@ -104,6 +105,28 @@ class OfficerFilingControllerImplValidationIT {
             .andExpect(jsonPath("$.errors[0].location", is("$.resigned_on")))
             .andExpect(jsonPath("$.errors[0].error_values", is(nullValue())))
             .andExpect(jsonPath("$.errors[0].error", is("must not be null")));
+    }
+
+    @Test
+    void createFilingWhenReferenceResignedOnInFutureThenResponse400() throws Exception {
+        final var tomorrow = LocalDate.now().plusDays(1);
+        final var body = "{"
+                + TM01_FRAGMENT.replace("2022-09-13", tomorrow.toString())
+                + "}";
+
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
+                .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
+                .andExpect(jsonPath("$.errors[0].location", is("$.resigned_on")))
+                .andExpect(jsonPath("$.errors[0].error_values",
+                        is(Map.of("rejected", tomorrow.toString()))))
+                .andExpect(jsonPath("$.errors[0].error",
+                        is("must be a date in the past or in the present")));
     }
 
 }
