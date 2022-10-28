@@ -143,7 +143,7 @@ class OfficerFilingControllerImplIT {
     void createFilingWhenDateUnparseableThenResponse400() throws Exception {
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "ABC") + "}";
         final var expectedError = createExpectedError(
-                "JSON parse error:", "$..resigned_on", 1, 71);
+                "JSON parse error:", "$..resigned_on", 1, 75);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
@@ -160,14 +160,14 @@ class OfficerFilingControllerImplIT {
                         "JSON parse error: Cannot deserialize value of type `java.time.LocalDate`"
                                 + " from String \"ABC\"")))
                 .andExpect(jsonPath("$.errors[0].error_values",
-                        is(Map.of("offset", "line: 1, column: 71", "line", "1", "column", "71"))));
+                        is(Map.of("offset", "line: 1, column: 75", "line", "1", "column", "75"))));
     }
 
     @Test
     void createFilingWhenResignedOnInvalidThenResponse400() throws Exception {
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "3000-09-13") + "}";
         final var expectedError = createExpectedError(
-                "JSON parse error:", "$.resigned_on", 1, 71);
+                "JSON parse error:", "$.resigned_on", 1, 75);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
@@ -190,7 +190,7 @@ class OfficerFilingControllerImplIT {
     void createFilingWhenResignedOnBlankThenResponse400() throws Exception {
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "") + "}";
         final var expectedError = createExpectedError(
-                "JSON parse error:", "$.resigned_on", 1, 71);
+                "JSON parse error:", "$.resigned_on", 1, 75);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
@@ -214,7 +214,7 @@ class OfficerFilingControllerImplIT {
                         + "(start marker at [Source: (org.springframework.util"
                         + ".StreamUtils$NonClosingInputStream); line: 1, column: 1])\n"
                         + " at [Source: (org.springframework.util"
-                        + ".StreamUtils$NonClosingInputStream); line: 1, column: 83]", "$", 1, 83);
+                        + ".StreamUtils$NonClosingInputStream); line: 1, column: 87]", "$", 1, 87);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content("{" + TM01_FRAGMENT)
                         .contentType("application/json")
@@ -231,7 +231,7 @@ class OfficerFilingControllerImplIT {
                         "JSON parse error: Unexpected end-of-input: expected close marker for "
                                 + "Object")))
                 .andExpect(jsonPath("$.errors[0].error_values",
-                        is(Map.of("offset", "line: 1, column: 83", "line", "1", "column", "83"))));
+                        is(Map.of("offset", "line: 1, column: 87", "line", "1", "column", "87"))));
     }
 
     @Test
