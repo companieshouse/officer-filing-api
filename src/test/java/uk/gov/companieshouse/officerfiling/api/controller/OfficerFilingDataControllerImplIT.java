@@ -29,7 +29,7 @@ class OfficerFilingDataControllerImplIT {
     private static final String TRANS_ID = "4f56fdf78b357bfc";
     private static final String FILING_ID = "632c8e65105b1b4a9f0d1f5e";
     private static final String PASSTHROUGH_HEADER = "passthrough";
-    private static final String REF_OFFICER_ID = "12345";
+    private static final String REF_APPOINTMENT_ID = "12345";
     private static final String REF_ETAG = "6789";
     private static final String RESIGNED_ON = "2022-10-05";
     @MockBean
@@ -55,7 +55,7 @@ class OfficerFilingDataControllerImplIT {
         final var filingApi = new FilingApi();
         filingApi.setKind("officer-filing#termination");
         final Map<String, Object> dataMap =
-                Map.of("referenceEtag", REF_ETAG, "referenceOfficerId", REF_OFFICER_ID, "resignedOn", RESIGNED_ON);
+                Map.of("referenceEtag", REF_ETAG, "referenceAppointmentId", REF_APPOINTMENT_ID, "resignedOn", RESIGNED_ON);
         filingApi.setData(dataMap);
         when(filingService.generateOfficerFiling(FILING_ID)).thenReturn(filingApi);
 

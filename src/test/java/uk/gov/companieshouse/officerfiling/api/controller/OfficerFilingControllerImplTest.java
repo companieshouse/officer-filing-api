@@ -80,7 +80,7 @@ class OfficerFilingControllerImplTest {
         testController = new OfficerFilingControllerImpl(transactionService, officerFilingService,
                 filingMapper, clock, logger);
         filing = OfficerFiling.builder()
-                .referenceOfficerId("off-id")
+                .referenceAppointmentId("off-id")
                 .referenceEtag("etag")
                 .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
                 .build();
