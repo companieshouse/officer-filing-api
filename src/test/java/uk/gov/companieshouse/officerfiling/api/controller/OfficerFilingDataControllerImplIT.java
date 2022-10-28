@@ -57,7 +57,7 @@ class OfficerFilingDataControllerImplIT {
         final Map<String, Object> dataMap =
                 Map.of("referenceEtag", REF_ETAG, "referenceAppointmentId", REF_APPOINTMENT_ID, "resignedOn", RESIGNED_ON);
         filingApi.setData(dataMap);
-        when(filingService.generateOfficerFiling(FILING_ID)).thenReturn(filingApi);
+        when(filingService.generateOfficerFiling(TRANS_ID, FILING_ID)).thenReturn(filingApi);
 
         mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/filings", TRANS_ID, FILING_ID)
             .headers(httpHeaders))
@@ -70,7 +70,7 @@ class OfficerFilingDataControllerImplIT {
 
     @Test
     void getFilingsWhenNotFound() throws Exception {
-        when(filingService.generateOfficerFiling(FILING_ID)).thenThrow(new ResourceNotFoundException("for Not Found scenario"));
+        when(filingService.generateOfficerFiling(TRANS_ID, FILING_ID)).thenThrow(new ResourceNotFoundException("for Not Found scenario"));
 
         mockMvc.perform(
                         get("/private/transactions/{id}/officers/{filingId}/filings", TRANS_ID,

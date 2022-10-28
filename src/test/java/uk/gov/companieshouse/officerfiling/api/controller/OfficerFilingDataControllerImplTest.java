@@ -46,7 +46,7 @@ class OfficerFilingDataControllerImplTest {
     @Test
     void getFilingsData() {
         var filingApi = new FilingApi();
-        when(filingService.generateOfficerFiling(FILING_ID)).thenReturn(filingApi);
+        when(filingService.generateOfficerFiling(TRANS_ID, FILING_ID)).thenReturn(filingApi);
         final var filingsList= testController.getFilingsData(TRANS_ID, FILING_ID, request);
 
         assertThat(filingsList, Matchers.contains(filingApi));
@@ -55,7 +55,7 @@ class OfficerFilingDataControllerImplTest {
     @Test
     void getFilingsDataWhenNotFound() {
 
-        when(filingService.generateOfficerFiling(FILING_ID)).thenThrow(new ResourceNotFoundException("Test Resource not found"));
+        when(filingService.generateOfficerFiling(TRANS_ID, FILING_ID)).thenThrow(new ResourceNotFoundException("Test Resource not found"));
 
         final var exception = assertThrows(ResourceNotFoundException.class,
                 () -> testController.getFilingsData(TRANS_ID, FILING_ID, request));

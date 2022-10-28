@@ -4,5 +4,5 @@ import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 
 public interface FilingService {
 
-    FilingApi generateOfficerFiling(String filingId);
+    FilingApi generateOfficerFiling(String transactionId, String filingId);
 }

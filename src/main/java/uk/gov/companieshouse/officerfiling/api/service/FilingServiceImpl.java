@@ -7,7 +7,6 @@ import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
-import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.utils.MapHelper;
 
@@ -26,15 +25,15 @@ public class FilingServiceImpl implements FilingService {
     }
 
     @Override
-    public FilingApi generateOfficerFiling(String filingId) {
+    public FilingApi generateOfficerFiling(String transactionId, String filingId) {
         var filing = new FilingApi();
         filing.setKind("officer-filing#termination");
 
-        setFilingApiData(filing, filingId);
+        setFilingApiData(filing, transactionId, filingId);
         return filing;
     }
 
-    private void setFilingApiData(FilingApi filing, String filingId) {
+    private void setFilingApiData(FilingApi filing, String transactionId, String filingId) {
         var officerFilingOpt = officerFilingService.get(filingId);
         var officerFiling = officerFilingOpt.orElseThrow(() -> new ResourceNotFoundException(
                 String.format("Officer not found when generating filing for %s", filingId)));
@@ -49,7 +48,7 @@ public class FilingServiceImpl implements FilingService {
 
         final Map<String, Object> logMap = new HashMap<>();
         logMap.put("Data to submit", dataMap);
-        logger.debug(filingId, logMap);
+        logger.debugContext(transactionId, filingId, logMap);
 
         filing.setData(dataMap);
     }

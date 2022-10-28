@@ -36,7 +36,7 @@ public class OfficerFilingDataControllerImpl implements OfficerFilingDataControl
         logMap.put("filingId", filingResource);
         logger.debugRequest(request, "GET /private/transactions/{transId}/officers{filingId}/filings", logMap);
 
-        var filingApi = filingService.generateOfficerFiling(filingResource);
+        var filingApi = filingService.generateOfficerFiling(transId, filingResource);
 
         logMap.put("officer filing:", filingApi);
         logger.infoContext(transId, "Officer filing data", logMap);
