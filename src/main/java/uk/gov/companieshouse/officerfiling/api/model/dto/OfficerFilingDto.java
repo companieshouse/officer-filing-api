@@ -33,7 +33,7 @@ public class OfficerFilingDto {
     @NotBlank
     private String referenceEtag;
     @NotBlank
-    private String referenceOfficerId;
+    private String referenceAppointmentId;
     private String referenceOfficerListEtag;
     @PastOrPresent
     @NotNull
@@ -88,8 +88,8 @@ public class OfficerFilingDto {
         return referenceEtag;
     }
 
-    public String getReferenceOfficerId() {
-        return referenceOfficerId;
+    public String getReferenceAppointmentId() {
+        return referenceAppointmentId;
     }
 
     public LocalDate getResignedOn() {
@@ -129,7 +129,7 @@ public class OfficerFilingDto {
                 && Objects.equals(getNationality(), that.getNationality())
                 && Objects.equals(getOccupation(), that.getOccupation())
                 && Objects.equals(getReferenceEtag(), that.getReferenceEtag())
-                && Objects.equals(getReferenceOfficerId(), that.getReferenceOfficerId())
+                && Objects.equals(getReferenceAppointmentId(), that.getReferenceAppointmentId())
                 && Objects.equals(getReferenceOfficerListEtag(), that.getReferenceOfficerListEtag())
                 && Objects.equals(getResignedOn(), that.getResignedOn())
                 && Objects.equals(getResidentialAddress(), that.getResidentialAddress())
@@ -142,7 +142,7 @@ public class OfficerFilingDto {
         return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getDateOfBirth(), getFormerNames(),
                 getIdentification(), getName(), getNationality(), getOccupation(),
-                getReferenceEtag(), getReferenceOfficerId(), getReferenceOfficerListEtag(),
+                getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getResidentialAddress(),
                 getResidentialAddressSameAsCorrespondenceAddress());
     }
@@ -161,7 +161,7 @@ public class OfficerFilingDto {
                 .add("nationality='" + nationality + "'")
                 .add("occupation='" + occupation + "'")
                 .add("referenceEtag='" + referenceEtag + "'")
-                .add("referenceOfficerId='" + referenceOfficerId + "'")
+                .add("referenceAppointmentId='" + referenceAppointmentId + "'")
                 .add("referenceOfficerListEtag='" + referenceOfficerListEtag + "'")
                 .add("resignedOn=" + resignedOn)
                 .add("residentialAddress=" + residentialAddress)
@@ -262,9 +262,9 @@ public class OfficerFilingDto {
             return this;
         }
 
-        public Builder referenceOfficerId(final String value) {
+        public Builder referenceAppointmentId(final String value) {
 
-            buildSteps.add(data -> data.referenceOfficerId = value);
+            buildSteps.add(data -> data.referenceAppointmentId = value);
             return this;
         }
 

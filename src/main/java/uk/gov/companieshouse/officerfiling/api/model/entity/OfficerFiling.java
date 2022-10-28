@@ -30,11 +30,13 @@ public class OfficerFiling {
     private String kind;
     private Links links;
     private String name;
+    private String firstName;
+    private String lastName;
     private String nationality;
     private String occupation;
     private String officerRole;
     private String referenceEtag;
-    private String referenceOfficerId;
+    private String referenceAppointmentId;
     private String referenceOfficerListEtag;
     private Instant resignedOn;
     private String status;
@@ -93,6 +95,14 @@ public class OfficerFiling {
         return name;
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
     public String getNationality() {
         return nationality;
     }
@@ -109,8 +119,8 @@ public class OfficerFiling {
         return referenceEtag;
     }
 
-    public String getReferenceOfficerId() {
-        return referenceOfficerId;
+    public String getreferenceAppointmentId() {
+        return referenceAppointmentId;
     }
 
     public String getReferenceOfficerListEtag() {
@@ -158,11 +168,13 @@ public class OfficerFiling {
                 && Objects.equals(getKind(), that.getKind())
                 && Objects.equals(getLinks(), that.getLinks())
                 && Objects.equals(getName(), that.getName())
+                && Objects.equals(getFirstName(), that.getFirstName())
+                && Objects.equals(getLastName(), that.getLastName())
                 && Objects.equals(getNationality(), that.getNationality())
                 && Objects.equals(getOccupation(), that.getOccupation())
                 && Objects.equals(getOfficerRole(), that.getOfficerRole())
                 && Objects.equals(getReferenceEtag(), that.getReferenceEtag())
-                && Objects.equals(getReferenceOfficerId(), that.getReferenceOfficerId())
+                && Objects.equals(getreferenceAppointmentId(), that.getreferenceAppointmentId())
                 && Objects.equals(getReferenceOfficerListEtag(), that.getReferenceOfficerListEtag())
                 && Objects.equals(getResignedOn(), that.getResignedOn())
                 && Objects.equals(getStatus(), that.getStatus())
@@ -174,12 +186,11 @@ public class OfficerFiling {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
-                getAppointedOn(), getCountryOfResidence(), getCreatedAt(), getDateOfBirth(),
-                getFormerNames(), getIdentification(), getKind(), getLinks(), getName(),
-                getNationality(), getOccupation(), getOfficerRole(), getReferenceEtag(),
-                getReferenceOfficerId(), getReferenceOfficerListEtag(), getResignedOn(),
-                getStatus(), getUpdatedAt(), getResidentialAddress(),
+        return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(), getAppointedOn(),
+                getCountryOfResidence(), getCreatedAt(), getDateOfBirth(), getFormerNames(), getIdentification(),
+                getKind(), getLinks(), getName(), getFirstName(), getLastName(), getNationality(), getOccupation(),
+                getOfficerRole(), getReferenceEtag(), getreferenceAppointmentId(), getReferenceOfficerListEtag(),
+                getResignedOn(), getStatus(), getUpdatedAt(), getResidentialAddress(),
                 getResidentialAddressSameAsCorrespondenceAddress());
     }
 
@@ -198,11 +209,13 @@ public class OfficerFiling {
                 .add("kind='" + kind + "'")
                 .add("links=" + links)
                 .add("name='" + name + "'")
+                .add("firstName='" + firstName + "'")
+                .add("lastName='" + lastName + "'")
                 .add("nationality='" + nationality + "'")
                 .add("occupation='" + occupation + "'")
                 .add("officerRole='" + officerRole + "'")
                 .add("referenceEtag='" + referenceEtag + "'")
-                .add("referenceOfficerId='" + referenceOfficerId + "'")
+                .add("referenceAppointmentId='" + referenceAppointmentId + "'")
                 .add("referenceOfficerListEtag='" + referenceOfficerListEtag + "'")
                 .add("resignedOn=" + resignedOn)
                 .add("status='" + status + "'")
@@ -244,11 +257,13 @@ public class OfficerFiling {
                     .kind(other.getKind())
                     .links(other.getLinks())
                     .name(other.getName())
+                    .firstName(other.getFirstName())
+                    .lastName(other.getLastName())
                     .nationality(other.getNationality())
                     .occupation(other.getOccupation())
                     .officerRole(other.getOfficerRole())
                     .referenceEtag(other.getReferenceEtag())
-                    .referenceOfficerId(other.getReferenceOfficerId())
+                    .referenceAppointmentId(other.getreferenceAppointmentId())
                     .referenceOfficerListEtag(other.getReferenceOfficerListEtag())
                     .residentialAddress(other.getResidentialAddress())
                     .residentialAddressSameAsCorrespondenceAddress(
@@ -343,6 +358,18 @@ public class OfficerFiling {
             return this;
         }
 
+        public Builder firstName(final String value) {
+
+            buildSteps.add(data -> data.firstName = value);
+            return this;
+        }
+
+        public Builder lastName(final String value) {
+
+            buildSteps.add(data -> data.lastName = value);
+            return this;
+        }
+
         public Builder nationality(final String value) {
 
             buildSteps.add(data -> data.nationality = value);
@@ -367,9 +394,9 @@ public class OfficerFiling {
             return this;
         }
 
-        public Builder referenceOfficerId(final String value) {
+        public Builder referenceAppointmentId(final String value) {
 
-            buildSteps.add(data -> data.referenceOfficerId = value);
+            buildSteps.add(data -> data.referenceAppointmentId = value);
             return this;
         }
 

@@ -17,7 +17,7 @@ public final class MapHelper {
             mapper = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         }
 
-        return mapper.convertValue(obj, new TypeReference<Map<String, Object>>() {
+        return mapper.convertValue(obj, new TypeReference<>() {
         });
     }
 

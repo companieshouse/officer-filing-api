@@ -46,7 +46,7 @@ class OfficerFilingControllerImplIT {
     private static final String FILING_ID = "632c8e65105b1b4a9f0d1f5e";
     private static final String PASSTHROUGH_HEADER = "passthrough";
     private static final String TM01_FRAGMENT = "\"reference_etag\": \"etag\","
-            + "\"reference_officer_id\": \"id\","
+            + "\"reference_appointment_id\": \"id\","
             + "\"resigned_on\": \"2022-09-13\"";
     public static final String MALFORMED_JSON_QUOTED = "\"\"";
     private static final Instant FIRST_INSTANT = Instant.parse("2022-10-15T09:44:08.108Z");
@@ -79,12 +79,12 @@ class OfficerFilingControllerImplIT {
         final var transaction = new Transaction();
         final var dto = OfficerFilingDto.builder()
                 .referenceEtag("etag")
-                .referenceOfficerId("id")
+                .referenceAppointmentId("id")
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
         final var filing = OfficerFiling.builder()
                 .referenceEtag("etag")
-                .referenceOfficerId("id")
+                .referenceAppointmentId("id")
                 .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
                 .build();
         final var locationUri = UriComponentsBuilder.fromPath("/")
@@ -238,12 +238,12 @@ class OfficerFilingControllerImplIT {
     void getFilingForReviewThenResponse200() throws Exception {
         final var dto = OfficerFilingDto.builder()
             .referenceEtag("etag")
-            .referenceOfficerId("id")
+            .referenceAppointmentId("id")
             .resignedOn(LocalDate.of(2022, 9, 13))
             .build();
         final var filing = OfficerFiling.builder()
             .referenceEtag("etag")
-            .referenceOfficerId("id")
+            .referenceAppointmentId("id")
             .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
             .build();
 
@@ -256,7 +256,7 @@ class OfficerFilingControllerImplIT {
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.reference_etag", is("etag")))
-            .andExpect(jsonPath("$.reference_officer_id", is("id")))
+            .andExpect(jsonPath("$.reference_appointment_id", is("id")))
             .andExpect(jsonPath("$.resigned_on", is("2022-09-13")));
     }
 
