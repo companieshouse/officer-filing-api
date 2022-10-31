@@ -1,5 +1,9 @@
 package uk.gov.companieshouse.officerfiling.api.error;
 
+import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -17,10 +21,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
@@ -37,17 +39,33 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
             final HttpMessageNotReadableException ex, final HttpHeaders headers,
             final HttpStatus status, final WebRequest request) {
+        final var cause = ex.getCause();
+        final var baseMessage = "JSON parse error: ";
+        final ApiError error;
 
-        final var nativeRequest =
-                (ContentCachingRequestWrapper) ((ServletWebRequest) request).getNativeRequest();
-        final var unquotedRequestBodyAsString =
-                new String(nativeRequest.getContentAsByteArray()).replaceAll("(^\")|(\"$)", "");
+        if (cause instanceof JsonProcessingException) {
+            final var jpe = (JsonProcessingException) cause;
+            final var msg = baseMessage + cause.getMessage();
+            final var location = jpe.getLocation();
+            var jsonPath = "$";
 
-        final var cause = ex.getMostSpecificCause().getMessage();
-        final var msg = "JSON parse error: [" + cause.substring(cause.lastIndexOf("line:"));
-        final var bodyError = buildRequestBodyError(msg, "$", unquotedRequestBodyAsString);
+            if (cause instanceof MismatchedInputException) {
+                final var fieldNameOpt = ((MismatchedInputException) cause).getPath()
+                        .stream()
+                        .findFirst()
+                        .map(JsonMappingException.Reference::getFieldName);
+                jsonPath += fieldNameOpt.map(f -> ".." + f).orElse("");
+            }
 
-        return ResponseEntity.status(status).body(new ApiErrors(List.of(bodyError)));
+            error = buildRequestBodyError(msg, jsonPath, null);
+            addLocationInfo(error, location);
+        }
+        else {
+            error = buildRequestBodyError(ex.getMostSpecificCause().getMessage(), "$", null);
+
+        }
+
+        return ResponseEntity.badRequest().body(new ApiErrors(List.of(error)));
     }
 
     @ExceptionHandler(InvalidFilingException.class)
@@ -66,8 +84,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Resource not found")
-    public ResponseEntity<Void> handleResourceNotFoundException(final ResourceNotFoundException ex) {
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<Void> handleResourceNotFoundException(
+            final ResourceNotFoundException ex) {
+        return ResponseEntity.notFound()
+                .build();
     }
 
     @ExceptionHandler(TransactionServiceException.class)
@@ -110,6 +130,11 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ApiErrors(List.of(error));
     }
 
+    private static void addLocationInfo(final ApiError error, final JsonLocation location) {
+        error.addErrorValue("offset", location.offsetDescription());
+        error.addErrorValue("line", String.valueOf(location.getLineNr()));
+        error.addErrorValue("column", String.valueOf(location.getColumnNr()));
+    }
 
     private static String getJsonPath(final FieldError e) {
         return Optional.ofNullable(e.getCodes())
@@ -118,6 +143,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .skip(1)
                 .findFirst()
                 .map(s -> s.replaceAll("^[^.]*", "\\$"))
+                .map(s -> s.replaceAll("([A-Z0-9]+)", "_$1").toLowerCase())
                 .orElse(null);
     }
 

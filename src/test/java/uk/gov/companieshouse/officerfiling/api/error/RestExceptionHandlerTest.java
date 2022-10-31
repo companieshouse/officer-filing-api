@@ -1,13 +1,18 @@
 package uk.gov.companieshouse.officerfiling.api.error;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -27,14 +32,16 @@ import org.springframework.mock.http.MockHttpInputMessage;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.validation.FieldError;
 import org.springframework.web.context.request.ServletWebRequest;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 import uk.gov.companieshouse.api.error.ApiError;
+import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.exception.TransactionServiceException;
 
 @ExtendWith(MockitoExtension.class)
 class RestExceptionHandlerTest {
     public static final String MALFORMED_JSON_QUOTED = "\"{\"";
-    public static final String MALFORMED_JSON_UNQUOTED = "{";
+    private static final String TM01_FRAGMENT = "{\"reference_etag\": \"etag\","
+            + "\"reference_officer_id\": \"id\","
+            + "\"resigned_on\": \"2022-09-13\"}";
 
     private RestExceptionHandler testExceptionHandler;
 
@@ -43,9 +50,14 @@ class RestExceptionHandlerTest {
     @Mock
     private ServletWebRequest request;
     @Mock
-    private ContentCachingRequestWrapper requestWrapper;
+    private MismatchedInputException mismatchedInputException;
+    @Mock
+    private JsonParseException jsonParseException;
 
     private MockHttpServletRequest servletRequest;
+
+    @Mock
+    private JsonMappingException.Reference mappingReference;
 
     @BeforeEach
     void setUp() {
@@ -55,7 +67,7 @@ class RestExceptionHandlerTest {
     }
 
     @Test
-    void handleHttpMessageNotReadableWithRedactedMessage() {
+    void handleHttpMessageNotReadableWhenJsonMalformed() {
         final var message = new MockHttpInputMessage(MALFORMED_JSON_QUOTED.getBytes());
         final var exceptionMessage = new HttpMessageNotReadableException("Unexpected end-of-input: "
                 + "expected close marker for Object (start marker at [Source: (org"
@@ -65,9 +77,6 @@ class RestExceptionHandlerTest {
                 + ".StreamUtils$NonClosingInputStream); "
                 + "line: 1, column: 2]", message);
 
-        when(request.getNativeRequest()).thenReturn(requestWrapper);
-        when(requestWrapper.getContentAsByteArray()).thenReturn(MALFORMED_JSON_QUOTED.getBytes());
-
         final var response =
                 testExceptionHandler.handleHttpMessageNotReadable(exceptionMessage, headers,
                         HttpStatus.BAD_REQUEST, request);
@@ -75,17 +84,91 @@ class RestExceptionHandlerTest {
         final var expectedError = new ApiError("test", "$", "json-path", "ch:validation");
         final var actualError = Objects.requireNonNull(apiErrors).getErrors().iterator().next();
 
-        expectedError.addErrorValue("rejected", MALFORMED_JSON_UNQUOTED);
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
-        assertThat(apiErrors.getErrors(), hasSize(1));
+        assertThat(actualError.getErrorValues(), is(nullValue()));
         assertThat(actualError, is(samePropertyValuesAs(expectedError, "error")));
-        assertThat(actualError.getError(), is("JSON parse error: [line: 1, column: 2]"));
+        assertThat(actualError.getError(),
+                containsString("Unexpected end-of-input: expected close marker"));
+    }
+
+    @Test
+    void handleHttpMessageNotReadableWhenMismatchedInputException() {
+        final var msg =
+                "Cannot deserialize value of type `java.time.LocalDate` from String \"ABC\": "
+                        + "Failed to deserialize java.time.LocalDate: (java.time.format"
+                        + ".DateTimeParseException) Text 'ABC' could not be parsed at index 0";
+        final var message = new MockHttpInputMessage("{]".getBytes());
+
+        when(mismatchedInputException.getMessage()).thenReturn(msg);
+        when(mismatchedInputException.getLocation()).thenReturn(new JsonLocation(null, 100, 3, 7));
+        when(mismatchedInputException.getPath()).thenReturn(List.of(mappingReference));
+        when(mappingReference.getFieldName()).thenReturn("resigned_on");
+
+        final var exceptionMessage =
+                new HttpMessageNotReadableException(msg, mismatchedInputException, message);
+        final var response =
+                testExceptionHandler.handleHttpMessageNotReadable(exceptionMessage, headers,
+                        HttpStatus.BAD_REQUEST, request);
+        final var apiErrors = (ApiErrors) response.getBody();
+        final var expectedError =
+                new ApiError("JSON parse error: " + msg, "$..resigned_on", "json-path",
+                        "ch:validation");
+        expectedError.addErrorValue("offset", "line: 3, column: 7");
+        expectedError.addErrorValue("line", "3");
+        expectedError.addErrorValue("column", "7");
+        final var actualError = Objects.requireNonNull(apiErrors).getErrors().iterator().next();
+
+        assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
+        assertThat(actualError, is(samePropertyValuesAs(expectedError)));
+        assertThat(actualError.getError(), containsString("Text 'ABC' could not be parsed"));
+    }
+
+    @Test
+    void handleHttpMessageNotReadableWhenJsonParseException() {
+        final var msg = "JsonParseException";
+        final var message =
+                new MockHttpInputMessage(TM01_FRAGMENT.replaceAll("2022", "ABC").getBytes());
+
+        when(jsonParseException.getMessage()).thenReturn(msg);
+        when(jsonParseException.getLocation()).thenReturn(new JsonLocation(null, 100, 3, 7));
+//        when(jsonParseException.getPath()).thenReturn(List.of(mappingReference));
+//        when(mappingReference.getFieldName()).thenReturn("resigned_on");
+
+        final var exceptionMessage =
+                new HttpMessageNotReadableException(msg, jsonParseException, message);
+
+        final var response =
+                testExceptionHandler.handleHttpMessageNotReadable(exceptionMessage, headers,
+                        HttpStatus.BAD_REQUEST, request);
+
+        final var apiErrors = (ApiErrors) response.getBody();
+        final var expectedError =
+                new ApiError("JSON parse error: " + msg, "$", "json-path", "ch:validation");
+        expectedError.addErrorValue("offset", "line: 3, column: 7");
+        expectedError.addErrorValue("line", "3");
+        expectedError.addErrorValue("column", "7");
+        final var actualError = Objects.requireNonNull(apiErrors).getErrors().iterator().next();
+
+        assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
+        assertThat(actualError, is(samePropertyValuesAs(expectedError)));
+        assertThat(actualError.getError(), containsString("JSON parse error: JsonParseException"));
+    }
+
+    @Test
+    void handleResourceNotFoundException() {
+        final var exception = new ResourceNotFoundException("test resource missing");
+
+        final var response =
+                testExceptionHandler.handleResourceNotFoundException(exception);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.NOT_FOUND));
+        assertThat(response.hasBody(), is(false));
     }
 
     @Test
     void handleInvalidFilingException() {
         final var fieldError = new FieldError("object", "field", "error");
-        final var codes = new String[]{"code1", "code2.name", "code3"};
+        final var codes = new String[]{"code1", "code2.addressLine1", "code3"};
         final var fieldErrorWithRejectedValue =
                 new FieldError("object", "field", "rejectedValue", false, codes, null,
                         "errorWithRejectedValue");
@@ -96,7 +179,8 @@ class RestExceptionHandlerTest {
 
         final var expectedError = new ApiError("error", null, "json-path", "ch:validation");
         final var expectedErrorWithRejectedValue =
-                new ApiError("errorWithRejectedValue", "$.name", "json-path", "ch:validation");
+                new ApiError("errorWithRejectedValue", "$.address_line_1", "json-path",
+                        "ch:validation");
 
         expectedErrorWithRejectedValue.addErrorValue("rejected", "rejectedValue");
 
@@ -164,5 +248,4 @@ class RestExceptionHandlerTest {
     private static Stream<Arguments> causeProvider() {
         return Stream.of(Arguments.of(new ArithmeticException("DIV/0")));
     }
-
 }
