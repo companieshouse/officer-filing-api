@@ -62,7 +62,7 @@ class FilingServiceImplTest {
         when(officerFilingService.get(FILING_ID)).thenReturn(Optional.of(officerFiling));
         when(officerFilingMapper.mapFiling(officerFiling)).thenReturn(filingData);
 
-        final var filingApi = testService.generateOfficerFiling(REF_ETAG, FILING_ID);
+        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID);
 
         final Map<String, Object> expectedMap =
                 Map.of("first_name", FIRSTNAME, "last_name", LASTNAME,

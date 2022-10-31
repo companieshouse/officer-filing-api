@@ -38,7 +38,10 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
         final Map<String, Object> logMap = new HashMap<>();
 
         logMap.put("filingId", filingResource);
-        logger.debugRequest(request, "GET /private/transactions/{transId}/officers{filingId}/validation_status", logMap);
+        logMap.put("transId", transId);
+        logMap.put("path", request.getRequestURI());
+        logMap.put("method", request.getMethod());
+        logger.debugRequest(request, "GET validation request", logMap);
 
         var maybeOfficerFiling = officerFilingService.get(filingResource);
 

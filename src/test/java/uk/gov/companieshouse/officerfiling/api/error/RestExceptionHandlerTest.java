@@ -64,6 +64,7 @@ class RestExceptionHandlerTest {
         testExceptionHandler = new RestExceptionHandler();
         servletRequest = new MockHttpServletRequest();
         servletRequest.setRequestURI("/path/to/resource");
+        when(request.getRequest()).thenReturn(servletRequest);
     }
 
     @Test
@@ -102,6 +103,7 @@ class RestExceptionHandlerTest {
         when(mismatchedInputException.getMessage()).thenReturn(msg);
         when(mismatchedInputException.getLocation()).thenReturn(new JsonLocation(null, 100, 3, 7));
         when(mismatchedInputException.getPath()).thenReturn(List.of(mappingReference));
+        when(mismatchedInputException.getStackTrace()).thenReturn(new StackTraceElement[0]);
         when(mappingReference.getFieldName()).thenReturn("resigned_on");
 
         final var exceptionMessage =
@@ -131,8 +133,7 @@ class RestExceptionHandlerTest {
 
         when(jsonParseException.getMessage()).thenReturn(msg);
         when(jsonParseException.getLocation()).thenReturn(new JsonLocation(null, 100, 3, 7));
-//        when(jsonParseException.getPath()).thenReturn(List.of(mappingReference));
-//        when(mappingReference.getFieldName()).thenReturn("resigned_on");
+        when(jsonParseException.getStackTrace()).thenReturn(new StackTraceElement[0]);
 
         final var exceptionMessage =
                 new HttpMessageNotReadableException(msg, jsonParseException, message);
@@ -159,7 +160,7 @@ class RestExceptionHandlerTest {
         final var exception = new ResourceNotFoundException("test resource missing");
 
         final var response =
-                testExceptionHandler.handleResourceNotFoundException(exception);
+                testExceptionHandler.handleResourceNotFoundException(exception, request);
 
         assertThat(response.getStatusCode(), is(HttpStatus.NOT_FOUND));
         assertThat(response.hasBody(), is(false));
@@ -175,7 +176,7 @@ class RestExceptionHandlerTest {
         final var exception =
                 new InvalidFilingException(List.of(fieldError, fieldErrorWithRejectedValue));
 
-        final var apiErrors = testExceptionHandler.handleInvalidFilingException(exception);
+        final var apiErrors = testExceptionHandler.handleInvalidFilingException(exception, request);
 
         final var expectedError = new ApiError("error", null, "json-path", "ch:validation");
         final var expectedErrorWithRejectedValue =
