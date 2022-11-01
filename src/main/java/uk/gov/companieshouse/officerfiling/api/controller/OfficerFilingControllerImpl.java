@@ -58,7 +58,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             final HttpServletRequest request) {
         final Map<String, Object> logMap = new HashMap<>();
 
-        logMap.put("transactionId", transId);
+        logMap.put("transaction_id", transId);
         logger.debugRequest(request, "POST", logMap);
 
         if (bindingResult != null && bindingResult.hasErrors()) {
@@ -86,7 +86,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     public ResponseEntity<OfficerFilingDto> getFilingForReview(@PathVariable("transId") final String transId,
                                                             @PathVariable("filingResourceId") final String filingResource) {
 
-        var maybeOfficerFiling = officerFilingService.get(filingResource);
+        var maybeOfficerFiling = officerFilingService.get(filingResource, transId);
 
         var maybeDto = maybeOfficerFiling.map(filingMapper::map);
 
@@ -109,13 +109,13 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
     private Links saveFilingWithLinks(final OfficerFiling entity, final String transId,
             final HttpServletRequest request, final Map<String, Object> logMap) {
-        final var saved = officerFilingService.save(entity);
+        final var saved = officerFilingService.save(entity, transId);
         final var links = buildLinks(saved, request);
         final var updated = OfficerFiling.builder(saved).links(links)
                 .build();
-        final var resaved = officerFilingService.save(updated);
+        final var resaved = officerFilingService.save(updated, transId);
 
-        logMap.put("filingId", resaved.getId());
+        logMap.put("filing_id", resaved.getId());
         logger.infoContext(transId, "Filing saved", logMap);
 
         return links;

@@ -39,7 +39,7 @@ class ValidationStatusControllerImplTest {
     @Test
     void validateWhenFound() {
         var filing = OfficerFiling.builder().build();
-        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.of(filing));
+        when(officerFilingService.get(FILING_ID, )).thenReturn(Optional.of(filing));
         final var response= testController.validate(TRANS_ID, FILING_ID, request);
 
         assertThat(response.isValid(), is(true));
@@ -47,7 +47,7 @@ class ValidationStatusControllerImplTest {
 
     @Test
     void validateWhenNotFound() {
-        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.empty());
+        when(officerFilingService.get(FILING_ID, )).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> testController.validate(TRANS_ID, FILING_ID, request));
     }

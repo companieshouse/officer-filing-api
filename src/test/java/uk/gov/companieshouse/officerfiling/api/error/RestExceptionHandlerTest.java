@@ -33,6 +33,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.validation.FieldError;
 import org.springframework.web.context.request.ServletWebRequest;
 import uk.gov.companieshouse.api.error.ApiError;
+import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.exception.TransactionServiceException;
 
@@ -53,6 +54,8 @@ class RestExceptionHandlerTest {
     private MismatchedInputException mismatchedInputException;
     @Mock
     private JsonParseException jsonParseException;
+    @Mock
+    private Logger logger;
 
     private MockHttpServletRequest servletRequest;
 
@@ -61,7 +64,7 @@ class RestExceptionHandlerTest {
 
     @BeforeEach
     void setUp() {
-        testExceptionHandler = new RestExceptionHandler();
+        testExceptionHandler = new RestExceptionHandler(logger);
         servletRequest = new MockHttpServletRequest();
         servletRequest.setRequestURI("/path/to/resource");
         when(request.getRequest()).thenReturn(servletRequest);
@@ -103,7 +106,6 @@ class RestExceptionHandlerTest {
         when(mismatchedInputException.getMessage()).thenReturn(msg);
         when(mismatchedInputException.getLocation()).thenReturn(new JsonLocation(null, 100, 3, 7));
         when(mismatchedInputException.getPath()).thenReturn(List.of(mappingReference));
-        when(mismatchedInputException.getStackTrace()).thenReturn(new StackTraceElement[0]);
         when(mappingReference.getFieldName()).thenReturn("resigned_on");
 
         final var exceptionMessage =
@@ -133,7 +135,6 @@ class RestExceptionHandlerTest {
 
         when(jsonParseException.getMessage()).thenReturn(msg);
         when(jsonParseException.getLocation()).thenReturn(new JsonLocation(null, 100, 3, 7));
-        when(jsonParseException.getStackTrace()).thenReturn(new StackTraceElement[0]);
 
         final var exceptionMessage =
                 new HttpMessageNotReadableException(msg, jsonParseException, message);

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.officerfiling.api.exception.NotImplementedException;
 
-public interface OfficerFilingDataController {
+public interface FilingDataController {
 
     @GetMapping
     default List<FilingApi> getFilingsData(@PathVariable("transId") String transId,

@@ -11,14 +11,14 @@ import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.utils.MapHelper;
 
 @Service
-public class FilingServiceImpl implements FilingService {
+public class FilingDataServiceImpl implements FilingDataService {
 
     private final OfficerFilingService officerFilingService;
     private final OfficerFilingMapper filingMapper;
     private final Logger logger;
 
-    public FilingServiceImpl(OfficerFilingService officerFilingService, OfficerFilingMapper filingMapper,
-                             Logger logger) {
+    public FilingDataServiceImpl(OfficerFilingService officerFilingService, OfficerFilingMapper filingMapper,
+                                 Logger logger) {
         this.officerFilingService = officerFilingService;
         this.filingMapper = filingMapper;
         this.logger = logger;
@@ -34,7 +34,7 @@ public class FilingServiceImpl implements FilingService {
     }
 
     private void setFilingApiData(FilingApi filing, String transactionId, String filingId) {
-        var officerFilingOpt = officerFilingService.get(filingId);
+        var officerFilingOpt = officerFilingService.get(filingId, transactionId);
         var officerFiling = officerFilingOpt.orElseThrow(() -> new ResourceNotFoundException(
                 String.format("Officer not found when generating filing for %s", filingId)));
         // TODO this is dummy data until we get the details from company-appointments API
@@ -48,6 +48,7 @@ public class FilingServiceImpl implements FilingService {
 
         final Map<String, Object> logMap = new HashMap<>();
         logMap.put("Data to submit", dataMap);
+        logMap.put("transaction_id", transactionId);
         logger.debugContext(transactionId, filingId, logMap);
 
         filing.setData(dataMap);

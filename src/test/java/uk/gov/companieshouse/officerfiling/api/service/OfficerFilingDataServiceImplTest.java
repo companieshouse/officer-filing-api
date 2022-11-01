@@ -11,27 +11,31 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.repository.OfficerFilingRepository;
 
 @ExtendWith(MockitoExtension.class)
-class OfficerFilingServiceImplTest {
+class OfficerFilingDataServiceImplTest {
     public static final String FILING_ID = "6332aa6ed28ad2333c3a520a";
+    public static final String TRANS_ID = "12345-54321-76666";
     private OfficerFilingService testService;
 
     @Mock
     private OfficerFilingRepository repository;
     @Mock
     private OfficerFiling filing;
+    @Mock
+    private Logger logger;
 
     @BeforeEach
     void setUp() {
-        testService = new OfficerFilingServiceImpl(repository);
+        testService = new OfficerFilingServiceImpl(repository, logger);
     }
 
     @Test
     void save() {
-        testService.save(filing);
+        testService.save(filing, TRANS_ID);
 
         verify(repository).save(filing);
     }
@@ -40,7 +44,7 @@ class OfficerFilingServiceImplTest {
     void getWhenFound() {
         var filing = OfficerFiling.builder().build();
         when(repository.findById(FILING_ID)).thenReturn(Optional.of(filing));
-        final var officerFiling = testService.get(FILING_ID);
+        final var officerFiling = testService.get(FILING_ID, TRANS_ID);
 
         assertThat(officerFiling.isPresent(), is(true));
     }
@@ -48,7 +52,7 @@ class OfficerFilingServiceImplTest {
     @Test
     void getWhenNotFound() {
         when(repository.findById(FILING_ID)).thenReturn(Optional.empty());
-        final var officerFiling = testService.get(FILING_ID);
+        final var officerFiling = testService.get(FILING_ID, TRANS_ID);
 
         assertThat(officerFiling.isPresent(), is(false));
     }

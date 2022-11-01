@@ -105,8 +105,8 @@ class OfficerFilingControllerImplTest {
                 .build();
         final var withLinks = OfficerFiling.builder(withFilingId).links(links)
                 .build();
-        when(officerFilingService.save(filing)).thenReturn(withFilingId);
-        when(officerFilingService.save(withLinks)).thenReturn(withLinks);
+        when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
+        when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
         when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
         when(clock.instant()).thenReturn(FIRST_INSTANT);
 
@@ -157,7 +157,7 @@ class OfficerFilingControllerImplTest {
 
         when(filingMapper.map(filing)).thenReturn(dto);
 
-        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.of(filing));
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
 
         final var response =
             testController.getFilingForReview(TRANS_ID, FILING_ID);
@@ -169,7 +169,7 @@ class OfficerFilingControllerImplTest {
     @Test
     void getFilingForReviewNotFound() {
 
-        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.empty());
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
 
         final var response =
             testController.getFilingForReview(TRANS_ID, FILING_ID);

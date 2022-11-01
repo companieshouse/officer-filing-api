@@ -49,7 +49,7 @@ class ValidationStatusControllerImplIT {
     @Test
     void validationStatusWhenFound() throws Exception {
         final var filing = OfficerFiling.builder().build();
-        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.of(filing));
+        when(officerFilingService.get(FILING_ID, )).thenReturn(Optional.of(filing));
 
         mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID, request)
             .headers(httpHeaders))
@@ -60,7 +60,7 @@ class ValidationStatusControllerImplIT {
 
     @Test
     void validationStatusWhenNotFound() throws Exception {
-        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.empty());
+        when(officerFilingService.get(FILING_ID, )).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID, request)
                         .headers(httpHeaders))

@@ -29,15 +29,18 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.logging.LoggerFactory;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.exception.TransactionServiceException;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
-    private static final Logger CH_LOGGER = LoggerFactory.getLogger("officer-filing-api");
+    private final Logger logger;
     public static final String CAUSE = "cause";
+
+    public RestExceptionHandler(Logger logger) {
+        this.logger = logger;
+    }
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
@@ -115,7 +118,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(final Exception ex, final Object body,
             final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
-        CH_LOGGER.error("INTERNAL ERROR", ex);
+        logger.error("INTERNAL ERROR", ex);
         final var error = new ApiError(ex.getMessage(), getRequestURI(request),
                 LocationType.RESOURCE.getValue(), ErrorType.SERVICE.getType());
         Optional.ofNullable(ex.getCause())
@@ -132,7 +135,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseBody
     public ApiErrors handleAllUncaughtException(final RuntimeException ex,
             final WebRequest request) {
-        CH_LOGGER.error("Unknown error occurred", ex);
+        logger.error("Unknown error occurred", ex);
         final var error = new ApiError(ex.getMessage(), getRequestURI(request),
                 LocationType.RESOURCE.getValue(), ErrorType.SERVICE.getType());
         Optional.ofNullable(ex.getCause())
@@ -181,13 +184,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return error;
     }
 
-    private static void logError(WebRequest request, String msg, @Nullable Exception ex, @Nullable List<ApiError> apiErrorList) {
+    private void logError(WebRequest request, String msg, @Nullable Exception ex, @Nullable List<ApiError> apiErrorList) {
         final Map<String, Object> logMap = new HashMap<>();
         final var servletRequest = ((ServletWebRequest) request).getRequest();
         logMap.put("path", servletRequest.getRequestURI());
         logMap.put("method",servletRequest.getMethod());
         Optional.ofNullable(apiErrorList).ifPresent(l -> logMap.put("errors", l));
-        CH_LOGGER.error(msg, ex, logMap);
+        logger.error(msg, ex, logMap);
     }
 
 }

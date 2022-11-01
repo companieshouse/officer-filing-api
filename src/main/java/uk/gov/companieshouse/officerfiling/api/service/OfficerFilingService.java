@@ -4,8 +4,8 @@ import java.util.Optional;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 
 public interface OfficerFilingService {
-    OfficerFiling save(OfficerFiling filing);
+    OfficerFiling save(OfficerFiling filing, String transactionId);
 
-    Optional<OfficerFiling> get(String officerFilingId);
+    Optional<OfficerFiling> get(String officerFilingId, String transactionId);
 
 }

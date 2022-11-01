@@ -10,18 +10,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.service.FilingService;
+import uk.gov.companieshouse.officerfiling.api.service.FilingDataService;
 
 @RestController
 @RequestMapping("/private/transactions/{transId}/officers")
-public class OfficerFilingDataControllerImpl implements OfficerFilingDataController {
+public class FilingDataControllerImpl implements FilingDataController {
     public static final String VALIDATION_STATUS = "validation_status";
-    private final FilingService filingService;
+    private final FilingDataService filingDataService;
     private final Logger logger;
 
-    public OfficerFilingDataControllerImpl(final FilingService filingService,
-                                           final Logger logger) {
-        this.filingService = filingService;
+    public FilingDataControllerImpl(final FilingDataService filingDataService,
+                                    final Logger logger) {
+        this.filingDataService = filingDataService;
         this.logger = logger;
     }
 
@@ -33,10 +33,10 @@ public class OfficerFilingDataControllerImpl implements OfficerFilingDataControl
 
         final Map<String, Object> logMap = new HashMap<>();
 
-        logMap.put("filingId", filingResource);
+        logMap.put("filing_id", filingResource);
         logger.debugRequest(request, "GET /private/transactions/{transId}/officers{filingId}/filings", logMap);
 
-        var filingApi = filingService.generateOfficerFiling(transId, filingResource);
+        var filingApi = filingDataService.generateOfficerFiling(transId, filingResource);
 
         logMap.put("officer filing:", filingApi);
         logger.infoContext(transId, "Officer filing data", logMap);

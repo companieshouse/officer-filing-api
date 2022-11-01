@@ -37,13 +37,13 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
 
         final Map<String, Object> logMap = new HashMap<>();
 
-        logMap.put("filingId", filingResource);
-        logMap.put("transId", transId);
+        logMap.put("filing_id", filingResource);
+        logMap.put("transaction_id", transId);
         logMap.put("path", request.getRequestURI());
         logMap.put("method", request.getMethod());
         logger.debugRequest(request, "GET validation request", logMap);
 
-        var maybeOfficerFiling = officerFilingService.get(filingResource);
+        var maybeOfficerFiling = officerFilingService.get(filingResource, transId);
 
         return maybeOfficerFiling.map(this::isValid).orElseThrow(ResourceNotFoundException::new);
     }
