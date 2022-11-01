@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.repository.OfficerFilingRepository;
+import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 @ExtendWith(MockitoExtension.class)
 class OfficerFilingDataServiceImplTest {
@@ -27,10 +28,12 @@ class OfficerFilingDataServiceImplTest {
     private OfficerFiling filing;
     @Mock
     private Logger logger;
+    @Mock
+    private LogHelper logHelper;
 
     @BeforeEach
     void setUp() {
-        testService = new OfficerFilingServiceImpl(repository, logger);
+        testService = new OfficerFilingServiceImpl(repository, logger, logHelper);
     }
 
     @Test

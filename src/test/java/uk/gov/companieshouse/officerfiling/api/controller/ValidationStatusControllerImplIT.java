@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
+import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 @Tag("web")
 @WebMvcTest(controllers = ValidationStatusControllerImpl.class)
@@ -34,6 +35,8 @@ class ValidationStatusControllerImplIT {
     private HttpServletRequest request;
     @MockBean
     private Logger logger;
+    @MockBean
+    private LogHelper logHelper;
 
     private HttpHeaders httpHeaders;
 
@@ -49,7 +52,7 @@ class ValidationStatusControllerImplIT {
     @Test
     void validationStatusWhenFound() throws Exception {
         final var filing = OfficerFiling.builder().build();
-        when(officerFilingService.get(FILING_ID, )).thenReturn(Optional.of(filing));
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
 
         mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID, request)
             .headers(httpHeaders))
@@ -60,7 +63,7 @@ class ValidationStatusControllerImplIT {
 
     @Test
     void validationStatusWhenNotFound() throws Exception {
-        when(officerFilingService.get(FILING_ID, )).thenReturn(Optional.empty());
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID, request)
                         .headers(httpHeaders))

@@ -59,7 +59,7 @@ class FilingDataServiceImplTest {
                 .dateOfBirth(DATE_OF_BIRTH_TUPLE)
                 .build();
 
-        when(officerFilingService.get(FILING_ID, )).thenReturn(Optional.of(officerFiling));
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
         when(officerFilingMapper.mapFiling(officerFiling)).thenReturn(filingData);
 
         final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID);
@@ -75,7 +75,7 @@ class FilingDataServiceImplTest {
 
     @Test
     void generateOfficerFilingWhenNotFound() {
-        when(officerFilingService.get(FILING_ID, )).thenReturn(Optional.empty());
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
 
         final var exception = assertThrows(ResourceNotFoundException.class,
                 () -> testService.generateOfficerFiling(TRANS_ID, FILING_ID));
