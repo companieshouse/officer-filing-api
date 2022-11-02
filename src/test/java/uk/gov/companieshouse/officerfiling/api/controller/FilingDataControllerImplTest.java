@@ -16,10 +16,10 @@ import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
-import uk.gov.companieshouse.officerfiling.api.service.FilingService;
+import uk.gov.companieshouse.officerfiling.api.service.FilingDataService;
 
 @ExtendWith(MockitoExtension.class)
-class OfficerFilingDataControllerImplTest {
+class FilingDataControllerImplTest {
 
     public static final String TRANS_ID = "117524-754816-491724";
     public static final String FILING_ID = "6332aa6ed28ad2333c3a520a";
@@ -28,7 +28,7 @@ class OfficerFilingDataControllerImplTest {
     private OfficerFiling officerFiling;
 
     @Mock
-    private FilingService filingService;
+    private FilingDataService filingDataService;
 
     @Mock
     private Logger logger;
@@ -36,17 +36,17 @@ class OfficerFilingDataControllerImplTest {
     @Mock
     private HttpServletRequest request;
 
-    private OfficerFilingDataControllerImpl testController;
+    private FilingDataControllerImpl testController;
 
     @BeforeEach
     void setUp() {
-        testController = new OfficerFilingDataControllerImpl(filingService, logger);
+        testController = new FilingDataControllerImpl(filingDataService, logger);
     }
 
     @Test
     void getFilingsData() {
         var filingApi = new FilingApi();
-        when(filingService.generateOfficerFiling(FILING_ID)).thenReturn(filingApi);
+        when(filingDataService.generateOfficerFiling(TRANS_ID, FILING_ID)).thenReturn(filingApi);
         final var filingsList= testController.getFilingsData(TRANS_ID, FILING_ID, request);
 
         assertThat(filingsList, Matchers.contains(filingApi));
@@ -55,7 +55,7 @@ class OfficerFilingDataControllerImplTest {
     @Test
     void getFilingsDataWhenNotFound() {
 
-        when(filingService.generateOfficerFiling(FILING_ID)).thenThrow(new ResourceNotFoundException("Test Resource not found"));
+        when(filingDataService.generateOfficerFiling(TRANS_ID, FILING_ID)).thenThrow(new ResourceNotFoundException("Test Resource not found"));
 
         final var exception = assertThrows(ResourceNotFoundException.class,
                 () -> testController.getFilingsData(TRANS_ID, FILING_ID, request));

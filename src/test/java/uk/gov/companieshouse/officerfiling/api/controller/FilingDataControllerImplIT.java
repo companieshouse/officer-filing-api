@@ -20,12 +20,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
-import uk.gov.companieshouse.officerfiling.api.service.FilingService;
+import uk.gov.companieshouse.officerfiling.api.service.FilingDataService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 
 @Tag("web")
-@WebMvcTest(controllers = OfficerFilingDataControllerImpl.class)
-class OfficerFilingDataControllerImplIT {
+@WebMvcTest(controllers = FilingDataControllerImpl.class)
+class FilingDataControllerImplIT {
     private static final String TRANS_ID = "4f56fdf78b357bfc";
     private static final String FILING_ID = "632c8e65105b1b4a9f0d1f5e";
     private static final String PASSTHROUGH_HEADER = "passthrough";
@@ -33,7 +33,7 @@ class OfficerFilingDataControllerImplIT {
     private static final String REF_ETAG = "6789";
     private static final String RESIGNED_ON = "2022-10-05";
     @MockBean
-    private FilingService filingService;
+    private FilingDataService filingDataService;
     @MockBean
     private OfficerFilingService officerFilingService;
     @MockBean
@@ -57,7 +57,7 @@ class OfficerFilingDataControllerImplIT {
         final Map<String, Object> dataMap =
                 Map.of("referenceEtag", REF_ETAG, "referenceAppointmentId", REF_APPOINTMENT_ID, "resignedOn", RESIGNED_ON);
         filingApi.setData(dataMap);
-        when(filingService.generateOfficerFiling(FILING_ID)).thenReturn(filingApi);
+        when(filingDataService.generateOfficerFiling(TRANS_ID, FILING_ID)).thenReturn(filingApi);
 
         mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/filings", TRANS_ID, FILING_ID)
             .headers(httpHeaders))
@@ -70,7 +70,7 @@ class OfficerFilingDataControllerImplIT {
 
     @Test
     void getFilingsWhenNotFound() throws Exception {
-        when(filingService.generateOfficerFiling(FILING_ID)).thenThrow(new ResourceNotFoundException("for Not Found scenario"));
+        when(filingDataService.generateOfficerFiling(TRANS_ID, FILING_ID)).thenThrow(new ResourceNotFoundException("for Not Found scenario"));
 
         mockMvc.perform(
                         get("/private/transactions/{id}/officers/{filingId}/filings", TRANS_ID,

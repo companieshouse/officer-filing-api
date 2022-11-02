@@ -5,7 +5,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -16,24 +18,29 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.lang.Nullable;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.logging.LoggerFactory;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.exception.TransactionServiceException;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
-    private static final Logger CH_LOGGER = LoggerFactory.getLogger("officer-filing-api");
+    private final Logger logger;
     public static final String CAUSE = "cause";
+
+    public RestExceptionHandler(Logger logger) {
+        this.logger = logger;
+    }
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
@@ -64,14 +71,14 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
             error = buildRequestBodyError(ex.getMostSpecificCause().getMessage(), "$", null);
 
         }
-
+        logError(request, "Message not readable", ex, null);
         return ResponseEntity.badRequest().body(new ApiErrors(List.of(error)));
     }
 
     @ExceptionHandler(InvalidFilingException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ApiErrors handleInvalidFilingException(final InvalidFilingException ex) {
+    public ApiErrors handleInvalidFilingException(final InvalidFilingException ex, WebRequest request) {
         final var fieldErrors = ex.getFieldErrors();
 
         final var errorList = fieldErrors.stream()
@@ -79,13 +86,16 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                         e.getRejectedValue()))
                 .collect(Collectors.toList());
 
+        logError(request, "Invalid filing data", ex, errorList);
         return new ApiErrors(errorList);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Resource not found")
     public ResponseEntity<Void> handleResourceNotFoundException(
-            final ResourceNotFoundException ex) {
+            final ResourceNotFoundException ex,
+            final WebRequest request) {
+        logError(request, "Resource not found", ex, null);
         return ResponseEntity.notFound()
                 .build();
     }
@@ -100,19 +110,23 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         Optional.ofNullable(ex.getCause())
                 .ifPresent(c -> error.addErrorValue(CAUSE, c.getMessage()));
 
-        return new ApiErrors(List.of(error));
+        final var errorList = List.of(error);
+        logError(request, "Transaction service error", ex, errorList);
+        return new ApiErrors(errorList);
     }
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(final Exception ex, final Object body,
             final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
-        CH_LOGGER.error("INTERNAL ERROR", ex);
+        logger.error("INTERNAL ERROR", ex);
         final var error = new ApiError(ex.getMessage(), getRequestURI(request),
                 LocationType.RESOURCE.getValue(), ErrorType.SERVICE.getType());
         Optional.ofNullable(ex.getCause())
                 .ifPresent(c -> error.addErrorValue(CAUSE, c.getMessage()));
 
-        return super.handleExceptionInternal(ex, new ApiErrors(List.of(error)), headers, status,
+        final var errorList = List.of(error);
+        logError(request, "Internal error", ex, errorList);
+        return super.handleExceptionInternal(ex, new ApiErrors(errorList), headers, status,
                 request);
     }
 
@@ -121,13 +135,15 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseBody
     public ApiErrors handleAllUncaughtException(final RuntimeException ex,
             final WebRequest request) {
-        CH_LOGGER.error("Unknown error occurred", ex);
+        logger.error("Unknown error occurred", ex);
         final var error = new ApiError(ex.getMessage(), getRequestURI(request),
                 LocationType.RESOURCE.getValue(), ErrorType.SERVICE.getType());
         Optional.ofNullable(ex.getCause())
                 .ifPresent(c -> error.addErrorValue(CAUSE, c.getMessage()));
 
-        return new ApiErrors(List.of(error));
+        final var errorList = List.of(error);
+        logError(request, "Unknown error", ex, errorList);
+        return new ApiErrors(errorList);
     }
 
     private static void addLocationInfo(final ApiError error, final JsonLocation location) {
@@ -166,6 +182,15 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .ifPresent(r -> error.addErrorValue("rejected", r));
 
         return error;
+    }
+
+    private void logError(WebRequest request, String msg, @Nullable Exception ex, @Nullable List<ApiError> apiErrorList) {
+        final Map<String, Object> logMap = new HashMap<>();
+        final var servletRequest = ((ServletWebRequest) request).getRequest();
+        logMap.put("path", servletRequest.getRequestURI());
+        logMap.put("method",servletRequest.getMethod());
+        Optional.ofNullable(apiErrorList).ifPresent(l -> logMap.put("errors", l));
+        logger.error(msg, ex, logMap);
     }
 
 }

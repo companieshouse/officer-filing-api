@@ -1,7 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import java.util.HashMap;
-import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,16 +13,19 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
+import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 @RestController
 @RequestMapping("/private/transactions/{transId}/officers")
 public class ValidationStatusControllerImpl implements ValidationStatusController {
     private final OfficerFilingService officerFilingService;
     private final Logger logger;
+    private final LogHelper logHelper;
 
-    public ValidationStatusControllerImpl(OfficerFilingService officerFilingService, Logger logger) {
+    public ValidationStatusControllerImpl(OfficerFilingService officerFilingService, Logger logger, LogHelper logHelper) {
         this.officerFilingService = officerFilingService;
         this.logger = logger;
+        this.logHelper = logHelper;
     }
 
     @Override
@@ -35,12 +36,12 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
                                              @PathVariable("filingResourceId") final String filingResource,
                                              final HttpServletRequest request) {
 
-        final Map<String, Object> logMap = new HashMap<>();
+        final var logMap = logHelper.createLogMap(transId, filingResource);
+        logMap.put("path", request.getRequestURI());
+        logMap.put("method", request.getMethod());
+        logger.debugRequest(request, "GET validation request", logMap);
 
-        logMap.put("filingId", filingResource);
-        logger.debugRequest(request, "GET /private/transactions/{transId}/officers{filingId}/validation_status", logMap);
-
-        var maybeOfficerFiling = officerFilingService.get(filingResource);
+        var maybeOfficerFiling = officerFilingService.get(filingResource, transId);
 
         return maybeOfficerFiling.map(this::isValid).orElseThrow(ResourceNotFoundException::new);
     }

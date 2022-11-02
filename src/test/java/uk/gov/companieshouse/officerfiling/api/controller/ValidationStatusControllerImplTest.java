@@ -16,6 +16,7 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
+import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 @ExtendWith(MockitoExtension.class)
 class ValidationStatusControllerImplTest {
@@ -28,18 +29,20 @@ class ValidationStatusControllerImplTest {
     private HttpServletRequest request;
     @Mock
     private Logger logger;
+    @Mock
+    private LogHelper logHelper;
 
     private ValidationStatusControllerImpl testController;
 
     @BeforeEach
     void setUp() {
-        testController = new ValidationStatusControllerImpl(officerFilingService, logger);
+        testController = new ValidationStatusControllerImpl(officerFilingService, logger, logHelper);
     }
 
     @Test
     void validateWhenFound() {
         var filing = OfficerFiling.builder().build();
-        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.of(filing));
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         final var response= testController.validate(TRANS_ID, FILING_ID, request);
 
         assertThat(response.isValid(), is(true));
@@ -47,7 +50,7 @@ class ValidationStatusControllerImplTest {
 
     @Test
     void validateWhenNotFound() {
-        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.empty());
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> testController.validate(TRANS_ID, FILING_ID, request));
     }

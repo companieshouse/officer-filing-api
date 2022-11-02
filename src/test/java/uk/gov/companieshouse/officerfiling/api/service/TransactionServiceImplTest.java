@@ -22,7 +22,9 @@ import uk.gov.companieshouse.api.handler.transaction.TransactionsResourceHandler
 import uk.gov.companieshouse.api.handler.transaction.request.TransactionsGet;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.TransactionServiceException;
+import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 @ExtendWith(MockitoExtension.class)
 class TransactionServiceImplTest {
@@ -47,13 +49,17 @@ class TransactionServiceImplTest {
     private ApiResponse<Void> apiResponseVoid;
     @Mock
     private PrivateTransactionPatch privateTransactionPatch;
+    @Mock
+    private Logger logger;
+    @Mock
+    private LogHelper logHelper;
 
     private Transaction testTransaction;
     private TransactionServiceImpl testService;
 
     @BeforeEach
     void setUp() {
-        testService = new TransactionServiceImpl(apiClientService);
+        testService = new TransactionServiceImpl(apiClientService, logger, logHelper);
         testTransaction = testTransaction(TRANS_ID);
     }
 

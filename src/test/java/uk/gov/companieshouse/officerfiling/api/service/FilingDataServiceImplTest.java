@@ -22,9 +22,10 @@ import uk.gov.companieshouse.officerfiling.api.model.filing.FilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 
 @ExtendWith(MockitoExtension.class)
-class FilingServiceImplTest {
+class FilingDataServiceImplTest {
 
     private static final String FILING_ID = "6332aa6ed28ad2333c3a520a";
+    private static final String TRANS_ID = "23445657412";
     private static final String REF_APPOINTMENT_ID = "12345";
     private static final String REF_ETAG = "6789";
     private static final String RESIGNED_ON_STR = "2022-10-05";
@@ -39,11 +40,11 @@ class FilingServiceImplTest {
     private OfficerFilingMapper officerFilingMapper;
     @Mock
     private Logger logger;
-    private FilingService testService;
+    private FilingDataService testService;
 
     @BeforeEach
     void setUp() {
-        testService = new FilingServiceImpl(officerFilingService, officerFilingMapper, logger);
+        testService = new FilingDataServiceImpl(officerFilingService, officerFilingMapper, logger);
     }
 
     @Test
@@ -58,10 +59,10 @@ class FilingServiceImplTest {
                 .dateOfBirth(DATE_OF_BIRTH_TUPLE)
                 .build();
 
-        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.of(officerFiling));
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
         when(officerFilingMapper.mapFiling(officerFiling)).thenReturn(filingData);
 
-        final var filingApi = testService.generateOfficerFiling(FILING_ID);
+        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID);
 
         final Map<String, Object> expectedMap =
                 Map.of("first_name", FIRSTNAME, "last_name", LASTNAME,
@@ -74,10 +75,10 @@ class FilingServiceImplTest {
 
     @Test
     void generateOfficerFilingWhenNotFound() {
-        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.empty());
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
 
         final var exception = assertThrows(ResourceNotFoundException.class,
-                () -> testService.generateOfficerFiling(FILING_ID));
+                () -> testService.generateOfficerFiling(TRANS_ID, FILING_ID));
 
         assertThat(exception.getMessage(),
                 is("Officer not found when generating filing for " + FILING_ID));

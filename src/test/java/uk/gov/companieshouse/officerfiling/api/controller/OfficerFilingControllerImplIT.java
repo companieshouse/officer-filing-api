@@ -7,6 +7,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -96,7 +97,7 @@ class OfficerFilingControllerImplIT {
         when(filingMapper.map(dto)).thenReturn(filing);
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(
                 transaction);
-        when(officerFilingService.save(any(OfficerFiling.class))).thenReturn(
+        when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
                         OfficerFiling.builder(filing).id(FILING_ID)
                                 .build()) // copy of 'filing' with id=FILING_ID
                 .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
@@ -247,7 +248,7 @@ class OfficerFilingControllerImplIT {
             .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
             .build();
 
-        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.of(filing));
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
 
         when(filingMapper.map(filing)).thenReturn(dto);
 
@@ -263,7 +264,7 @@ class OfficerFilingControllerImplIT {
     @Test
     void getFilingForReviewNotFoundThenResponse404() throws Exception {
 
-        when(officerFilingService.get(FILING_ID)).thenReturn(Optional.empty());
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/transactions/{id}/officers/{filingId}", TRANS_ID, FILING_ID)
                 .headers(httpHeaders))
