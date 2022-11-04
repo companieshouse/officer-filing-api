@@ -9,7 +9,7 @@ import java.util.Set;
 import uk.gov.companieshouse.api.error.ApiError;
 
 /**
- * Set of APIErrors.
+ * Wrapper collection for distinct {@link ApiError}s to return in validation responses.
  */
 public class ApiErrors {
     private final Set<ApiError> errors;

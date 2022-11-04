@@ -32,8 +32,8 @@ public class FormerName {
             return false;
         }
         final FormerName that = (FormerName) o;
-        return Objects.equals(getForenames(), that.getForenames()) &&
-                Objects.equals(getSurname(), that.getSurname());
+        return Objects.equals(getForenames(), that.getForenames()) && Objects.equals(getSurname(),
+                that.getSurname());
     }
 
     @Override

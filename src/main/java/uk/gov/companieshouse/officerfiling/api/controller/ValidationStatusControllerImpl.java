@@ -20,23 +20,30 @@ import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 public class ValidationStatusControllerImpl implements ValidationStatusController {
     private final OfficerFilingService officerFilingService;
     private final Logger logger;
-    private final LogHelper logHelper;
 
-    public ValidationStatusControllerImpl(OfficerFilingService officerFilingService, Logger logger, LogHelper logHelper) {
+    public ValidationStatusControllerImpl(OfficerFilingService officerFilingService, Logger logger) {
         this.officerFilingService = officerFilingService;
         this.logger = logger;
-        this.logHelper = logHelper;
     }
 
+    /**
+     * Controller endpoint: Perform final validation checks.
+     * Provisional behaviour: return TRUE response until details of requirements known.
+     *
+     * @param transId        the Transaction ID
+     * @param filingResource the Filing resource ID
+     * @param request        the servlet request
+     * @return ValidationResponse of TRUE (provisional)
+     */
     @Override
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/{filingResourceId}/validation_status", produces = {"application/json"})
     public ValidationStatusResponse validate(@PathVariable("transId") final String transId,
-                                             @PathVariable("filingResourceId") final String filingResource,
-                                             final HttpServletRequest request) {
+            @PathVariable("filingResourceId") final String filingResource,
+            final HttpServletRequest request) {
 
-        final var logMap = logHelper.createLogMap(transId, filingResource);
+        final var logMap = LogHelper.createLogMap(transId, filingResource);
         logMap.put("path", request.getRequestURI());
         logMap.put("method", request.getMethod());
         logger.debugRequest(request, "GET validation request", logMap);
@@ -46,6 +53,7 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
         return maybeOfficerFiling.map(this::isValid).orElseThrow(ResourceNotFoundException::new);
     }
 
+    // TODO: apply proper validation requirements
     private ValidationStatusResponse isValid(OfficerFiling officerFiling) {
         var validationStatus = new ValidationStatusResponse();
         validationStatus.setValid(true);

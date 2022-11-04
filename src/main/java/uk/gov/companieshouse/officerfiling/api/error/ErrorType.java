@@ -1,7 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.error;
 
 /**
- * Validation error types
+ * Validation error types.
  */
 public enum ErrorType {
 

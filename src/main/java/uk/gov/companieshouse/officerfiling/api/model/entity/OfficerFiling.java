@@ -186,10 +186,11 @@ public class OfficerFiling {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(), getAppointedOn(),
-                getCountryOfResidence(), getCreatedAt(), getDateOfBirth(), getFormerNames(), getIdentification(),
-                getKind(), getLinks(), getName(), getFirstName(), getLastName(), getNationality(), getOccupation(),
-                getOfficerRole(), getReferenceEtag(), getreferenceAppointmentId(), getReferenceOfficerListEtag(),
+        return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
+                getAppointedOn(), getCountryOfResidence(), getCreatedAt(), getDateOfBirth(),
+                getFormerNames(), getIdentification(), getKind(), getLinks(), getName(),
+                getFirstName(), getLastName(), getNationality(), getOccupation(), getOfficerRole(),
+                getReferenceEtag(), getreferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getStatus(), getUpdatedAt(), getResidentialAddress(),
                 getResidentialAddressSameAsCorrespondenceAddress());
     }

@@ -55,6 +55,7 @@ public interface OfficerFilingMapper {
         if (tuple == null) {
             return null;
         }
-        return DateTimeFormatter.ISO_LOCAL_DATE.format(LocalDate.of(tuple.getYear(), tuple.getMonth(), tuple.getDay()));
+        return DateTimeFormatter.ISO_LOCAL_DATE.format(
+                LocalDate.of(tuple.getYear(), tuple.getMonth(), tuple.getDay()));
     }
 }

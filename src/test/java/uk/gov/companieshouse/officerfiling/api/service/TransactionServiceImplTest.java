@@ -59,7 +59,7 @@ class TransactionServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        testService = new TransactionServiceImpl(apiClientService, logger, logHelper);
+        testService = new TransactionServiceImpl(apiClientService, logger);
         testTransaction = testTransaction(TRANS_ID);
     }
 
