@@ -89,9 +89,8 @@ Add link to the public API documentation when available
 ## Design
 The following information will only be accessible from within the Companies House network.
 
-* https://companieshouse.atlassian.net/wiki/spaces/DACT/pages/3649699904/Directors+Service
-+Architecture
-* https://companieshouse.atlassian.net/wiki/spaces/DACT/pages/3690889337/Officer+Filing+API
+* [Directors Service Architecture](https://companieshouse.atlassian.net/wiki/spaces/DACT/pages/3649699904/Directors+Service+Architecture)
+* [Officer Filing API](https://companieshouse.atlassian.net/wiki/spaces/DACT/pages/3690889337/Officer+Filing+API)
 
 ### Data storage
 The API Service, like most other Companies House services, stores its back-end
