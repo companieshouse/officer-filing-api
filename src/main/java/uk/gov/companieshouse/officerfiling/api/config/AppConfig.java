@@ -4,6 +4,9 @@ import java.time.Clock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Main application configuration class.
+ */
 @Configuration
 public class AppConfig {
     public AppConfig() {
@@ -12,9 +15,9 @@ public class AppConfig {
 
     /**
      * Obtains a clock that returns the current instant, converting to date and time using the
-     * UTC time-zone.
+     * UTC time-zone. Singleton bean provides consistent UTC timestamps.
      *
-     * @return a clock that uses the best available system clock in the UTC zone, not null
+     * @return a Clock that uses the best available system clock in the UTC zone, not null
      */
     @Bean
     public Clock clock() {

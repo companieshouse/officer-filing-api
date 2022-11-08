@@ -95,16 +95,16 @@ class OfficerFilingControllerImplValidationIT {
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "") + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                .contentType("application/json")
-                .headers(httpHeaders))
-            .andDo(print())
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.errors", hasSize(1)))
-            .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
-            .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
-            .andExpect(jsonPath("$.errors[0].location", is("$.resigned_on")))
-            .andExpect(jsonPath("$.errors[0].error_values", is(nullValue())))
-            .andExpect(jsonPath("$.errors[0].error", is("must not be null")));
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
+                .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
+                .andExpect(jsonPath("$.errors[0].location", is("$.resigned_on")))
+                .andExpect(jsonPath("$.errors[0].error_values", is(nullValue())))
+                .andExpect(jsonPath("$.errors[0].error", is("must not be null")));
     }
 
     @Test

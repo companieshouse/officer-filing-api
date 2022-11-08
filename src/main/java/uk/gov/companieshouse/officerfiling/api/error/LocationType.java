@@ -1,7 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.error;
 
 /**
- * Validation error location types
+ * Validation error location types.
  */
 public enum LocationType {
 

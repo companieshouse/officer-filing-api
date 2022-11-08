@@ -33,7 +33,7 @@ class OfficerFilingDataServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        testService = new OfficerFilingServiceImpl(repository, logger, logHelper);
+        testService = new OfficerFilingServiceImpl(repository, logger);
     }
 
     @Test

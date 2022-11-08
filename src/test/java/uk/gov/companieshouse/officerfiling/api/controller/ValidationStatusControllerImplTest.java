@@ -36,7 +36,7 @@ class ValidationStatusControllerImplTest {
 
     @BeforeEach
     void setUp() {
-        testController = new ValidationStatusControllerImpl(officerFilingService, logger, logHelper);
+        testController = new ValidationStatusControllerImpl(officerFilingService, logger);
     }
 
     @Test

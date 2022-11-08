@@ -29,6 +29,7 @@ import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
+import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 @RestController
@@ -51,14 +52,22 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         this.logger = logger;
     }
 
+    /**
+     * Create an Officer Filing.
+     *
+     * @param transId       the Transaction ID
+     * @param dto           the request body payload DTO
+     * @param bindingResult the MVC binding result (with any validation errors)
+     * @param request       the servlet request
+     * @return CREATED response containing the populated Filing resource
+     */
     @Override
     @PostMapping(produces = {"application/json"}, consumes = {"application/json"})
     public ResponseEntity<Object> createFiling(@PathVariable final String transId,
-            @RequestBody @Valid @NotNull final OfficerFilingDto dto, final BindingResult bindingResult,
-            final HttpServletRequest request) {
-        final Map<String, Object> logMap = new HashMap<>();
+            @RequestBody @Valid @NotNull final OfficerFilingDto dto,
+            final BindingResult bindingResult, final HttpServletRequest request) {
+        final var logMap = LogHelper.createLogMap(transId);
 
-        logMap.put("transaction_id", transId);
         logger.debugRequest(request, "POST", logMap);
 
         if (bindingResult != null && bindingResult.hasErrors()) {
@@ -81,16 +90,26 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
                 .build();
     }
 
+    /**
+     * Retrieve Officer Filing submission for review by the user before completing the submission.
+     *
+     * @param transId        the Transaction ID
+     * @param filingResource the Officer Filing ID
+     * @return OK response containing Filing DTO resource
+     */
     @Override
     @GetMapping(value = "/{filingResourceId}", produces = {"application/json"})
-    public ResponseEntity<OfficerFilingDto> getFilingForReview(@PathVariable("transId") final String transId,
-                                                            @PathVariable("filingResourceId") final String filingResource) {
+    public ResponseEntity<OfficerFilingDto> getFilingForReview(
+            @PathVariable("transId") final String transId,
+            @PathVariable("filingResourceId") final String filingResource) {
 
         var maybeOfficerFiling = officerFilingService.get(filingResource, transId);
 
         var maybeDto = maybeOfficerFiling.map(filingMapper::map);
 
-        return maybeDto.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return maybeDto.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound()
+                        .build());
     }
 
     private Map<String, Resource> buildResourceMap(final Links links) {
@@ -126,8 +145,9 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         final var uriBuilder = UriComponentsBuilder.fromUriString(request.getRequestURI())
                 .pathSegment(objectId.toHexString());
         final var selfUri = uriBuilder.build().toUri();
-        final var privateUriBuilder = UriComponentsBuilder.fromUriString(PREFIX_PRIVATE + "/" + request.getRequestURI())
-                .pathSegment(objectId.toHexString());
+        final var privateUriBuilder =
+                UriComponentsBuilder.fromUriString(PREFIX_PRIVATE + "/" + request.getRequestURI())
+                        .pathSegment(objectId.toHexString());
         final var validateUri = privateUriBuilder.pathSegment(VALIDATION_STATUS)
                 .build().toUri();
 

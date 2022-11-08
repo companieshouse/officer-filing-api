@@ -8,18 +8,17 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
 /**
- * Configuration class for logging.
+ * Configuration class for CH logging.
  */
 @Configuration
 @PropertySource("classpath:logger.properties")
 public class LoggingConfig {
 
-    @SuppressWarnings("unused")
     @Value("${logger.namespace}")
     private String loggerNamespace;
 
     /**
-     * Creates a logger with specified namespace.
+     * Creates a CH logger bean with specified namespace for use throughout this application.
      *
      * @return the {@link LoggerFactory} for the specified namespace
      */

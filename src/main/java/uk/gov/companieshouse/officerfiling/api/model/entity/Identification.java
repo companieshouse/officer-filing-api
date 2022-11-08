@@ -13,8 +13,8 @@ public class Identification {
     private final String placeRegistered;
     private final String registrationNumber;
 
-    public Identification(final String identificationType, final String legalAuthority, final String legalForm,
-                          final String placeRegistered, final String registrationNumber) {
+    public Identification(final String identificationType, final String legalAuthority,
+            final String legalForm, final String placeRegistered, final String registrationNumber) {
         this.identificationType = identificationType;
         this.legalAuthority = legalAuthority;
         this.legalForm = legalForm;
@@ -51,17 +51,17 @@ public class Identification {
             return false;
         }
         final Identification that = (Identification) o;
-        return Objects.equals(getIdentificationType(), that.getIdentificationType()) &&
-            Objects.equals(getLegalAuthority(), that.getLegalAuthority()) &&
-            Objects.equals(getLegalForm(), that.getLegalForm()) &&
-            Objects.equals(getPlaceRegistered(), that.getPlaceRegistered()) &&
-            Objects.equals(getRegistrationNumber(), that.getRegistrationNumber());
+        return Objects.equals(getIdentificationType(), that.getIdentificationType())
+                && Objects.equals(getLegalAuthority(), that.getLegalAuthority())
+                && Objects.equals(getLegalForm(), that.getLegalForm())
+                && Objects.equals(getPlaceRegistered(), that.getPlaceRegistered())
+                && Objects.equals(getRegistrationNumber(), that.getRegistrationNumber());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getIdentificationType(), getLegalAuthority(), getLegalForm(),
-            getPlaceRegistered(), getRegistrationNumber());
+                getPlaceRegistered(), getRegistrationNumber());
     }
 
     @Override

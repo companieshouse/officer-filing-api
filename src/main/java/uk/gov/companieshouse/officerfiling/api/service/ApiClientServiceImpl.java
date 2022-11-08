@@ -15,7 +15,8 @@ public class ApiClientServiceImpl implements ApiClientService {
     }
 
     @Override
-    public ApiClient getOauthAuthenticatedClient(final String ericPassThroughHeader) throws IOException {
+    public ApiClient getOauthAuthenticatedClient(final String ericPassThroughHeader)
+            throws IOException {
         return ApiSdkManager.getSDK(ericPassThroughHeader);
     }
 
