@@ -1,5 +1,5 @@
 # officer-filing-api
-This API is for 
+This API is for appointing, changing and terminating director details.
 
 ## Requirements
 
@@ -62,7 +62,7 @@ To run the officer-filing service locally in docker
 ` 
 
 1. To disable development workflow for the service run the command: `./bin/chs-dev development disable officer
--filing
+-filing`
 
 ## Usage
 To create the officer filing an open transaction is required - see [Companies House Transaction API Service.](https://github.com/companieshouse/transactions.api.ch.gov.uk/blob/master/README.md)
@@ -103,7 +103,7 @@ Simple field validation for TM01 mandatory fields e.g. date, where resigned on d
 Further validation will be required for other forms.
 
 ### API project code structure
-
+TBA
 
 
 
