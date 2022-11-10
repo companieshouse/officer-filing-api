@@ -1,0 +1,522 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Officer Filing API",
+    "version": "0.0.1"
+  },
+  "host": "api.companieshouse.gov.uk",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/private/transactions/{transId}/officers/{filingResourceId}/filings": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "transId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "filingResourceId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/FilingApi"
+              },
+              "type": "array"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ApiErrors"
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ApiErrors"
+            }
+          }
+        },
+        "tags": [
+          "Filings"
+        ],
+        "operationId": "getFilingsData",
+        "summary": "Get Filing Data"
+      }
+    },
+    "/private/transactions/{transId}/officers/{filingResourceId}/validation_status": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "transId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "filingResourceId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ValidationStatusResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ApiErrors"
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ApiErrors"
+            }
+          }
+        },
+        "tags": [
+          "Validation"
+        ],
+        "operationId": "validate",
+        "summary": "Validate Filing"
+      }
+    },
+    "/transactions/{transId}/officers": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "transId",
+            "description": "associated transaction ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OfficerFilingDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "title": "Filing Resource",
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ApiErrors"
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ApiErrors"
+            }
+          }
+        },
+        "tags": [
+          "Officer Filing"
+        ],
+        "operationId": "createFiling",
+        "summary": "Create Filing"
+      }
+    },
+    "/transactions/{transId}/officers/{filingResourceId}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "transId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "filingResourceId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/OfficerFilingDto"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/ApiErrors"
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/ApiErrors"
+            }
+          }
+        },
+        "tags": [
+          "officer-filing-controller-impl"
+        ],
+        "operationId": "getFilingForReview",
+        "summary": "Get Filing For Review"
+      }
+    }
+  },
+  "definitions": {
+    "AddressDto": {
+      "title": "Address DTO",
+      "properties": {
+        "address_line_1": {
+          "type": "string"
+        },
+        "address_line_2": {
+          "type": "string"
+        },
+        "careOf": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "locality": {
+          "type": "string"
+        },
+        "poBox": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string"
+        },
+        "premises": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ApiError": {
+      "title": "Api Error",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "errorValues": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "location": {
+          "type": "string"
+        },
+        "locationType": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ApiErrors": {
+      "title": "title",
+      "properties": {
+        "errors": {
+          "items": {
+            "$ref": "#/definitions/ApiError"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "type": "object"
+    },
+    "Date3TupleDto": {
+      "title": "Date DTO",
+      "properties": {
+        "day": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "month": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "year": {
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "FilingApi": {
+      "title": "Filing",
+      "properties": {
+        "data": {
+          "additionalProperties": {
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "description": {
+          "type": "string"
+        },
+        "description_identifier": {
+          "type": "string"
+        },
+        "description_values": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "kind": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "FormerNameDto": {
+      "title": "Former Name",
+      "properties": {
+        "forenames": {
+          "type": "string"
+        },
+        "surname": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "IdentificationDto": {
+      "title": "Identification DTO",
+      "properties": {
+        "identificationType": {
+          "type": "string"
+        },
+        "identification_type": {
+          "type": "string"
+        },
+        "legalAuthority": {
+          "type": "string"
+        },
+        "legalForm": {
+          "type": "string"
+        },
+        "legal_authority": {
+          "type": "string"
+        },
+        "legal_form": {
+          "type": "string"
+        },
+        "placeRegistered": {
+          "type": "string"
+        },
+        "place_registered": {
+          "type": "string"
+        },
+        "registrationNumber": {
+          "type": "string"
+        },
+        "registration_number": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "OfficerFilingDto": {
+      "title": "Officer Filing DTO",
+      "properties": {
+        "address": {
+          "allOf": [
+            {
+              "title": "Correspondance Address"
+            },
+            {
+              "$ref": "#/definitions/AddressDto"
+            }
+          ]
+        },
+        "addressSameAsRegisteredOfficeAddress": {
+          "title": "Same As ROA",
+          "type": "boolean"
+        },
+        "appointedOn": {
+          "title": "Appointed On",
+          "format": "date",
+          "type": "string"
+        },
+        "countryOfResidence": {
+          "title": "Country of Residence",
+          "type": "string"
+        },
+        "dateOfBirth": {
+          "allOf": [
+            {
+              "title": "Date of Birth"
+            },
+            {
+              "$ref": "#/definitions/Date3TupleDto"
+            }
+          ]
+        },
+        "formerNames": {
+          "title": "Former Names",
+          "items": {
+            "$ref": "#/definitions/FormerNameDto"
+          },
+          "type": "array"
+        },
+        "identification": {
+          "allOf": [
+            {
+              "title": "Indentification"
+            },
+            {
+              "$ref": "#/definitions/IdentificationDto"
+            }
+          ]
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "nationality": {
+          "title": "Nationality",
+          "type": "string"
+        },
+        "occupation": {
+          "title": "Occupation",
+          "type": "string"
+        },
+        "referenceAppointmentId": {
+          "title": "Reference Appointment ID",
+          "type": "string"
+        },
+        "referenceEtag": {
+          "title": "Reference eTag",
+          "type": "string"
+        },
+        "referenceOfficerListEtag": {
+          "title": "Reference Officer List eTag",
+          "type": "string"
+        },
+        "residentialAddress": {
+          "allOf": [
+            {
+              "title": "Residential Address"
+            },
+            {
+              "$ref": "#/definitions/AddressDto"
+            }
+          ]
+        },
+        "residentialAddressSameAsCorrespondenceAddress": {
+          "title": "ROA Same As",
+          "type": "boolean"
+        },
+        "resignedOn": {
+          "title": "Resigned On",
+          "format": "date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "referenceAppointmentId",
+        "referenceEtag",
+        "resignedOn"
+      ],
+      "type": "object"
+    },
+    "ValidationStatusError": {
+      "title": "Validation Status Error",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "location_type": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ValidationStatusResponse": {
+      "title": "Validation Status Response",
+      "properties": {
+        "errors": {
+          "items": {
+            "$ref": "#/definitions/ValidationStatusError"
+          },
+          "type": "array"
+        },
+        "is_valid": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
