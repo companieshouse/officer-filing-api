@@ -4,7 +4,7 @@
     "title": "Officer Filing API",
     "version": "0.0.1"
   },
-  "host": "api.chs.local",
+  "host": "api.companieshouse.gov.uk",
   "basePath": "/",
   "schemes": [
     "http"
