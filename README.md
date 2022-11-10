@@ -81,7 +81,7 @@ To create the officer filing an open transaction is required - see [Companies Ho
 The API is deployed via Concourse or by the release team.
 
 #### Using the REST API directly
-The API specification can be found - TBA
+The Draft API specification, documenting what has been implemented so far, can be found in `spec/swagger.json`.
 
 ##### Officer Filing API
 Add link to the public API documentation when available
