@@ -144,26 +144,7 @@ class OfficerFilingControllerImplIT {
 
     @Test
     void createFilingWhenDateUnparseableThenResponse400() throws Exception {
-        final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "ABC") + "}";
-        final var expectedError = createExpectedError(
-                "JSON parse error:", "$..resigned_on", 1, 75);
-
-        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                        .contentType("application/json")
-                        .headers(httpHeaders))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(header().doesNotExist("Location"))
-                .andExpect(jsonPath("$.errors", hasSize(1)))
-                .andExpect(jsonPath("$.errors[0]",
-                        allOf(hasEntry("location", expectedError.getLocation()),
-                                hasEntry("location_type", expectedError.getLocationType()),
-                                hasEntry("type", expectedError.getType()))))
-                .andExpect(jsonPath("$.errors[0].error", containsString(
-                        "JSON parse error: Cannot deserialize value of type `java.time.LocalDate`"
-                                + " from String \"ABC\"")))
-                .andExpect(jsonPath("$.errors[0].error_values",
-                        is(Map.of("offset", "line: 1, column: 75", "line", "1", "column", "75"))));
+        Response400BaseTest("ABC");
     }
 
     @Test
@@ -318,50 +299,12 @@ class OfficerFilingControllerImplIT {
 
     @Test
     void createFilingWhenDateIncorrectFormatThenResponse400() throws Exception {
-        final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "2022-09-131") + "}";
-        final var expectedError = createExpectedError(
-                "JSON parse error:", "$..resigned_on", 1, 75);
-
-        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                        .contentType("application/json")
-                        .headers(httpHeaders))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(header().doesNotExist("Location"))
-                .andExpect(jsonPath("$.errors", hasSize(1)))
-                .andExpect(jsonPath("$.errors[0]",
-                        allOf(hasEntry("location", expectedError.getLocation()),
-                                hasEntry("location_type", expectedError.getLocationType()),
-                                hasEntry("type", expectedError.getType()))))
-                .andExpect(jsonPath("$.errors[0].error", containsString(
-                        "JSON parse error: Cannot deserialize value of type `java.time.LocalDate`"
-                                + " from String \"2022-09-131\"")))
-                .andExpect(jsonPath("$.errors[0].error_values",
-                        is(Map.of("offset", "line: 1, column: 75", "line", "1", "column", "75"))));
+        Response400BaseTest("2022-09-131");
     }
 
     @Test
     void createFilingWhenDateUsingAmericanDateFormatThenResponse400() throws Exception {
-        final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "2022-13-09") + "}";
-        final var expectedError = createExpectedError(
-                "JSON parse error:", "$..resigned_on", 1, 75);
-
-        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                        .contentType("application/json")
-                        .headers(httpHeaders))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(header().doesNotExist("Location"))
-                .andExpect(jsonPath("$.errors", hasSize(1)))
-                .andExpect(jsonPath("$.errors[0]",
-                        allOf(hasEntry("location", expectedError.getLocation()),
-                                hasEntry("location_type", expectedError.getLocationType()),
-                                hasEntry("type", expectedError.getType()))))
-                .andExpect(jsonPath("$.errors[0].error", containsString(
-                        "JSON parse error: Cannot deserialize value of type `java.time.LocalDate`"
-                                + " from String \"2022-13-09\"")))
-                .andExpect(jsonPath("$.errors[0].error_values",
-                        is(Map.of("offset", "line: 1, column: 75", "line", "1", "column", "75"))));
+        Response400BaseTest("2022-13-09");
     }
 
     @Test
@@ -406,49 +349,11 @@ class OfficerFilingControllerImplIT {
 
     @Test
     void createFilingWhenDateContainsTwoCharacterYearThenResponse400() throws Exception {
-        final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "22-09-13") + "}";
-        final var expectedError = createExpectedError(
-                "JSON parse error:", "$..resigned_on", 1, 75);
-
-        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                        .contentType("application/json")
-                        .headers(httpHeaders))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(header().doesNotExist("Location"))
-                .andExpect(jsonPath("$.errors", hasSize(1)))
-                .andExpect(jsonPath("$.errors[0]",
-                        allOf(hasEntry("location", expectedError.getLocation()),
-                                hasEntry("location_type", expectedError.getLocationType()),
-                                hasEntry("type", expectedError.getType()))))
-                .andExpect(jsonPath("$.errors[0].error", containsString(
-                        "JSON parse error: Cannot deserialize value of type `java.time.LocalDate`"
-                                + " from String \"22-09-13\"")))
-                .andExpect(jsonPath("$.errors[0].error_values",
-                        is(Map.of("offset", "line: 1, column: 75", "line", "1", "column", "75"))));
+        Response400BaseTest("22-09-13");
     }
     @Test
     void createFilingWhenDateContainsSpecialcharactersThenResponse400() throws Exception {
-        final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "2022-!@-%^") + "}";
-        final var expectedError = createExpectedError(
-                "JSON parse error:", "$..resigned_on", 1, 75);
-
-        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                        .contentType("application/json")
-                        .headers(httpHeaders))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(header().doesNotExist("Location"))
-                .andExpect(jsonPath("$.errors", hasSize(1)))
-                .andExpect(jsonPath("$.errors[0]",
-                        allOf(hasEntry("location", expectedError.getLocation()),
-                                hasEntry("location_type", expectedError.getLocationType()),
-                                hasEntry("type", expectedError.getType()))))
-                .andExpect(jsonPath("$.errors[0].error", containsString(
-                        "JSON parse error: Cannot deserialize value of type `java.time.LocalDate`"
-                                + " from String \"2022-!@-%^\"")))
-                .andExpect(jsonPath("$.errors[0].error_values",
-                        is(Map.of("offset", "line: 1, column: 75", "line", "1", "column", "75"))));
+        Response400BaseTest("2022-!@-%^");
     }
 
     @Test
@@ -500,6 +405,30 @@ class OfficerFilingControllerImplIT {
                 .andExpect(jsonPath("$.errors[0].error_values",
                         is(Map.of("offset", "line: 1, column: 75", "line", "1", "column", "75"))));
     }
+
+    private void Response400BaseTest(String replacementString) throws Exception {
+        final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", replacementString) + "}";
+        final var expectedError = createExpectedError(
+                "JSON parse error:", "$..resigned_on", 1, 75);
+
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(header().doesNotExist("Location"))
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0]",
+                        allOf(hasEntry("location", expectedError.getLocation()),
+                                hasEntry("location_type", expectedError.getLocationType()),
+                                hasEntry("type", expectedError.getType()))))
+                .andExpect(jsonPath("$.errors[0].error", containsString(
+                        "JSON parse error: Cannot deserialize value of type `java.time.LocalDate`"
+                                + " from String \"" + replacementString + "\"")))
+                .andExpect(jsonPath("$.errors[0].error_values",
+                        is(Map.of("offset", "line: 1, column: 75", "line", "1", "column", "75"))));
+    }
+
 
     private ApiError createExpectedError(final String msg, final String location, final int line,
             final int column) {
