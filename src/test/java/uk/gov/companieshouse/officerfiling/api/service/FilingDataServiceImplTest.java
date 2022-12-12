@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
@@ -33,6 +35,8 @@ class FilingDataServiceImplTest {
     public static final String FIRSTNAME = "JOE";
     public static final String LASTNAME = "BLOGGS";
     public static final String DATE_OF_BIRTH_STR = "2000-10-20";
+    private static final String PASSTHROUGH_HEADER = "passthrough";
+    private static final String COMPANY_NUMBER = null;
     public static final Date3Tuple DATE_OF_BIRTH_TUPLE = new Date3Tuple(20, 10, 2000);
     @Mock
     private OfficerFilingService officerFilingService;
@@ -40,11 +44,21 @@ class FilingDataServiceImplTest {
     private OfficerFilingMapper officerFilingMapper;
     @Mock
     private Logger logger;
+    @Mock
+    private TransactionService transactionService;
+    @Mock
+    private CompanyAppointmentService companyAppointmentService;
+    @Mock
+    private Transaction transaction;
+    @Mock
+    private AppointmentFullRecordAPI companyAppointment;
+
     private FilingDataService testService;
 
     @BeforeEach
     void setUp() {
-        testService = new FilingDataServiceImpl(officerFilingService, officerFilingMapper, logger);
+        testService = new FilingDataServiceImpl(officerFilingService, officerFilingMapper, logger, transactionService,
+                companyAppointmentService);
     }
 
     @Test
@@ -61,8 +75,11 @@ class FilingDataServiceImplTest {
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
         when(officerFilingMapper.mapFiling(officerFiling)).thenReturn(filingData);
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER ))
+                .thenReturn(companyAppointment);
 
-        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID);
+        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
 
         final Map<String, Object> expectedMap =
                 Map.of("first_name", FIRSTNAME, "last_name", LASTNAME,
@@ -78,7 +95,7 @@ class FilingDataServiceImplTest {
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
 
         final var exception = assertThrows(ResourceNotFoundException.class,
-                () -> testService.generateOfficerFiling(TRANS_ID, FILING_ID));
+                () -> testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER));
 
         assertThat(exception.getMessage(),
                 is("Officer not found when generating filing for " + FILING_ID));

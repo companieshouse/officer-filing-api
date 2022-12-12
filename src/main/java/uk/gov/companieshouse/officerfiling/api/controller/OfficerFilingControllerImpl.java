@@ -75,7 +75,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         }
 
         final var passthroughHeader =
-                request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
+                    request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
         final var transaction = transactionService.getTransaction(transId, passthroughHeader);
         logger.infoContext(transId, "transaction found", logMap);
 

@@ -14,5 +14,5 @@ public interface FilingDataService {
      * @param filingId      the Officer Filing ID
      * @return the FilingApi resource
      */
-    FilingApi generateOfficerFiling(String transactionId, String filingId);
+    FilingApi generateOfficerFiling(String transactionId, String filingId, String ericPassThroughHeader);
 }

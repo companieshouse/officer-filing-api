@@ -23,6 +23,7 @@ class FilingDataControllerImplTest {
 
     public static final String TRANS_ID = "117524-754816-491724";
     public static final String FILING_ID = "6332aa6ed28ad2333c3a520a";
+    private static final String PASSTHROUGH_HEADER = "passthrough";
 
     @Mock
     private OfficerFiling officerFiling;
@@ -46,7 +47,7 @@ class FilingDataControllerImplTest {
     @Test
     void getFilingsData() {
         var filingApi = new FilingApi();
-        when(filingDataService.generateOfficerFiling(TRANS_ID, FILING_ID)).thenReturn(filingApi);
+        when(filingDataService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(filingApi);
         final var filingsList= testController.getFilingsData(TRANS_ID, FILING_ID, request);
 
         assertThat(filingsList, Matchers.contains(filingApi));
@@ -55,7 +56,7 @@ class FilingDataControllerImplTest {
     @Test
     void getFilingsDataWhenNotFound() {
 
-        when(filingDataService.generateOfficerFiling(TRANS_ID, FILING_ID)).thenThrow(new ResourceNotFoundException("Test Resource not found"));
+        when(filingDataService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER)).thenThrow(new ResourceNotFoundException("Test Resource not found"));
 
         final var exception = assertThrows(ResourceNotFoundException.class,
                 () -> testController.getFilingsData(TRANS_ID, FILING_ID, request));
