@@ -38,14 +38,14 @@ public class CompanyAppointmentServiceImpl implements CompanyAppointmentService{
         try {
             final String uri = "/company/" + companyNumber + "/appointments/" + appointmentId + "/full_record";
             final AppointmentFullRecordAPI companyAppointment =
-                    apiClientService.getInternalOauthAuthenticatedClient(ericPassThroughHeader)
+                    apiClientService.getInternalApiKeyAuthenticatedClient()
                             .privateDeltaResourceHandler()
                             .getAppointment(uri)
                             .execute()
                             .getData();
             final Map logMap = LogHelper.createLogMap(companyNumber, appointmentId);
-            //logMap.put("company_number", companyAppointment.);
-            //logMap.put("company_name", companyAppointment.g);
+            logMap.put("company_number", companyNumber);
+            logMap.put("appointment_Id", appointmentId);
             logger.debugContext(appointmentId, "Retrieved company appointment details", logMap);
             return companyAppointment;
         }
