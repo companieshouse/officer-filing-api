@@ -41,6 +41,7 @@ public class FilingDataServiceImpl implements FilingDataService {
      *
      * @param transactionId the Transaction ID
      * @param filingId      the Officer Filing ID
+     * @param ericPassThroughHeader includes authorisation for company appointment fetch
      * @return the FilingApi data for JSON response
      */
     @Override
