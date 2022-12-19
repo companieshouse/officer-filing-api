@@ -61,4 +61,15 @@ class ApiClientServiceImplTest {
             assertThat(client, is(internalApiClient));
         }
     }
+
+    @Test
+    void getInternalApiKeyAuthenticatedClient() throws IOException {
+        try (final var sdkManager = mockStatic(ApiSdkManager.class)) {
+            sdkManager.when(() -> ApiSdkManager.getPrivateSDK()).thenReturn(internalApiClient);
+
+            final var client = testService.getInternalApiKeyAuthenticatedClient();
+
+            assertThat(client, is(internalApiClient));
+        }
+    }
 }
