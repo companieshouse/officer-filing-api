@@ -67,6 +67,7 @@ public class FilingDataServiceImpl implements FilingDataService {
         OfficerFiling enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
                 .dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()))
                 .name(companyAppointment.getName())
+                .referenceEtag(companyAppointment.getEtag())
                 .build();
 
         var filingData = filingMapper.mapFiling(enhancedOfficerFiling);

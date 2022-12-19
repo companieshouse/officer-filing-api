@@ -64,10 +64,9 @@ class FilingDataServiceImplTest {
 
     @Test
     void generateOfficerFilingWhenFound() {
-        final var filingData = new FilingData(FIRSTNAME, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR);
+        final var filingData = new FilingData(FIRSTNAME, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, REF_ETAG);
         final var officerFiling = OfficerFiling.builder()
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
-                .referenceEtag(REF_ETAG)
                 .firstName(FIRSTNAME)
                 .lastName(LASTNAME)
                 .resignedOn(RESIGNED_ON_INS)
@@ -91,7 +90,8 @@ class FilingDataServiceImplTest {
         final Map<String, Object> expectedMap =
                 Map.of("first_name", FIRSTNAME, "last_name", LASTNAME,
                         "date_of_birth", DATE_OF_BIRTH_STR,
-                        "resigned_on", RESIGNED_ON_STR);
+                        "resigned_on", RESIGNED_ON_STR,
+                        "referenceEtag", REF_ETAG);
 
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#termination"));

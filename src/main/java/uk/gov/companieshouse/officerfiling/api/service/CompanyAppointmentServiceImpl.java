@@ -5,7 +5,6 @@ import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppoinmentServiceException;
-import uk.gov.companieshouse.officerfiling.api.exception.TransactionServiceException;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 import java.io.IOException;
@@ -43,7 +42,7 @@ public class CompanyAppointmentServiceImpl implements CompanyAppointmentService{
                             .getAppointment(uri)
                             .execute()
                             .getData();
-            final Map logMap = LogHelper.createLogMap(companyNumber, appointmentId);
+            final Map<String, Object> logMap = LogHelper.createLogMap(companyNumber, appointmentId);
             logMap.put("company_number", companyNumber);
             logMap.put("appointment_Id", appointmentId);
             logger.debugContext(appointmentId, "Retrieved company appointment details", logMap);
