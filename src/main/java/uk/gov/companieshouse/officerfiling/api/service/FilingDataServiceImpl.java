@@ -57,13 +57,6 @@ public class FilingDataServiceImpl implements FilingDataService {
         var officerFilingOpt = officerFilingService.get(filingId, transactionId);
         var officerFiling = officerFilingOpt.orElseThrow(() -> new ResourceNotFoundException(
                 String.format("Officer not found when generating filing for %s", filingId)));
-        // TODO this is dummy data until we get the details from company-appointments API
-
-//        var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
-//                .dateOfBirth(new Date3Tuple(20, 10, 2000))
-//                .firstName("JOE")
-//                .lastName("BLOGGS")
-//                .build();
 
         final Transaction transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
         String companyNumber = transaction.getCompanyNumber();
@@ -72,6 +65,7 @@ public class FilingDataServiceImpl implements FilingDataService {
                 filingId, ericPassThroughHeader);
 
         OfficerFiling enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
+                .dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()))
                 .name(companyAppointment.getName())
                 .build();
 

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
+import uk.gov.companieshouse.api.model.delta.officers.SensitiveDateOfBirthAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
@@ -73,6 +74,12 @@ class FilingDataServiceImplTest {
                 .dateOfBirth(DATE_OF_BIRTH_TUPLE)
                 .build();
 
+        SensitiveDateOfBirthAPI dateOfBirthAPI = new SensitiveDateOfBirthAPI();
+        dateOfBirthAPI.setDay(20);
+        dateOfBirthAPI.setMonth(10);
+        dateOfBirthAPI.setYear(2000);
+
+        when(companyAppointment.getDateOfBirth()).thenReturn(dateOfBirthAPI);
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
         when(officerFilingMapper.mapFiling(officerFiling)).thenReturn(filingData);
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
