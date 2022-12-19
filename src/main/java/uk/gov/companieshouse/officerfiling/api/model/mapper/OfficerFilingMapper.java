@@ -15,7 +15,6 @@ import uk.gov.companieshouse.officerfiling.api.model.filing.FilingData;
 @Mapper(componentModel = "spring")
 public interface OfficerFilingMapper {
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "kind", ignore = true)
     @Mapping(target = "links", ignore = true)

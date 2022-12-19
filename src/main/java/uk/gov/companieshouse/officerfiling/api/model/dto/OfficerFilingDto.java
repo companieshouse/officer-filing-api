@@ -14,12 +14,17 @@ import java.util.stream.Stream;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
+
+import org.springframework.data.annotation.Id;
 import org.springframework.validation.annotation.Validated;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 
 @JsonDeserialize(builder = OfficerFilingDto.Builder.class)
 @Validated
 public class OfficerFilingDto {
 
+    @Id
+    private String id;
     private AddressDto address;
     private Boolean addressSameAsRegisteredOfficeAddress;
     private LocalDate appointedOn;
@@ -42,6 +47,10 @@ public class OfficerFilingDto {
     private Boolean residentialAddressSameAsCorrespondenceAddress;
 
     private OfficerFilingDto() {
+    }
+
+    public String getId() {
+        return id;
     }
 
     public AddressDto getAddress() {
@@ -117,7 +126,8 @@ public class OfficerFilingDto {
             return false;
         }
         final var that = (OfficerFilingDto) o;
-        return Objects.equals(getAddress(), that.getAddress())
+        return Objects.equals(getId(), that.getId())
+                && Objects.equals(getAddress(), that.getAddress())
                 && Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
                 that.getAddressSameAsRegisteredOfficeAddress())
                 && Objects.equals(getAppointedOn(), that.getAppointedOn())
@@ -139,7 +149,7 @@ public class OfficerFilingDto {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
+        return Objects.hash(getId(), getAddress(), getAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getDateOfBirth(), getFormerNames(),
                 getIdentification(), getName(), getNationality(), getOccupation(),
                 getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
@@ -149,8 +159,9 @@ public class OfficerFilingDto {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", OfficerFilingDto.class.getSimpleName() + "[", "]").add(
-                        "address=" + address)
+        return new StringJoiner(", ", OfficerFiling.class.getSimpleName() + "[", "]").add(
+                        "id='" + id + "'")
+                .add("address=" + address)
                 .add("addressSameAsRegisteredOfficeAddress=" + addressSameAsRegisteredOfficeAddress)
                 .add("appointedOn=" + appointedOn)
                 .add("countryOfResidence='" + countryOfResidence + "'")
@@ -181,6 +192,12 @@ public class OfficerFilingDto {
 
         public Builder() {
             this.buildSteps = new ArrayList<>();
+        }
+
+        public Builder id(final String value) {
+
+            buildSteps.add(data -> data.id = value);
+            return this;
         }
 
         public Builder address(final AddressDto value) {
