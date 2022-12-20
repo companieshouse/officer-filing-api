@@ -14,11 +14,8 @@ import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppoinmentServiceException;
-import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
-import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -27,17 +24,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class CompanyAppointmentServiceImplTest {
+class CompanyAppointmentServiceImplTest {
 
-    public static final String PASSTHROUGH_HEADER = "passthrough";
-    public static final String NAME = "Joe";
-    public static final String COMPANY_NUMBER = "12345678";
-    public static final String APPOINTMENT_ID = "app1";
+    private static final String PASSTHROUGH_HEADER = "passthrough";
+    private static final String NAME = "Joe";
+    private static final String COMPANY_NUMBER = "12345678";
+    private static final String APPOINTMENT_ID = "app1";
 
     @Mock
     private ApiClientService apiClientService;
-    @Mock
-    private ApiClient apiClient;
     @Mock
     private InternalApiClient internalApiClient;
     @Mock
@@ -46,8 +41,6 @@ public class CompanyAppointmentServiceImplTest {
     private PrivateDeltaResourceHandler privateDeltaResourceHandler;
     @Mock
     private ApiResponse<AppointmentFullRecordAPI> apiResponse;
-    @Mock
-    private ApiResponse<Void> apiResponseVoid;
     @Mock
     private Logger logger;
     private CompanyAppointmentServiceImpl testService;
@@ -58,7 +51,7 @@ public class CompanyAppointmentServiceImplTest {
     }
 
     @Test
-    void companyAppoinmentIsReturnedFromCompanyApoointmentsAPIWhenFound() throws IOException, URIValidationException {
+    void companyAppointmentIsReturnedFromCompanyAppointmentsAPIWhenFound() throws IOException, URIValidationException {
         when(apiResponse.getData()).thenReturn(testCompanyAppointment(NAME));
         when(getAppointment.execute()).thenReturn(apiResponse);
         when(privateDeltaResourceHandler.getAppointment("/company/" + COMPANY_NUMBER + "/appointments/" + APPOINTMENT_ID + "/full_record")).thenReturn(getAppointment);

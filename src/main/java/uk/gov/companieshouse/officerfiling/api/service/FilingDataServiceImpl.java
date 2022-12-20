@@ -12,8 +12,6 @@ import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.officerfiling.api.utils.MapHelper;
 
-import java.time.Instant;
-
 /**
  * Produces Filing Data format for consumption as JSON by filing-resource-handler external service.
  */
@@ -59,13 +57,13 @@ public class FilingDataServiceImpl implements FilingDataService {
         var officerFiling = officerFilingOpt.orElseThrow(() -> new ResourceNotFoundException(
                 String.format("Officer not found when generating filing for %s", filingId)));
 
-        final Transaction transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
+        final var transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
         String companyNumber = transaction.getCompanyNumber();
 
         final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(companyNumber,
                 filingId, ericPassThroughHeader);
 
-        OfficerFiling enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
+        var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
                 .dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()))
                 .name(companyAppointment.getName())
                 .referenceEtag(companyAppointment.getEtag())
