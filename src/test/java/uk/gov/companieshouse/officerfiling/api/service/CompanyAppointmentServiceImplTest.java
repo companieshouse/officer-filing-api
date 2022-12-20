@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.ApiClient;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.handler.delta.PrivateDeltaResourceHandler;
 import uk.gov.companieshouse.api.handler.delta.company.appointment.request.PrivateOfficerGet;
@@ -13,7 +12,7 @@ import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppoinmentServiceException;
+import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 
 import java.io.IOException;
 
@@ -70,7 +69,7 @@ class CompanyAppointmentServiceImplTest {
         when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
         when(apiClientService.getInternalApiKeyAuthenticatedClient()).thenReturn(internalApiClient);
 
-        final var exception = assertThrows(CompanyAppoinmentServiceException.class,
+        final var exception = assertThrows(CompanyAppointmentServiceException.class,
                 () -> testService.getCompanyAppointment(COMPANY_NUMBER, APPOINTMENT_ID, PASSTHROUGH_HEADER));
         assertThat(exception.getMessage(),
                 is("Error Retrieving appointment " + APPOINTMENT_ID + " for company " + COMPANY_NUMBER));

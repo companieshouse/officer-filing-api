@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppoinmentServiceException;
+import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 import java.io.IOException;
@@ -28,12 +28,12 @@ public class CompanyAppointmentServiceImpl implements CompanyAppointmentService{
      * @param appointmentId the Appointment ID
      * @param ericPassThroughHeader includes authorisation for company appointment fetch
      * @return the appointment if found
-     * @throws CompanyAppoinmentServiceException if not found or an error occurred
+     * @throws CompanyAppointmentServiceException if not found or an error occurred
      */
 
     @Override
     public AppointmentFullRecordAPI getCompanyAppointment(String companyNumber, String appointmentId,
-                                                          final String ericPassThroughHeader) throws CompanyAppoinmentServiceException {
+                                                          final String ericPassThroughHeader) throws CompanyAppointmentServiceException {
         try {
             final String uri = "/company/" + companyNumber + "/appointments/" + appointmentId + "/full_record";
             final AppointmentFullRecordAPI companyAppointment =
@@ -49,7 +49,7 @@ public class CompanyAppointmentServiceImpl implements CompanyAppointmentService{
             return companyAppointment;
         }
         catch (final URIValidationException | IOException e) {
-            throw new CompanyAppoinmentServiceException("Error Retrieving appointment " + appointmentId + " for company " + companyNumber,
+            throw new CompanyAppointmentServiceException("Error Retrieving appointment " + appointmentId + " for company " + companyNumber,
                     e);
         }
     }
