@@ -25,4 +25,7 @@ public class ApiClientServiceImpl implements ApiClientService {
             throws IOException {
         return ApiSdkManager.getPrivateSDK(ericPassThroughHeader);
     }
+
+    @Override
+    public InternalApiClient getInternalApiKeyAuthenticatedClient() { return ApiSdkManager.getPrivateSDK(); }
 }
