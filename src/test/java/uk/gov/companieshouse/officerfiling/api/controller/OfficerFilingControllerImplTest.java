@@ -192,6 +192,6 @@ class OfficerFilingControllerImplTest {
 
         ResponseEntity<Object> responseEntity = testController.createFiling(TRANS_ID, offDto, result, request);
 
-        assertEquals(responseEntity.getStatusCodeValue(), 400);
+        assertEquals( 400, responseEntity.getStatusCodeValue());
     }
 }

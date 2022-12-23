@@ -25,7 +25,7 @@ public class OfficerTerminationValidator {
 
         logger.debugRequest(request, "POST", logMap);
 
-        List<ApiError> errorList = new ArrayList<ApiError>();
+        List<ApiError> errorList = new ArrayList<>();
 
         if(dto.getResignedOn().isAfter(LocalDate.of(2009, 9, 30))) {
             // Earliest ever possible date that a director can
