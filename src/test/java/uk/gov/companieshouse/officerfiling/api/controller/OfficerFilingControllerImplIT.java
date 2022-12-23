@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.companieshouse.api.error.ApiError;
@@ -69,9 +70,12 @@ class OfficerFilingControllerImplIT {
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private OfficerFilingControllerImpl testController;
 
     @BeforeEach
     void setUp() {
+        ReflectionTestUtils.setField(testController, "isTm01Enabled", true);
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
     }

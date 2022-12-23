@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.error.InvalidFilingException;
+import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
@@ -41,7 +43,8 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     private final OfficerFilingMapper filingMapper;
     private final Clock clock;
     private final Logger logger;
-
+    @Value("${FEATURE_FLAG_ENABLE_TM01:false}")
+    private boolean isTm01Enabled;
     public OfficerFilingControllerImpl(final TransactionService transactionService,
             final OfficerFilingService officerFilingService, final OfficerFilingMapper filingMapper,
             final Clock clock, final Logger logger) {
@@ -69,6 +72,10 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         final var logMap = LogHelper.createLogMap(transId);
 
         logger.debugRequest(request, "POST", logMap);
+
+        if(!isTm01Enabled){
+            throw new FeatureNotEnabledException();
+        }
 
         if (bindingResult != null && bindingResult.hasErrors()) {
             throw new InvalidFilingException(bindingResult.getFieldErrors());
@@ -153,5 +160,4 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
         return new Links(selfUri, validateUri);
     }
-
 }
