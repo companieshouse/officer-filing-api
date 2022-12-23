@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,6 +29,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -177,5 +179,19 @@ class OfficerFilingControllerImplTest {
             testController.getFilingForReview(TRANS_ID, FILING_ID);
 
         assertThat(response.getStatusCode(), is(HttpStatus.NOT_FOUND));
+    }
+
+    @Test
+    void doNotCreateFilingWhenRequestHasTooOldDate() {
+
+        final var offDto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId("id")
+                .resignedOn(LocalDate.of(1022, 9, 13))
+                .build();
+
+        ResponseEntity<Object> responseEntity = testController.createFiling(TRANS_ID, offDto, result, request);
+
+        assertTrue(responseEntity.getStatusCodeValue() == 400);
     }
 }
