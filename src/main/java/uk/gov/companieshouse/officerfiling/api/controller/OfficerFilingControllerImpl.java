@@ -5,7 +5,6 @@ import static uk.gov.companieshouse.officerfiling.api.model.entity.Links.PREFIX_
 import java.time.Clock;
 import java.time.ZoneId;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
@@ -82,7 +81,8 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         final var transaction = transactionService.getTransaction(transId, passthroughHeader);
         logger.infoContext(transId, "transaction found", logMap);
 
-        final ApiErrors validationErrors = OfficerTerminationValidator.checkExtraValidation(request, dto);
+        OfficerTerminationValidator otv = new OfficerTerminationValidator(logger);
+        final ApiErrors validationErrors = otv.checkExtraValidation(request, dto, transId);
         if(validationErrors.hasErrors()) {
             return ResponseEntity.badRequest().body(validationErrors);
         }

@@ -3,8 +3,8 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -192,6 +192,6 @@ class OfficerFilingControllerImplTest {
 
         ResponseEntity<Object> responseEntity = testController.createFiling(TRANS_ID, offDto, result, request);
 
-        assertTrue(responseEntity.getStatusCodeValue() == 400);
+        assertEquals(responseEntity.getStatusCodeValue(), 400);
     }
 }
