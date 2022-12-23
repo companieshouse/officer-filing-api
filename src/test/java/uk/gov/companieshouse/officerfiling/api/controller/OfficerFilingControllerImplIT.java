@@ -308,43 +308,23 @@ class OfficerFilingControllerImplIT {
     }
 
     @Test
-    void createFilingWhenResignedOnDate300yearsAgoThenResponse201() throws Exception {
+    void createFilingWhenResignedOnDate300yearsAgoThenResponse400() throws Exception {
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "1722-09-13") + "}";
-        final var transaction = new Transaction();
-        final var dto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId("id")
-                .resignedOn(LocalDate.of(1722, 9, 13))
-                .build();
-        final var filing = OfficerFiling.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId("id")
-                .resignedOn(Instant.parse("1722-09-13T00:00:00Z"))
-                .build();
-        final var locationUri = UriComponentsBuilder.fromPath("/")
-                .pathSegment("transactions", TRANS_ID, "officers", FILING_ID)
-                .build();
-
-        transaction.setId(TRANS_ID);
-
-        when(filingMapper.map(dto)).thenReturn(filing);
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(
-                transaction);
-        when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
-                        OfficerFiling.builder(filing).id(FILING_ID)
-                                .build()) // copy of 'filing' with id=FILING_ID
-                .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
-                        .build()); // copy of first argument
-        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        final var expectedError = createExpectedError(
+                "JSON parse error:", "$..resigned_on", 1, 75);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(header().string("Location", locationUri.toUriString()))
-                .andExpect(jsonPath("$").doesNotExist());
-        verify(filingMapper).map(dto);
+                .andExpect(status().isBadRequest())
+                .andExpect(header().doesNotExist("Location"))
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0]",
+                        allOf(hasEntry("location_type", expectedError.getLocationType()),
+                                hasEntry("type", expectedError.getType()))))
+                .andExpect(jsonPath("$.errors[0].error", containsString("You have entered a date too far in the past. Please check the date and resubmit")))
+                .andExpect(jsonPath("$.errors[0].error_values", is(nullValue())));
     }
 
     @Test

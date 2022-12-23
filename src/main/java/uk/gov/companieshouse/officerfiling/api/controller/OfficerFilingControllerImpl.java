@@ -5,6 +5,7 @@ import static uk.gov.companieshouse.officerfiling.api.model.entity.Links.PREFIX_
 import java.time.Clock;
 import java.time.ZoneId;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
 import uk.gov.companieshouse.officerfiling.api.error.InvalidFilingException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
@@ -30,6 +32,7 @@ import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
+import uk.gov.companieshouse.officerfiling.api.validation.OfficerTerminationValidator;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 @RestController
@@ -79,6 +82,10 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         final var transaction = transactionService.getTransaction(transId, passthroughHeader);
         logger.infoContext(transId, "transaction found", logMap);
 
+        final ApiErrors validationErrors = OfficerTerminationValidator.checkExtraValidation(request, dto);
+        if(validationErrors.hasErrors()) {
+            return ResponseEntity.badRequest().body(validationErrors);
+        }
         final var entity = filingMapper.map(dto);
         final var links = saveFilingWithLinks(entity, transId, request, logMap);
         final var resourceMap = buildResourceMap(links);

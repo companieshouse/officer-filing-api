@@ -3,14 +3,18 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.companieshouse.officerfiling.api.model.entity.Links.PREFIX_PRIVATE;
 
+import java.net.URI;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -19,10 +23,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
+import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 @Tag("web")
 @WebMvcTest(controllers = OfficerFilingControllerImpl.class)
@@ -33,6 +41,7 @@ class OfficerFilingControllerImplValidationIT {
     private static final String TM01_FRAGMENT = "\"reference_etag\": \"etag_value\","
             + "\"reference_appointment_id\": \"id_value\","
             + "\"resigned_on\": \"2022-09-13\"";
+    private static final URI REQUEST_URI = URI.create("/transactions/" + TRANS_ID + "/officers");
 
     @MockBean
     private TransactionService transactionService;
@@ -129,4 +138,21 @@ class OfficerFilingControllerImplValidationIT {
                         is("must be a date in the past or in the present")));
     }
 
+    @Test
+    void createFilingWhenResignedOnPriorTo01092009ThenResponse400() throws Exception {
+        final var body = "{"
+                + TM01_FRAGMENT.replace("2022-09-13", "2009-09-01")
+                + "}";
+
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
+                .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
+                .andExpect(jsonPath("$.errors[0].error",
+                        is("You have entered a date too far in the past. Please check the date and resubmit ")));
+    }
 }

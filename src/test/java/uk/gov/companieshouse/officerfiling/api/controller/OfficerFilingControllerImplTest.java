@@ -13,6 +13,7 @@ import static uk.gov.companieshouse.officerfiling.api.model.entity.Links.PREFIX_
 import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
@@ -109,6 +110,7 @@ class OfficerFilingControllerImplTest {
         when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
         when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
         when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(dto.getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
 
         final var response =
                 testController.createFiling(TRANS_ID, dto, nullBindingResult ? null : result,
