@@ -3,6 +3,7 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.verify;
@@ -13,6 +14,7 @@ import static uk.gov.companieshouse.officerfiling.api.model.entity.Links.PREFIX_
 import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +29,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -109,6 +112,7 @@ class OfficerFilingControllerImplTest {
         when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
         when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
         when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(dto.getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
 
         final var response =
                 testController.createFiling(TRANS_ID, dto, nullBindingResult ? null : result,
@@ -175,5 +179,19 @@ class OfficerFilingControllerImplTest {
             testController.getFilingForReview(TRANS_ID, FILING_ID);
 
         assertThat(response.getStatusCode(), is(HttpStatus.NOT_FOUND));
+    }
+
+    @Test
+    void doNotCreateFilingWhenRequestHasTooOldDate() {
+
+        final var offDto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId("id")
+                .resignedOn(LocalDate.of(1022, 9, 13))
+                .build();
+
+        ResponseEntity<Object> responseEntity = testController.createFiling(TRANS_ID, offDto, result, request);
+
+        assertEquals( 400, responseEntity.getStatusCodeValue());
     }
 }
