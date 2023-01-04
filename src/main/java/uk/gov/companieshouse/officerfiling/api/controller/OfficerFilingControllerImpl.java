@@ -81,8 +81,8 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         final var transaction = transactionService.getTransaction(transId, passthroughHeader);
         logger.infoContext(transId, "transaction found", logMap);
 
-        OfficerTerminationValidator otv = new OfficerTerminationValidator(logger);
-        final ApiErrors validationErrors = otv.checkExtraValidation(request, dto, transId);
+        final var validator = new OfficerTerminationValidator(logger);
+        final ApiErrors validationErrors = validator.validate(request, dto, transId);
         if(validationErrors.hasErrors()) {
             return ResponseEntity.badRequest().body(validationErrors);
         }

@@ -32,7 +32,7 @@ class OfficerTerminationValidatorTest {
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
         OfficerTerminationValidator otv = new OfficerTerminationValidator(logger);
-        final var realError = otv.checkExtraValidation(request, dto, TRANS_ID);
+        final var realError = otv.validate(request, dto, TRANS_ID);
         assertTrue(realError.getErrors().isEmpty());
     }
 
@@ -44,7 +44,7 @@ class OfficerTerminationValidatorTest {
                 .resignedOn(LocalDate.of(1022, 9, 13))
                 .build();
         OfficerTerminationValidator otv = new OfficerTerminationValidator(logger);
-        final var realError = otv.checkExtraValidation(request, dto, TRANS_ID);
+        final var realError = otv.validate(request, dto, TRANS_ID);
 
         assertEquals("ApiError [error=You have entered a date too far in the past. Please check the date and resubmit , errorValues=null, location=null, locationType=json-path, type=ch:validation]", realError.getErrors().iterator().next().toString());
     }
