@@ -35,7 +35,10 @@ public class OfficerTerminationValidator {
     private final CompanyAppointmentService companyAppointmentService;
     private final Logger logger;
 
-    public OfficerTerminationValidator(final Logger logger, final TransactionService transactionService, final CompanyProfileService companyProfileService, final CompanyAppointmentService companyAppointmentService) {
+    public OfficerTerminationValidator(final Logger logger,
+                                       final TransactionService transactionService,
+                                       final CompanyProfileService companyProfileService,
+                                       final CompanyAppointmentService companyAppointmentService) {
         this.logger = logger;
         this.transactionService = transactionService;
         this.companyProfileService = companyProfileService;
@@ -66,9 +69,10 @@ public class OfficerTerminationValidator {
 
         // Perform validation
         validateMinResignationDate(request, errorList, dto);
+        validateSubmissionInformationInDate(request, dto, companyAppointment.get(), errorList);
+        validateCompanyNotDissolved(request, errorList, companyProfile);
         validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment.get());
         validateTerminationDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
-        validateCompanyNotDissolved(request, errorList, companyProfile);
 
         return new ApiErrors(errorList);
     }
@@ -77,13 +81,22 @@ public class OfficerTerminationValidator {
         List<ApiError> errorList, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
         try {
             return Optional.ofNullable(
-                companyAppointmentService.getCompanyAppointment(transaction.getCompanyNumber(),
-                    dto.getReferenceAppointmentId(), passthroughHeader));
-        }
-        catch (CompanyAppointmentServiceException e){
-            createValidationError(request, errorList,"Officer not found. Please confirm the details and resubmit");
+                    companyAppointmentService.getCompanyAppointment(transaction.getCompanyNumber(),
+                            dto.getReferenceAppointmentId(), passthroughHeader));
+        } catch (CompanyAppointmentServiceException e) {
+            createValidationError(request, errorList, "Officer not found. Please confirm the details and resubmit");
         }
         return Optional.empty();
+    }
+
+    private void validateSubmissionInformationInDate(HttpServletRequest request, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment, List<ApiError> errorList) {
+        // If submission information is not out of date, the ETAG retrieved from the Company Appointments API and the ETAG passed from the request will match
+        String companyAppointmentEtag = companyAppointment.getEtag();
+        String requestEtag = dto.getReferenceEtag();
+
+        if(!Objects.equals(requestEtag, companyAppointmentEtag)) {
+            createValidationError(request, errorList,"The Officers information is out of date. Please start the process again and make a new submission");
+        }
     }
 
     public void validateMinResignationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {

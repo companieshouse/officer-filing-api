@@ -116,11 +116,11 @@ class OfficerFilingMapperTest {
         assertThat(filing.getName(), is("name"));
         assertThat(filing.getOfficerRole(), is(nullValue()));
         assertThat(filing.getReferenceEtag(), is("referenceEtag"));
-        assertThat(filing.getreferenceAppointmentId(), is("referenceAppointmentId"));
+        assertThat(filing.getReferenceAppointmentId(), is("referenceAppointmentId"));
         assertThat(filing.getNationality(), is("nation"));
         assertThat(filing.getOccupation(), is("work"));
         assertThat(filing.getReferenceEtag(), is("referenceEtag"));
-        assertThat(filing.getreferenceAppointmentId(), is("referenceAppointmentId"));
+        assertThat(filing.getReferenceAppointmentId(), is("referenceAppointmentId"));
         assertThat(filing.getReferenceOfficerListEtag(), is("list"));
         assertThat(filing.getResignedOn(), is(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC)));
         assertThat(filing.getResidentialAddress(), is(equalTo(address)));

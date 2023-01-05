@@ -70,6 +70,7 @@ class OfficerTerminationValidatorTest {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
+        when(companyAppointment.getEtag()).thenReturn("etag");
 
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
@@ -111,7 +112,6 @@ class OfficerTerminationValidatorTest {
                 .build();
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
-
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
@@ -120,7 +120,7 @@ class OfficerTerminationValidatorTest {
         final var apiErrors = officerTerminationValidator.validate(request, dto, TRANS_ID, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
                 .as("Each validation error should have been raised")
-                .hasSize(3)
+                .hasSize(4)
                 .extracting(ApiError::getLocationType, ApiError::getType)
                 .containsOnly(tuple("json-path", "ch:validation"));
     }

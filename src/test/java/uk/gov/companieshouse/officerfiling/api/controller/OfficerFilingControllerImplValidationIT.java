@@ -87,6 +87,7 @@ class OfficerFilingControllerImplValidationIT {
         companyAppointment = new AppointmentFullRecordAPI();
         companyAppointment.setName(DIRECTOR_NAME);
         companyAppointment.setAppointedOn(APPOINTMENT_DATE);
+        companyAppointment.setEtag("etag_value");
     }
 
     @Test

@@ -53,8 +53,12 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     @Value("${FEATURE_FLAG_ENABLE_TM01:true}")
     private boolean isTm01Enabled;
     public OfficerFilingControllerImpl(final TransactionService transactionService,
-            final OfficerFilingService officerFilingService, final CompanyProfileService companyProfileService, final CompanyAppointmentService companyAppointmentService, final OfficerFilingMapper filingMapper,
-            final Clock clock, final Logger logger) {
+                                       final OfficerFilingService officerFilingService,
+                                       final CompanyProfileService companyProfileService,
+                                       final CompanyAppointmentService companyAppointmentService,
+                                       final OfficerFilingMapper filingMapper,
+                                       final Clock clock,
+                                       final Logger logger) {
         this.transactionService = transactionService;
         this.officerFilingService = officerFilingService;
         this.companyProfileService = companyProfileService;
