@@ -86,7 +86,6 @@ class OfficerTerminationValidatorTest {
                 .resignedOn(LocalDate.of(1022, 9, 13))
                 .build();
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
-
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);

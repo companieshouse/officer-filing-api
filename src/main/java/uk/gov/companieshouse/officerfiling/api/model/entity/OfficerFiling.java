@@ -119,7 +119,7 @@ public class OfficerFiling {
         return referenceEtag;
     }
 
-    public String getreferenceAppointmentId() {
+    public String getReferenceAppointmentId() {
         return referenceAppointmentId;
     }
 
@@ -156,8 +156,7 @@ public class OfficerFiling {
             return false;
         }
         final OfficerFiling that = (OfficerFiling) o;
-        return Objects.equals(getId(), that.getId())
-                && Objects.equals(getAddress(), that.getAddress())
+        return Objects.equals(getAddress(), that.getAddress())
                 && Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
                 that.getAddressSameAsRegisteredOfficeAddress())
                 && Objects.equals(getAppointedOn(), that.getAppointedOn())
@@ -175,7 +174,7 @@ public class OfficerFiling {
                 && Objects.equals(getOccupation(), that.getOccupation())
                 && Objects.equals(getOfficerRole(), that.getOfficerRole())
                 && Objects.equals(getReferenceEtag(), that.getReferenceEtag())
-                && Objects.equals(getreferenceAppointmentId(), that.getreferenceAppointmentId())
+                && Objects.equals(getReferenceAppointmentId(), that.getReferenceAppointmentId())
                 && Objects.equals(getReferenceOfficerListEtag(), that.getReferenceOfficerListEtag())
                 && Objects.equals(getResignedOn(), that.getResignedOn())
                 && Objects.equals(getStatus(), that.getStatus())
@@ -187,11 +186,11 @@ public class OfficerFiling {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getAddress(), getAddressSameAsRegisteredOfficeAddress(),
+        return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getCreatedAt(), getDateOfBirth(),
                 getFormerNames(), getIdentification(), getKind(), getLinks(), getName(),
                 getFirstName(), getLastName(), getNationality(), getOccupation(), getOfficerRole(),
-                getReferenceEtag(), getreferenceAppointmentId(), getReferenceOfficerListEtag(),
+                getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getStatus(), getUpdatedAt(), getResidentialAddress(),
                 getResidentialAddressSameAsCorrespondenceAddress());
     }
@@ -265,7 +264,7 @@ public class OfficerFiling {
                     .occupation(other.getOccupation())
                     .officerRole(other.getOfficerRole())
                     .referenceEtag(other.getReferenceEtag())
-                    .referenceAppointmentId(other.getreferenceAppointmentId())
+                    .referenceAppointmentId(other.getReferenceAppointmentId())
                     .referenceOfficerListEtag(other.getReferenceOfficerListEtag())
                     .residentialAddress(other.getResidentialAddress())
                     .residentialAddressSameAsCorrespondenceAddress(

@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Provides all validation that should be carried out when an officer is terminated. Fetches all data necessary to complete
@@ -32,7 +33,10 @@ public class OfficerTerminationValidator {
     private final CompanyAppointmentService companyAppointmentService;
     private final Logger logger;
 
-    public OfficerTerminationValidator(final Logger logger, final TransactionService transactionService, final CompanyProfileService companyProfileService, final CompanyAppointmentService companyAppointmentService) {
+    public OfficerTerminationValidator(final Logger logger,
+                                       final TransactionService transactionService,
+                                       final CompanyProfileService companyProfileService,
+                                       final CompanyAppointmentService companyAppointmentService) {
         this.logger = logger;
         this.transactionService = transactionService;
         this.companyProfileService = companyProfileService;
@@ -54,14 +58,29 @@ public class OfficerTerminationValidator {
 
         // Retrieve data objects required for the validation process
         final Transaction transaction = transactionService.getTransaction(transId, passthroughHeader);
-        final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transaction.getCompanyNumber(), dto.getReferenceAppointmentId(), passthroughHeader);
+        final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(
+                transaction.getCompanyNumber(), dto.getReferenceAppointmentId(), passthroughHeader);
         final CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(transId, transaction.getCompanyNumber(), passthroughHeader);
 
         // Perform validation
+        validateSubmissionInformationInDate(request, dto, companyAppointment, errorList);
         validateMinResignationDate(request, errorList, dto);
         validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment);
 
         return new ApiErrors(errorList);
+    }
+
+    private void validateSubmissionInformationInDate(HttpServletRequest request, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment, List<ApiError> errorList) {
+        // If submission information is not out of date, the ETAG retrieved from the Company Appointments API and the ETAG passed from the request will match
+        String companyAppointmentEtag = companyAppointment.getEtag();
+        String requestEtag = dto.getReferenceEtag();
+
+        if(!Objects.equals(requestEtag, companyAppointmentEtag)) {
+            final ApiError error = new ApiError("The Officers information is out of date. Please start the process again and make a new submission",
+                    request.getRequestURI(),
+                    LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
+            errorList.add(error);
+        }
     }
 
     public void validateMinResignationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {

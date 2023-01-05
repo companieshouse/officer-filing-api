@@ -3,7 +3,6 @@ package uk.gov.companieshouse.officerfiling.api.service;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
-import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
@@ -58,7 +57,7 @@ public class FilingDataServiceImpl implements FilingDataService {
 
         final var transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
         String companyNumber = transaction.getCompanyNumber();
-        String appointmentId = officerFiling.getreferenceAppointmentId();
+        String appointmentId = officerFiling.getReferenceAppointmentId();
 
         final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(companyNumber,
                 appointmentId, ericPassThroughHeader);
