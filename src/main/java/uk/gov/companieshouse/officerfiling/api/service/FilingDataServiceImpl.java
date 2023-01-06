@@ -23,7 +23,6 @@ public class FilingDataServiceImpl implements FilingDataService {
     private final Logger logger;
     private final TransactionService transactionService;
     private final CompanyAppointmentService companyAppointmentService;
-
     public FilingDataServiceImpl(OfficerFilingService officerFilingService,
             OfficerFilingMapper filingMapper, Logger logger, TransactionService transactionService,
                                  CompanyAppointmentService companyAppointmentService) {
@@ -59,9 +58,10 @@ public class FilingDataServiceImpl implements FilingDataService {
 
         final var transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
         String companyNumber = transaction.getCompanyNumber();
+        String appointmentId = officerFiling.getreferenceAppointmentId();
 
         final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(companyNumber,
-                filingId, ericPassThroughHeader);
+                appointmentId, ericPassThroughHeader);
 
         var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
                 .dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()))

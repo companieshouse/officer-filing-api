@@ -2,6 +2,7 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -13,6 +14,7 @@ import static uk.gov.companieshouse.officerfiling.api.model.entity.Links.PREFIX_
 import java.net.URI;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,10 +26,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.util.UriComponentsBuilder;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
+import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
+import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
+import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
@@ -39,14 +46,21 @@ class OfficerFilingControllerImplValidationIT {
     private static final String FILING_ID = "632c8e65105b1b4a9f0d1f5e";
     private static final String PASSTHROUGH_HEADER = "passthrough";
     private static final String TM01_FRAGMENT = "\"reference_etag\": \"etag_value\","
-            + "\"reference_appointment_id\": \"id_value\","
+            + "\"reference_appointment_id\": \"" + FILING_ID + "\","
             + "\"resigned_on\": \"2022-09-13\"";
     private static final URI REQUEST_URI = URI.create("/transactions/" + TRANS_ID + "/officers");
+    private static final String COMPANY_NUMBER = "123456";
+    public static final LocalDate INCORPORATION_DATE = LocalDate.of(2010, Month.OCTOBER, 20);
+    public static final String DIRECTOR_NAME = "Director name";
 
     @MockBean
     private TransactionService transactionService;
     @MockBean
     private OfficerFilingService officerFilingService;
+    @MockBean
+    private CompanyProfileService companyProfileService;
+    @MockBean
+    private CompanyAppointmentService companyAppointmentService;
     @MockBean
     private OfficerFilingMapper filingMapper;
     @MockBean
@@ -55,6 +69,9 @@ class OfficerFilingControllerImplValidationIT {
     private Logger logger;
 
     private HttpHeaders httpHeaders;
+    private Transaction transaction;
+    private CompanyProfileApi companyProfileApi;
+    private AppointmentFullRecordAPI companyAppointment;
 
     @Autowired
     private MockMvc mockMvc;
@@ -63,6 +80,14 @@ class OfficerFilingControllerImplValidationIT {
     void setUp() {
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
+
+        transaction = new Transaction();
+        transaction.setCompanyNumber(COMPANY_NUMBER);
+        transaction.setId(TRANS_ID);
+        companyProfileApi = new CompanyProfileApi();
+        companyProfileApi.setDateOfCreation(INCORPORATION_DATE);
+        companyAppointment = new AppointmentFullRecordAPI();
+        companyAppointment.setName(DIRECTOR_NAME);
     }
 
     @Test
@@ -84,7 +109,7 @@ class OfficerFilingControllerImplValidationIT {
 
     @Test
     void createFilingWhenReferenceReferenceAppointmentIdBlankThenResponse400() throws Exception {
-        final var body = "{" + TM01_FRAGMENT.replace("id_value", "") + "}";
+        final var body = "{" + TM01_FRAGMENT.replace(FILING_ID, "") + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                 .contentType("application/json")
@@ -140,6 +165,11 @@ class OfficerFilingControllerImplValidationIT {
 
     @Test
     void createFilingWhenResignedOnPriorTo01092009ThenResponse400() throws Exception {
+        companyProfileApi.setDateOfCreation(LocalDate.of(2009, 1, 1));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
+
         final var body = "{"
                 + TM01_FRAGMENT.replace("2022-09-13", "2009-09-01")
                 + "}";
@@ -153,6 +183,50 @@ class OfficerFilingControllerImplValidationIT {
                 .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
                 .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
                 .andExpect(jsonPath("$.errors[0].error",
-                        is("You have entered a date too far in the past. Please check the date and resubmit ")));
+                        is("You have entered a date too far in the past. Please check the date and resubmit")));
+    }
+
+    @Test
+    void createFilingWhenResignedOnBeforeIncorporationDateThenResponse400() throws Exception {
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
+
+        final var body = "{"
+                + TM01_FRAGMENT.replace("2022-09-13", "2009-10-05")
+                + "}";
+
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
+                .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
+                .andExpect(jsonPath("$.errors[0].error",
+                        is("Director name has not been found")));
+    }
+
+    @Test
+    void createFilingWhenResignedOnInvalidThenResponse400() throws Exception {
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
+
+        final var body = "{"
+                + TM01_FRAGMENT.replace("2022-09-13", "2022-09-33")
+                + "}";
+
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
+                .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
+                .andExpect(jsonPath("$.errors[0].error",
+                        containsString("DateTimeParseException")));
     }
 }
