@@ -33,6 +33,7 @@ class OfficerTerminationValidatorTest {
     private static final String PASSTHROUGH_HEADER = "passthrough";
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     private static final String DIRECTOR_NAME = "director name";
+    private static final String ETAG = "etag";
 
     private OfficerTerminationValidator officerTerminationValidator;
     private List<ApiError> apiErrorsList;
@@ -67,6 +68,8 @@ class OfficerTerminationValidatorTest {
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
+
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
@@ -110,6 +113,7 @@ class OfficerTerminationValidatorTest {
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(1022, 9, 13))
                 .build();
+
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));

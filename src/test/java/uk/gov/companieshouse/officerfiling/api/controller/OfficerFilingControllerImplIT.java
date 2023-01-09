@@ -64,6 +64,7 @@ class OfficerFilingControllerImplIT {
     public static final LocalDate INCORPORATION_DATE = LocalDate.of(2010, Month.OCTOBER, 20);
     public static final LocalDate APPOINTMENT_DATE = LocalDate.of(2010, Month.OCTOBER, 30);
     public static final String DIRECTOR_NAME = "Director name";
+    private static final String ETAG = "etag";
 
     @MockBean
     private TransactionService transactionService;
@@ -104,7 +105,7 @@ class OfficerFilingControllerImplIT {
         companyAppointment = new AppointmentFullRecordAPI();
         companyAppointment.setName(DIRECTOR_NAME);
         companyAppointment.setAppointedOn(APPOINTMENT_DATE);
-        companyAppointment.setEtag("etag");
+        companyAppointment.setEtag(ETAG);
     }
 
     @Test
