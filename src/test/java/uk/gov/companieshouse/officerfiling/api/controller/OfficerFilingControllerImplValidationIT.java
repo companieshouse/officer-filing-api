@@ -9,14 +9,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.companieshouse.officerfiling.api.model.entity.Links.PREFIX_PRIVATE;
 
 import java.net.URI;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Map;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -25,19 +23,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
-import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
-import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 @Tag("web")
 @WebMvcTest(controllers = OfficerFilingControllerImpl.class)
@@ -45,13 +39,14 @@ class OfficerFilingControllerImplValidationIT {
     private static final String TRANS_ID = "4f56fdf78b357bfc";
     private static final String FILING_ID = "632c8e65105b1b4a9f0d1f5e";
     private static final String PASSTHROUGH_HEADER = "passthrough";
-    private static final String TM01_FRAGMENT = "\"reference_etag\": \"etag_value\","
+    private static final String TM01_FRAGMENT = "\"reference_etag\": \"etag\","
             + "\"reference_appointment_id\": \"" + FILING_ID + "\","
             + "\"resigned_on\": \"2022-09-13\"";
     private static final URI REQUEST_URI = URI.create("/transactions/" + TRANS_ID + "/officers");
     private static final String COMPANY_NUMBER = "123456";
     public static final LocalDate INCORPORATION_DATE = LocalDate.of(2010, Month.OCTOBER, 20);
     public static final String DIRECTOR_NAME = "Director name";
+    private static final String ETAG = "etag";
 
     @MockBean
     private TransactionService transactionService;
@@ -88,11 +83,12 @@ class OfficerFilingControllerImplValidationIT {
         companyProfileApi.setDateOfCreation(INCORPORATION_DATE);
         companyAppointment = new AppointmentFullRecordAPI();
         companyAppointment.setName(DIRECTOR_NAME);
+        companyAppointment.setEtag(ETAG);
     }
 
     @Test
     void createFilingWhenReferenceEtagBlankThenResponse400() throws Exception {
-        final var body = "{" + TM01_FRAGMENT.replace("etag_value", "") + "}";
+        final var body = "{" + TM01_FRAGMENT.replace("etag", "") + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")

@@ -32,6 +32,7 @@ class OfficerTerminationValidatorTest {
     private static final String PASSTHROUGH_HEADER = "passthrough";
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     private static final String DIRECTOR_NAME = "director name";
+    private static final String ETAG = "etag";
 
     private OfficerTerminationValidator officerTerminationValidator;
     private List<ApiError> apiErrorsList;
@@ -66,6 +67,8 @@ class OfficerTerminationValidatorTest {
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
+
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
@@ -85,6 +88,7 @@ class OfficerTerminationValidatorTest {
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(1022, 9, 13))
                 .build();
+
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
@@ -94,7 +98,7 @@ class OfficerTerminationValidatorTest {
         final var apiErrors = officerTerminationValidator.validate(request, dto, TRANS_ID, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
                 .as("Each validation error should have been raised")
-                .hasSize(2)
+                .hasSize(3)
                 .extracting(ApiError::getLocationType, ApiError::getType)
                 .containsOnly(tuple("json-path", "ch:validation"));
     }
