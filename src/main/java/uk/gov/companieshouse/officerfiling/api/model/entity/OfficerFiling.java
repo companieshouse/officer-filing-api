@@ -156,7 +156,8 @@ public class OfficerFiling {
             return false;
         }
         final OfficerFiling that = (OfficerFiling) o;
-        return Objects.equals(getAddress(), that.getAddress())
+        return Objects.equals(getId(), that.getId())
+                && Objects.equals(getAddress(), that.getAddress())
                 && Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
                 that.getAddressSameAsRegisteredOfficeAddress())
                 && Objects.equals(getAppointedOn(), that.getAppointedOn())
@@ -186,7 +187,7 @@ public class OfficerFiling {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
+        return Objects.hash(getId(), getAddress(), getAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getCreatedAt(), getDateOfBirth(),
                 getFormerNames(), getIdentification(), getKind(), getLinks(), getName(),
                 getFirstName(), getLastName(), getNationality(), getOccupation(), getOfficerRole(),
