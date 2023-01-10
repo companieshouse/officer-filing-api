@@ -68,6 +68,8 @@ class OfficerTerminationValidatorTest {
                 .build();
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
+
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
@@ -86,6 +88,7 @@ class OfficerTerminationValidatorTest {
                 .resignedOn(LocalDate.of(1022, 9, 13))
                 .build();
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
 
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
@@ -95,7 +98,7 @@ class OfficerTerminationValidatorTest {
         final var apiErrors = officerTerminationValidator.validate(request, dto, TRANS_ID, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
                 .as("Each validation error should have been raised")
-                .hasSize(2)
+                .hasSize(3)
                 .extracting(ApiError::getLocationType, ApiError::getType)
                 .containsOnly(tuple("json-path", "ch:validation"));
     }
@@ -216,4 +219,49 @@ class OfficerTerminationValidatorTest {
                 .as("An error should not be produced when the company is active")
                 .isEmpty();
     }
+
+    @Test
+    void validateTerminationDateAfterAppointmentDateWhenValid() {
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerTerminationValidator.validateTerminationDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when resignation date is after appointment date")
+                .isEmpty();
+    }
+
+    @Test
+    void validateTerminationDateAfterAppointmentDateWhenInvalid() {
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 6));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerTerminationValidator.validateTerminationDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when resignation date is before appointment date")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Date director was removed must be on or after the date the director was appointed");
+    }
+
+    @Test
+    void validateTerminationDateAfterAppointmentDateWhenSameDay() {
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 5));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerTerminationValidator.validateTerminationDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when resignation date is the same day as appointment date")
+                .isEmpty();
+    }
+
 }

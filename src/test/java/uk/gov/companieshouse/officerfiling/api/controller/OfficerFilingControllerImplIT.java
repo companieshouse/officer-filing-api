@@ -62,6 +62,7 @@ class OfficerFilingControllerImplIT {
     private static final Instant FIRST_INSTANT = Instant.parse("2022-10-15T09:44:08.108Z");
     private static final String COMPANY_NUMBER = "123456";
     public static final LocalDate INCORPORATION_DATE = LocalDate.of(2010, Month.OCTOBER, 20);
+    public static final LocalDate APPOINTMENT_DATE = LocalDate.of(2010, Month.OCTOBER, 30);
     public static final String DIRECTOR_NAME = "Director name";
 
     @MockBean
@@ -102,6 +103,7 @@ class OfficerFilingControllerImplIT {
         companyProfileApi.setDateOfCreation(INCORPORATION_DATE);
         companyAppointment = new AppointmentFullRecordAPI();
         companyAppointment.setName(DIRECTOR_NAME);
+        companyAppointment.setAppointedOn(APPOINTMENT_DATE);
     }
 
     @Test
@@ -360,6 +362,7 @@ class OfficerFilingControllerImplIT {
     @Test
     void createFilingWhenResignedOnDate300yearsAgoThenResponse400() throws Exception {
         companyProfileApi.setDateOfCreation(LocalDate.of(1721, Month.OCTOBER, 20));
+        companyAppointment.setAppointedOn(LocalDate.of(1721, Month.OCTOBER, 21));
         when(transactionService.getTransaction(any(String.class), any(String.class))).thenReturn(transaction);
         when(companyProfileService.getCompanyProfile(any(String.class), any(String.class), any(String.class))).thenReturn(companyProfileApi);
         when(companyAppointmentService.getCompanyAppointment(any(String.class), any(String.class), any(String.class))).thenReturn(companyAppointment);
