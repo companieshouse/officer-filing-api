@@ -116,9 +116,11 @@ class OfficerFilingControllerImplTest {
         when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
         when(clock.instant()).thenReturn(FIRST_INSTANT);
         when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
+        when(dto.getReferenceEtag()).thenReturn(ETAG);
         when(dto.getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2005, 10, 3));
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(filingMapper.map(dto)).thenReturn(filing);
         final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
                 .build();
