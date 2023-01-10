@@ -10,6 +10,7 @@ import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.service.FilingDataService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
+import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 @RestController
 @RequestMapping("/private/transactions/{transId}/officers")
@@ -43,7 +44,10 @@ public class FilingDataControllerImpl implements FilingDataController {
         logger.debugRequest(request,
                 "GET /private/transactions/{transId}/officers{filingId}/filings", logMap);
 
-        final var filingApi = filingDataService.generateOfficerFiling(transId, filingResource);
+        final var passthroughHeader =
+                request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
+
+        final var filingApi = filingDataService.generateOfficerFiling(transId, filingResource, passthroughHeader);
 
         logMap.put("officer filing:", filingApi);
         logger.infoContext(transId, "Officer filing data", logMap);

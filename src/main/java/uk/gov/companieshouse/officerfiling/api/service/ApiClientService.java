@@ -18,4 +18,6 @@ public interface ApiClientService {
 
     InternalApiClient getInternalOauthAuthenticatedClient(String ericPassThroughHeader)
             throws IOException;
+
+    InternalApiClient getInternalApiKeyAuthenticatedClient();
 }

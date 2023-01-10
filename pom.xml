@@ -32,7 +32,7 @@
         <mapstruct.version>1.4.2.Final</mapstruct.version>
         <!--- CH -->
         <structured-logging.version>1.9.14</structured-logging.version>
-        <private-api-sdk-java.version>2.0.187</private-api-sdk-java.version>
+        <private-api-sdk-java.version>2.0.207</private-api-sdk-java.version>
         <api-sdk-manager-java-library.version>1.0.4</api-sdk-manager-java-library.version>
         <!--sonar configuration-->
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml,

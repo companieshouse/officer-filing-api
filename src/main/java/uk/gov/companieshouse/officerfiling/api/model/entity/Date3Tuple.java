@@ -1,5 +1,8 @@
 package uk.gov.companieshouse.officerfiling.api.model.entity;
 
+import uk.gov.companieshouse.api.model.delta.officers.SensitiveDateOfBirthAPI;
+import uk.gov.companieshouse.officerfiling.api.annotations.Default;
+
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -32,10 +35,18 @@ public class Date3Tuple {
      * @param month the month
      * @param year the year
      */
+
+    @Default
     public Date3Tuple(final int day, final int month, final int year) {
         this.day = day;
         this.month = month;
         this.year = year;
+    }
+
+    public Date3Tuple(SensitiveDateOfBirthAPI dateTime) {
+        this.day = dateTime.getDay();
+        this.month = dateTime.getMonth();
+        this.year = dateTime.getYear();
     }
 
     public int getDay() {
