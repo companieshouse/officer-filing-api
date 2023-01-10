@@ -29,6 +29,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -39,6 +40,7 @@ import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.error.InvalidFilingException;
+import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
@@ -95,6 +97,7 @@ class OfficerFilingControllerImplTest {
     void setUp() {
         testController = new OfficerFilingControllerImpl(transactionService, officerFilingService, companyProfileService, companyAppointmentService,
                 filingMapper, clock, logger);
+        ReflectionTestUtils.setField(testController, "isTm01Enabled", true);
         filing = OfficerFiling.builder()
                 .referenceAppointmentId("off-id")
                 .referenceEtag("etag")
@@ -156,6 +159,7 @@ class OfficerFilingControllerImplTest {
         assertThat(exception.getFieldErrors(), contains(fieldErrorWithRejectedValue));
     }
 
+
     private Map<String, Resource> createResources() {
         final Map<String, Resource> resourceMap = new HashMap<>();
         final var resource = new Resource();
@@ -194,6 +198,12 @@ class OfficerFilingControllerImplTest {
     }
 
     @Test
+    void checkTm01FeatureFlagDisabled(){
+        ReflectionTestUtils.setField(testController, "isTm01Enabled", false);
+        assertThrows(FeatureNotEnabledException.class,
+                () -> testController.createFiling(TRANS_ID, dto, result, request));
+    }
+    
     void doNotCreateFilingWhenRequestHasTooOldDate() {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
