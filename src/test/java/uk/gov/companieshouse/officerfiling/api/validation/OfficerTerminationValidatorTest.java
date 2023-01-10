@@ -304,7 +304,7 @@ class OfficerTerminationValidatorTest {
     }
 
     @Test
-    void validateSubmissionInformationInDateWhenInValid() {
+    void validateSubmissionInformationInDateWhenInvalid() {
         when(companyAppointment.getEtag()).thenReturn(ETAG);
         final var officerFilingDto = OfficerFilingDto.builder()
             .referenceEtag("invalid_etag")
