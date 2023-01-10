@@ -58,6 +58,7 @@ class OfficerFilingControllerImplTest {
     private static final Instant FIRST_INSTANT = Instant.parse("2022-10-15T09:44:08.108Z");
     public static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     public static final String DIRECTOR_NAME = "director name";
+    private static final String ETAG = "etag";
 
     private OfficerFilingController testController;
     @Mock
@@ -195,6 +196,7 @@ class OfficerFilingControllerImplTest {
 
     @Test
     void doNotCreateFilingWhenRequestHasTooOldDate() {
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);

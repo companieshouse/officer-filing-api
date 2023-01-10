@@ -188,4 +188,34 @@ class OfficerTerminationValidatorTest {
                 .as("An error should not be produced when resignation date is the creation date")
                 .isEmpty();
     }
+
+    @Test
+    void validateSubmissionInformationInDateWhenValid() {
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
+        final var officerFilingDto = OfficerFilingDto.builder()
+            .referenceEtag("etag")
+            .referenceAppointmentId(FILING_ID)
+            .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+            .build();
+        officerTerminationValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
+        assertThat(apiErrorsList)
+            .as("The Officers information is out of date. Please start the process again and make a new submission")
+            .isEmpty();
+    }
+
+    @Test
+    void validateSubmissionInformationInDateWhenInValid() {
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
+        final var officerFilingDto = OfficerFilingDto.builder()
+            .referenceEtag("invalid_etag")
+            .referenceAppointmentId(FILING_ID)
+            .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+            .build();
+        officerTerminationValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
+        assertThat(apiErrorsList)
+            .as("An error should not be produced when the referenceEtag is invalid/ out of date")
+            .hasSize(1)
+            .extracting(ApiError::getError)
+            .contains("The Officers information is out of date. Please start the process again and make a new submission");
+    }
 }
