@@ -299,7 +299,7 @@ class OfficerTerminationValidatorTest {
             .build();
         officerTerminationValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
         assertThat(apiErrorsList)
-            .as("The Officers information is out of date. Please start the process again and make a new submission")
+            .as("An error should not be produced when the referenceEtag is valid/ in date")
             .isEmpty();
     }
 
@@ -313,7 +313,7 @@ class OfficerTerminationValidatorTest {
             .build();
         officerTerminationValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
         assertThat(apiErrorsList)
-            .as("An error should not be produced when the referenceEtag is invalid/ out of date")
+            .as("An error should be produced when the referenceEtag is invalid/ out of date")
             .hasSize(1)
             .extracting(ApiError::getError)
             .contains("The Officers information is out of date. Please start the process again and make a new submission");
