@@ -88,7 +88,7 @@ class OfficerFilingControllerImplValidationIT {
 
     @Test
     void createFilingWhenReferenceEtagBlankThenResponse400() throws Exception {
-        final var body = "{" + TM01_FRAGMENT.replace("etag", "") + "}";
+        final var body = "{" + TM01_FRAGMENT.replace("ETAG", "") + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
