@@ -6,7 +6,7 @@ local_resource(
 
 custom_build(
     '169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/officer-filing-api',
-    'mvn -s settings.xml compile jib:dockerBuild -Dimage=$EXPECTED_REF -Djib.container.environment=FEATURE_FLAG_ENABLE_TM01="true"',
+    'mvn -s settings.xml compile jib:dockerBuild -Dimage=$EXPECTED_REF -Djib.container.environment=FEATURE_FLAG_ENABLE_TM01="false"',
     live_update = [
             sync(
               local_path = './target/classes/uk',
