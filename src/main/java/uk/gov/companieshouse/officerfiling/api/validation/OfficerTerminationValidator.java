@@ -89,7 +89,7 @@ public class OfficerTerminationValidator {
         return Optional.empty();
     }
 
-    private void validateSubmissionInformationInDate(HttpServletRequest request, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment, List<ApiError> errorList) {
+    public void validateSubmissionInformationInDate(HttpServletRequest request, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment, List<ApiError> errorList) {
         // If submission information is not out of date, the ETAG retrieved from the Company Appointments API and the ETAG passed from the request will match
         String companyAppointmentEtag = companyAppointment.getEtag();
         String requestEtag = dto.getReferenceEtag();
