@@ -60,6 +60,7 @@ public class OfficerTerminationValidator {
         // Perform validation
         validateMinResignationDate(request, errorList, dto);
         validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment);
+        validateTerminationDateAfterAppointmentDate(request, errorList, dto, companyAppointment);
 
         return new ApiErrors(errorList);
     }
@@ -77,6 +78,15 @@ public class OfficerTerminationValidator {
     public void validateTerminationDateAfterIncorporationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, CompanyProfileApi companyProfile, AppointmentFullRecordAPI companyAppointment) {
         if (dto.getResignedOn().isBefore(companyProfile.getDateOfCreation())) {
             final ApiError error = new ApiError(companyAppointment.getName() + " has not been found",
+                    request.getRequestURI(),
+                    LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
+            errorList.add(error);
+        }
+    }
+
+    public void validateTerminationDateAfterAppointmentDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment) {
+        if (dto.getResignedOn().isBefore(companyAppointment.getAppointedOn())) {
+            final ApiError error = new ApiError("Date director was removed must be on or after the date the director was appointed",
                     request.getRequestURI(),
                     LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
             errorList.add(error);

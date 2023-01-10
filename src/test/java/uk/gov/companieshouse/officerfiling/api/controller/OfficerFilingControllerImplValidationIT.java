@@ -51,6 +51,7 @@ class OfficerFilingControllerImplValidationIT {
     private static final URI REQUEST_URI = URI.create("/transactions/" + TRANS_ID + "/officers");
     private static final String COMPANY_NUMBER = "123456";
     public static final LocalDate INCORPORATION_DATE = LocalDate.of(2010, Month.OCTOBER, 20);
+    public static final LocalDate APPOINTMENT_DATE = LocalDate.of(2010, Month.OCTOBER, 30);
     public static final String DIRECTOR_NAME = "Director name";
 
     @MockBean
@@ -88,6 +89,7 @@ class OfficerFilingControllerImplValidationIT {
         companyProfileApi.setDateOfCreation(INCORPORATION_DATE);
         companyAppointment = new AppointmentFullRecordAPI();
         companyAppointment.setName(DIRECTOR_NAME);
+        companyAppointment.setAppointedOn(APPOINTMENT_DATE);
     }
 
     @Test
@@ -166,12 +168,13 @@ class OfficerFilingControllerImplValidationIT {
     @Test
     void createFilingWhenResignedOnPriorTo01092009ThenResponse400() throws Exception {
         companyProfileApi.setDateOfCreation(LocalDate.of(2009, 1, 1));
+        companyAppointment.setAppointedOn(LocalDate.of(2009, 1, 2));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
 
         final var body = "{"
-                + TM01_FRAGMENT.replace("2022-09-13", "2009-09-01")
+                + TM01_FRAGMENT.replace("2022-09-13", "2009-09-13")
                 + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
@@ -188,6 +191,7 @@ class OfficerFilingControllerImplValidationIT {
 
     @Test
     void createFilingWhenResignedOnBeforeIncorporationDateThenResponse400() throws Exception {
+        companyAppointment.setAppointedOn(LocalDate.of(2009, 10, 1));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);

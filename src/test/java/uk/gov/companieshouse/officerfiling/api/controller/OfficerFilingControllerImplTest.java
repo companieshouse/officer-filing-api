@@ -117,6 +117,7 @@ class OfficerFilingControllerImplTest {
         when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
         when(dto.getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2005, 10, 3));
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2007, 10, 5));
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(filingMapper.map(dto)).thenReturn(filing);
         final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
@@ -197,6 +198,7 @@ class OfficerFilingControllerImplTest {
     void doNotCreateFilingWhenRequestHasTooOldDate() {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
