@@ -8,6 +8,7 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
 import uk.gov.companieshouse.officerfiling.api.error.ErrorType;
 import uk.gov.companieshouse.officerfiling.api.error.LocationType;
+import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
@@ -55,16 +56,32 @@ public class OfficerTerminationValidator {
 
         // Retrieve data objects required for the validation process
         final Transaction transaction = transactionService.getTransaction(transId, passthroughHeader);
-        final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transaction.getCompanyNumber(), dto.getReferenceAppointmentId(), passthroughHeader);
+        final AppointmentFullRecordAPI companyAppointment = validateOfficerIsIdentified(request, errorList, dto, transaction, passthroughHeader);
         final CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(transId, transaction.getCompanyNumber(), passthroughHeader);
 
         // Perform validation
-        validateMinResignationDate(request, errorList, dto);
-        validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment);
-        validateTerminationDateAfterAppointmentDate(request, errorList, dto, companyAppointment);
-        validateCompanyNotDissolved(request, errorList, companyProfile);
+        if (!(companyAppointment == null)) {
+            validateMinResignationDate(request, errorList, dto);
+            validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment);
+            validateTerminationDateAfterAppointmentDate(request, errorList, dto, companyAppointment);
+            validateMinResignationDate(request, errorList, dto);
+            validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment);
+            validateCompanyNotDissolved(request, errorList, companyProfile);
+        }
+
 
         return new ApiErrors(errorList);
+    }
+
+    public AppointmentFullRecordAPI validateOfficerIsIdentified(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
+        try {
+            final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transaction.getCompanyNumber(), dto.getReferenceAppointmentId(), passthroughHeader);
+            return companyAppointment;
+        }
+        catch (CompanyAppointmentServiceException e){
+            createValidationError(request, errorList,"Officer not found. Please confirm the details and resubmit");
+        }
+        return null;
     }
 
     public void validateMinResignationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {

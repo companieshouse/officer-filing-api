@@ -30,6 +30,8 @@ import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
+import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
@@ -278,5 +280,28 @@ class OfficerFilingControllerImplValidationIT {
                 .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
                 .andExpect(jsonPath("$.errors[0].error",
                         containsString("You cannot remove a director from a company that's been dissolved or is about to be dissolved")));
+    }
+
+    @Test
+    void createFilingWhenOfficerNotIdentifiedThenResponse400() throws Exception {
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
+        when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenThrow(
+            new CompanyAppointmentServiceException("Error Retrieving appointment"));
+
+        final var body = "{"
+            + TM01_FRAGMENT
+            + "}";
+
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                .contentType("application/json")
+                .headers(httpHeaders))
+            .andDo(print())
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.errors", hasSize(1)))
+            .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
+            .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
+            .andExpect(jsonPath("$.errors[0].error",
+                containsString("Officer not found. Please confirm the details and resubmit")));
     }
 }

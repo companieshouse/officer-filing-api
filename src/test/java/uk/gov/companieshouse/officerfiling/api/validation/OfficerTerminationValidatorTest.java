@@ -10,6 +10,7 @@ import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
@@ -81,7 +82,28 @@ class OfficerTerminationValidatorTest {
     }
 
     @Test
-    void validationWhenInvalid() {
+    void validationWhenOfficerNotIdentified() {
+        final var dto = OfficerFilingDto.builder()
+            .referenceEtag("etag")
+            .referenceAppointmentId(FILING_ID)
+            .resignedOn(LocalDate.of(2022, 9, 13))
+            .build();
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
+        when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenThrow(
+            new CompanyAppointmentServiceException("Error Retrieving appointment"));
+
+        final var apiErrors = officerTerminationValidator.validate(request, dto, TRANS_ID, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+            .as("An error should be produced when an Officer cannot be identified")
+            .hasSize(1)
+            .extracting(ApiError::getError)
+            .contains("Officer not found. Please confirm the details and resubmit");
+    }
+
+    @Test
+    void validationWhenOfficerIdentifiedButFilingInvalid() {
         final var dto = OfficerFilingDto.builder()
                 .referenceEtag("etag")
                 .referenceAppointmentId(FILING_ID)
