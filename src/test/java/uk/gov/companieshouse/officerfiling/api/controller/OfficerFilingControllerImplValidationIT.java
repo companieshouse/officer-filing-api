@@ -34,6 +34,7 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
+import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 @Tag("web")
 @WebMvcTest(controllers = OfficerFilingControllerImpl.class)

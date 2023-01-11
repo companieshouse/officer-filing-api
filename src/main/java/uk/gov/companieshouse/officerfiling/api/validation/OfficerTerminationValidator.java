@@ -68,8 +68,6 @@ public class OfficerTerminationValidator {
         validateMinResignationDate(request, errorList, dto);
         validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment.get());
         validateTerminationDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
-        validateMinResignationDate(request, errorList, dto);
-        validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment.get());
         validateCompanyNotDissolved(request, errorList, companyProfile);
 
         return new ApiErrors(errorList);
