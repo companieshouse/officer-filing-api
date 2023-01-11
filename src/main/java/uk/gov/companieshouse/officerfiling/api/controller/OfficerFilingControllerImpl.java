@@ -50,7 +50,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     private final OfficerFilingMapper filingMapper;
     private final Clock clock;
     private final Logger logger;
-    @Value("${FEATURE_FLAG_ENABLE_TM01:false}")
+    @Value("${FEATURE_FLAG_ENABLE_TM01:true}")
     private boolean isTm01Enabled;
     public OfficerFilingControllerImpl(final TransactionService transactionService,
             final OfficerFilingService officerFilingService, final CompanyProfileService companyProfileService, final CompanyAppointmentService companyAppointmentService, final OfficerFilingMapper filingMapper,
