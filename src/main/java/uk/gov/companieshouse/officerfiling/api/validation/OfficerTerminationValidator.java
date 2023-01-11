@@ -70,6 +70,15 @@ public class OfficerTerminationValidator {
         validateTerminationDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
         validateCompanyNotDissolved(request, errorList, companyProfile);
 
+        if (companyAppointment.isEmpty()) {
+            return new ApiErrors(errorList);
+        }
+
+        // Perform validation
+        validateMinResignationDate(request, errorList, dto);
+        validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile,
+            companyAppointment.get());
+            validateCompanyNotDissolved(request, errorList, companyProfile);
         return new ApiErrors(errorList);
     }
 
