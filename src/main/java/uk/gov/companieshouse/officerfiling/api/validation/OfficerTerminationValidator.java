@@ -60,7 +60,7 @@ public class OfficerTerminationValidator {
         final CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(transId, transaction.getCompanyNumber(), passthroughHeader);
 
         // Perform validation
-        if (!(companyAppointment == null)) {
+        if (companyAppointment != null) {
             validateMinResignationDate(request, errorList, dto);
             validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment);
             validateTerminationDateAfterAppointmentDate(request, errorList, dto, companyAppointment);
@@ -68,8 +68,7 @@ public class OfficerTerminationValidator {
             validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment);
             validateCompanyNotDissolved(request, errorList, companyProfile);
         }
-
-
+        
         return new ApiErrors(errorList);
     }
 
