@@ -75,9 +75,8 @@ public class OfficerTerminationValidator {
 
     public AppointmentFullRecordAPI validateOfficerIsIdentified(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
         try {
-            final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transaction.getCompanyNumber(),
+            return companyAppointmentService.getCompanyAppointment(transaction.getCompanyNumber(),
                 dto.getReferenceAppointmentId(), passthroughHeader);
-            return companyAppointment;
         }
         catch (CompanyAppointmentServiceException e){
             createValidationError(request, errorList,"Officer not found. Please confirm the details and resubmit");
