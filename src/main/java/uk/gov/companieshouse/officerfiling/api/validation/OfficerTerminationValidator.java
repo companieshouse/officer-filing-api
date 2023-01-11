@@ -75,7 +75,8 @@ public class OfficerTerminationValidator {
         return new ApiErrors(errorList);
     }
 
-    public Optional<AppointmentFullRecordAPI> getValidatedOfficerAppointment(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
+    public Optional<AppointmentFullRecordAPI> getValidatedOfficerAppointment(HttpServletRequest request,
+        List<ApiError> errorList, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
         try {
             return Optional.ofNullable(
                 companyAppointmentService.getCompanyAppointment(transaction.getCompanyNumber(),
