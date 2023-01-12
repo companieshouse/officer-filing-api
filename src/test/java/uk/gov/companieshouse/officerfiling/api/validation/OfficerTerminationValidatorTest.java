@@ -285,5 +285,5 @@ class OfficerTerminationValidatorTest {
                 .as("An error should not be produced when resignation date is the same day as appointment date")
                 .isEmpty();
     }
-
+    
 }
