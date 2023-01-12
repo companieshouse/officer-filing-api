@@ -57,7 +57,7 @@ public class OfficerTerminationValidator {
 
         // Retrieve data objects required for the validation process
         final Transaction transaction = transactionService.getTransaction(transId, passthroughHeader);
-        final Optional<AppointmentFullRecordAPI> companyAppointment = getValidatedOfficerAppointment(request, errorList, dto, transaction, passthroughHeader);
+        final Optional<AppointmentFullRecordAPI> companyAppointment = getOfficerAppointment(request, errorList, dto, transaction, passthroughHeader);
         final CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(transId, transaction.getCompanyNumber(), passthroughHeader);
 
         if (companyAppointment.isEmpty()) {
@@ -75,7 +75,7 @@ public class OfficerTerminationValidator {
         return new ApiErrors(errorList);
     }
 
-    public Optional<AppointmentFullRecordAPI> getValidatedOfficerAppointment(HttpServletRequest request,
+    public Optional<AppointmentFullRecordAPI> getOfficerAppointment(HttpServletRequest request,
         List<ApiError> errorList, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
         try {
             return Optional.ofNullable(
