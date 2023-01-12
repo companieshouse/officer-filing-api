@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Provides all validation that should be carried out when an officer is terminated. Fetches all data necessary to complete
@@ -60,6 +61,7 @@ public class OfficerTerminationValidator {
         // Perform validation
         validateMinResignationDate(request, errorList, dto);
         validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment);
+        validateCompanyNotDissolved(request, errorList, companyProfile);
 
         return new ApiErrors(errorList);
     }
@@ -77,6 +79,21 @@ public class OfficerTerminationValidator {
     public void validateTerminationDateAfterIncorporationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, CompanyProfileApi companyProfile, AppointmentFullRecordAPI companyAppointment) {
         if (dto.getResignedOn().isBefore(companyProfile.getDateOfCreation())) {
             final ApiError error = new ApiError(companyAppointment.getName() + " has not been found",
+                    request.getRequestURI(),
+                    LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
+            errorList.add(error);
+        }
+    }
+
+    public void validateCompanyNotDissolved(HttpServletRequest request, List<ApiError> errorList, CompanyProfileApi companyProfile) {
+        if (companyProfile.getDateOfCessation() != null){
+            final var error = new ApiError("You cannot remove a director from a company that's been dissolved",
+                    request.getRequestURI(),
+                    LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
+            errorList.add(error);
+        }
+        if (Objects.equals(companyProfile.getCompanyStatus(), "dissolved")) {
+            final var error = new ApiError("You cannot remove a director from a company that's been dissolved or is about to be dissolved",
                     request.getRequestURI(),
                     LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
             errorList.add(error);

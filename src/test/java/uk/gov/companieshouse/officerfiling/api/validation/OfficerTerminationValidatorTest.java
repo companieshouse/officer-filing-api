@@ -185,4 +185,35 @@ class OfficerTerminationValidatorTest {
                 .as("An error should not be produced when resignation date is the creation date")
                 .isEmpty();
     }
+
+    @Test
+    void validateCompanyNotDissolvedWhenDissolvedDateExists() {
+        when(companyProfile.getDateOfCessation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
+        officerTerminationValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when dissolved date exists")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("You cannot remove a director from a company that's been dissolved");
+    }
+
+    @Test
+    void validateCompanyNotDissolvedWhenStatusIsDissolved() {
+        when(companyProfile.getCompanyStatus()).thenReturn("dissolved");
+        officerTerminationValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when the company has a status of 'dissolved'")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("You cannot remove a director from a company that's been dissolved or is about to be dissolved");
+    }
+
+    @Test
+    void validateCompanyNotDissolvedWhenValid() {
+        when(companyProfile.getCompanyStatus()).thenReturn("active");
+        officerTerminationValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when the company is active")
+                .isEmpty();
+    }
 }
