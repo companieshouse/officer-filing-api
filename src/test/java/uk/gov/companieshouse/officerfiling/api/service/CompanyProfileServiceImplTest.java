@@ -53,7 +53,7 @@ class CompanyProfileServiceImplTest {
     }
 
     @Test
-    void companyAppointmentIsReturnedFromCompanyAppointmentsAPIWhenFound() throws IOException, URIValidationException {
+    void companyProfileIsReturnedFromAPIWhenFound() throws IOException, URIValidationException {
         when(apiResponse.getData()).thenReturn(mockCompanyProfileApi);
         when(companyGet.execute()).thenReturn(apiResponse);
         when(companyResourceHandler.get(URI)).thenReturn(companyGet);
@@ -66,7 +66,7 @@ class CompanyProfileServiceImplTest {
     }
 
     @Test
-    void exceptionIsThrownWhenCompanyAppointmentIsNotFound() throws IOException, URIValidationException {
+    void exceptionIsThrownWhenCompanyProfileIsNotFound() throws IOException, URIValidationException {
         when(companyGet.execute()).thenThrow(URIValidationException.class);
         when(companyResourceHandler.get(URI)).thenReturn(companyGet);
         when(internalApiClient.company()).thenReturn(companyResourceHandler);
