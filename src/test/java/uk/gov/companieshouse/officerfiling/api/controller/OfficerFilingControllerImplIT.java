@@ -271,6 +271,32 @@ class OfficerFilingControllerImplIT {
     }
 
     @Test
+    void getFilingForReviewOnLeapYearThenResponse200() throws Exception {
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId("id")
+                .resignedOn(LocalDate.of(2024, 2, 29))
+                .build();
+        final var filing = OfficerFiling.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId("id")
+                .resignedOn(Instant.parse("2024-02-29T00:00:00Z"))
+                .build();
+
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
+
+        when(filingMapper.map(filing)).thenReturn(dto);
+
+        mockMvc.perform(get("/transactions/{id}/officers/{filingId}", TRANS_ID, FILING_ID)
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reference_etag", is("etag")))
+                .andExpect(jsonPath("$.reference_appointment_id", is("id")))
+                .andExpect(jsonPath("$.resigned_on", is("2024-02-29")));
+    }
+
+    @Test
     void getFilingForReviewNotFoundThenResponse404() throws Exception {
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
