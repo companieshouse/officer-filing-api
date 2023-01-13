@@ -61,6 +61,7 @@ public class OfficerTerminationValidator {
         // Perform validation
         validateMinResignationDate(request, errorList, dto);
         validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment);
+        validateTerminationDateAfterAppointmentDate(request, errorList, dto, companyAppointment);
         validateCompanyNotDissolved(request, errorList, companyProfile);
 
         return new ApiErrors(errorList);
@@ -69,35 +70,35 @@ public class OfficerTerminationValidator {
     public void validateMinResignationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         // Earliest ever possible date that a director can have been removed that is valid on the CH system is the 1st of october 2009.
         if(dto.getResignedOn().isBefore(EARLIEST_POSSIBLE_DATE)) {
-            final ApiError error = new ApiError("You have entered a date too far in the past. Please check the date and resubmit",
-                    request.getRequestURI(),
-                    LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
-            errorList.add(error);
+            createValidationError(request, errorList, "You have entered a date too far in the past. Please check the date and resubmit");
         }
     }
 
     public void validateTerminationDateAfterIncorporationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, CompanyProfileApi companyProfile, AppointmentFullRecordAPI companyAppointment) {
         if (dto.getResignedOn().isBefore(companyProfile.getDateOfCreation())) {
-            final ApiError error = new ApiError(companyAppointment.getName() + " has not been found",
-                    request.getRequestURI(),
-                    LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
-            errorList.add(error);
+            createValidationError(request, errorList, companyAppointment.getName() + " has not been found");
         }
     }
 
     public void validateCompanyNotDissolved(HttpServletRequest request, List<ApiError> errorList, CompanyProfileApi companyProfile) {
         if (companyProfile.getDateOfCessation() != null){
-            final var error = new ApiError("You cannot remove a director from a company that's been dissolved",
-                    request.getRequestURI(),
-                    LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
-            errorList.add(error);
+            createValidationError(request, errorList, "You cannot remove a director from a company that's been dissolved");
         }
         if (Objects.equals(companyProfile.getCompanyStatus(), "dissolved")) {
-            final var error = new ApiError("You cannot remove a director from a company that's been dissolved or is about to be dissolved",
-                    request.getRequestURI(),
-                    LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
-            errorList.add(error);
+            createValidationError(request, errorList, "You cannot remove a director from a company that's been dissolved or is about to be dissolved");
         }
+    }
+
+    public void validateTerminationDateAfterAppointmentDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment) {
+        if (dto.getResignedOn().isBefore(companyAppointment.getAppointedOn())) {
+            createValidationError(request, errorList, "Date director was removed must be on or after the date the director was appointed");
+        }
+    }
+
+    private void createValidationError(HttpServletRequest request, List<ApiError> errorList, String errorMessage) {
+        final var apiError = new ApiError(errorMessage, request.getRequestURI(),
+                LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
+        errorList.add(apiError);
     }
 
 }
