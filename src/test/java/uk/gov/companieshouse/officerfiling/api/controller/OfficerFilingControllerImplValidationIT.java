@@ -231,6 +231,7 @@ class OfficerFilingControllerImplValidationIT {
                         containsString("DateTimeParseException")));
     }
 
+    @Test
     void createFilingWhenReferenceEtagInvalid() throws Exception {
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
