@@ -60,6 +60,7 @@ class OfficerFilingControllerImplTest {
     private static final Instant FIRST_INSTANT = Instant.parse("2022-10-15T09:44:08.108Z");
     public static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     public static final String DIRECTOR_NAME = "director name";
+    private static final String ETAG = "etag";
 
     private OfficerFilingController testController;
     @Mock
@@ -118,10 +119,12 @@ class OfficerFilingControllerImplTest {
         when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
         when(clock.instant()).thenReturn(FIRST_INSTANT);
         when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
+        when(dto.getReferenceEtag()).thenReturn(ETAG);
         when(dto.getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2005, 10, 3));
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2007, 10, 5));
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(filingMapper.map(dto)).thenReturn(filing);
         final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
                 .build();
@@ -206,6 +209,7 @@ class OfficerFilingControllerImplTest {
     }
     
     void doNotCreateFilingWhenRequestHasTooOldDate() {
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));

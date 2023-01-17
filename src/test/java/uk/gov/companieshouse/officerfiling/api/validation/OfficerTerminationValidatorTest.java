@@ -33,6 +33,7 @@ class OfficerTerminationValidatorTest {
     private static final String PASSTHROUGH_HEADER = "passthrough";
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     private static final String DIRECTOR_NAME = "director name";
+    private static final String ETAG = "etag";
 
     private OfficerTerminationValidator officerTerminationValidator;
     private List<ApiError> apiErrorsList;
@@ -67,9 +68,12 @@ class OfficerTerminationValidatorTest {
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
+
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
+        when(companyAppointment.getEtag()).thenReturn("etag");
 
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
@@ -109,9 +113,9 @@ class OfficerTerminationValidatorTest {
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(1022, 9, 13))
                 .build();
+
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
-
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
@@ -120,7 +124,7 @@ class OfficerTerminationValidatorTest {
         final var apiErrors = officerTerminationValidator.validate(request, dto, TRANS_ID, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
                 .as("Each validation error should have been raised")
-                .hasSize(3)
+                .hasSize(4)
                 .extracting(ApiError::getLocationType, ApiError::getType)
                 .containsOnly(tuple("json-path", "ch:validation"));
     }
@@ -284,6 +288,35 @@ class OfficerTerminationValidatorTest {
         assertThat(apiErrorsList)
                 .as("An error should not be produced when resignation date is the same day as appointment date")
                 .isEmpty();
+    }
+
+    void validateSubmissionInformationInDateWhenValid() {
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
+        final var officerFilingDto = OfficerFilingDto.builder()
+            .referenceEtag("etag")
+            .referenceAppointmentId(FILING_ID)
+            .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+            .build();
+        officerTerminationValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
+        assertThat(apiErrorsList)
+            .as("An error should not be produced when the referenceEtag is valid/ in date")
+            .isEmpty();
+    }
+
+    @Test
+    void validateSubmissionInformationInDateWhenInvalid() {
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
+        final var officerFilingDto = OfficerFilingDto.builder()
+            .referenceEtag("invalid_etag")
+            .referenceAppointmentId(FILING_ID)
+            .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+            .build();
+        officerTerminationValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
+        assertThat(apiErrorsList)
+            .as("An error should be produced when the referenceEtag is invalid/ out of date")
+            .hasSize(1)
+            .extracting(ApiError::getError)
+            .contains("The Officers information is out of date. Please start the process again and make a new submission");
     }
 
 }

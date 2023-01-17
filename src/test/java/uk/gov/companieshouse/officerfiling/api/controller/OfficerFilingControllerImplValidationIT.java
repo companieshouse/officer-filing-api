@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.companieshouse.officerfiling.api.model.entity.Links.PREFIX_PRIVATE;
 
 import java.net.URI;
 import java.time.Clock;
@@ -34,7 +33,6 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
-import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 @Tag("web")
 @WebMvcTest(controllers = OfficerFilingControllerImpl.class)
@@ -42,7 +40,7 @@ class OfficerFilingControllerImplValidationIT {
     private static final String TRANS_ID = "4f56fdf78b357bfc";
     private static final String FILING_ID = "632c8e65105b1b4a9f0d1f5e";
     private static final String PASSTHROUGH_HEADER = "passthrough";
-    private static final String TM01_FRAGMENT = "\"reference_etag\": \"etag_value\","
+    private static final String TM01_FRAGMENT = "\"reference_etag\": \"ETAG\","
             + "\"reference_appointment_id\": \"" + FILING_ID + "\","
             + "\"resigned_on\": \"2022-09-13\"";
     private static final URI REQUEST_URI = URI.create("/transactions/" + TRANS_ID + "/officers");
@@ -50,6 +48,7 @@ class OfficerFilingControllerImplValidationIT {
     public static final LocalDate INCORPORATION_DATE = LocalDate.of(2010, Month.OCTOBER, 20);
     public static final LocalDate APPOINTMENT_DATE = LocalDate.of(2010, Month.OCTOBER, 30);
     public static final String DIRECTOR_NAME = "Director name";
+    private static final String ETAG = "ETAG";
 
     @MockBean
     private TransactionService transactionService;
@@ -87,11 +86,12 @@ class OfficerFilingControllerImplValidationIT {
         companyAppointment = new AppointmentFullRecordAPI();
         companyAppointment.setName(DIRECTOR_NAME);
         companyAppointment.setAppointedOn(APPOINTMENT_DATE);
+        companyAppointment.setEtag(ETAG);
     }
 
     @Test
     void createFilingWhenReferenceEtagBlankThenResponse400() throws Exception {
-        final var body = "{" + TM01_FRAGMENT.replace("etag_value", "") + "}";
+        final var body = "{" + TM01_FRAGMENT.replace("ETAG", "") + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
@@ -229,6 +229,26 @@ class OfficerFilingControllerImplValidationIT {
                 .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
                 .andExpect(jsonPath("$.errors[0].error",
                         containsString("DateTimeParseException")));
+    }
+
+    @Test
+    void createFilingWhenReferenceEtagInvalid() throws Exception {
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
+
+            final var body = "{" + TM01_FRAGMENT.replace("ETAG", "invalid") + "}";
+
+            mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                            .contentType("application/json")
+                            .headers(httpHeaders))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.errors", hasSize(1)))
+                    .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
+                    .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
+                    .andExpect(jsonPath("$.errors[0].error",
+                            containsString("The Officers information is out of date. Please start the process again and make a new submission")));
     }
 
     @Test
