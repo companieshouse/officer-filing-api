@@ -223,7 +223,7 @@ class OfficerTerminationValidatorTest {
                 .as("An error should be produced when dissolved date exists")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("You cannot remove a director from a company that's been dissolved");
+                .contains("You cannot remove an officer from a company that is about to be dissolved");
     }
 
     @Test
@@ -234,7 +234,7 @@ class OfficerTerminationValidatorTest {
                 .as("An error should be produced when the company has a status of 'dissolved'")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("You cannot remove a director from a company that's been dissolved or is about to be dissolved");
+                .contains("You cannot remove an officer from a company that has been dissolved");
     }
 
     @Test

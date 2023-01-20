@@ -113,11 +113,11 @@ public class OfficerTerminationValidator {
     }
 
     public void validateCompanyNotDissolved(HttpServletRequest request, List<ApiError> errorList, CompanyProfileApi companyProfile) {
-        if (companyProfile.getDateOfCessation() != null){
-            createValidationError(request, errorList, "You cannot remove a director from a company that's been dissolved");
-        }
         if (Objects.equals(companyProfile.getCompanyStatus(), "dissolved")) {
-            createValidationError(request, errorList, "You cannot remove a director from a company that's been dissolved or is about to be dissolved");
+            createValidationError(request, errorList, "You cannot remove an officer from a company that has been dissolved");
+        }
+        else if (companyProfile.getDateOfCessation() != null){
+            createValidationError(request, errorList, "You cannot remove an officer from a company that is about to be dissolved");
         }
     }
 
