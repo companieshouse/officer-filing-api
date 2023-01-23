@@ -14,7 +14,9 @@ import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
@@ -44,6 +46,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -100,6 +103,7 @@ class OfficerFilingControllerImplIT {
         transaction = new Transaction();
         transaction.setCompanyNumber(COMPANY_NUMBER);
         transaction.setId(TRANS_ID);
+        transaction.setStatus(TransactionStatus.OPEN);
         companyProfileApi = new CompanyProfileApi();
         companyProfileApi.setDateOfCreation(INCORPORATION_DATE);
         companyAppointment = new AppointmentFullRecordAPI();
@@ -124,6 +128,7 @@ class OfficerFilingControllerImplIT {
         final var locationUri = UriComponentsBuilder.fromPath("/")
                 .pathSegment("transactions", TRANS_ID, "officers", FILING_ID)
                 .build();
+
 
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
@@ -155,6 +160,8 @@ class OfficerFilingControllerImplIT {
                         + " [Source: (org.springframework.util.StreamUtils$NonClosingInputStream)"
                         + "; line: 1, column: 1]", "$", 1, 1);
 
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(MALFORMED_JSON_QUOTED)
                         .contentType("application/json")
                         .headers(httpHeaders))
@@ -183,6 +190,8 @@ class OfficerFilingControllerImplIT {
         final var expectedError = createExpectedError(
                 "JSON parse error:", "$.resigned_on", 1, 75);
 
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
                         .headers(httpHeaders))
@@ -205,6 +214,8 @@ class OfficerFilingControllerImplIT {
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "") + "}";
         final var expectedError = createExpectedError(
                 "JSON parse error:", "$.resigned_on", 1, 75);
+
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
@@ -229,6 +240,8 @@ class OfficerFilingControllerImplIT {
                         + ".StreamUtils$NonClosingInputStream); line: 1, column: 1])\n"
                         + " at [Source: (org.springframework.util"
                         + ".StreamUtils$NonClosingInputStream); line: 1, column: 87]", "$", 1, 87);
+
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content("{" + TM01_FRAGMENT)
                         .contentType("application/json")
@@ -262,6 +275,7 @@ class OfficerFilingControllerImplIT {
             .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
 
         when(filingMapper.map(filing)).thenReturn(dto);
 
@@ -288,6 +302,7 @@ class OfficerFilingControllerImplIT {
                 .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
 
         when(filingMapper.map(filing)).thenReturn(dto);
 
@@ -304,6 +319,7 @@ class OfficerFilingControllerImplIT {
     void getFilingForReviewNotFoundThenResponse404() throws Exception {
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
 
         mockMvc.perform(get("/transactions/{id}/officers/{filingId}", TRANS_ID, FILING_ID)
                 .headers(httpHeaders))
@@ -413,6 +429,8 @@ class OfficerFilingControllerImplIT {
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", replacementString) + "}";
         final var expectedError = createExpectedError(
                 "JSON parse error:", "$..resigned_on", 1, 75);
+
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")

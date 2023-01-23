@@ -7,11 +7,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.companieshouse.api.model.transaction.Resource;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
 import uk.gov.companieshouse.officerfiling.api.error.InvalidFilingException;
@@ -79,7 +81,8 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
      */
     @Override
     @PostMapping(produces = {"application/json"}, consumes = {"application/json"})
-    public ResponseEntity<Object> createFiling(@PathVariable final String transId,
+    public ResponseEntity<Object> createFiling(@RequestAttribute("transaction") Transaction transaction,
+         @PathVariable final String transId,
             @RequestBody @Valid @NotNull final OfficerFilingDto dto,
             final BindingResult bindingResult, final HttpServletRequest request) {
         final var logMap = LogHelper.createLogMap(transId);
@@ -96,11 +99,11 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
         final var passthroughHeader =
                     request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
-        final var transaction = transactionService.getTransaction(transId, passthroughHeader);
-        logger.infoContext(transId, "transaction found", logMap);
+        //final var transaction = transactionService.getTransaction(transId, passthroughHeader);
+        //logger.infoContext(transId, "transaction found", logMap);
 
         final var validator = new OfficerTerminationValidator(logger, transactionService, companyProfileService, companyAppointmentService);
-        final ApiErrors validationErrors = validator.validate(request, dto, transId, passthroughHeader);
+        final ApiErrors validationErrors = validator.validate(request, dto, transaction, passthroughHeader);
         if(validationErrors.hasErrors()) {
             return ResponseEntity.badRequest().body(validationErrors);
         }

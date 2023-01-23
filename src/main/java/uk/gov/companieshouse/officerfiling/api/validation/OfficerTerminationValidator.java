@@ -49,19 +49,19 @@ public class OfficerTerminationValidator {
      * Main validation method to fetch the required data and validate the request. This should be the point of call when terminating an officer.
      * @param request The servlet request used in logging
      * @param dto Data Object containing details of the termination
-     * @param transId Transaction ID linked to the transaction for this termination
+     * @param transaction the transaction for this termination
      * @param passthroughHeader ERIC pass through header for authorisation
      * @return An object containing a list of any validation errors that have been raised
      */
-    public ApiErrors validate(HttpServletRequest request, OfficerFilingDto dto, String transId, String passthroughHeader) {
-        final var logMap = LogHelper.createLogMap(transId);
+    public ApiErrors validate(HttpServletRequest request, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
+        final var logMap = LogHelper.createLogMap(transaction.getId());
         logger.debugRequest(request, "POST", logMap);
         List<ApiError> errorList = new ArrayList<>();
 
         // Retrieve data objects required for the validation process
-        final Transaction transaction = transactionService.getTransaction(transId, passthroughHeader);
+//        final Transaction transaction = transactionService.getTransaction(transId, passthroughHeader);
         final Optional<AppointmentFullRecordAPI> companyAppointment = getOfficerAppointment(request, errorList, dto, transaction, passthroughHeader);
-        final CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(transId, transaction.getCompanyNumber(), passthroughHeader);
+        final CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(transaction.getId(), transaction.getCompanyNumber(), passthroughHeader);
 
         if (companyAppointment.isEmpty()) {
             return new ApiErrors(errorList);

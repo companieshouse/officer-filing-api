@@ -26,6 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
@@ -81,6 +82,7 @@ class OfficerFilingControllerImplValidationIT {
         transaction = new Transaction();
         transaction.setCompanyNumber(COMPANY_NUMBER);
         transaction.setId(TRANS_ID);
+        transaction.setStatus(TransactionStatus.OPEN);
         companyProfileApi = new CompanyProfileApi();
         companyProfileApi.setDateOfCreation(INCORPORATION_DATE);
         companyAppointment = new AppointmentFullRecordAPI();
@@ -91,6 +93,7 @@ class OfficerFilingControllerImplValidationIT {
 
     @Test
     void createFilingWhenReferenceEtagBlankThenResponse400() throws Exception {
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var body = "{" + TM01_FRAGMENT.replace("ETAG", "") + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
@@ -108,6 +111,7 @@ class OfficerFilingControllerImplValidationIT {
 
     @Test
     void createFilingWhenReferenceReferenceAppointmentIdBlankThenResponse400() throws Exception {
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var body = "{" + TM01_FRAGMENT.replace(FILING_ID, "") + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
@@ -125,6 +129,7 @@ class OfficerFilingControllerImplValidationIT {
 
     @Test
     void createFilingWhenReferenceResignedOnBlankThenResponse400() throws Exception {
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "") + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
@@ -142,6 +147,7 @@ class OfficerFilingControllerImplValidationIT {
 
     @Test
     void createFilingWhenReferenceResignedOnInFutureThenResponse400() throws Exception {
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var tomorrow = LocalDate.now().plusDays(1);
         final var body = "{"
                 + TM01_FRAGMENT.replace("2022-09-13", tomorrow.toString())
