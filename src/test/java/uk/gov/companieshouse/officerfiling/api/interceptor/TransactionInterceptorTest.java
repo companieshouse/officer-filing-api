@@ -57,7 +57,7 @@ class TransactionInterceptorTest {
     @Test
     void testPreHandleIsSuccessful() {
         transaction.setStatus(TransactionStatus.OPEN);
-        when(transactionService.getTransaction(eq(TRANS_ID), eq(PASSTHROUGH_HEADER))).thenReturn(transaction);
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(mockHttpServletRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(pathParams);
         when(mockHttpServletRequest.getHeader("ERIC-Access-Token")).thenReturn(PASSTHROUGH_HEADER);
 
