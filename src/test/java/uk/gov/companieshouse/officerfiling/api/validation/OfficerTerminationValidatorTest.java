@@ -287,6 +287,7 @@ class OfficerTerminationValidatorTest {
                 .isEmpty();
     }
 
+    @Test
     void validateSubmissionInformationInDateWhenValid() {
         when(companyAppointment.getEtag()).thenReturn(ETAG);
         final var officerFilingDto = OfficerFilingDto.builder()

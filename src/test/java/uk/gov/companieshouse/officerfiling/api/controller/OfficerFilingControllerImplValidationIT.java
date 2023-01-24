@@ -277,7 +277,7 @@ class OfficerFilingControllerImplValidationIT {
                 .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
                 .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
                 .andExpect(jsonPath("$.errors[0].error",
-                        containsString("You cannot remove a director from a company that's been dissolved")));
+                        containsString("You cannot remove an officer from a company that is about to be dissolved")));
     }
 
     @Test
@@ -300,7 +300,7 @@ class OfficerFilingControllerImplValidationIT {
                 .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
                 .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
                 .andExpect(jsonPath("$.errors[0].error",
-                        containsString("You cannot remove a director from a company that's been dissolved or is about to be dissolved")));
+                        containsString("You cannot remove an officer from a company that has been dissolved")));
     }
 
     @Test
