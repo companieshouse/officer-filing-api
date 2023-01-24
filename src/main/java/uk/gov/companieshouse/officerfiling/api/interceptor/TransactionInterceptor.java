@@ -42,7 +42,7 @@ public class TransactionInterceptor implements HandlerInterceptor {
             logMap.put("company_name", transaction.getCompanyName());
             logger.debugContext(transactionId, "Retrieved transaction details", logMap);
 
-            if (!(Objects.equals(transaction.getStatus().getStatus(), "open"))) {
+            if (!Objects.equals(transaction.getStatus().getStatus(), "open")) {
                 logger.error("Retrieved transaction is not open", logMap);
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST,"This transaction is not open");
                 return false;

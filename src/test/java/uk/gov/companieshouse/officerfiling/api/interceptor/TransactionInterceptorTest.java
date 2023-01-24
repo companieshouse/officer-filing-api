@@ -62,7 +62,7 @@ class TransactionInterceptorTest {
         when(mockHttpServletRequest.getHeader("ERIC-Access-Token")).thenReturn(PASSTHROUGH_HEADER);
 
         assertTrue(transactionInterceptor.preHandle(mockHttpServletRequest, mockHttpServletResponse, mockHandler));
-        verify(mockHttpServletRequest, times(1)).setAttribute("transaction", transaction);
+        verify(mockHttpServletRequest).setAttribute("transaction", transaction);
     }
 
     @Test

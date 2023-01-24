@@ -12,10 +12,7 @@ import uk.gov.companieshouse.officerfiling.api.interceptor.TransactionIntercepto
 @ComponentScan("uk.gov.companieshouse.api.interceptor")
 public class InterceptorConfig implements WebMvcConfigurer {
 
-    static final String TRANSACTIONS = "/transactions/**";
-    static final String[] USER_AUTH_ENDPOINTS = {
-      TRANSACTIONS
-    };
+    private static final String TRANSACTIONS = "/transactions/**";
 
     @Autowired
     private TransactionInterceptor transactionInterceptor;
