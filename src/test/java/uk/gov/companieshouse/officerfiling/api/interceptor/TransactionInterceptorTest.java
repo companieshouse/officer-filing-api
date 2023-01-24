@@ -23,7 +23,6 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.TransactionServiceException;
-import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,7 +55,7 @@ class TransactionInterceptorTest {
     }
 
     @Test
-    void testPreHandleIsSuccessful() throws Exception {
+    void testPreHandleIsSuccessful() {
         transaction.setStatus(TransactionStatus.OPEN);
         when(transactionService.getTransaction(eq(TRANS_ID), eq(PASSTHROUGH_HEADER))).thenReturn(transaction);
         when(mockHttpServletRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(pathParams);
@@ -66,16 +65,21 @@ class TransactionInterceptorTest {
         verify(mockHttpServletRequest, times(1)).setAttribute("transaction", transaction);
     }
 
-    //Write test for when transaction is closed
+    @Test
+    void testPreHandleIsUnsuccessfulWhenTransactionClosed() {
+        transaction.setStatus(TransactionStatus.CLOSED);
+
+        when(mockHttpServletRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(pathParams);
+        when(mockHttpServletRequest.getHeader("ERIC-Access-Token")).thenReturn(PASSTHROUGH_HEADER);
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+
+        assertFalse(transactionInterceptor.preHandle(mockHttpServletRequest, mockHttpServletResponse, mockHandler));
+        assertEquals(HttpServletResponse.SC_BAD_REQUEST,  mockHttpServletResponse.getStatus());
+        assertEquals("This transaction is not open", mockHttpServletResponse.getErrorMessage());
+    }
 
     @Test
-    void testPreHandleIsUnsuccessfulWhenServiceExceptionCaught() throws Exception {
-        MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
-        Object mockHandler = new Object();
-
-        var pathParams = new HashMap<String, String>();
-        pathParams.put("transId", TRANS_ID);
-
+    void testPreHandleIsUnsuccessfulWhenServiceExceptionCaught() {
         when(mockHttpServletRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(pathParams);
         when(mockHttpServletRequest.getHeader("ERIC-Access-Token")).thenReturn(PASSTHROUGH_HEADER);
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenThrow(
