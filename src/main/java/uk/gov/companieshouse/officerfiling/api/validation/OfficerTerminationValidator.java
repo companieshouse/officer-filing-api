@@ -59,7 +59,6 @@ public class OfficerTerminationValidator {
         List<ApiError> errorList = new ArrayList<>();
 
         // Retrieve data objects required for the validation process
-//        final Transaction transaction = transactionService.getTransaction(transId, passthroughHeader);
         final Optional<AppointmentFullRecordAPI> companyAppointment = getOfficerAppointment(request, errorList, dto, transaction, passthroughHeader);
         final CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(transaction.getId(), transaction.getCompanyNumber(), passthroughHeader);
 

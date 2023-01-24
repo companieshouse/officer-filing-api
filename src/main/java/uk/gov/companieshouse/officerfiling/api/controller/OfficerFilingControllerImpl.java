@@ -98,8 +98,6 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
         final var passthroughHeader =
                     request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
-        //final var transaction = transactionService.getTransaction(transId, passthroughHeader);
-        //logger.infoContext(transId, "transaction found", logMap);
 
         final var validator = new OfficerTerminationValidator(logger, transactionService, companyProfileService, companyAppointmentService);
         final ApiErrors validationErrors = validator.validate(request, dto, transaction, passthroughHeader);
