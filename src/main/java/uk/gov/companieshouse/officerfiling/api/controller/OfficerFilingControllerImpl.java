@@ -73,7 +73,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     /**
      * Create an Officer Filing.
      *
-     * @param transId       the Transaction ID
+     * @param transaction the Transaction
      * @param dto           the request body payload DTO
      * @param bindingResult the MVC binding result (with any validation errors)
      * @param request       the servlet request
@@ -82,10 +82,9 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     @Override
     @PostMapping(produces = {"application/json"}, consumes = {"application/json"})
     public ResponseEntity<Object> createFiling(@RequestAttribute("transaction") Transaction transaction,
-         @PathVariable final String transId,
             @RequestBody @Valid @NotNull final OfficerFilingDto dto,
             final BindingResult bindingResult, final HttpServletRequest request) {
-        final var logMap = LogHelper.createLogMap(transId);
+        final var logMap = LogHelper.createLogMap(transaction.getId());
 
         logger.debugRequest(request, "POST", logMap);
 
@@ -108,7 +107,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             return ResponseEntity.badRequest().body(validationErrors);
         }
         final var entity = filingMapper.map(dto);
-        final var links = saveFilingWithLinks(entity, transId, request, logMap);
+        final var links = saveFilingWithLinks(entity, transaction.getId(), request, logMap);
         final var resourceMap = buildResourceMap(links);
 
         transaction.setResources(resourceMap);

@@ -29,7 +29,7 @@ class OfficerFilingControllerTest {
     @Test
     void createFiling() {
         assertThrows(NotImplementedException.class,
-                () -> testController.createFiling(transaction, "trans-id", dto, bindingResult, request));
+                () -> testController.createFiling(transaction, dto, bindingResult, request));
     }
 
     @Test

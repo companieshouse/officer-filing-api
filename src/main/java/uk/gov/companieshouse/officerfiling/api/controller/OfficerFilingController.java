@@ -19,7 +19,6 @@ public interface OfficerFilingController {
      * Create an Officer Filing.
      *
      * @param transaction the Transaction
-     * @param transId the Transaction ID
      * @param dto     the request body payload DTO
      * @param result  the MVC binding result (with any validation errors)
      * @param request the servlet request
@@ -27,7 +26,6 @@ public interface OfficerFilingController {
      */
     @PostMapping
     default ResponseEntity<Object> createFiling(@RequestAttribute("transaction") Transaction transaction,
-        @PathVariable("transId") final String transId,
             @RequestBody @Valid @NotNull final OfficerFilingDto dto, final BindingResult result,
             final HttpServletRequest request) {
         throw new NotImplementedException();

@@ -124,6 +124,7 @@ class OfficerFilingControllerImplTest {
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2005, 10, 3));
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2007, 10, 5));
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(filingMapper.map(dto)).thenReturn(filing);
         final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
@@ -136,7 +137,7 @@ class OfficerFilingControllerImplTest {
         when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
 
         final var response =
-                testController.createFiling(transaction, TRANS_ID, dto, nullBindingResult ? null : result,
+                testController.createFiling(transaction, dto, nullBindingResult ? null : result,
                         request);
 
         // refEq needed to compare Map value objects; Resource does not override equals()
@@ -157,7 +158,7 @@ class OfficerFilingControllerImplTest {
         when(result.getFieldErrors()).thenReturn(errorList);
 
         final var exception = assertThrows(InvalidFilingException.class,
-                () -> testController.createFiling(transaction, TRANS_ID, dto, result, request));
+                () -> testController.createFiling(transaction, dto, result, request));
 
         assertThat(exception.getFieldErrors(), contains(fieldErrorWithRejectedValue));
     }
@@ -204,7 +205,7 @@ class OfficerFilingControllerImplTest {
     void checkTm01FeatureFlagDisabled(){
         ReflectionTestUtils.setField(testController, "isTm01Enabled", false);
         assertThrows(FeatureNotEnabledException.class,
-                () -> testController.createFiling(transaction, TRANS_ID, dto, result, request));
+                () -> testController.createFiling(transaction, dto, result, request));
     }
 
     @Test
@@ -222,7 +223,7 @@ class OfficerFilingControllerImplTest {
                 .resignedOn(LocalDate.of(1022, 9, 13))
                 .build();
 
-        ResponseEntity<Object> responseEntity = testController.createFiling(transaction, TRANS_ID, officerFilingDto, result, request);
+        ResponseEntity<Object> responseEntity = testController.createFiling(transaction, officerFilingDto, result, request);
 
         assertEquals( 400, responseEntity.getStatusCodeValue());
     }
