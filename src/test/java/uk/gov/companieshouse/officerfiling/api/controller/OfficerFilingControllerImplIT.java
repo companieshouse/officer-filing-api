@@ -1,5 +1,10 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -7,12 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.util.security.Permission.Key;
+import uk.gov.companieshouse.api.util.security.TokenPermissions;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
@@ -63,6 +72,19 @@ class OfficerFilingControllerImplIT {
     public static final LocalDate INCORPORATION_DATE = LocalDate.of(2010, Month.OCTOBER, 20);
     public static final String DIRECTOR_NAME = "Director name";
     private static final String ETAG = "etag";
+
+    public static TokenPermissions tokenPermissions = new TokenPermissions() {
+        private HashMap<Key,List<String>> permissions = new HashMap<>();
+        @Override
+        public boolean hasPermission(Key key, String value) {
+            permissions.put(Key.COMPANY_OFFICERS, Arrays.asList("readprotected", "delete"));
+            List<String> permissionList = permissions.get(key);
+            if(permissionList!=null){
+                return permissionList.contains(value);
+            }
+            return false;
+        }
+    };
 
     @MockBean
     private TransactionService transactionService;
@@ -130,7 +152,8 @@ class OfficerFilingControllerImplIT {
                         .build()); // copy of first argument
         when(clock.instant()).thenReturn(FIRST_INSTANT);
 
-        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).requestAttr(
+                "token_permissions",tokenPermissions).content(body)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
@@ -149,7 +172,8 @@ class OfficerFilingControllerImplIT {
                         + " [Source: (org.springframework.util.StreamUtils$NonClosingInputStream)"
                         + "; line: 1, column: 1]", "$", 1, 1);
 
-        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(MALFORMED_JSON_QUOTED)
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).requestAttr(
+                        "token_permissions",tokenPermissions).content(MALFORMED_JSON_QUOTED)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
@@ -177,7 +201,8 @@ class OfficerFilingControllerImplIT {
         final var expectedError = createExpectedError(
                 "JSON parse error:", "$.resigned_on", 1, 75);
 
-        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).requestAttr(
+                                "token_permissions",tokenPermissions).content(body)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
@@ -200,7 +225,8 @@ class OfficerFilingControllerImplIT {
         final var expectedError = createExpectedError(
                 "JSON parse error:", "$.resigned_on", 1, 75);
 
-        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).requestAttr(
+                                "token_permissions",tokenPermissions).content(body)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
@@ -224,7 +250,8 @@ class OfficerFilingControllerImplIT {
                         + " at [Source: (org.springframework.util"
                         + ".StreamUtils$NonClosingInputStream); line: 1, column: 87]", "$", 1, 87);
 
-        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content("{" + TM01_FRAGMENT)
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).requestAttr(
+                                "token_permissions",tokenPermissions).content("{" + TM01_FRAGMENT)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
@@ -260,6 +287,7 @@ class OfficerFilingControllerImplIT {
         when(filingMapper.map(filing)).thenReturn(dto);
 
         mockMvc.perform(get("/transactions/{id}/officers/{filingId}", TRANS_ID, FILING_ID)
+            .requestAttr("token_permissions",tokenPermissions)
             .headers(httpHeaders))
             .andDo(print())
             .andExpect(status().isOk())
@@ -274,6 +302,7 @@ class OfficerFilingControllerImplIT {
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/transactions/{id}/officers/{filingId}", TRANS_ID, FILING_ID)
+                        .requestAttr("token_permissions",tokenPermissions)
                 .headers(httpHeaders))
             .andDo(print())
             .andExpect(status().isNotFound());
@@ -310,6 +339,7 @@ class OfficerFilingControllerImplIT {
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                        .requestAttr("token_permissions",tokenPermissions)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
@@ -341,6 +371,7 @@ class OfficerFilingControllerImplIT {
                 "JSON parse error:", "$..resigned_on", 1, 75);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                        .requestAttr("token_permissions",tokenPermissions)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
@@ -382,6 +413,7 @@ class OfficerFilingControllerImplIT {
                 "JSON parse error:", "$..resigned_on", 1, 75);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                        .requestAttr("token_permissions",tokenPermissions)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
