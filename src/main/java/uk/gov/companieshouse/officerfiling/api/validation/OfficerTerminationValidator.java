@@ -54,8 +54,9 @@ public class OfficerTerminationValidator {
      * @return An object containing a list of any validation errors that have been raised
      */
     public ApiErrors validate(HttpServletRequest request, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
-        final var logMap = LogHelper.createLogMap(transaction.getId());
-        logger.debugRequest(request, "POST", logMap);
+            logger.debugContext(transaction.getId(), "Beginning Officer Termination Validation", new LogHelper.Builder(transaction)
+                .withRequest(request)
+                .build());
         List<ApiError> errorList = new ArrayList<>();
 
         // Retrieve data objects required for the validation process
@@ -80,7 +81,7 @@ public class OfficerTerminationValidator {
         List<ApiError> errorList, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
         try {
             return Optional.ofNullable(
-                    companyAppointmentService.getCompanyAppointment(transaction.getCompanyNumber(),
+                    companyAppointmentService.getCompanyAppointment(transaction.getId(), transaction.getCompanyNumber(),
                             dto.getReferenceAppointmentId(), passthroughHeader));
         } catch (CompanyAppointmentServiceException e) {
             createValidationError(request, errorList, "Officer not found. Please confirm the details and resubmit");

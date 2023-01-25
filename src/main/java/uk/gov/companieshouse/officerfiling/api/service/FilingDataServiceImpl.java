@@ -22,6 +22,7 @@ public class FilingDataServiceImpl implements FilingDataService {
     private final Logger logger;
     private final TransactionService transactionService;
     private final CompanyAppointmentService companyAppointmentService;
+
     public FilingDataServiceImpl(OfficerFilingService officerFilingService,
             OfficerFilingMapper filingMapper, Logger logger, TransactionService transactionService,
                                  CompanyAppointmentService companyAppointmentService) {
@@ -59,21 +60,19 @@ public class FilingDataServiceImpl implements FilingDataService {
         String companyNumber = transaction.getCompanyNumber();
         String appointmentId = officerFiling.getReferenceAppointmentId();
 
-        final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(companyNumber,
+        final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transactionId, companyNumber,
                 appointmentId, ericPassThroughHeader);
 
         var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
                 .dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()))
                 .name(companyAppointment.getName())
                 .build();
-
         var filingData = filingMapper.mapFiling(enhancedOfficerFiling);
         var dataMap = MapHelper.convertObject(filingData);
 
-        final var logMap = LogHelper.createLogMap(transactionId, filingId);
-
-        logMap.put("Data to submit", dataMap);
-        logger.debugContext(transactionId, filingId, logMap);
+        logger.debugContext(transactionId, "Created filing data for submission", new LogHelper.Builder(transaction)
+                .withFilingId(filingId)
+                .build());
 
         filing.setData(dataMap);
     }

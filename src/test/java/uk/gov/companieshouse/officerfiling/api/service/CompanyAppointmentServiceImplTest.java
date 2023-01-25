@@ -30,6 +30,7 @@ class CompanyAppointmentServiceImplTest {
     private static final String NAME = "Joe";
     private static final String COMPANY_NUMBER = "12345678";
     private static final String APPOINTMENT_ID = "app1";
+    private static final String TRANS_ID = "12345-54321-76666";
 
     @Mock
     private ApiClientService apiClientService;
@@ -58,7 +59,7 @@ class CompanyAppointmentServiceImplTest {
         when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
         when(apiClientService.getInternalApiClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
 
-        AppointmentFullRecordAPI companyAppointment = testService.getCompanyAppointment(COMPANY_NUMBER,APPOINTMENT_ID, PASSTHROUGH_HEADER);
+        AppointmentFullRecordAPI companyAppointment = testService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER,APPOINTMENT_ID, PASSTHROUGH_HEADER);
 
         assertThat(companyAppointment, samePropertyValuesAs(testCompanyAppointment(NAME)));
     }
@@ -71,7 +72,7 @@ class CompanyAppointmentServiceImplTest {
         when(apiClientService.getInternalApiClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
 
         final var exception = assertThrows(CompanyAppointmentServiceException.class,
-                () -> testService.getCompanyAppointment(COMPANY_NUMBER, APPOINTMENT_ID, PASSTHROUGH_HEADER));
+                () -> testService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, APPOINTMENT_ID, PASSTHROUGH_HEADER));
         assertThat(exception.getMessage(),
                 is("Error Retrieving appointment " + APPOINTMENT_ID + " for company " + COMPANY_NUMBER));
     }
