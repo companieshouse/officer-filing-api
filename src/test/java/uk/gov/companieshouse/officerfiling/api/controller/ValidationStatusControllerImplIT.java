@@ -17,10 +17,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
+import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
-import uk.gov.companieshouse.officerfiling.api.service.FilingDataService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
@@ -32,6 +32,8 @@ class ValidationStatusControllerImplIT {
     private static final String PASSTHROUGH_HEADER = "passthrough";
     @MockBean
     private TransactionInterceptor transactionInterceptor;
+    @MockBean
+    private OpenTransactionInterceptor openTransactionInterceptor;
     @MockBean
     private OfficerFilingService officerFilingService;
     @MockBean

@@ -17,10 +17,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
+import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
-import uk.gov.companieshouse.officerfiling.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.officerfiling.api.service.FilingDataService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 
@@ -35,6 +36,8 @@ class FilingDataControllerImplIT {
     private static final String RESIGNED_ON = "2022-10-05";
     @MockBean
     private TransactionInterceptor transactionInterceptor;
+    @MockBean
+    private OpenTransactionInterceptor openTransactionInterceptor;
     @MockBean
     private FilingDataService filingDataService;
     @MockBean

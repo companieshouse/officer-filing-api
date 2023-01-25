@@ -23,6 +23,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
+import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -51,6 +53,10 @@ class OfficerFilingControllerImplValidationIT {
     public static final String DIRECTOR_NAME = "Director name";
     private static final String ETAG = "ETAG";
 
+    @MockBean
+    private TransactionInterceptor TransactionInterceptor;
+    @MockBean
+    private OpenTransactionInterceptor openTransactionInterceptor;
     @MockBean
     private TransactionService transactionService;
     @MockBean

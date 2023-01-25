@@ -6,7 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import uk.gov.companieshouse.officerfiling.api.interceptor.TransactionInterceptor;
+import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
+import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 
 @Configuration
 @ComponentScan("uk.gov.companieshouse.api.interceptor")
@@ -16,6 +17,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     @Autowired
     private TransactionInterceptor transactionInterceptor;
+    //@Autowired
+    //private OpenTransactionInterceptor openTransactionInterceptor;
 
     /**
      * Setup the interceptors to run against endpoints when the endpoints are called
@@ -25,6 +28,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(@NonNull InterceptorRegistry registry) {
         addTransactionInterceptor(registry);
+        //addOpenTransactionInterceptor(registry);
     }
 
     /**
@@ -35,4 +39,9 @@ public class InterceptorConfig implements WebMvcConfigurer {
         registry.addInterceptor(transactionInterceptor)
                 .addPathPatterns(TRANSACTIONS);
     }
+
+//    private void addOpenTransactionInterceptor(InterceptorRegistry registry) {
+//        registry.addInterceptor(openTransactionInterceptor)
+//            .addPathPatterns(TRANSACTIONS);
+//    }
 }

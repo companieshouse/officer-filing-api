@@ -1,22 +1,33 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import java.io.IOException;
+import java.util.HashMap;
+import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.util.UriComponentsBuilder;
+import uk.gov.companieshouse.api.ApiClient;
 import uk.gov.companieshouse.api.error.ApiError;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.handler.transaction.TransactionsResourceHandler;
+import uk.gov.companieshouse.api.handler.transaction.request.TransactionsGet;
+import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
+import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
@@ -41,12 +52,12 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -70,6 +81,8 @@ class OfficerFilingControllerImplIT {
     private static final String ETAG = "etag";
 
     @MockBean
+    private TransactionInterceptor transactionInterceptor;
+    @MockBean
     private TransactionService transactionService;
     @MockBean
     private OfficerFilingService officerFilingService;
@@ -83,11 +96,23 @@ class OfficerFilingControllerImplIT {
     private Clock clock;
     @MockBean
     private Logger logger;
-
+    @Mock
+    private HttpServletRequest mockHttpServletRequest;
+    @Mock
+    private ApiClientService apiClientServiceMock;
+    @Mock
+    private ApiClient apiClientMock;
+    @Mock
+    private TransactionsResourceHandler transactionResourceHandlerMock;
+    @Mock
+    private TransactionsGet transactionGetMock;
+    @Mock
+    private ApiResponse<Transaction> apiResponse;
     private HttpHeaders httpHeaders;
     private Transaction transaction;
     private CompanyProfileApi companyProfileApi;
     private AppointmentFullRecordAPI companyAppointment;
+    private HashMap<String, String> pathParams;
 
     @Autowired
     private MockMvc mockMvc;
@@ -95,7 +120,7 @@ class OfficerFilingControllerImplIT {
     private OfficerFilingControllerImpl testController;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException, URIValidationException {
         ReflectionTestUtils.setField(testController, "isTm01Enabled", true);
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
@@ -110,6 +135,18 @@ class OfficerFilingControllerImplIT {
         companyAppointment.setName(DIRECTOR_NAME);
         companyAppointment.setAppointedOn(APPOINTMENT_DATE);
         companyAppointment.setEtag(ETAG);
+        pathParams = new HashMap<>();
+        pathParams.put("transId", TRANS_ID);
+
+        when(apiClientServiceMock.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
+        when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);
+        when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
+        when(transactionGetMock.execute()).thenReturn(apiResponse);
+        when(apiResponse.getData()).thenReturn(transaction);
+
+        when(mockHttpServletRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(pathParams);
+        when(mockHttpServletRequest.getHeader("ERIC-Access-Token")).thenReturn(PASSTHROUGH_HEADER);
+
     }
 
     @Test
@@ -130,7 +167,7 @@ class OfficerFilingControllerImplIT {
                 .build();
 
 
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        //when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
         when(filingMapper.map(dto)).thenReturn(filing);

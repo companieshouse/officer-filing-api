@@ -3,11 +3,11 @@ package uk.gov.companieshouse.officerfiling.api.interceptor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,8 +19,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.HandlerMapping;
+import uk.gov.companieshouse.api.ApiClient;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.handler.transaction.TransactionsResourceHandler;
+import uk.gov.companieshouse.api.handler.transaction.request.TransactionsGet;
+import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
+import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.TransactionServiceException;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
@@ -36,15 +43,25 @@ class TransactionInterceptorTest {
     private TransactionService transactionService;
     @Mock
     private HttpServletRequest mockHttpServletRequest;
+    @Mock
+    private ApiClientService apiClientServiceMock;
+    @Mock
+    private ApiClient apiClientMock;
+    @Mock
+    private TransactionsResourceHandler transactionResourceHandlerMock;
+    @Mock
+    private TransactionsGet transactionGetMock;
+    @Mock
+    private ApiResponse<Transaction> apiResponse;
     @InjectMocks
-    private TransactionInterceptor transactionInterceptor;
+    private TransactionInterceptor transactionInterceptor = new TransactionInterceptor();
     private Transaction transaction;
     private MockHttpServletResponse mockHttpServletResponse;
     private Object mockHandler;
     private HashMap<String, String> pathParams;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException, URIValidationException {
         transaction = new Transaction();
         transaction.setId(TRANS_ID);
         pathParams = new HashMap<>();
@@ -52,12 +69,18 @@ class TransactionInterceptorTest {
 
         mockHttpServletResponse = new MockHttpServletResponse();
         mockHandler = new Object();
+
+        when(apiClientServiceMock.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
+        when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);
+        when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
+        when(transactionGetMock.execute()).thenReturn(apiResponse);
+        when(apiResponse.getData()).thenReturn(transaction);
     }
 
     @Test
-    void testPreHandleIsSuccessful() {
+    void testPreHandleIsSuccessful() throws IOException, URIValidationException {
         transaction.setStatus(TransactionStatus.OPEN);
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+
         when(mockHttpServletRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(pathParams);
         when(mockHttpServletRequest.getHeader("ERIC-Access-Token")).thenReturn(PASSTHROUGH_HEADER);
 
@@ -71,7 +94,6 @@ class TransactionInterceptorTest {
 
         when(mockHttpServletRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(pathParams);
         when(mockHttpServletRequest.getHeader("ERIC-Access-Token")).thenReturn(PASSTHROUGH_HEADER);
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
 
         assertFalse(transactionInterceptor.preHandle(mockHttpServletRequest, mockHttpServletResponse, mockHandler));
         assertEquals(HttpServletResponse.SC_BAD_REQUEST,  mockHttpServletResponse.getStatus());
