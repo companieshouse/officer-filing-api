@@ -3,6 +3,7 @@ package uk.gov.companieshouse.officerfiling.api.service;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
@@ -35,7 +36,7 @@ public class CompanyProfileServiceImpl implements CompanyProfileService {
             throws CompanyProfileServiceException {
         try {
             final String uri = "/company/" + companyNumber;
-            final CompanyProfileApi companyProfile = apiClientService.getInternalOauthAuthenticatedClient(ericPassThroughHeader)
+            final CompanyProfileApi companyProfile = apiClientService.getInternalApiClient(ericPassThroughHeader)
                             .company()
                             .get(uri)
                             .execute()

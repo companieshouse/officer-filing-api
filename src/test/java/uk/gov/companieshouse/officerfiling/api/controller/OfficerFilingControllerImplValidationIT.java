@@ -4,12 +4,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
 import java.net.URI;
 import java.time.Clock;
 import java.time.LocalDate;
@@ -18,17 +20,22 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
-import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
+import uk.gov.companieshouse.api.ApiClient;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.handler.transaction.TransactionsResourceHandler;
+import uk.gov.companieshouse.api.handler.transaction.request.TransactionsGet;
+import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
@@ -54,10 +61,6 @@ class OfficerFilingControllerImplValidationIT {
     private static final String ETAG = "ETAG";
 
     @MockBean
-    private TransactionInterceptor TransactionInterceptor;
-    @MockBean
-    private OpenTransactionInterceptor openTransactionInterceptor;
-    @MockBean
     private TransactionService transactionService;
     @MockBean
     private OfficerFilingService officerFilingService;
@@ -71,6 +74,17 @@ class OfficerFilingControllerImplValidationIT {
     private Clock clock;
     @MockBean
     private Logger logger;
+    @MockBean
+    private ApiClientService apiClientService;
+
+    @Mock
+    private ApiClient apiClientMock;
+    @Mock
+    private TransactionsResourceHandler transactionResourceHandlerMock;
+    @Mock
+    private TransactionsGet transactionGetMock;
+    @Mock
+    private ApiResponse<Transaction> apiResponse;
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;
@@ -81,7 +95,7 @@ class OfficerFilingControllerImplValidationIT {
     private MockMvc mockMvc;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException, URIValidationException {
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
 
@@ -95,6 +109,12 @@ class OfficerFilingControllerImplValidationIT {
         companyAppointment.setName(DIRECTOR_NAME);
         companyAppointment.setAppointedOn(APPOINTMENT_DATE);
         companyAppointment.setEtag(ETAG);
+
+        when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
+        when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);
+        when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
+        when(transactionGetMock.execute()).thenReturn(apiResponse);
+        when(apiResponse.getData()).thenReturn(transaction);
     }
 
     @Test

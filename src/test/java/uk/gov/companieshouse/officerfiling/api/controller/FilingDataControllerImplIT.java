@@ -2,6 +2,7 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -35,13 +36,13 @@ class FilingDataControllerImplIT {
     private static final String REF_ETAG = "6789";
     private static final String RESIGNED_ON = "2022-10-05";
     @MockBean
-    private TransactionInterceptor transactionInterceptor;
-    @MockBean
-    private OpenTransactionInterceptor openTransactionInterceptor;
-    @MockBean
     private FilingDataService filingDataService;
     @MockBean
     private OfficerFilingService officerFilingService;
+    @MockBean
+    private TransactionInterceptor transactionInterceptor;
+    @MockBean
+    private OpenTransactionInterceptor openTransactionInterceptor;
     @MockBean
     private Logger logger;
 
@@ -54,6 +55,8 @@ class FilingDataControllerImplIT {
     void setUp() {
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
+        when(transactionInterceptor.preHandle(any(), any(), any())).thenReturn(true);
+        when(openTransactionInterceptor.preHandle(any(), any(), any())).thenReturn(true);
     }
 
     @Test

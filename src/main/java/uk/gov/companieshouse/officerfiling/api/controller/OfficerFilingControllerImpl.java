@@ -42,7 +42,7 @@ import java.util.Objects;
 import static uk.gov.companieshouse.officerfiling.api.model.entity.Links.PREFIX_PRIVATE;
 
 @RestController
-@RequestMapping("/transactions/{transId}/officers")
+@RequestMapping("/transactions/{transactionId}/officers")
 public class OfficerFilingControllerImpl implements OfficerFilingController {
     public static final String VALIDATION_STATUS = "validation_status";
     private final TransactionService transactionService;
@@ -125,7 +125,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     @Override
     @GetMapping(value = "/{filingResourceId}", produces = {"application/json"})
     public ResponseEntity<OfficerFilingDto> getFilingForReview(
-            @PathVariable("transId") final String transId,
+            @PathVariable("transactionId") final String transId,
             @PathVariable("filingResourceId") final String filingResource) {
 
         var maybeOfficerFiling = officerFilingService.get(filingResource, transId);

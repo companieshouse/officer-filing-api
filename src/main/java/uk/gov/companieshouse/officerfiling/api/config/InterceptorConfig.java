@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
@@ -10,15 +10,11 @@ import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 
 @Configuration
-@ComponentScan("uk.gov.companieshouse.api.interceptor")
+@ComponentScan("uk.gov.companieshouse.api")
 public class InterceptorConfig implements WebMvcConfigurer {
 
     private static final String TRANSACTIONS = "/transactions/**";
-
-    @Autowired
-    private TransactionInterceptor transactionInterceptor;
-    //@Autowired
-    //private OpenTransactionInterceptor openTransactionInterceptor;
+    static final String[] TRANSACTIONS_LIST = {TRANSACTIONS, "/private/**"};
 
     /**
      * Setup the interceptors to run against endpoints when the endpoints are called
@@ -28,7 +24,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(@NonNull InterceptorRegistry registry) {
         addTransactionInterceptor(registry);
-        //addOpenTransactionInterceptor(registry);
+        addOpenTransactionInterceptor(registry);
     }
 
     /**
@@ -36,12 +32,22 @@ public class InterceptorConfig implements WebMvcConfigurer {
      * @param registry The spring interceptor registry
      */
     private void addTransactionInterceptor(InterceptorRegistry registry) {
-        registry.addInterceptor(transactionInterceptor)
-                .addPathPatterns(TRANSACTIONS);
+        registry.addInterceptor(transactionInterceptor())
+            .addPathPatterns(TRANSACTIONS_LIST);
     }
 
-//    private void addOpenTransactionInterceptor(InterceptorRegistry registry) {
-//        registry.addInterceptor(openTransactionInterceptor)
-//            .addPathPatterns(TRANSACTIONS);
-//    }
+    private void addOpenTransactionInterceptor(InterceptorRegistry registry) {
+        registry.addInterceptor(openTransactionInterceptor())
+            .addPathPatterns(TRANSACTIONS_LIST);
+    }
+
+    @Bean
+    public TransactionInterceptor transactionInterceptor() {
+        return new TransactionInterceptor();
+    }
+
+    @Bean
+    public OpenTransactionInterceptor openTransactionInterceptor() {
+        return new OpenTransactionInterceptor();
+    }
 }

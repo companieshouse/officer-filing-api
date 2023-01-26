@@ -13,7 +13,7 @@ import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 @RestController
-@RequestMapping("/private/transactions/{transId}/officers")
+@RequestMapping("/private/transactions/{transactionId}/officers")
 public class FilingDataControllerImpl implements FilingDataController {
     private final FilingDataService filingDataService;
     private final Logger logger;
@@ -36,13 +36,13 @@ public class FilingDataControllerImpl implements FilingDataController {
      */
     @Override
     @GetMapping(value = "/{filingResourceId}/filings", produces = {"application/json"})
-    public List<FilingApi> getFilingsData(@PathVariable("transId") final String transId,
+    public List<FilingApi> getFilingsData(@PathVariable("transactionId") final String transId,
             @PathVariable("filingResourceId") final String filingResource,
             final HttpServletRequest request) {
         final var logMap = LogHelper.createLogMap(transId, filingResource);
 
         logger.debugRequest(request,
-                "GET /private/transactions/{transId}/officers{filingId}/filings", logMap);
+                "GET /private/transactions/{transactionId}/officers{filingId}/filings", logMap);
 
         final var passthroughHeader =
                 request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
