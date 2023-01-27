@@ -72,7 +72,7 @@ public class OfficerTerminationValidator {
         validateCompanyNotDissolved(request, errorList, companyProfile);
         validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment.get());
         validateTerminationDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
-        validateOfficerIsNotTerminated(request,errorList,companyAppointment);
+        validateOfficerIsNotTerminated(request,errorList,companyAppointment.get());
 
         return new ApiErrors(errorList);
     }
@@ -121,14 +121,10 @@ public class OfficerTerminationValidator {
      */
     public void validateOfficerIsNotTerminated(HttpServletRequest request, List<ApiError> errorList, AppointmentFullRecordAPI companyAppointment){
         if(companyAppointment.getResignedOn() != null){
-            final ApiError error = new ApiError("An application to remove " + companyAppointment.getName() + " has already been submitted",
-                    request.getRequestURI(),
-                    LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
-            errorList.add(error);
+            createValidationError(request, errorList, "An application to remove " +
+                    companyAppointment.getName() + " has already been submitted");
         }
     }
-
-}
 
     public void validateCompanyNotDissolved(HttpServletRequest request, List<ApiError> errorList, CompanyProfileApi companyProfile) {
         if (Objects.equals(companyProfile.getCompanyStatus(), "dissolved")) {
