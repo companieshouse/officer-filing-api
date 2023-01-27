@@ -56,10 +56,10 @@ public class OfficerTerminationValidator {
         final Transaction transaction = transactionService.getTransaction(transId, passthroughHeader);
         final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transaction.getCompanyNumber(), dto.getReferenceAppointmentId(), passthroughHeader);
         final CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(transId, transaction.getCompanyNumber(), passthroughHeader);
-
         // Perform validation
         validateMinResignationDate(request, errorList, dto);
         validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment);
+        validateOfficerIsNotTerminated(request,errorList,companyAppointment);
 
         return new ApiErrors(errorList);
     }
@@ -77,6 +77,22 @@ public class OfficerTerminationValidator {
     public void validateTerminationDateAfterIncorporationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, CompanyProfileApi companyProfile, AppointmentFullRecordAPI companyAppointment) {
         if (dto.getResignedOn().isBefore(companyProfile.getDateOfCreation())) {
             final ApiError error = new ApiError(companyAppointment.getName() + " has not been found",
+                    request.getRequestURI(),
+                    LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
+            errorList.add(error);
+        }
+    }
+
+    /**
+     * Check to ensure an request isn't being filed for an officer who has already resigned.
+     * Used for Validation rules D19_9A/D19_9
+     * @param request
+     * @param errorList
+     * @param companyAppointment
+     */
+    public void validateOfficerIsNotTerminated(HttpServletRequest request, List<ApiError> errorList, AppointmentFullRecordAPI companyAppointment){
+        if(companyAppointment.getResignedOn() != null){
+            final ApiError error = new ApiError("An application to remove " + companyAppointment.getName() + " has already been submitted",
                     request.getRequestURI(),
                     LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
             errorList.add(error);
