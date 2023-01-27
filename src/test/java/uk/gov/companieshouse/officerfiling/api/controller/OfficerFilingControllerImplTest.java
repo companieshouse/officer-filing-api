@@ -124,20 +124,20 @@ class OfficerFilingControllerImplTest {
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2005, 10, 3));
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2007, 10, 5));
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(filingMapper.map(dto)).thenReturn(filing);
         final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
                 .build();
         final var withLinks = OfficerFiling.builder(withFilingId).links(links)
                 .build();
-        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
+        when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
         when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
 
         final var response =
-                testController.createFiling(TRANS_ID, dto, nullBindingResult ? null : result,
+                testController.createFiling(transaction, dto, nullBindingResult ? null : result,
                         request);
 
         // refEq needed to compare Map value objects; Resource does not override equals()
@@ -158,7 +158,7 @@ class OfficerFilingControllerImplTest {
         when(result.getFieldErrors()).thenReturn(errorList);
 
         final var exception = assertThrows(InvalidFilingException.class,
-                () -> testController.createFiling(TRANS_ID, dto, result, request));
+                () -> testController.createFiling(transaction, dto, result, request));
 
         assertThat(exception.getFieldErrors(), contains(fieldErrorWithRejectedValue));
     }
@@ -205,16 +205,16 @@ class OfficerFilingControllerImplTest {
     void checkTm01FeatureFlagDisabled(){
         ReflectionTestUtils.setField(testController, "isTm01Enabled", false);
         assertThrows(FeatureNotEnabledException.class,
-                () -> testController.createFiling(TRANS_ID, dto, result, request));
+                () -> testController.createFiling(transaction, dto, result, request));
     }
-    
+
+    @Test
     void doNotCreateFilingWhenRequestHasTooOldDate() {
         when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
-        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
+        when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
         final var officerFilingDto = OfficerFilingDto.builder()
@@ -223,7 +223,7 @@ class OfficerFilingControllerImplTest {
                 .resignedOn(LocalDate.of(1022, 9, 13))
                 .build();
 
-        ResponseEntity<Object> responseEntity = testController.createFiling(TRANS_ID, officerFilingDto, result, request);
+        ResponseEntity<Object> responseEntity = testController.createFiling(transaction, officerFilingDto, result, request);
 
         assertEquals( 400, responseEntity.getStatusCodeValue());
     }

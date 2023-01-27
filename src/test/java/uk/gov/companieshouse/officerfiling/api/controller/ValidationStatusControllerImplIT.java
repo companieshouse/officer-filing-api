@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -17,6 +18,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
+import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
@@ -28,7 +31,10 @@ class ValidationStatusControllerImplIT {
     private static final String TRANS_ID = "4f56fdf78b357bfc";
     private static final String FILING_ID = "632c8e65105b1b4a9f0d1f5e";
     private static final String PASSTHROUGH_HEADER = "passthrough";
-
+    @MockBean
+    private TransactionInterceptor transactionInterceptor;
+    @MockBean
+    private OpenTransactionInterceptor openTransactionInterceptor;
     @MockBean
     private OfficerFilingService officerFilingService;
     @MockBean
@@ -47,6 +53,8 @@ class ValidationStatusControllerImplIT {
     void setUp() {
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
+        when(transactionInterceptor.preHandle(any(), any(), any())).thenReturn(true);
+        when(openTransactionInterceptor.preHandle(any(), any(), any())).thenReturn(true);
     }
 
     @Test

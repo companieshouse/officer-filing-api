@@ -16,7 +16,7 @@ import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 @RestController
-@RequestMapping("/private/transactions/{transId}/officers")
+@RequestMapping("/private/transactions/{transactionId}/officers")
 public class ValidationStatusControllerImpl implements ValidationStatusController {
     private final OfficerFilingService officerFilingService;
     private final Logger logger;
@@ -39,7 +39,7 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/{filingResourceId}/validation_status", produces = {"application/json"})
-    public ValidationStatusResponse validate(@PathVariable("transId") final String transId,
+    public ValidationStatusResponse validate(@PathVariable("transactionId") final String transId,
             @PathVariable("filingResourceId") final String filingResource,
             final HttpServletRequest request) {
 

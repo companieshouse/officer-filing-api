@@ -4,12 +4,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
 import java.net.URI;
 import java.time.Clock;
 import java.time.LocalDate;
@@ -18,14 +20,22 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.companieshouse.api.ApiClient;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.handler.transaction.TransactionsResourceHandler;
+import uk.gov.companieshouse.api.handler.transaction.request.TransactionsGet;
+import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
@@ -64,6 +74,17 @@ class OfficerFilingControllerImplValidationIT {
     private Clock clock;
     @MockBean
     private Logger logger;
+    @MockBean
+    private ApiClientService apiClientService;
+
+    @Mock
+    private ApiClient apiClientMock;
+    @Mock
+    private TransactionsResourceHandler transactionResourceHandlerMock;
+    @Mock
+    private TransactionsGet transactionGetMock;
+    @Mock
+    private ApiResponse<Transaction> apiResponse;
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;
@@ -74,23 +95,31 @@ class OfficerFilingControllerImplValidationIT {
     private MockMvc mockMvc;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException, URIValidationException {
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
 
         transaction = new Transaction();
         transaction.setCompanyNumber(COMPANY_NUMBER);
         transaction.setId(TRANS_ID);
+        transaction.setStatus(TransactionStatus.OPEN);
         companyProfileApi = new CompanyProfileApi();
         companyProfileApi.setDateOfCreation(INCORPORATION_DATE);
         companyAppointment = new AppointmentFullRecordAPI();
         companyAppointment.setName(DIRECTOR_NAME);
         companyAppointment.setAppointedOn(APPOINTMENT_DATE);
         companyAppointment.setEtag(ETAG);
+
+        when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
+        when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);
+        when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
+        when(transactionGetMock.execute()).thenReturn(apiResponse);
+        when(apiResponse.getData()).thenReturn(transaction);
     }
 
     @Test
     void createFilingWhenReferenceEtagBlankThenResponse400() throws Exception {
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var body = "{" + TM01_FRAGMENT.replace("ETAG", "") + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
@@ -108,6 +137,7 @@ class OfficerFilingControllerImplValidationIT {
 
     @Test
     void createFilingWhenReferenceReferenceAppointmentIdBlankThenResponse400() throws Exception {
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var body = "{" + TM01_FRAGMENT.replace(FILING_ID, "") + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
@@ -125,6 +155,7 @@ class OfficerFilingControllerImplValidationIT {
 
     @Test
     void createFilingWhenReferenceResignedOnBlankThenResponse400() throws Exception {
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "") + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
@@ -142,6 +173,7 @@ class OfficerFilingControllerImplValidationIT {
 
     @Test
     void createFilingWhenReferenceResignedOnInFutureThenResponse400() throws Exception {
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var tomorrow = LocalDate.now().plusDays(1);
         final var body = "{"
                 + TM01_FRAGMENT.replace("2022-09-13", tomorrow.toString())
@@ -271,7 +303,7 @@ class OfficerFilingControllerImplValidationIT {
                 .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
                 .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
                 .andExpect(jsonPath("$.errors[0].error",
-                        containsString("You cannot remove a director from a company that's been dissolved")));
+                        containsString("You cannot remove an officer from a company that is about to be dissolved")));
     }
 
     @Test
@@ -294,7 +326,7 @@ class OfficerFilingControllerImplValidationIT {
                 .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
                 .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
                 .andExpect(jsonPath("$.errors[0].error",
-                        containsString("You cannot remove a director from a company that's been dissolved or is about to be dissolved")));
+                        containsString("You cannot remove an officer from a company that has been dissolved")));
     }
 
     @Test
