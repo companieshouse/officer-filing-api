@@ -7,11 +7,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.companieshouse.api.model.transaction.Resource;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
 import uk.gov.companieshouse.officerfiling.api.error.InvalidFilingException;
@@ -40,7 +42,7 @@ import java.util.Objects;
 import static uk.gov.companieshouse.officerfiling.api.model.entity.Links.PREFIX_PRIVATE;
 
 @RestController
-@RequestMapping("/transactions/{transId}/officers")
+@RequestMapping("/transactions/{transactionId}/officers")
 public class OfficerFilingControllerImpl implements OfficerFilingController {
     public static final String VALIDATION_STATUS = "validation_status";
     private final TransactionService transactionService;
@@ -50,11 +52,15 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     private final OfficerFilingMapper filingMapper;
     private final Clock clock;
     private final Logger logger;
-    @Value("${FEATURE_FLAG_ENABLE_TM01:false}")
+    @Value("${FEATURE_FLAG_ENABLE_TM01:true}")
     private boolean isTm01Enabled;
     public OfficerFilingControllerImpl(final TransactionService transactionService,
-            final OfficerFilingService officerFilingService, final CompanyProfileService companyProfileService, final CompanyAppointmentService companyAppointmentService, final OfficerFilingMapper filingMapper,
-            final Clock clock, final Logger logger) {
+                                       final OfficerFilingService officerFilingService,
+                                       final CompanyProfileService companyProfileService,
+                                       final CompanyAppointmentService companyAppointmentService,
+                                       final OfficerFilingMapper filingMapper,
+                                       final Clock clock,
+                                       final Logger logger) {
         this.transactionService = transactionService;
         this.officerFilingService = officerFilingService;
         this.companyProfileService = companyProfileService;
@@ -67,7 +73,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     /**
      * Create an Officer Filing.
      *
-     * @param transId       the Transaction ID
+     * @param transaction the Transaction
      * @param dto           the request body payload DTO
      * @param bindingResult the MVC binding result (with any validation errors)
      * @param request       the servlet request
@@ -75,10 +81,10 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
      */
     @Override
     @PostMapping(produces = {"application/json"}, consumes = {"application/json"})
-    public ResponseEntity<Object> createFiling(@PathVariable final String transId,
+    public ResponseEntity<Object> createFiling(@RequestAttribute("transaction") Transaction transaction,
             @RequestBody @Valid @NotNull final OfficerFilingDto dto,
             final BindingResult bindingResult, final HttpServletRequest request) {
-        final var logMap = LogHelper.createLogMap(transId);
+        final var logMap = LogHelper.createLogMap(transaction.getId());
 
         logger.debugRequest(request, "POST", logMap);
 
@@ -92,16 +98,14 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
         final var passthroughHeader =
                     request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
-        final var transaction = transactionService.getTransaction(transId, passthroughHeader);
-        logger.infoContext(transId, "transaction found", logMap);
 
         final var validator = new OfficerTerminationValidator(logger, transactionService, companyProfileService, companyAppointmentService);
-        final ApiErrors validationErrors = validator.validate(request, dto, transId, passthroughHeader);
+        final ApiErrors validationErrors = validator.validate(request, dto, transaction, passthroughHeader);
         if(validationErrors.hasErrors()) {
             return ResponseEntity.badRequest().body(validationErrors);
         }
         final var entity = filingMapper.map(dto);
-        final var links = saveFilingWithLinks(entity, transId, request, logMap);
+        final var links = saveFilingWithLinks(entity, transaction.getId(), request, logMap);
         final var resourceMap = buildResourceMap(links);
 
         transaction.setResources(resourceMap);
@@ -121,7 +125,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     @Override
     @GetMapping(value = "/{filingResourceId}", produces = {"application/json"})
     public ResponseEntity<OfficerFilingDto> getFilingForReview(
-            @PathVariable("transId") final String transId,
+            @PathVariable("transactionId") final String transId,
             @PathVariable("filingResourceId") final String filingResource) {
 
         var maybeOfficerFiling = officerFilingService.get(filingResource, transId);

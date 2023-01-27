@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.officerfiling.api.exception.NotImplementedException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 
@@ -22,11 +23,13 @@ class OfficerFilingControllerTest {
     private BindingResult bindingResult;
     @Mock
     private HttpServletRequest request;
+    @Mock
+    private Transaction transaction;
 
     @Test
     void createFiling() {
         assertThrows(NotImplementedException.class,
-                () -> testController.createFiling("trans-id", dto, bindingResult, request));
+                () -> testController.createFiling(transaction, dto, bindingResult, request));
     }
 
     @Test

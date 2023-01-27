@@ -12,6 +12,7 @@ import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 
@@ -53,12 +54,12 @@ class CompanyProfileServiceImplTest {
     }
 
     @Test
-    void companyAppointmentIsReturnedFromCompanyAppointmentsAPIWhenFound() throws IOException, URIValidationException {
+    void companyProfileIsReturnedFromAPIWhenFound() throws IOException, URIValidationException {
         when(apiResponse.getData()).thenReturn(mockCompanyProfileApi);
         when(companyGet.execute()).thenReturn(apiResponse);
         when(companyResourceHandler.get(URI)).thenReturn(companyGet);
         when(internalApiClient.company()).thenReturn(companyResourceHandler);
-        when(apiClientService.getInternalOauthAuthenticatedClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
+        when(apiClientService.getInternalApiClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
 
         CompanyProfileApi companyProfile = testService.getCompanyProfile(TRANSACTION_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER);
 
@@ -66,11 +67,11 @@ class CompanyProfileServiceImplTest {
     }
 
     @Test
-    void exceptionIsThrownWhenCompanyAppointmentIsNotFound() throws IOException, URIValidationException {
+    void exceptionIsThrownWhenCompanyProfileIsNotFound() throws IOException, URIValidationException {
         when(companyGet.execute()).thenThrow(URIValidationException.class);
         when(companyResourceHandler.get(URI)).thenReturn(companyGet);
         when(internalApiClient.company()).thenReturn(companyResourceHandler);
-        when(apiClientService.getInternalOauthAuthenticatedClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
+        when(apiClientService.getInternalApiClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
 
         final var exception = assertThrows(CompanyProfileServiceException.class,
                 () -> testService.getCompanyProfile(TRANSACTION_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER));

@@ -21,7 +21,7 @@ public interface ValidationStatusController {
      * @throws NotImplementedException implementing classes must perform work
      */
     @GetMapping(value = "/{filingResourceId}/validation_status", produces = {"application/json"})
-    default ValidationStatusResponse validate(@PathVariable("transId") String transId,
+    default ValidationStatusResponse validate(@PathVariable("transactionId") String transId,
             @PathVariable("filingResourceId") String filingResource,
             final HttpServletRequest request) {
         throw new NotImplementedException();
