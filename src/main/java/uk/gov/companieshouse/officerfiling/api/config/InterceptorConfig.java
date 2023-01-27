@@ -14,7 +14,7 @@ import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 public class InterceptorConfig implements WebMvcConfigurer {
 
     private static final String TRANSACTIONS = "/transactions/**";
-    static final String[] TRANSACTIONS_LIST = {TRANSACTIONS, "/private/**"};
+    private static final String[] TRANSACTIONS_LIST = {TRANSACTIONS, "/private/**"};
 
     /**
      * Setup the interceptors to run against endpoints when the endpoints are called
