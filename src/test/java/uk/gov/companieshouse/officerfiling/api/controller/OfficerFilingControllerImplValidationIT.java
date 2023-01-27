@@ -59,6 +59,7 @@ class OfficerFilingControllerImplValidationIT {
     public static final LocalDate APPOINTMENT_DATE = LocalDate.of(2010, Month.OCTOBER, 30);
     public static final String DIRECTOR_NAME = "Director name";
     private static final String ETAG = "ETAG";
+    private static final String COMPANY_TYPE = "ltd";
 
     @MockBean
     private TransactionService transactionService;
@@ -105,6 +106,7 @@ class OfficerFilingControllerImplValidationIT {
         transaction.setStatus(TransactionStatus.OPEN);
         companyProfileApi = new CompanyProfileApi();
         companyProfileApi.setDateOfCreation(INCORPORATION_DATE);
+        companyProfileApi.setType(COMPANY_TYPE);
         companyAppointment = new AppointmentFullRecordAPI();
         companyAppointment.setName(DIRECTOR_NAME);
         companyAppointment.setAppointedOn(APPOINTMENT_DATE);
@@ -350,5 +352,28 @@ class OfficerFilingControllerImplValidationIT {
             .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
             .andExpect(jsonPath("$.errors[0].error",
                 containsString("Officer not found. Please confirm the details and resubmit")));
+    }
+
+    @Test
+    void createFilingWhenTypeIsInvalidThenResponse400() throws Exception {
+        companyProfileApi.setType("invalid-type");
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
+
+        final var body = "{"
+                + TM01_FRAGMENT
+                + "}";
+
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
+                .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
+                .andExpect(jsonPath("$.errors[0].error",
+                        containsString("You cannot remove an officer from a invalid-type using this service")));
     }
 }

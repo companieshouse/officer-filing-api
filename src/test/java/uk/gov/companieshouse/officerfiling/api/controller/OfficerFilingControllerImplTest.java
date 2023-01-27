@@ -61,6 +61,7 @@ class OfficerFilingControllerImplTest {
     public static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     public static final String DIRECTOR_NAME = "director name";
     private static final String ETAG = "etag";
+    private static final String COMPANY_TYPE = "ltd";
 
     private OfficerFilingController testController;
     @Mock
@@ -122,6 +123,7 @@ class OfficerFilingControllerImplTest {
         when(dto.getReferenceEtag()).thenReturn(ETAG);
         when(dto.getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2005, 10, 3));
+        when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2007, 10, 5));
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
@@ -214,6 +216,7 @@ class OfficerFilingControllerImplTest {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
+        when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);

@@ -28,7 +28,9 @@ import java.util.Objects;
  */
 public class OfficerTerminationValidator {
 
-    public static final LocalDate EARLIEST_POSSIBLE_DATE = LocalDate.of(2009, 10, 1);
+    private static final LocalDate EARLIEST_POSSIBLE_DATE = LocalDate.of(2009, 10, 1);
+    private static final List<String> ALLOWED_COMPANY_TYPES = List.of("private-unlimited", "ltd", "plc", "old-public-company", "private-limited-guarant-nsc-limited-exemption",
+            "private-limited-guarant-nsc", "private-unlimited-nsc", "private-limited-shares-section-30-exemption");
 
     private final TransactionService transactionService;
     private final CompanyProfileService companyProfileService;
@@ -73,6 +75,7 @@ public class OfficerTerminationValidator {
         validateCompanyNotDissolved(request, errorList, companyProfile);
         validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment.get());
         validateTerminationDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
+        validateAllowedCompanyType(request, errorList, companyProfile);
         validateOfficerIsNotTerminated(request,errorList,companyAppointment.get());
 
         return new ApiErrors(errorList);
@@ -139,6 +142,12 @@ public class OfficerTerminationValidator {
     public void validateTerminationDateAfterAppointmentDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment) {
         if (dto.getResignedOn().isBefore(companyAppointment.getAppointedOn())) {
             createValidationError(request, errorList, "Date director was removed must be on or after the date the director was appointed");
+        }
+    }
+
+    public void validateAllowedCompanyType(HttpServletRequest request, List<ApiError> errorList, CompanyProfileApi companyProfile) {
+        if (!ALLOWED_COMPANY_TYPES.contains(companyProfile.getType())) {
+            createValidationError(request, errorList, String.format("You cannot remove an officer from a %s using this service", companyProfile.getType()));
         }
     }
 
