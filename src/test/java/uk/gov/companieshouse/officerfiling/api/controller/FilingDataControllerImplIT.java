@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.companieshouse.officerfiling.api.controller.OfficerFilingControllerImplIT.tokenPermissions;
 
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,6 +61,7 @@ class FilingDataControllerImplIT {
         when(filingDataService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(filingApi);
 
         mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/filings", TRANS_ID, FILING_ID)
+                        .requestAttr("token_permissions",tokenPermissions)
             .headers(httpHeaders))
             .andDo(print())
             .andExpect(status().isOk())
@@ -74,7 +76,8 @@ class FilingDataControllerImplIT {
 
         mockMvc.perform(
                         get("/private/transactions/{id}/officers/{filingId}/filings", TRANS_ID,
-                                FILING_ID).headers(httpHeaders))
+                                FILING_ID).requestAttr(
+                                "token_permissions",tokenPermissions).headers(httpHeaders))
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(status().reason(is("Resource not found")))

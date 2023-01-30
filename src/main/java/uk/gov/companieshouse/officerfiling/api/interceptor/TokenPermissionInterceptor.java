@@ -45,16 +45,6 @@ public class TokenPermissionInterceptor implements HandlerInterceptor {
         logMap.put(TRANSACTION_ID_KEY, transactionId);
         String reqId = request.getHeader(ERIC_REQUEST_ID_KEY);
 
-        // skip token permission checks if an api key is used, api key elevated privileges are checked in other interceptors
-        // inside company accounts and abridged accounts api services
-/*        if (SecurityConstants.API_KEY_IDENTITY_TYPE.equals(
-                AuthorisationUtil.getAuthorisedIdentityType(request))) {
-            logger.debugContext(reqId,
-                    "TokenPermissionInterceptor skipping token permission checks for api key request",
-                    logMap);
-            return true;
-        }*/
-
         // TokenPermissions should have been set up in the request by TokenPermissionsInterceptor
         final var tokenPermissions = getTokenPermissions(request)
                 .orElseThrow(() -> new IllegalStateException(
