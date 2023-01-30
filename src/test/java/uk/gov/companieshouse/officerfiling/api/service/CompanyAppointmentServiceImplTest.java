@@ -11,6 +11,7 @@ import uk.gov.companieshouse.api.handler.delta.company.appointment.request.Priva
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 
@@ -55,7 +56,7 @@ class CompanyAppointmentServiceImplTest {
         when(getAppointment.execute()).thenReturn(apiResponse);
         when(privateDeltaResourceHandler.getAppointment("/company/" + COMPANY_NUMBER + "/appointments/" + APPOINTMENT_ID + "/full_record")).thenReturn(getAppointment);
         when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
-        when(apiClientService.getInternalApiKeyAuthenticatedClient()).thenReturn(internalApiClient);
+        when(apiClientService.getInternalApiClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
 
         AppointmentFullRecordAPI companyAppointment = testService.getCompanyAppointment(COMPANY_NUMBER,APPOINTMENT_ID, PASSTHROUGH_HEADER);
 
@@ -67,7 +68,7 @@ class CompanyAppointmentServiceImplTest {
         when(getAppointment.execute()).thenThrow(URIValidationException.class);
         when(privateDeltaResourceHandler.getAppointment("/company/" + COMPANY_NUMBER + "/appointments/" + APPOINTMENT_ID + "/full_record")).thenReturn(getAppointment);
         when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
-        when(apiClientService.getInternalApiKeyAuthenticatedClient()).thenReturn(internalApiClient);
+        when(apiClientService.getInternalApiClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
 
         final var exception = assertThrows(CompanyAppointmentServiceException.class,
                 () -> testService.getCompanyAppointment(COMPANY_NUMBER, APPOINTMENT_ID, PASSTHROUGH_HEADER));

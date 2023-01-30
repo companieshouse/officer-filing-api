@@ -8,20 +8,29 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import uk.gov.companieshouse.api.ApiClient;
 import uk.gov.companieshouse.api.error.ApiError;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.handler.transaction.TransactionsResourceHandler;
+import uk.gov.companieshouse.api.handler.transaction.request.TransactionsGet;
+import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.util.security.Permission.Key;
 import uk.gov.companieshouse.api.util.security.TokenPermissions;
+import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
@@ -31,6 +40,7 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.Instant;
@@ -47,6 +57,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,12 +75,13 @@ class OfficerFilingControllerImplIT {
     private static final String FILING_ID = "632c8e65105b1b4a9f0d1f5e";
     private static final String PASSTHROUGH_HEADER = "passthrough";
     private static final String TM01_FRAGMENT = "\"reference_etag\": \"etag\","
-            + "\"reference_appointment_id\": \"" + FILING_ID + "\","
-            + "\"resigned_on\": \"2022-09-13\"";
+        + "\"reference_appointment_id\": \"" + FILING_ID + "\","
+        + "\"resigned_on\": \"2022-09-13\"";
     public static final String MALFORMED_JSON_QUOTED = "\"\"";
     private static final Instant FIRST_INSTANT = Instant.parse("2022-10-15T09:44:08.108Z");
     private static final String COMPANY_NUMBER = "123456";
     public static final LocalDate INCORPORATION_DATE = LocalDate.of(2010, Month.OCTOBER, 20);
+    public static final LocalDate APPOINTMENT_DATE = LocalDate.of(2010, Month.OCTOBER, 30);
     public static final String DIRECTOR_NAME = "Director name";
     private static final String ETAG = "etag";
 
@@ -100,6 +112,17 @@ class OfficerFilingControllerImplIT {
     private Clock clock;
     @MockBean
     private Logger logger;
+    @MockBean
+    private ApiClientService apiClientService;
+
+    @Mock
+    private ApiClient apiClientMock;
+    @Mock
+    private TransactionsResourceHandler transactionResourceHandlerMock;
+    @Mock
+    private TransactionsGet transactionGetMock;
+    @Mock
+    private ApiResponse<Transaction> apiResponse;
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;
@@ -108,48 +131,59 @@ class OfficerFilingControllerImplIT {
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private OfficerFilingControllerImpl testController;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException, URIValidationException {
+        ReflectionTestUtils.setField(testController, "isTm01Enabled", true);
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
 
         transaction = new Transaction();
         transaction.setCompanyNumber(COMPANY_NUMBER);
         transaction.setId(TRANS_ID);
+        transaction.setStatus(TransactionStatus.OPEN);
         companyProfileApi = new CompanyProfileApi();
         companyProfileApi.setDateOfCreation(INCORPORATION_DATE);
         companyAppointment = new AppointmentFullRecordAPI();
         companyAppointment.setName(DIRECTOR_NAME);
+        companyAppointment.setAppointedOn(APPOINTMENT_DATE);
         companyAppointment.setEtag(ETAG);
+
+        when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
+        when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);
+        when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
+        when(transactionGetMock.execute()).thenReturn(apiResponse);
+        when(apiResponse.getData()).thenReturn(transaction);
     }
 
     @Test
     void createFilingWhenTM01PayloadOKThenResponse201() throws Exception {
         final var body = "{" + TM01_FRAGMENT + "}";
         final var dto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(LocalDate.of(2022, 9, 13))
-                .build();
+            .referenceEtag("etag")
+            .referenceAppointmentId(FILING_ID)
+            .resignedOn(LocalDate.of(2022, 9, 13))
+            .build();
         final var filing = OfficerFiling.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
-                .build();
+            .referenceEtag("etag")
+            .referenceAppointmentId(FILING_ID)
+            .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+            .build();
         final var locationUri = UriComponentsBuilder.fromPath("/")
-                .pathSegment("transactions", TRANS_ID, "officers", FILING_ID)
-                .build();
+            .pathSegment("transactions", TRANS_ID, "officers", FILING_ID)
+            .build();
 
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
         when(filingMapper.map(dto)).thenReturn(filing);
         when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
-                        OfficerFiling.builder(filing).id(FILING_ID)
-                                .build()) // copy of 'filing' with id=FILING_ID
-                .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
-                        .build()); // copy of first argument
+                OfficerFiling.builder(filing).id(FILING_ID)
+                    .build()) // copy of 'filing' with id=FILING_ID
+            .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
+                .build()); // copy of first argument
         when(clock.instant()).thenReturn(FIRST_INSTANT);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).requestAttr(
@@ -166,11 +200,11 @@ class OfficerFilingControllerImplIT {
     @Test
     void createFilingWhenRequestBodyMalformedThenResponse400() throws Exception {
         final var expectedError = createExpectedError(
-                "JSON parse error: Cannot coerce empty String (\\\"\\\") to `uk.gov"
-                        + ".companieshouse.officerfiling.api.model.dto.OfficerFilingDto$Builder` "
-                        + "value (but could if coercion was enabled using `CoercionConfig`)\\n at"
-                        + " [Source: (org.springframework.util.StreamUtils$NonClosingInputStream)"
-                        + "; line: 1, column: 1]", "$", 1, 1);
+            "JSON parse error: Cannot coerce empty String (\\\"\\\") to `uk.gov"
+                + ".companieshouse.officerfiling.api.model.dto.OfficerFilingDto$Builder` "
+                + "value (but could if coercion was enabled using `CoercionConfig`)\\n at"
+                + " [Source: (org.springframework.util.StreamUtils$NonClosingInputStream)"
+                + "; line: 1, column: 1]", "$", 1, 1);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).requestAttr(
                         "token_permissions",tokenPermissions).content(MALFORMED_JSON_QUOTED)
@@ -199,7 +233,7 @@ class OfficerFilingControllerImplIT {
     void createFilingWhenResignedOnInvalidThenResponse400() throws Exception {
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "3000-09-13") + "}";
         final var expectedError = createExpectedError(
-                "JSON parse error:", "$.resigned_on", 1, 75);
+            "JSON parse error:", "$.resigned_on", 1, 75);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).requestAttr(
                                 "token_permissions",tokenPermissions).content(body)
@@ -223,7 +257,7 @@ class OfficerFilingControllerImplIT {
     void createFilingWhenResignedOnBlankThenResponse400() throws Exception {
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "") + "}";
         final var expectedError = createExpectedError(
-                "JSON parse error:", "$.resigned_on", 1, 75);
+            "JSON parse error:", "$.resigned_on", 1, 75);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).requestAttr(
                                 "token_permissions",tokenPermissions).content(body)
@@ -244,11 +278,11 @@ class OfficerFilingControllerImplIT {
     @Test
     void createFilingWhenRequestBodyIncompleteThenResponse400() throws Exception {
         final var expectedError = createExpectedError(
-                "JSON parse error: Unexpected end-of-input: expected close marker for Object "
-                        + "(start marker at [Source: (org.springframework.util"
-                        + ".StreamUtils$NonClosingInputStream); line: 1, column: 1])\n"
-                        + " at [Source: (org.springframework.util"
-                        + ".StreamUtils$NonClosingInputStream); line: 1, column: 87]", "$", 1, 87);
+            "JSON parse error: Unexpected end-of-input: expected close marker for Object "
+                + "(start marker at [Source: (org.springframework.util"
+                + ".StreamUtils$NonClosingInputStream); line: 1, column: 1])\n"
+                + " at [Source: (org.springframework.util"
+                + ".StreamUtils$NonClosingInputStream); line: 1, column: 87]", "$", 1, 87);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).requestAttr(
                                 "token_permissions",tokenPermissions).content("{" + TM01_FRAGMENT)
@@ -297,6 +331,32 @@ class OfficerFilingControllerImplIT {
     }
 
     @Test
+    void getFilingForReviewOnLeapYearThenResponse200() throws Exception {
+        final var dto = OfficerFilingDto.builder()
+            .referenceEtag("etag")
+            .referenceAppointmentId("id")
+            .resignedOn(LocalDate.of(2024, 2, 29))
+            .build();
+        final var filing = OfficerFiling.builder()
+            .referenceEtag("etag")
+            .referenceAppointmentId("id")
+            .resignedOn(Instant.parse("2024-02-29T00:00:00Z"))
+            .build();
+
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
+
+        when(filingMapper.map(filing)).thenReturn(dto);
+
+        mockMvc.perform(get("/transactions/{id}/officers/{filingId}", TRANS_ID, FILING_ID)
+                .headers(httpHeaders))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.reference_etag", is("etag")))
+            .andExpect(jsonPath("$.reference_appointment_id", is("id")))
+            .andExpect(jsonPath("$.resigned_on", is("2024-02-29")));
+    }
+
+    @Test
     void getFilingForReviewNotFoundThenResponse404() throws Exception {
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
@@ -314,25 +374,25 @@ class OfficerFilingControllerImplIT {
         String formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(Date.from(resignedToday));
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", formattedDate) + "}";
         final var dto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(LocalDate.now())
-                .build();
+            .referenceEtag("etag")
+            .referenceAppointmentId(FILING_ID)
+            .resignedOn(LocalDate.now())
+            .build();
         final var filing = OfficerFiling.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(resignedToday)
-                .build();
+            .referenceEtag("etag")
+            .referenceAppointmentId(FILING_ID)
+            .resignedOn(resignedToday)
+            .build();
         final var locationUri = UriComponentsBuilder.fromPath("/")
-                .pathSegment("transactions", TRANS_ID, "officers", FILING_ID)
-                .build();
+            .pathSegment("transactions", TRANS_ID, "officers", FILING_ID)
+            .build();
 
         when(filingMapper.map(dto)).thenReturn(filing);
         when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
-                        OfficerFiling.builder(filing).id(FILING_ID)
-                                .build()) // copy of 'filing' with id=FILING_ID
-                .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
-                        .build()); // copy of first argument
+                OfficerFiling.builder(filing).id(FILING_ID)
+                    .build()) // copy of 'filing' with id=FILING_ID
+            .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
+                .build()); // copy of first argument
         when(clock.instant()).thenReturn(FIRST_INSTANT);
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
@@ -362,13 +422,14 @@ class OfficerFilingControllerImplIT {
     @Test
     void createFilingWhenResignedOnDate300yearsAgoThenResponse400() throws Exception {
         companyProfileApi.setDateOfCreation(LocalDate.of(1721, Month.OCTOBER, 20));
+        companyAppointment.setAppointedOn(LocalDate.of(1721, Month.OCTOBER, 21));
         when(transactionService.getTransaction(any(String.class), any(String.class))).thenReturn(transaction);
         when(companyProfileService.getCompanyProfile(any(String.class), any(String.class), any(String.class))).thenReturn(companyProfileApi);
         when(companyAppointmentService.getCompanyAppointment(any(String.class), any(String.class), any(String.class))).thenReturn(companyAppointment);
 
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "1722-09-13") + "}";
         final var expectedError = createExpectedError(
-                "JSON parse error:", "$..resigned_on", 1, 75);
+            "JSON parse error:", "$..resigned_on", 1, 75);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .requestAttr("token_permissions",tokenPermissions)
@@ -410,7 +471,7 @@ class OfficerFilingControllerImplIT {
     private void response400BaseTest(String replacementString) throws Exception {
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", replacementString) + "}";
         final var expectedError = createExpectedError(
-                "JSON parse error:", "$..resigned_on", 1, 75);
+            "JSON parse error:", "$..resigned_on", 1, 75);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .requestAttr("token_permissions",tokenPermissions)
@@ -433,7 +494,7 @@ class OfficerFilingControllerImplIT {
 
 
     private ApiError createExpectedError(final String msg, final String location, final int line,
-            final int column) {
+        final int column) {
         final var expectedError = new ApiError(msg, location, "json-path", "ch:validation");
 
         expectedError.addErrorValue("offset", String.format("line: %d, column: %d", line, column));
@@ -442,5 +503,4 @@ class OfficerFilingControllerImplIT {
 
         return expectedError;
     }
-
 }

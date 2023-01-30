@@ -129,6 +129,11 @@
             <version>${equalsverifier.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>api-security-java</artifactId>
+            <version>${api-security-java.version}</version>
+        </dependency>
         <!-- Dev Tools -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

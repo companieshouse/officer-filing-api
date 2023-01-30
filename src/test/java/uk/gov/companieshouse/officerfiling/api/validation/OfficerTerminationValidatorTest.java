@@ -10,6 +10,7 @@ import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
@@ -71,18 +72,40 @@ class OfficerTerminationValidatorTest {
         when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
-        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
+        when(companyAppointment.getEtag()).thenReturn("etag");
+
+        when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
 
-        final var apiErrors = officerTerminationValidator.validate(request, dto, TRANS_ID, PASSTHROUGH_HEADER);
+        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
                 .as("No validation errors should have been raised")
                 .isEmpty();
     }
 
     @Test
-    void validationWhenInvalid() {
+    void validationWhenOfficerNotIdentified() {
+        final var dto = OfficerFilingDto.builder()
+            .referenceEtag("etag")
+            .referenceAppointmentId(FILING_ID)
+            .resignedOn(LocalDate.of(2022, 9, 13))
+            .build();
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
+        when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenThrow(
+            new CompanyAppointmentServiceException("Error Retrieving appointment"));
+
+        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+            .as("An error should be produced when an Officer cannot be identified")
+            .hasSize(1)
+            .extracting(ApiError::getError)
+            .contains("Officer not found. Please confirm the details and resubmit");
+    }
+
+    @Test
+    void validationWhenOfficerIdentifiedButFilingInvalid() {
         final var dto = OfficerFilingDto.builder()
                 .referenceEtag("etag")
                 .referenceAppointmentId(FILING_ID)
@@ -90,15 +113,15 @@ class OfficerTerminationValidatorTest {
                 .build();
 
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
-        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
+        when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
 
-        final var apiErrors = officerTerminationValidator.validate(request, dto, TRANS_ID, PASSTHROUGH_HEADER);
+        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
                 .as("Each validation error should have been raised")
-                .hasSize(3)
+                .hasSize(4)
                 .extracting(ApiError::getLocationType, ApiError::getType)
                 .containsOnly(tuple("json-path", "ch:validation"));
     }
@@ -186,6 +209,81 @@ class OfficerTerminationValidatorTest {
         officerTerminationValidator.validateTerminationDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile, companyAppointment);
         assertThat(apiErrorsList)
                 .as("An error should not be produced when resignation date is the creation date")
+                .isEmpty();
+    }
+
+    @Test
+    void validateCompanyNotDissolvedWhenDissolvedDateExists() {
+        when(companyProfile.getDateOfCessation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
+        officerTerminationValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when dissolved date exists")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("You cannot remove an officer from a company that is about to be dissolved");
+    }
+
+    @Test
+    void validateCompanyNotDissolvedWhenStatusIsDissolved() {
+        when(companyProfile.getCompanyStatus()).thenReturn("dissolved");
+        officerTerminationValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when the company has a status of 'dissolved'")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("You cannot remove an officer from a company that has been dissolved");
+    }
+
+    @Test
+    void validateCompanyNotDissolvedWhenValid() {
+        when(companyProfile.getCompanyStatus()).thenReturn("active");
+        officerTerminationValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when the company is active")
+                .isEmpty();
+    }
+
+    @Test
+    void validateTerminationDateAfterAppointmentDateWhenValid() {
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerTerminationValidator.validateTerminationDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when resignation date is after appointment date")
+                .isEmpty();
+    }
+
+    @Test
+    void validateTerminationDateAfterAppointmentDateWhenInvalid() {
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 6));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerTerminationValidator.validateTerminationDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when resignation date is before appointment date")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Date director was removed must be on or after the date the director was appointed");
+    }
+
+    @Test
+    void validateTerminationDateAfterAppointmentDateWhenSameDay() {
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 5));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerTerminationValidator.validateTerminationDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when resignation date is the same day as appointment date")
                 .isEmpty();
     }
 

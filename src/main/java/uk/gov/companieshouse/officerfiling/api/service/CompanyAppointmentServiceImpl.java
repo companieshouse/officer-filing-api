@@ -3,6 +3,7 @@ package uk.gov.companieshouse.officerfiling.api.service;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
@@ -37,7 +38,7 @@ public class CompanyAppointmentServiceImpl implements CompanyAppointmentService{
         try {
             final String uri = "/company/" + companyNumber + "/appointments/" + appointmentId + "/full_record";
             final AppointmentFullRecordAPI companyAppointment =
-                    apiClientService.getInternalApiKeyAuthenticatedClient()
+                    apiClientService.getInternalApiClient(ericPassThroughHeader)
                             .privateDeltaResourceHandler()
                             .getAppointment(uri)
                             .execute()

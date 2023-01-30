@@ -22,6 +22,7 @@ import uk.gov.companieshouse.api.handler.transaction.TransactionsResourceHandler
 import uk.gov.companieshouse.api.handler.transaction.request.TransactionsGet;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.TransactionServiceException;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
@@ -69,7 +70,7 @@ class TransactionServiceImplTest {
         when(transactionsGet.execute()).thenReturn(apiResponse);
         when(transactionsResourceHandler.get("/transactions/" + TRANS_ID)).thenReturn(transactionsGet);
         when(apiClient.transactions()).thenReturn(transactionsResourceHandler);
-        when(apiClientService.getOauthAuthenticatedClient(PASSTHROUGH_HEADER)).thenReturn(apiClient);
+        when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClient);
 
         var transaction = testService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER);
 
@@ -78,7 +79,7 @@ class TransactionServiceImplTest {
 
     @Test
     void getTransactionWhenNotFound() throws IOException, URIValidationException {
-        when(apiClientService.getOauthAuthenticatedClient(PASSTHROUGH_HEADER)).thenThrow(IOException.class);
+        when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenThrow(IOException.class);
 
         assertThrows(TransactionServiceException.class, () -> testService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER));
     }
@@ -89,7 +90,7 @@ class TransactionServiceImplTest {
         when(privateTransactionResourceHandler.patch("/private/transactions/12345", testTransaction)).thenReturn(
                 privateTransactionPatch);
         when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
-        when(apiClientService.getInternalOauthAuthenticatedClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
+        when(apiClientService.getInternalApiClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
 
         when(apiResponseVoid.getStatusCode()).thenReturn(HttpStatusCodes.STATUS_CODE_NO_CONTENT);
         testService.updateTransaction(testTransaction, PASSTHROUGH_HEADER);
@@ -103,7 +104,7 @@ class TransactionServiceImplTest {
         when(privateTransactionResourceHandler.patch("/private/transactions/12345", testTransaction)).thenReturn(
                 privateTransactionPatch);
         when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
-        when(apiClientService.getInternalOauthAuthenticatedClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
+        when(apiClientService.getInternalApiClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
 
         when(apiResponseVoid.getStatusCode()).thenReturn(HttpStatusCodes.STATUS_CODE_NOT_FOUND);
 

@@ -29,6 +29,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -39,6 +40,7 @@ import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.error.InvalidFilingException;
+import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
@@ -96,6 +98,7 @@ class OfficerFilingControllerImplTest {
     void setUp() {
         testController = new OfficerFilingControllerImpl(transactionService, officerFilingService, companyProfileService, companyAppointmentService,
                 filingMapper, clock, logger);
+        ReflectionTestUtils.setField(testController, "isTm01Enabled", true);
         filing = OfficerFiling.builder()
                 .referenceAppointmentId("off-id")
                 .referenceEtag("etag")
@@ -119,21 +122,22 @@ class OfficerFilingControllerImplTest {
         when(dto.getReferenceEtag()).thenReturn(ETAG);
         when(dto.getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2005, 10, 3));
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2007, 10, 5));
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(filingMapper.map(dto)).thenReturn(filing);
         final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
                 .build();
         final var withLinks = OfficerFiling.builder(withFilingId).links(links)
                 .build();
-        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
+        when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
         when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
 
         final var response =
-                testController.createFiling(TRANS_ID, dto, nullBindingResult ? null : result,
+                testController.createFiling(transaction, dto, nullBindingResult ? null : result,
                         request);
 
         // refEq needed to compare Map value objects; Resource does not override equals()
@@ -154,10 +158,11 @@ class OfficerFilingControllerImplTest {
         when(result.getFieldErrors()).thenReturn(errorList);
 
         final var exception = assertThrows(InvalidFilingException.class,
-                () -> testController.createFiling(TRANS_ID, dto, result, request));
+                () -> testController.createFiling(transaction, dto, result, request));
 
         assertThat(exception.getFieldErrors(), contains(fieldErrorWithRejectedValue));
     }
+
 
     private Map<String, Resource> createResources() {
         final Map<String, Resource> resourceMap = new HashMap<>();
@@ -197,12 +202,19 @@ class OfficerFilingControllerImplTest {
     }
 
     @Test
+    void checkTm01FeatureFlagDisabled(){
+        ReflectionTestUtils.setField(testController, "isTm01Enabled", false);
+        assertThrows(FeatureNotEnabledException.class,
+                () -> testController.createFiling(transaction, dto, result, request));
+    }
+
+    @Test
     void doNotCreateFilingWhenRequestHasTooOldDate() {
         when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
-        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
+        when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
         final var officerFilingDto = OfficerFilingDto.builder()
@@ -211,7 +223,7 @@ class OfficerFilingControllerImplTest {
                 .resignedOn(LocalDate.of(1022, 9, 13))
                 .build();
 
-        ResponseEntity<Object> responseEntity = testController.createFiling(TRANS_ID, officerFilingDto, result, request);
+        ResponseEntity<Object> responseEntity = testController.createFiling(transaction, officerFilingDto, result, request);
 
         assertEquals( 400, responseEntity.getStatusCodeValue());
     }
