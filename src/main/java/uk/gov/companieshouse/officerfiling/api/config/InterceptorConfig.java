@@ -44,8 +44,9 @@ public class InterceptorConfig implements WebMvcConfigurer {
     }
     
     private void addTokenPermissionInterceptor(InterceptorRegistry registry) {
+        //Just check the non private endpoints. Private endpoints use API keys rather than OAuth2
         registry.addInterceptor(tokenPermissionInterceptor())
-            .addPathPatterns(TRANSACTIONS_LIST);
+            .addPathPatterns(TRANSACTIONS);
     }
 
     @Bean
