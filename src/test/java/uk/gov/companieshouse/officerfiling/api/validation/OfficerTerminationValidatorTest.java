@@ -76,7 +76,6 @@ class OfficerTerminationValidatorTest {
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
         when(companyAppointment.getEtag()).thenReturn("etag");
 
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
 
@@ -95,7 +94,6 @@ class OfficerTerminationValidatorTest {
             .build();
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenThrow(
             new CompanyAppointmentServiceException("Error Retrieving appointment"));
@@ -120,7 +118,6 @@ class OfficerTerminationValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
 

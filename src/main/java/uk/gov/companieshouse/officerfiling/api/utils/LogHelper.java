@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.logging.util.LogContext;
+import uk.gov.companieshouse.logging.util.LogContextProperties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -11,15 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 public final class LogHelper {
 
     private enum Key {
-        MESSAGE,
-        START,
-        END,
-        DURATION,
-        STATUS,
-        METHOD,
-        PATH,
         OFFSET,
-        IDENTITY,
         TRANSACTION_ID,
         FILING_ID,
         COMPANY_NUMBER,
@@ -57,44 +51,44 @@ public final class LogHelper {
          * Set default logging fields from the request
          */
         public Builder withRequest(HttpServletRequest request) {
-            addToLogMap(Key.PATH, request.getRequestURI());
-            addToLogMap(Key.IDENTITY, request.getRemoteUser());
-            addToLogMap(Key.METHOD, request.getMethod());
+            addToLogMap(LogContextProperties.REQUEST_PATH_KEY, request.getRequestURI());
+            addToLogMap(LogContextProperties.USER_ID_KEY, request.getRemoteUser());
+            addToLogMap(LogContextProperties.REQUEST_METHOD_KEY, request.getMethod());
             return this;
         }
 
         public Builder withMessage(String message) {
-            addToLogMap(Key.MESSAGE, message);
+            addToLogMap(LogContextProperties.LOG_MSG_KEY, message);
             return this;
         }
 
         public Builder withStart(String start) {
-            addToLogMap(Key.START, start);
+            addToLogMap(LogContextProperties.START_TIME_KEY, start);
             return this;
         }
 
         public Builder withEnd(String end) {
-            addToLogMap(Key.END, end);
+            addToLogMap(LogContextProperties.END_TIME_KEY, end);
             return this;
         }
 
         public Builder withDuration(String duration) {
-            addToLogMap(Key.DURATION, duration);
+            addToLogMap(LogContextProperties.RESPONSE_TIME_KEY, duration);
             return this;
         }
 
         public Builder withStatus(String status) {
-            addToLogMap(Key.STATUS, status);
+            addToLogMap(LogContextProperties.STATUS_CODE_KEY, status);
             return this;
         }
 
         public Builder withMethod(String method) {
-            addToLogMap(Key.METHOD, method);
+            addToLogMap(LogContextProperties.REQUEST_METHOD_KEY, method);
             return this;
         }
 
         public Builder withPath(String path) {
-            addToLogMap(Key.PATH, path);
+            addToLogMap(LogContextProperties.REQUEST_PATH_KEY, path);
             return this;
         }
 
@@ -104,7 +98,7 @@ public final class LogHelper {
         }
 
         public Builder withIdentity(String identity) {
-            addToLogMap(Key.IDENTITY, identity);
+            addToLogMap(LogContextProperties.USER_ID_KEY, identity);
             return this;
         }
 
@@ -132,6 +126,13 @@ public final class LogHelper {
                 return;
             }
             logMap.put(key.name(), field);
+        }
+
+        private void addToLogMap(LogContextProperties key, String field) {
+            if (field == null || field.isBlank()) {
+                return;
+            }
+            logMap.put(key.value(), field);
         }
     }
 

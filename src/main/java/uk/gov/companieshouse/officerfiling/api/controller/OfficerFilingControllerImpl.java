@@ -84,7 +84,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     public ResponseEntity<Object> createFiling(@RequestAttribute("transaction") Transaction transaction,
             @RequestBody @Valid @NotNull final OfficerFilingDto dto,
             final BindingResult bindingResult, final HttpServletRequest request) {
-        logger.debugContext(transaction.getId(), "POST", new LogHelper.Builder(transaction)
+        logger.debugContext(transaction.getId(), "Creating Filing", new LogHelper.Builder(transaction)
                 .withRequest(request)
                 .build());
 

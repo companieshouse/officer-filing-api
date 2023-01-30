@@ -39,7 +39,7 @@ public class FilingDataControllerImpl implements FilingDataController {
     public List<FilingApi> getFilingsData(@PathVariable("transactionId") final String transId,
             @PathVariable("filingResourceId") final String filingResourceId,
             final HttpServletRequest request) {
-        logger.debugContext(transId, "GET /private/transactions/{transId}/officers{filingId}/filings", new LogHelper.Builder(transId)
+        logger.debugContext(transId, "Getting filing data", new LogHelper.Builder(transId)
                         .withFilingId(filingResourceId)
                         .withRequest(request)
                         .build());
