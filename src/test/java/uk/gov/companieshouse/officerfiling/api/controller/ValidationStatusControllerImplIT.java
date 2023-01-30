@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.companieshouse.officerfiling.api.controller.OfficerFilingControllerImplIT.tokenPermissions;
 
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
@@ -63,7 +64,8 @@ class ValidationStatusControllerImplIT {
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
 
         mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID, request)
-            .headers(httpHeaders))
+            .headers(httpHeaders)
+            .requestAttr("token_permissions",tokenPermissions))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.is_valid", is(true)));
@@ -74,7 +76,8 @@ class ValidationStatusControllerImplIT {
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID, request)
-                        .headers(httpHeaders))
+                        .headers(httpHeaders)
+                        .requestAttr("token_permissions",tokenPermissions))
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$").doesNotExist());

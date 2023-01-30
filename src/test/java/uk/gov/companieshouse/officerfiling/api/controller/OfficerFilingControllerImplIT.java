@@ -348,7 +348,8 @@ class OfficerFilingControllerImplIT {
         when(filingMapper.map(filing)).thenReturn(dto);
 
         mockMvc.perform(get("/transactions/{id}/officers/{filingId}", TRANS_ID, FILING_ID)
-                .headers(httpHeaders))
+                .headers(httpHeaders)
+                .requestAttr("token_permissions",tokenPermissions))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.reference_etag", is("etag")))

@@ -11,7 +11,7 @@ import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 
 @Configuration
-@ComponentScan("uk.gov.companieshouse.api")
+@ComponentScan(basePackages = {"uk.gov.companieshouse.api", "uk.gov.companieshouse.officerfiling.api"})
 public class InterceptorConfig implements WebMvcConfigurer {
 
     private static final String TRANSACTIONS = "/transactions/**";
@@ -57,8 +57,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
     public OpenTransactionInterceptor openTransactionInterceptor() {
         return new OpenTransactionInterceptor();
     }
-    
-    @Bean
+
     public TokenPermissionInterceptor tokenPermissionInterceptor() {
         return new TokenPermissionInterceptor();
     }

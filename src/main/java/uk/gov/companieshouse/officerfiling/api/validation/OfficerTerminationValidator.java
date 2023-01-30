@@ -67,7 +67,7 @@ public class OfficerTerminationValidator {
         }
 
         // Perform validation
-        validateSubmissionInformationInDate(request, dto, companyAppointment, errorList);
+        validateSubmissionInformationInDate(request, dto, companyAppointment.get(), errorList);
         validateMinResignationDate(request, errorList, dto);
         validateSubmissionInformationInDate(request, dto, companyAppointment.get(), errorList);
         validateCompanyNotDissolved(request, errorList, companyProfile);
@@ -95,10 +95,6 @@ public class OfficerTerminationValidator {
         String requestEtag = dto.getReferenceEtag();
 
         if(!Objects.equals(requestEtag, companyAppointmentEtag)) {
-            final ApiError error = new ApiError("The Officers information is out of date. Please start the process again and make a new submission",
-                    request.getRequestURI(),
-                    LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
-            errorList.add(error);
             createValidationError(request, errorList,"The Officers information is out of date. Please start the process again and make a new submission");
         }
     }

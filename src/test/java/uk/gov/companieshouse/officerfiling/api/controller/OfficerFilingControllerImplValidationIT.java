@@ -303,7 +303,8 @@ class OfficerFilingControllerImplValidationIT {
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
-                        .headers(httpHeaders))
+                        .headers(httpHeaders)
+                        .requestAttr("token_permissions",tokenPermissions))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors", hasSize(1)))
@@ -326,7 +327,8 @@ class OfficerFilingControllerImplValidationIT {
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
-                        .headers(httpHeaders))
+                        .headers(httpHeaders)
+                        .requestAttr("token_permissions",tokenPermissions))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors", hasSize(1)))
@@ -349,13 +351,14 @@ class OfficerFilingControllerImplValidationIT {
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                 .contentType("application/json")
-                .headers(httpHeaders))
+                .headers(httpHeaders)
+                .requestAttr("token_permissions",tokenPermissions))
             .andDo(print())
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.errors", hasSize(1)))
             .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
             .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
             .andExpect(jsonPath("$.errors[0].error",
-                containsString("The Officers information is out of date. Please start the process again and make a new submission")));
+                containsString("Officer not found. Please confirm the details and resubmit")));
     }
 }
