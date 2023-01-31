@@ -154,7 +154,7 @@ class OfficerFilingControllerImplIT {
             .build();
 
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
-        when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
         when(filingMapper.map(dto)).thenReturn(filing);
         when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
@@ -366,7 +366,7 @@ class OfficerFilingControllerImplIT {
                 .build()); // copy of first argument
         when(clock.instant()).thenReturn(FIRST_INSTANT);
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
-        when(companyAppointmentService.getCompanyAppointment(COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
@@ -395,7 +395,7 @@ class OfficerFilingControllerImplIT {
         companyAppointment.setAppointedOn(LocalDate.of(1721, Month.OCTOBER, 21));
         when(transactionService.getTransaction(any(String.class), any(String.class))).thenReturn(transaction);
         when(companyProfileService.getCompanyProfile(any(String.class), any(String.class), any(String.class))).thenReturn(companyProfileApi);
-        when(companyAppointmentService.getCompanyAppointment(any(String.class), any(String.class), any(String.class))).thenReturn(companyAppointment);
+        when(companyAppointmentService.getCompanyAppointment(any(String.class), any(String.class), any(String.class), any(String.class))).thenReturn(companyAppointment);
 
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "1722-09-13") + "}";
         final var expectedError = createExpectedError(

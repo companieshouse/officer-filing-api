@@ -13,7 +13,7 @@ public interface CompanyAppointmentService {
      * @return the appointment if found
      * @throws CompanyAppointmentServiceException if Transaction not found or an error occurred
      */
-    AppointmentFullRecordAPI getCompanyAppointment(String companyNumber, String appointmentId,
+    AppointmentFullRecordAPI getCompanyAppointment(String transactionId, String companyNumber, String appointmentId,
                                                    final String ericPassThroughHeader)
             throws CompanyAppointmentServiceException;
 

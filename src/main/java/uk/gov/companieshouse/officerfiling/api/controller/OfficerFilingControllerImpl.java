@@ -84,9 +84,9 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     public ResponseEntity<Object> createFiling(@RequestAttribute("transaction") Transaction transaction,
             @RequestBody @Valid @NotNull final OfficerFilingDto dto,
             final BindingResult bindingResult, final HttpServletRequest request) {
-        final var logMap = LogHelper.createLogMap(transaction.getId());
-
-        logger.debugRequest(request, "POST", logMap);
+        logger.debugContext(transaction.getId(), "Creating Filing", new LogHelper.Builder(transaction)
+                .withRequest(request)
+                .build());
 
         if(!isTm01Enabled){
             throw new FeatureNotEnabledException();
@@ -98,14 +98,13 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
         final var passthroughHeader =
                     request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
-
         final var validator = new OfficerTerminationValidator(logger, transactionService, companyProfileService, companyAppointmentService);
         final ApiErrors validationErrors = validator.validate(request, dto, transaction, passthroughHeader);
         if(validationErrors.hasErrors()) {
             return ResponseEntity.badRequest().body(validationErrors);
         }
         final var entity = filingMapper.map(dto);
-        final var links = saveFilingWithLinks(entity, transaction.getId(), request, logMap);
+        final var links = saveFilingWithLinks(entity, transaction, request);
         final var resourceMap = buildResourceMap(links);
 
         transaction.setResources(resourceMap);
@@ -151,17 +150,18 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         return resourceMap;
     }
 
-    private Links saveFilingWithLinks(final OfficerFiling entity, final String transId,
-            final HttpServletRequest request, final Map<String, Object> logMap) {
-        final var saved = officerFilingService.save(entity, transId);
+    private Links saveFilingWithLinks(final OfficerFiling entity, final Transaction transaction,
+            final HttpServletRequest request) {
+        final var saved = officerFilingService.save(entity, transaction.getId());
         final var links = buildLinks(saved, request);
         final var updated = OfficerFiling.builder(saved).links(links)
                 .build();
-        final var resaved = officerFilingService.save(updated, transId);
+        final var resaved = officerFilingService.save(updated, transaction.getId());
 
-        logMap.put("filing_id", resaved.getId());
-        logger.infoContext(transId, "Filing saved", logMap);
-
+        logger.infoContext(transaction.getId(), "Filing saved", new LogHelper.Builder(transaction)
+                        .withFilingId(resaved.getId())
+                        .withRequest(request)
+                        .build());
         return links;
     }
 
