@@ -25,13 +25,15 @@ import uk.gov.companieshouse.officerfiling.api.OfficerFilingApiApplication;
 
 
 @Component
-public class TokenPermissionInterceptor implements HandlerInterceptor {
+public class OfficersCRUDAuthenticationInterceptor implements HandlerInterceptor {
 
     private static final Logger logger = LoggerFactory.getLogger(OfficerFilingApiApplication.APP_NAMESPACE);
     /**
      * Pre handle method to authorize the request before it reaches the controller. Retrieves the
      * TokenPermissions stored in the request (which must have been previously added by the
-     * TokenPermissionsInterceptor) and checks the relevant permissions
+     * TokenPermissionsInterceptor) and checks the relevant permissions.
+     * TODO this will be replaced once the CRUDAuthenticationInterceptor has been updated to fit
+     * the officer filing API authorisation model.
      */
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request,
@@ -48,7 +50,7 @@ public class TokenPermissionInterceptor implements HandlerInterceptor {
         // TokenPermissions should have been set up in the request by TokenPermissionsInterceptor
         final var tokenPermissions = getTokenPermissions(request)
                 .orElseThrow(() -> new IllegalStateException(
-                        "TokenPermissionInterceptor - TokenPermissions object not present in request"));
+                        "OfficersCRUDAuthenticationInterceptor - TokenPermissions object not present in request"));
 
         // Check the user has the company_officers=delete permission
         boolean hasCompanyOfficersDeletePermission = tokenPermissions.hasPermission(
@@ -68,12 +70,12 @@ public class TokenPermissionInterceptor implements HandlerInterceptor {
 
         if (hasCompanyOfficersDeletePermission && hasCompanyOfficersReadProtectedPermission) {
             logger.debugContext(reqId,
-                    "TokenPermissionInterceptor authorised with company_officers=readprotected and company_officers=delete permissions",
+                    "OfficersCRUDAuthenticationInterceptor authorised with company_officers=readprotected and company_officers=delete permissions",
                     authInfoMap);
             return true;
         }
 
-        logger.errorContext(reqId, "TokenPermissionInterceptor unauthorised", null,
+        logger.errorContext(reqId, "OfficersCRUDAuthenticationInterceptor unauthorised", null,
                 authInfoMap);
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         return false;

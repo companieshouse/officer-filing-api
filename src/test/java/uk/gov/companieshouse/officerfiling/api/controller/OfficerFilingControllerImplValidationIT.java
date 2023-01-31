@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.companieshouse.officerfiling.api.controller.OfficerFilingControllerImplIT.tokenPermissions;
 import java.io.IOException;
 import java.net.URI;
 import java.time.Clock;
@@ -98,6 +97,7 @@ class OfficerFilingControllerImplValidationIT {
     void setUp() throws IOException, URIValidationException {
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
+        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete");
 
         transaction = new Transaction();
         transaction.setCompanyNumber(COMPANY_NUMBER);
@@ -122,7 +122,6 @@ class OfficerFilingControllerImplValidationIT {
         final var body = "{" + TM01_FRAGMENT.replace("ETAG", "") + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                        .requestAttr("token_permissions",tokenPermissions)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
@@ -141,7 +140,6 @@ class OfficerFilingControllerImplValidationIT {
         final var body = "{" + TM01_FRAGMENT.replace(FILING_ID, "") + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                .requestAttr("token_permissions",tokenPermissions)
                 .contentType("application/json")
                 .headers(httpHeaders))
             .andDo(print())
@@ -160,7 +158,6 @@ class OfficerFilingControllerImplValidationIT {
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "") + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                        .requestAttr("token_permissions",tokenPermissions)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
@@ -182,7 +179,6 @@ class OfficerFilingControllerImplValidationIT {
                 + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                        .requestAttr("token_permissions",tokenPermissions)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
@@ -210,7 +206,6 @@ class OfficerFilingControllerImplValidationIT {
                 + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                        .requestAttr("token_permissions",tokenPermissions)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
@@ -234,7 +229,6 @@ class OfficerFilingControllerImplValidationIT {
                 + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                        .requestAttr("token_permissions",tokenPermissions)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
@@ -257,7 +251,6 @@ class OfficerFilingControllerImplValidationIT {
                 + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                        .requestAttr("token_permissions",tokenPermissions)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
@@ -278,7 +271,6 @@ class OfficerFilingControllerImplValidationIT {
         final var body = "{" + TM01_FRAGMENT.replace("ETAG", "invalid") + "}";
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                .requestAttr("token_permissions",tokenPermissions)
                             .contentType("application/json")
                             .headers(httpHeaders))
                     .andDo(print())
@@ -303,8 +295,7 @@ class OfficerFilingControllerImplValidationIT {
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
-                        .headers(httpHeaders)
-                        .requestAttr("token_permissions",tokenPermissions))
+                        .headers(httpHeaders))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors", hasSize(1)))
@@ -327,8 +318,7 @@ class OfficerFilingControllerImplValidationIT {
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
-                        .headers(httpHeaders)
-                        .requestAttr("token_permissions",tokenPermissions))
+                        .headers(httpHeaders))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors", hasSize(1)))
@@ -351,8 +341,7 @@ class OfficerFilingControllerImplValidationIT {
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                 .contentType("application/json")
-                .headers(httpHeaders)
-                .requestAttr("token_permissions",tokenPermissions))
+                .headers(httpHeaders))
             .andDo(print())
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.errors", hasSize(1)))

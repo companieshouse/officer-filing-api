@@ -6,7 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import uk.gov.companieshouse.officerfiling.api.interceptor.TokenPermissionInterceptor;
+import uk.gov.companieshouse.api.interceptor.TokenPermissionsInterceptor;
+import uk.gov.companieshouse.officerfiling.api.interceptor.OfficersCRUDAuthenticationInterceptor;
 import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 
@@ -44,8 +45,9 @@ public class InterceptorConfig implements WebMvcConfigurer {
     }
     
     private void addTokenPermissionInterceptor(InterceptorRegistry registry) {
+        registry.addInterceptor(tokenPermissionsInterceptor());
         //Just check the non private endpoints. Private endpoints use API keys rather than OAuth2
-        registry.addInterceptor(tokenPermissionInterceptor())
+        registry.addInterceptor(officersCRUDAuthenticationInterceptor())
             .addPathPatterns(TRANSACTIONS);
     }
 
@@ -59,7 +61,11 @@ public class InterceptorConfig implements WebMvcConfigurer {
         return new OpenTransactionInterceptor();
     }
 
-    public TokenPermissionInterceptor tokenPermissionInterceptor() {
-        return new TokenPermissionInterceptor();
+    public OfficersCRUDAuthenticationInterceptor officersCRUDAuthenticationInterceptor() {
+        return new OfficersCRUDAuthenticationInterceptor();
+    }
+
+    public TokenPermissionsInterceptor tokenPermissionsInterceptor() {
+        return new TokenPermissionsInterceptor();
     }
 }
