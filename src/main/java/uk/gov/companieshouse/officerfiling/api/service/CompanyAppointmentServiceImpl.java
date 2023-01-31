@@ -31,9 +31,8 @@ public class CompanyAppointmentServiceImpl implements CompanyAppointmentService{
      * @return the appointment if found
      * @throws CompanyAppointmentServiceException if not found or an error occurred
      */
-
     @Override
-    public AppointmentFullRecordAPI getCompanyAppointment(String companyNumber, String appointmentId,
+    public AppointmentFullRecordAPI getCompanyAppointment(String transactionId, String companyNumber, String appointmentId,
                                                           final String ericPassThroughHeader) throws CompanyAppointmentServiceException {
         try {
             final String uri = "/company/" + companyNumber + "/appointments/" + appointmentId + "/full_record";
@@ -43,15 +42,15 @@ public class CompanyAppointmentServiceImpl implements CompanyAppointmentService{
                             .getAppointment(uri)
                             .execute()
                             .getData();
-            final Map<String, Object> logMap = LogHelper.createLogMap(companyNumber, appointmentId);
-            logMap.put("company_number", companyNumber);
-            logMap.put("appointment_Id", appointmentId);
-            logger.debugContext(appointmentId, "Retrieved company appointment details", logMap);
+            logger.debugContext(transactionId, "Retrieved company appointment details", new LogHelper.Builder(transactionId)
+                    .withFilingId(appointmentId)
+                    .withCompanyNumber(companyNumber)
+                    .withCompanyName(companyAppointment.getName())
+                    .build());
             return companyAppointment;
         }
         catch (final URIValidationException | IOException e) {
-            throw new CompanyAppointmentServiceException("Error Retrieving appointment " + appointmentId + " for company " + companyNumber,
-                    e);
+            throw new CompanyAppointmentServiceException("Error Retrieving appointment " + appointmentId + " for company " + companyNumber, e);
         }
     }
 }

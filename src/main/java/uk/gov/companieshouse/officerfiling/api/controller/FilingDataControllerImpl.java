@@ -30,27 +30,27 @@ public class FilingDataControllerImpl implements FilingDataController {
      * Filings.
      *
      * @param transId        the Transaction ID
-     * @param filingResource the Filing Resource ID
+     * @param filingResourceId the Filing Resource ID
      * @param request        the servlet request
      * @return List of FilingApi resources
      */
     @Override
     @GetMapping(value = "/{filingResourceId}/filings", produces = {"application/json"})
     public List<FilingApi> getFilingsData(@PathVariable("transactionId") final String transId,
-            @PathVariable("filingResourceId") final String filingResource,
+            @PathVariable("filingResourceId") final String filingResourceId,
             final HttpServletRequest request) {
-        final var logMap = LogHelper.createLogMap(transId, filingResource);
+        logger.debugContext(transId, "Getting filing data", new LogHelper.Builder(transId)
+                        .withFilingId(filingResourceId)
+                        .withRequest(request)
+                        .build());
 
-        logger.debugRequest(request,
-                "GET /private/transactions/{transactionId}/officers{filingId}/filings", logMap);
+        final var passthroughHeader = request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
+        final var filingApi = filingDataService.generateOfficerFiling(transId, filingResourceId, passthroughHeader);
 
-        final var passthroughHeader =
-                request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
-
-        final var filingApi = filingDataService.generateOfficerFiling(transId, filingResource, passthroughHeader);
-
-        logMap.put("officer filing:", filingApi);
-        logger.infoContext(transId, "Officer filing data", logMap);
+        logger.infoContext(transId, "Generated Officer filing Data", new LogHelper.Builder(transId)
+                .withFilingId(filingResourceId)
+                .withRequest(request)
+                .build());
 
         return List.of(filingApi);
     }

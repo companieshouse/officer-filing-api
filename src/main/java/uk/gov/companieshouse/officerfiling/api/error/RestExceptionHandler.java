@@ -31,6 +31,7 @@ import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.exception.TransactionServiceException;
+import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 /**
  * Handle exceptions caused by client REST requests, propagated from Spring or the service
@@ -130,7 +131,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(final Exception ex, final Object body,
             final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
-        chLogger.error("INTERNAL ERROR", ex);
+        logError(request, "INTERNAL ERROR", ex);
         final var error = new ApiError(ex.getMessage(), getRequestURI(request),
                 LocationType.RESOURCE.getValue(), ErrorType.SERVICE.getType());
         Optional.ofNullable(ex.getCause())
@@ -147,7 +148,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseBody
     public ApiErrors handleAllUncaughtException(final RuntimeException ex,
             final WebRequest request) {
-        chLogger.error("Unknown error occurred", ex);
+        logError(request, "Unknown error occurred", ex);
         final var error = new ApiError(ex.getMessage(), getRequestURI(request),
                 LocationType.RESOURCE.getValue(), ErrorType.SERVICE.getType());
         Optional.ofNullable(ex.getCause())
@@ -200,14 +201,19 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         logError(request, msg, ex, null);
     }
 
-    private void logError(WebRequest request, String msg, Exception ex,
-            @Nullable List<ApiError> apiErrorList) {
-        final Map<String, Object> logMap = new HashMap<>();
+    private void logError(WebRequest request, String msg, Exception ex, @Nullable List<ApiError> apiErrorList) {
         final var servletRequest = ((ServletWebRequest) request).getRequest();
-        logMap.put("path", servletRequest.getRequestURI());
-        logMap.put("method", servletRequest.getMethod());
-        Optional.ofNullable(apiErrorList).ifPresent(l -> logMap.put("errors", l));
-        chLogger.error(msg, ex, logMap);
+
+        if (apiErrorList != null && !apiErrorList.isEmpty()) {
+            msg += apiErrorList.stream()
+                    .map(apiError -> " - " + apiError.getErrorValues())
+                    .collect(Collectors.joining());
+        }
+
+        chLogger.errorRequest(servletRequest, ex, new LogHelper.Builder("") // transaction ID not available here for context
+                .withMessage(msg)
+                .withRequest(servletRequest)
+                .build());
     }
 
 }

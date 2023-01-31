@@ -29,10 +29,9 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
      */
     @Override
     public OfficerFiling save(final OfficerFiling filing, final String transactionId) {
-        final var logMap = LogHelper.createLogMap(transactionId, filing.getId());
-
-        logger.debugContext(transactionId, "saving officer filing", logMap);
-
+        logger.debugContext(transactionId, "saving officer filing", new LogHelper.Builder(transactionId)
+                .withFilingId(filing.getId())
+                .build());
         return repository.save(filing);
     }
 
@@ -45,10 +44,9 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
      */
     @Override
     public Optional<OfficerFiling> get(String officerFilingId, String transactionId) {
-        final var logMap = LogHelper.createLogMap(transactionId, officerFilingId);
-
-        logger.debugContext(transactionId, "getting officer filing", logMap);
-
+        logger.debugContext(transactionId, "getting officer filing", new LogHelper.Builder(transactionId)
+                .withFilingId(officerFilingId)
+                .build());
         return repository.findById(officerFilingId);
     }
 

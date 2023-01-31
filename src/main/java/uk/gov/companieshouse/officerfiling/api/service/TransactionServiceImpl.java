@@ -43,10 +43,8 @@ public class TransactionServiceImpl implements TransactionService {
                             .get(uri)
                             .execute()
                             .getData();
-            final var logMap = LogHelper.createLogMap(transactionId);
-            logMap.put("company_number", transaction.getCompanyNumber());
-            logMap.put("company_name", transaction.getCompanyName());
-            logger.debugContext(transactionId, "Retrieved transaction details", logMap);
+            logger.debugContext(transactionId, "Retrieved transaction details", new LogHelper.Builder(transaction)
+                    .build());
             return transaction;
         }
         catch (final URIValidationException | IOException e) {
@@ -65,9 +63,9 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void updateTransaction(final Transaction transaction, final String ericPassThroughHeader)
             throws TransactionServiceException {
-        final var logMap = LogHelper.createLogMap(transaction.getId());
         try {
-            logger.debugContext(transaction.getId(), "Updating transaction", logMap);
+            logger.debugContext(transaction.getId(), "Updating transaction", new LogHelper.Builder(transaction)
+                    .build());
             final var uri = PREFIX_PRIVATE + "/transactions/" + transaction.getId();
             final var resp =
                     apiClientService.getInternalApiClient(ericPassThroughHeader)
@@ -80,7 +78,6 @@ public class TransactionServiceImpl implements TransactionService {
             }
         }
         catch (final IOException | URIValidationException e) {
-            logger.errorContext(transaction.getId(), "Invalid Status Code received", e, logMap);
             throw new TransactionServiceException(
                     "Error Updating Transaction " + transaction.getId(), e);
         }

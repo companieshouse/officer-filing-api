@@ -31,7 +31,7 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
      * Provisional behaviour: return TRUE response until details of requirements known.
      *
      * @param transId        the Transaction ID
-     * @param filingResource the Filing resource ID
+     * @param filingResourceId the Filing resource ID
      * @param request        the servlet request
      * @return ValidationResponse of TRUE (provisional)
      */
@@ -40,15 +40,15 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/{filingResourceId}/validation_status", produces = {"application/json"})
     public ValidationStatusResponse validate(@PathVariable("transactionId") final String transId,
-            @PathVariable("filingResourceId") final String filingResource,
+            @PathVariable("filingResourceId") final String filingResourceId,
             final HttpServletRequest request) {
 
-        final var logMap = LogHelper.createLogMap(transId, filingResource);
-        logMap.put("path", request.getRequestURI());
-        logMap.put("method", request.getMethod());
-        logger.debugRequest(request, "GET validation request", logMap);
+        logger.debugContext(transId, "GET validation request", new LogHelper.Builder(transId)
+                .withFilingId(filingResourceId)
+                .withRequest(request)
+                .build());
 
-        var maybeOfficerFiling = officerFilingService.get(filingResource, transId);
+        var maybeOfficerFiling = officerFilingService.get(filingResourceId, transId);
 
         return maybeOfficerFiling.map(this::isValid).orElseThrow(ResourceNotFoundException::new);
     }

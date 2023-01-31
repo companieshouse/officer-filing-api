@@ -41,9 +41,10 @@ public class CompanyProfileServiceImpl implements CompanyProfileService {
                             .get(uri)
                             .execute()
                             .getData();
-            final Map<String, Object> logMap = LogHelper.createLogMap(transactionId);
-            logMap.put("company_number", companyNumber);
-            logger.debugContext(companyNumber, "Retrieved company profile details", logMap);
+            logger.debugContext(transactionId, "Retrieved company profile details", new LogHelper.Builder(transactionId)
+                    .withCompanyNumber(companyNumber)
+                    .withCompanyName(companyProfile.getCompanyName())
+                    .build());
             return companyProfile;
         }
         catch (final URIValidationException | IOException e) {
