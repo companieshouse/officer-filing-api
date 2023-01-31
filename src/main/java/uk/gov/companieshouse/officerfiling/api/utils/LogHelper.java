@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.utils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.stereotype.Component;
@@ -118,7 +119,7 @@ public final class LogHelper {
         }
 
         public Map<String, Object> build() {
-            return logMap;
+            return Collections.unmodifiableMap(logMap);
         }
         
         private void addToLogMap(Key key, String field) {
