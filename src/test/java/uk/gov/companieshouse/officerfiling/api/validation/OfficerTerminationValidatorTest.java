@@ -216,6 +216,26 @@ class OfficerTerminationValidatorTest {
     }
 
     @Test
+    void validationAlreadyResigned() {
+        when(companyAppointment.getResignedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 5));
+        when(companyAppointment.getName()).thenReturn("Vhagar Dragon");
+        officerTerminationValidator.validateOfficerIsNotTerminated(request, apiErrorsList,companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when an officer has already resigned")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("An application to remove Vhagar Dragon has already been submitted");
+    }
+
+    @Test
+    void validationNotAlreadyResigned() {
+        when(companyAppointment.getResignedOn()).thenReturn(null);
+        officerTerminationValidator.validateOfficerIsNotTerminated(request, apiErrorsList,companyAppointment);
+        assertThat(apiErrorsList)
+                .as("No error should be produced if an officer has not already resigned")
+                .isEmpty();
+    }
+
     void validateCompanyNotDissolvedWhenDissolvedDateExists() {
         when(companyProfile.getDateOfCessation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
         officerTerminationValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);

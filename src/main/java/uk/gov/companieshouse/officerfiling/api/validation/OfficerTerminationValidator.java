@@ -73,6 +73,7 @@ public class OfficerTerminationValidator {
         validateCompanyNotDissolved(request, errorList, companyProfile);
         validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment.get());
         validateTerminationDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
+        validateOfficerIsNotTerminated(request,errorList,companyAppointment.get());
 
         return new ApiErrors(errorList);
     }
@@ -109,6 +110,20 @@ public class OfficerTerminationValidator {
     public void validateTerminationDateAfterIncorporationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, CompanyProfileApi companyProfile, AppointmentFullRecordAPI companyAppointment) {
         if (dto.getResignedOn().isBefore(companyProfile.getDateOfCreation())) {
             createValidationError(request, errorList, companyAppointment.getName() + " has not been found");
+        }
+    }
+
+    /**
+     * Check to ensure an request isn't being filed for an officer who has already resigned.
+     * Used for Validation rules D19_9A/D19_9
+     * @param request
+     * @param errorList
+     * @param companyAppointment
+     */
+    public void validateOfficerIsNotTerminated(HttpServletRequest request, List<ApiError> errorList, AppointmentFullRecordAPI companyAppointment){
+        if(companyAppointment.getResignedOn() != null){
+            createValidationError(request, errorList, "An application to remove " +
+                    companyAppointment.getName() + " has already been submitted");
         }
     }
 
