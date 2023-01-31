@@ -47,7 +47,7 @@ public class FilingDataControllerImpl implements FilingDataController {
         final var passthroughHeader = request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
         final var filingApi = filingDataService.generateOfficerFiling(transId, filingResourceId, passthroughHeader);
 
-        logger.infoContext(transId, "Generated Officer filing Data", new LogHelper.Builder(transId)
+        logger.infoContext(transId, "Generated officer filing data", new LogHelper.Builder(transId)
                 .withFilingId(filingResourceId)
                 .withRequest(request)
                 .build());

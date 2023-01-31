@@ -48,7 +48,7 @@ public class TransactionServiceImpl implements TransactionService {
             return transaction;
         }
         catch (final URIValidationException | IOException e) {
-            throw new TransactionServiceException("Error Retrieving Transaction " + transactionId,
+            throw new TransactionServiceException("Error retrieving transaction " + transactionId,
                     e);
         }
     }
@@ -79,7 +79,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
         catch (final IOException | URIValidationException e) {
             throw new TransactionServiceException(
-                    "Error Updating Transaction " + transaction.getId(), e);
+                    "Error updating transaction " + transaction.getId(), e);
         }
     }
 
