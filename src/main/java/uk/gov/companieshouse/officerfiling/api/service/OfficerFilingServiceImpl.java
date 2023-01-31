@@ -29,7 +29,7 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
      */
     @Override
     public OfficerFiling save(final OfficerFiling filing, final String transactionId) {
-        logger.debugContext(transactionId, "saving officer filing", new LogHelper.Builder(transactionId)
+        logger.debugContext(transactionId, "Saving officer filing", new LogHelper.Builder(transactionId)
                 .withFilingId(filing.getId())
                 .build());
         return repository.save(filing);
@@ -44,7 +44,7 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
      */
     @Override
     public Optional<OfficerFiling> get(String officerFilingId, String transactionId) {
-        logger.debugContext(transactionId, "getting officer filing", new LogHelper.Builder(transactionId)
+        logger.debugContext(transactionId, "Getting officer filing", new LogHelper.Builder(transactionId)
                 .withFilingId(officerFilingId)
                 .build());
         return repository.findById(officerFilingId);

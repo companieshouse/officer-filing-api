@@ -56,7 +56,7 @@ public class OfficerTerminationValidator {
      * @return An object containing a list of any validation errors that have been raised
      */
     public ApiErrors validate(HttpServletRequest request, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
-            logger.debugContext(transaction.getId(), "Beginning Officer Termination Validation", new LogHelper.Builder(transaction)
+            logger.debugContext(transaction.getId(), "Beginning officer termination validation", new LogHelper.Builder(transaction)
                 .withRequest(request)
                 .build());
         List<ApiError> errorList = new ArrayList<>();
