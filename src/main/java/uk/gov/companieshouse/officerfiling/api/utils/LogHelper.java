@@ -119,7 +119,7 @@ public final class LogHelper {
         }
 
         public Map<String, Object> build() {
-            return Collections.unmodifiableMap(logMap);
+            return logMap;
         }
         
         private void addToLogMap(Key key, String field) {
