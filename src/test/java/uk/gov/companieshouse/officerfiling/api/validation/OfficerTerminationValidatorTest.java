@@ -362,5 +362,4 @@ class OfficerTerminationValidatorTest {
                 .extracting(ApiError::getError)
                 .contains("You cannot remove an officer from a invalid-type using this service");
     }
-
 }

@@ -70,6 +70,7 @@ public class OfficerTerminationValidator {
         }
 
         // Perform validation
+        validateSubmissionInformationInDate(request, dto, companyAppointment.get(), errorList);
         validateMinResignationDate(request, errorList, dto);
         validateSubmissionInformationInDate(request, dto, companyAppointment.get(), errorList);
         validateCompanyNotDissolved(request, errorList, companyProfile);

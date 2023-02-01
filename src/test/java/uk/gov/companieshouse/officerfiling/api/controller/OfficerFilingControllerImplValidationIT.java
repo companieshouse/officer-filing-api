@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.io.IOException;
 import java.net.URI;
 import java.time.Clock;
@@ -99,6 +98,7 @@ class OfficerFilingControllerImplValidationIT {
     void setUp() throws IOException, URIValidationException {
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
+        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete");
 
         transaction = new Transaction();
         transaction.setCompanyNumber(COMPANY_NUMBER);
@@ -111,7 +111,6 @@ class OfficerFilingControllerImplValidationIT {
         companyAppointment.setName(DIRECTOR_NAME);
         companyAppointment.setAppointedOn(APPOINTMENT_DATE);
         companyAppointment.setEtag(ETAG);
-
         when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
         when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);
         when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
@@ -271,9 +270,9 @@ class OfficerFilingControllerImplValidationIT {
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
 
-            final var body = "{" + TM01_FRAGMENT.replace("ETAG", "invalid") + "}";
+        final var body = "{" + TM01_FRAGMENT.replace("ETAG", "invalid") + "}";
 
-            mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                             .contentType("application/json")
                             .headers(httpHeaders))
                     .andDo(print())

@@ -6,11 +6,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import uk.gov.companieshouse.api.interceptor.TokenPermissionsInterceptor;
+import uk.gov.companieshouse.officerfiling.api.interceptor.OfficersCRUDAuthenticationInterceptor;
 import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 
 @Configuration
-@ComponentScan("uk.gov.companieshouse.api")
+@ComponentScan(basePackages = {"uk.gov.companieshouse.api", "uk.gov.companieshouse.officerfiling.api"})
 public class InterceptorConfig implements WebMvcConfigurer {
 
     private static final String TRANSACTIONS = "/transactions/**";
@@ -25,6 +27,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
     public void addInterceptors(@NonNull InterceptorRegistry registry) {
         addTransactionInterceptor(registry);
         addOpenTransactionInterceptor(registry);
+        addTokenPermissionInterceptor(registry);
     }
 
     /**
@@ -40,6 +43,13 @@ public class InterceptorConfig implements WebMvcConfigurer {
         registry.addInterceptor(openTransactionInterceptor())
             .addPathPatterns(TRANSACTIONS_LIST);
     }
+    
+    private void addTokenPermissionInterceptor(InterceptorRegistry registry) {
+        registry.addInterceptor(tokenPermissionsInterceptor());
+        //Just check the non private endpoints. Private endpoints use API keys rather than OAuth2
+        registry.addInterceptor(officersCRUDAuthenticationInterceptor())
+            .addPathPatterns(TRANSACTIONS);
+    }
 
     @Bean
     public TransactionInterceptor transactionInterceptor() {
@@ -49,5 +59,13 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Bean
     public OpenTransactionInterceptor openTransactionInterceptor() {
         return new OpenTransactionInterceptor();
+    }
+
+    public OfficersCRUDAuthenticationInterceptor officersCRUDAuthenticationInterceptor() {
+        return new OfficersCRUDAuthenticationInterceptor();
+    }
+
+    public TokenPermissionsInterceptor tokenPermissionsInterceptor() {
+        return new TokenPermissionsInterceptor();
     }
 }
