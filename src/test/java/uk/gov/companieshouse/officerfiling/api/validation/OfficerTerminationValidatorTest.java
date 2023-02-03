@@ -35,6 +35,7 @@ class OfficerTerminationValidatorTest {
     private static final String DIRECTOR_NAME = "director name";
     private static final String ETAG = "etag";
     private static final String COMPANY_TYPE = "ltd";
+    private static final String OFFICER_ROLE = "director";
 
     private OfficerTerminationValidator officerTerminationValidator;
     private List<ApiError> apiErrorsList;
@@ -77,6 +78,7 @@ class OfficerTerminationValidatorTest {
         when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
         when(companyAppointment.getEtag()).thenReturn("etag");
+        when(companyAppointment.getOfficerRole()).thenReturn(OFFICER_ROLE);
 
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
@@ -119,6 +121,7 @@ class OfficerTerminationValidatorTest {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
+        when(companyAppointment.getOfficerRole()).thenReturn(OFFICER_ROLE);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(companyProfile.getType()).thenReturn("invalid-type");
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
@@ -361,5 +364,25 @@ class OfficerTerminationValidatorTest {
                 .hasSize(1)
                 .extracting(ApiError::getError)
                 .contains("You cannot remove an officer from a invalid-type using this service");
+    }
+
+    @Test
+    void validateOfficerRoleWhenValid() {
+        when(companyAppointment.getOfficerRole()).thenReturn("corporate-director");
+        officerTerminationValidator.validateOfficerRole(request, apiErrorsList, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when officer role is of a valid type")
+                .isEmpty();
+    }
+
+    @Test
+    void validateOfficerRoleWhenInvalid() {
+        when(companyAppointment.getOfficerRole()).thenReturn("invalid-role");
+        officerTerminationValidator.validateOfficerRole(request, apiErrorsList, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when officer role is not a valid type")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("You can only remove directors");
     }
 }

@@ -31,6 +31,7 @@ public class OfficerTerminationValidator {
     private static final LocalDate EARLIEST_POSSIBLE_DATE = LocalDate.of(2009, 10, 1);
     private static final List<String> ALLOWED_COMPANY_TYPES = List.of("private-unlimited", "ltd", "plc", "old-public-company", "private-limited-guarant-nsc-limited-exemption",
             "private-limited-guarant-nsc", "private-unlimited-nsc", "private-limited-shares-section-30-exemption");
+    private static final List<String> ALLOWED_OFFICER_ROLES = List.of("director", "corporate-director");
 
     private final TransactionService transactionService;
     private final CompanyProfileService companyProfileService;
@@ -78,6 +79,7 @@ public class OfficerTerminationValidator {
         validateTerminationDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
         validateAllowedCompanyType(request, errorList, companyProfile);
         validateOfficerIsNotTerminated(request,errorList,companyAppointment.get());
+        validateOfficerRole(request, errorList, companyAppointment.get());
 
         return new ApiErrors(errorList);
     }
@@ -149,6 +151,12 @@ public class OfficerTerminationValidator {
     public void validateAllowedCompanyType(HttpServletRequest request, List<ApiError> errorList, CompanyProfileApi companyProfile) {
         if (!ALLOWED_COMPANY_TYPES.contains(companyProfile.getType())) {
             createValidationError(request, errorList, String.format("You cannot remove an officer from a %s using this service", companyProfile.getType()));
+        }
+    }
+
+    public void validateOfficerRole(HttpServletRequest request, List<ApiError> errorList, AppointmentFullRecordAPI companyAppointment) {
+        if(!ALLOWED_OFFICER_ROLES.contains(companyAppointment.getOfficerRole())){
+            createValidationError(request, errorList, "You can only remove directors");
         }
     }
 

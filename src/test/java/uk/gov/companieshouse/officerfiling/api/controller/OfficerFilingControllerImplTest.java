@@ -62,6 +62,7 @@ class OfficerFilingControllerImplTest {
     public static final String DIRECTOR_NAME = "director name";
     private static final String ETAG = "etag";
     private static final String COMPANY_TYPE = "ltd";
+    private static final String OFFICER_ROLE = "director";
 
     private OfficerFilingController testController;
     @Mock
@@ -128,6 +129,7 @@ class OfficerFilingControllerImplTest {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyAppointment.getEtag()).thenReturn(ETAG);
+        when(companyAppointment.getOfficerRole()).thenReturn(OFFICER_ROLE);
         when(filingMapper.map(dto)).thenReturn(filing);
         final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
                 .build();
@@ -213,6 +215,7 @@ class OfficerFilingControllerImplTest {
     @Test
     void doNotCreateFilingWhenRequestHasTooOldDate() {
         when(companyAppointment.getEtag()).thenReturn(ETAG);
+        when(companyAppointment.getOfficerRole()).thenReturn(OFFICER_ROLE);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
