@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.validation;
 
-import java.util.Optional;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
@@ -21,6 +20,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Provides all validation that should be carried out when an officer is terminated. Fetches all data necessary to complete
@@ -140,9 +140,21 @@ public class OfficerTerminationValidator {
         }
     }
 
+    public Optional<LocalDate> getAppointmentDate(AppointmentFullRecordAPI companyAppointment) {
+        if (companyAppointment.getIsPre1992Appointment() != null) {
+            return Optional.ofNullable(
+                    companyAppointment.getIsPre1992Appointment() ? companyAppointment.getAppointedBefore() : companyAppointment.getAppointedOn());
+        }
+        return Optional.empty();
+    }
+
     public void validateTerminationDateAfterAppointmentDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment) {
-        if (dto.getResignedOn().isBefore(companyAppointment.getAppointedOn())) {
-            createValidationError(request, errorList, "Date director was removed must be on or after the date the director was appointed");
+        var companyAppointmentDate = getAppointmentDate(companyAppointment);
+        if (companyAppointmentDate.isPresent()) {
+            final var appointmentDate = companyAppointmentDate.get();
+            if (dto.getResignedOn().isBefore(appointmentDate)) {
+                createValidationError(request, errorList, "Date director was removed must be on or after the date the director was appointed");
+            }
         }
     }
 

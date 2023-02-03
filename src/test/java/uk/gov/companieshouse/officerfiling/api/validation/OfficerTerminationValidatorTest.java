@@ -270,8 +270,24 @@ class OfficerTerminationValidatorTest {
     }
 
     @Test
-    void validateTerminationDateAfterAppointmentDateWhenValid() {
+    void validateTerminationDateAfterAppointmentDateWhenValidAndPost1992() {
+        when(companyAppointment.getIsPre1992Appointment()).thenReturn(false);
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerTerminationValidator.validateTerminationDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when resignation date is after appointment date")
+                .isEmpty();
+    }
+
+    @Test
+    void validateTerminationDateAfterAppointmentDateWhenValidAndPre1992() {
+        when(companyAppointment.getIsPre1992Appointment()).thenReturn(true);
+        when(companyAppointment.getAppointedBefore()).thenReturn(LocalDate.of(1990, Month.JANUARY, 4));
         final var officerFilingDto = OfficerFilingDto.builder()
                 .referenceEtag("etag")
                 .referenceAppointmentId(FILING_ID)
