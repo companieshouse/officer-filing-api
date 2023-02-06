@@ -2,6 +2,7 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -9,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.google.api.client.http.HttpResponseException;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -25,6 +27,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.ApiClient;
+import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.handler.transaction.TransactionsResourceHandler;
 import uk.gov.companieshouse.api.handler.transaction.request.TransactionsGet;
@@ -76,6 +79,8 @@ class ValidationStatusControllerImplIT {
     private TransactionsGet transactionGetMock;
     @Mock
     private ApiResponse<Transaction> apiResponse;
+    @Mock
+    private HttpResponseException.Builder builder;
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;
@@ -171,12 +176,35 @@ class ValidationStatusControllerImplIT {
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
 
-        mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID)
+        mockMvc.perform(get("/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID)
                 .headers(httpHeaders))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.is_valid", is(false)))
             .andExpect(jsonPath("$.errors[0].error", containsString(
                 "The Officers information is out of date. Please start the process again and make a new submission")));
+    }
+
+    @Test
+    void publicValidationStatusWhenTransactionNotFound() throws Exception {
+        final var filing = OfficerFiling.builder()
+            .referenceEtag("invalid_etag")
+            .referenceAppointmentId(FILING_ID)
+            .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+            .build();
+
+        when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
+        when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);
+        when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
+        when(transactionGetMock.execute()).thenThrow(URIValidationException.class);
+
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
+
+        mockMvc.perform(get("/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID)
+                .headers(httpHeaders))
+            .andDo(print())
+            .andExpect(status().isInternalServerError());
     }
 }
