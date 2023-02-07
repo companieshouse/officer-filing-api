@@ -22,19 +22,8 @@ class ValidationStatusControllerTest {
 
     @Test
     void validate() {
-        assertThrows(NotImplementedException.class, () -> testController.validatePrivate(
+        assertThrows(NotImplementedException.class, () -> testController.validate(
             transaction,"6332aa6ed28ad2333c3a520a", request));
     }
 
-    @Test
-    void validatePublic() {
-        assertThrows(NotImplementedException.class, () -> testController.validatePublic(
-            transaction,"6332aa6ed28ad2333c3a520a", request));
-    }
-
-    @Test
-    void validatePrivate() {
-        assertThrows(NotImplementedException.class, () -> testController.validatePublic(
-            transaction,"6332aa6ed28ad2333c3a520a", request));
-    }
 }

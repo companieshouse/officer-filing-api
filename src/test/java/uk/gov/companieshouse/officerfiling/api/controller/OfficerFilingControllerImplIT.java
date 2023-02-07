@@ -1,10 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -13,10 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.companieshouse.api.ApiClient;
 import uk.gov.companieshouse.api.error.ApiError;
@@ -27,8 +20,6 @@ import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.api.util.security.Permission.Key;
-import uk.gov.companieshouse.api.util.security.TokenPermissions;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
@@ -470,6 +461,30 @@ class OfficerFilingControllerImplIT {
                                 + " from String \"" + replacementString + "\"")))
                 .andExpect(jsonPath("$.errors[0].error_values",
                         is(Map.of("offset", "line: 1, column: 97", "line", "1", "column", "97"))));
+    }
+
+    @Test
+    void createFilingWhenTransactionIsNull() throws Exception {
+        final var body = "{" + TM01_FRAGMENT + "}";
+        final var dto = OfficerFilingDto.builder()
+            .referenceEtag("etag")
+            .referenceAppointmentId(FILING_ID)
+            .resignedOn(LocalDate.of(2022, 9, 13))
+            .build();
+
+        when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
+        when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);
+        when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
+        when(transactionGetMock.execute()).thenReturn(apiResponse);
+        when(apiResponse.getData()).thenReturn(null);
+
+
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                .contentType("application/json")
+                .headers(httpHeaders))
+            .andDo(print())
+            .andExpect(status().isForbidden())
+            .andExpect(header().doesNotExist("Location"));
     }
 
 

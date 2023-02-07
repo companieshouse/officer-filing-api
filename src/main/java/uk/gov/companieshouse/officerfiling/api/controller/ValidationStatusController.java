@@ -11,7 +11,7 @@ import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 
 public interface ValidationStatusController {
     /**
-     * Controller endpoint: Perform final validation checks.
+     * Controller endpoint: Perform validation checks.
      * Handle requests from the Transaction service attempting to close a Transaction belonging
      * to this Filing resource.
      * This endpoint's URI is provided by the Filing resource in
@@ -22,27 +22,11 @@ public interface ValidationStatusController {
      * @param request        the servlet request
      * @throws NotImplementedException implementing classes must perform work
      */
-    @GetMapping
-    default ValidationStatusResponse validatePrivate(@RequestAttribute("transaction") Transaction transaction,
+    @GetMapping(value = "/{filingResourceId}/validation_status", produces = {"application/json"})
+    default ValidationStatusResponse validate(@RequestAttribute("transaction") Transaction transaction,
         @PathVariable("filingResourceId") String filingResourceId,
         HttpServletRequest request) {
         throw new NotImplementedException();
     }
 
-    /**
-     * Controller endpoint: Perform validation checks.
-     * This endpoint's URI is provided by the Filing resource in
-     * {@link Links#getValidationStatus()}.
-     *
-     * @param transaction        the Transaction ID
-     * @param filingResourceId the Filing resource ID
-     * @param request        the servlet request
-     * @throws NotImplementedException implementing classes must perform work
-     */
-    @GetMapping
-    default ValidationStatusResponse validatePublic(@RequestAttribute("transaction") Transaction transaction,
-        @PathVariable("filingResourceId") String filingResourceId,
-        HttpServletRequest request) {
-        throw new NotImplementedException();
-    }
 }

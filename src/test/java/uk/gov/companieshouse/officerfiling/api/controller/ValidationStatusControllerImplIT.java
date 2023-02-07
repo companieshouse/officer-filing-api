@@ -2,7 +2,6 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -10,7 +9,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.google.api.client.http.HttpResponseException;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -27,7 +25,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.ApiClient;
-import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.handler.transaction.TransactionsResourceHandler;
 import uk.gov.companieshouse.api.handler.transaction.request.TransactionsGet;
@@ -37,7 +34,6 @@ import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
-import uk.gov.companieshouse.api.util.security.InvalidTokenPermissionException;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
@@ -79,8 +75,6 @@ class ValidationStatusControllerImplIT {
     private TransactionsGet transactionGetMock;
     @Mock
     private ApiResponse<Transaction> apiResponse;
-    @Mock
-    private HttpResponseException.Builder builder;
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;
@@ -91,7 +85,7 @@ class ValidationStatusControllerImplIT {
     private MockMvc mockMvc;
 
     @BeforeEach
-    void setUp() throws InvalidTokenPermissionException, IOException, URIValidationException {
+    void setUp() throws IOException, URIValidationException {
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
         httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete");
@@ -116,7 +110,18 @@ class ValidationStatusControllerImplIT {
     }
 
     @Test
-    void publicValidationStatusWhenFoundAndNoValidationErrors() throws Exception {
+    void validationStatusWhenNotFound() throws Exception {
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID, request)
+                .headers(httpHeaders))
+            .andDo(print())
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$").doesNotExist());
+    }
+
+    @Test
+    void validationStatusWhenFoundAndNoValidationErrors() throws Exception {
         final var filing = OfficerFiling.builder()
             .referenceEtag("etag")
             .referenceAppointmentId(FILING_ID)
@@ -135,37 +140,7 @@ class ValidationStatusControllerImplIT {
     }
 
     @Test
-    void privateValidationStatusWhenFoundAndNoValidationErrors() throws Exception {
-        final var filing = OfficerFiling.builder()
-            .referenceEtag("etag")
-            .referenceAppointmentId(FILING_ID)
-            .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
-            .build();
-
-        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
-        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
-        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
-
-        mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID)
-                .headers(httpHeaders))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.is_valid", is(true)));
-    }
-
-    @Test
-    void publicValidationStatusWhenNotFound() throws Exception {
-        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID, request)
-                        .headers(httpHeaders))
-                .andDo(print())
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$").doesNotExist());
-    }
-
-    @Test
-    void publicValidationStatusWhenFoundAndEtagValidationError() throws Exception {
+    void validationStatusWhenFoundAndEtagValidationError() throws Exception {
         final var filing = OfficerFiling.builder()
             .referenceEtag("invalid_etag")
             .referenceAppointmentId(FILING_ID)
@@ -186,7 +161,7 @@ class ValidationStatusControllerImplIT {
     }
 
     @Test
-    void publicValidationStatusWhenTransactionNotFound() throws Exception {
+    void validationStatusWhenTransactionNotFound() throws Exception {
         final var filing = OfficerFiling.builder()
             .referenceEtag("invalid_etag")
             .referenceAppointmentId(FILING_ID)
@@ -196,7 +171,8 @@ class ValidationStatusControllerImplIT {
         when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
         when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);
         when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
-        when(transactionGetMock.execute()).thenThrow(URIValidationException.class);
+        when(transactionGetMock.execute()).thenReturn(apiResponse);
+        when(apiResponse.getData()).thenReturn(null);
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
@@ -205,6 +181,6 @@ class ValidationStatusControllerImplIT {
         mockMvc.perform(get("/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID)
                 .headers(httpHeaders))
             .andDo(print())
-            .andExpect(status().isInternalServerError());
+            .andExpect(status().isForbidden());
     }
 }

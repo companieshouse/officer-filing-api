@@ -2,10 +2,10 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -26,6 +26,7 @@ import uk.gov.companieshouse.officerfiling.api.validation.OfficerTerminationVali
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 @RestController
+@RequestMapping("/transactions/{transactionId}/officers")
 public class ValidationStatusControllerImpl implements ValidationStatusController {
     private final OfficerFilingService officerFilingService;
     private final Logger logger;
@@ -59,14 +60,13 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
      */
     @Override
     @ResponseBody
-    @RequestMapping(value = "private/transactions/{transactionId}/officers/{filingResourceId}/validation_status",
-        method = RequestMethod.GET)
-    public ValidationStatusResponse validatePrivate(
+    @GetMapping(value = "/{filingResourceId}/validation_status", produces = {"application/json"})
+    public ValidationStatusResponse validate(
         @RequestAttribute("transaction") Transaction transaction,
         @PathVariable("filingResourceId") final String filingResourceId,
         final HttpServletRequest request) {
 
-        logger.debugContext(transaction.getId(), "GET private validation request", new LogHelper.Builder(transaction.getId())
+        logger.debugContext(transaction.getId(), "GET validation request", new LogHelper.Builder(transaction.getId())
                 .withFilingId(filingResourceId)
                 .withRequest(request)
                 .build());
@@ -74,43 +74,10 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
         final var passthroughHeader =
             request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
 
-        return validate(request, filingResourceId, transaction, passthroughHeader);
-    }
-
-    /**
-     * Controller endpoint: Perform validation checks after patch.
-     *
-     * @param transaction        the Transaction
-     * @param filingResourceId the Filing resource ID
-     * @param request        the servlet request
-     * @return ValidationResponse of TRUE (provisional)
-     */
-    @Override
-    @ResponseBody
-    @RequestMapping(value = "/transactions/{transactionId}/officers/{filingResourceId}/validation_status",
-        method = RequestMethod.GET)
-    public ValidationStatusResponse validatePublic(
-        @RequestAttribute("transaction") Transaction transaction,
-        @PathVariable("filingResourceId") final String filingResourceId,
-        final HttpServletRequest request) {
-
-        logger.debugContext(transaction.getId(), "GET public validation request", new LogHelper.Builder(transaction.getId())
-            .withFilingId(filingResourceId)
-            .withRequest(request)
-            .build());
-
-        final var passthroughHeader =
-            request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
-
-        return validate(request, filingResourceId, transaction, passthroughHeader);
-    }
-
-    ValidationStatusResponse validate(HttpServletRequest request, String filingResourceId,
-        Transaction transaction, String passthroughHeader) {
-
         Optional<OfficerFiling> maybeOfficerFiling = officerFilingService.get(filingResourceId, transaction.getId());
 
-        return maybeOfficerFiling.map(officerFiling -> isValid(request, officerFilingMapper.map(officerFiling), transaction, passthroughHeader))
+        return maybeOfficerFiling.map(officerFiling -> isValid(request, officerFilingMapper.map(officerFiling),
+                transaction, passthroughHeader))
             .orElseThrow(() -> new ResourceNotFoundException(
                 "Filing resource not found: " + filingResourceId));
     }
@@ -119,7 +86,8 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
         Transaction transaction, String passthroughHeader) {
         var validationStatus = new ValidationStatusResponse();
 
-        final var validator = new OfficerTerminationValidator(logger, transactionService, companyProfileService, companyAppointmentService);
+        final var validator = new OfficerTerminationValidator(logger, transactionService,
+            companyProfileService, companyAppointmentService);
         final ApiErrors validationErrors  = validator.validate(request, officerFiling, transaction, passthroughHeader);
 
         if(validationErrors.hasErrors()) {
