@@ -4,7 +4,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -13,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.IOException;
 import java.net.URI;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Map;
@@ -37,6 +40,8 @@ import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
+import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
@@ -49,6 +54,7 @@ class OfficerFilingControllerImplValidationIT {
     private static final String TRANS_ID = "4f56fdf78b357bfc";
     private static final String FILING_ID = "632c8e65105b1b4a9f0d1f5e";
     private static final String PASSTHROUGH_HEADER = "passthrough";
+    private static final Instant FIRST_INSTANT = Instant.parse("2022-10-15T09:44:08.108Z");
     private static final String TM01_FRAGMENT = "\"reference_etag\": \"ETAG\","
             + "\"reference_appointment_id\": \"" + FILING_ID + "\","
             + "\"resigned_on\": \"2022-09-13\"";
@@ -119,57 +125,95 @@ class OfficerFilingControllerImplValidationIT {
     }
 
     @Test
-    void createFilingWhenReferenceEtagBlankThenResponse400() throws Exception {
+    void createFilingWhenReferenceEtagBlankThenResponse201() throws Exception {
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var body = "{" + TM01_FRAGMENT.replace("ETAG", "") + "}";
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag("")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
+        final var filing = OfficerFiling.builder()
+                .referenceEtag("")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+                .build();
+
+        when(filingMapper.map(dto)).thenReturn(filing);
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
+                        OfficerFiling.builder(filing).id(FILING_ID)
+                                .build()) // copy of 'filing' with id=FILING_ID
+                .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
+                        .build()); // copy of first argument
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors", hasSize(1)))
-                .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
-                .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
-                .andExpect(jsonPath("$.errors[0].location", is("$.reference_etag")))
-                .andExpect(jsonPath("$.errors[0].error_values", is(nullValue())))
-                .andExpect(jsonPath("$.errors[0].error", is("must not be blank")));
+                .andExpect(status().isCreated());
     }
 
     @Test
-    void createFilingWhenReferenceReferenceAppointmentIdBlankThenResponse400() throws Exception {
+    void createFilingWhenReferenceReferenceAppointmentIdBlankThenResponse201() throws Exception {
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var body = "{" + TM01_FRAGMENT.replace(FILING_ID, "") + "}";
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag("ETAG")
+                .referenceAppointmentId("")
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
+        final var filing = OfficerFiling.builder()
+                .referenceEtag("ETAG")
+                .referenceAppointmentId("")
+                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+                .build();
+        when(filingMapper.map(dto)).thenReturn(filing);
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
+                        OfficerFiling.builder(filing).id(FILING_ID)
+                                .build()) // copy of 'filing' with id=FILING_ID
+                .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
+                        .build()); // copy of first argument
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                 .contentType("application/json")
                 .headers(httpHeaders))
             .andDo(print())
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.errors", hasSize(1)))
-            .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
-            .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
-            .andExpect(jsonPath("$.errors[0].location", is("$.reference_appointment_id")))
-            .andExpect(jsonPath("$.errors[0].error_values", is(nullValue())))
-            .andExpect(jsonPath("$.errors[0].error", is("must not be blank")));
+            .andExpect(status().isCreated());
     }
 
+    /**
+     * An empty string is converted to null for a date, hence the 201
+     * @throws Exception
+     */
     @Test
-    void createFilingWhenReferenceResignedOnBlankThenResponse400() throws Exception {
+    void createFilingWhenReferenceResignedOnBlankThenResponse201() throws Exception {
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "") + "}";
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag("ETAG")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(null)
+                .build();
+        final var filing = OfficerFiling.builder()
+                .referenceEtag("ETAG")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(null)
+                .build();
+        when(filingMapper.map(dto)).thenReturn(filing);
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
+                        OfficerFiling.builder(filing).id(FILING_ID)
+                                .build()) // copy of 'filing' with id=FILING_ID
+                .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
+                        .build()); // copy of first argument
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors", hasSize(1)))
-                .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
-                .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
-                .andExpect(jsonPath("$.errors[0].location", is("$.resigned_on")))
-                .andExpect(jsonPath("$.errors[0].error_values", is(nullValue())))
-                .andExpect(jsonPath("$.errors[0].error", is("must not be null")));
+                .andExpect(status().isCreated());
     }
 
     @Test

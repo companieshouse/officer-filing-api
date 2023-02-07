@@ -1,10 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -13,10 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.companieshouse.api.ApiClient;
 import uk.gov.companieshouse.api.error.ApiError;
@@ -27,8 +20,6 @@ import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.api.util.security.Permission.Key;
-import uk.gov.companieshouse.api.util.security.TokenPermissions;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
@@ -62,6 +53,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -77,6 +69,10 @@ class OfficerFilingControllerImplIT {
     private static final String TM01_FRAGMENT = "\"reference_etag\": \"etag\","
         + "\"reference_appointment_id\": \"" + FILING_ID + "\","
         + "\"resigned_on\": \"2022-09-13\"";
+    private static final String PARTIAL_TM01_FRAGMENT_MISSING_ETAG = "\"reference_appointment_id\": \"" + FILING_ID + "\","
+            + "\"resigned_on\": \"2022-09-13\"";
+    private static final String PARTIAL_TM01_FRAGMENT_MISSING_RESIGNED_ON = "\"reference_etag\": \"etag\","
+            + "\"reference_appointment_id\": \"" + FILING_ID + "\"";
     public static final String MALFORMED_JSON_QUOTED = "\"\"";
     private static final Instant FIRST_INSTANT = Instant.parse("2022-10-15T09:44:08.108Z");
     private static final String COMPANY_NUMBER = "123456";
@@ -168,15 +164,162 @@ class OfficerFilingControllerImplIT {
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
-        when(filingMapper.map(dto)).thenReturn(filing);
         when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
                 OfficerFiling.builder(filing).id(FILING_ID)
                     .build()) // copy of 'filing' with id=FILING_ID
             .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
                 .build()); // copy of first argument
         when(clock.instant()).thenReturn(FIRST_INSTANT);
-
+        when(filingMapper.map(dto)).thenReturn(filing);
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", locationUri.toUriString()))
+                .andExpect(jsonPath("$").doesNotExist());
+        verify(filingMapper).map(dto);
+    }
+
+    @Test
+    void patchFilingWhenFullTM01PayloadOKThenResponse201() throws Exception {
+        final var body = "{" + TM01_FRAGMENT + "}";
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
+        final var filing = OfficerFiling.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+                .build();
+        final var locationUri = UriComponentsBuilder.fromPath("/")
+                .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
+                .build();
+
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
+        when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
+                        OfficerFiling.builder(filing).id(FILING_ID)
+                                .build()) // copy of 'filing' with id=FILING_ID
+                .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
+                        .build()); // copy of first argument
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(filingMapper.map(dto)).thenReturn(filing);
+
+        mockMvc.perform(patch("/transactions/{id}/officers/{filing_id}", TRANS_ID, FILING_ID).content(body)
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", locationUri.toUriString()))
+                .andExpect(jsonPath("$").doesNotExist());
+        verify(filingMapper).map(dto);
+    }
+
+    @Test
+    void patchMergeFilingThenResponse201() throws Exception {
+        final var body = "{" + TM01_FRAGMENT + "}";
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
+        final var filing = OfficerFiling.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+                .build();
+        final var locationUri = UriComponentsBuilder.fromPath("/")
+                .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
+                .build();
+
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
+        when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
+                        OfficerFiling.builder(filing).id(FILING_ID)
+                                .build()) // copy of 'filing' with id=FILING_ID
+                .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
+                        .build()); // copy of first argument
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(filingMapper.map(dto)).thenReturn(filing);
+
+        mockMvc.perform(patch("/transactions/{id}/officers/{filing_id}", TRANS_ID, FILING_ID).content(body)
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", locationUri.toUriString()))
+                .andExpect(jsonPath("$").doesNotExist());
+        verify(filingMapper).map(dto);
+    }
+
+    @Test
+    void patchFilingWhenMissingResignedOnTM01PayloadOKThenResponse201() throws Exception {
+        final var body = "{" + PARTIAL_TM01_FRAGMENT_MISSING_RESIGNED_ON + "}";
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .build();
+        final var filing = OfficerFiling.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .build();
+        final var locationUri = UriComponentsBuilder.fromPath("/")
+                .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
+                .build();
+
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
+        when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
+                        OfficerFiling.builder(filing).id(FILING_ID)
+                                .build()) // copy of 'filing' with id=FILING_ID
+                .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
+                        .build()); // copy of first argument
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(filingMapper.map(dto)).thenReturn(filing);
+
+        mockMvc.perform(patch("/transactions/{id}/officers/{filing_id}", TRANS_ID, FILING_ID).content(body)
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", locationUri.toUriString()))
+                .andExpect(jsonPath("$").doesNotExist());
+        verify(filingMapper).map(dto);
+    }
+
+    @Test
+    void patchFilingWhenMissingEtagTM01PayloadOKThenResponse201() throws Exception {
+        final var body = "{" + PARTIAL_TM01_FRAGMENT_MISSING_ETAG + "}";
+        final var dto = OfficerFilingDto.builder()
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
+        final var filing = OfficerFiling.builder()
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+                .build();
+        final var locationUri = UriComponentsBuilder.fromPath("/")
+                .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
+                .build();
+
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
+        when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
+                        OfficerFiling.builder(filing).id(FILING_ID)
+                                .build()) // copy of 'filing' with id=FILING_ID
+                .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
+                        .build()); // copy of first argument
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(filingMapper.map(dto)).thenReturn(filing);
+
+        mockMvc.perform(patch("/transactions/{id}/officers/{filing_id}", TRANS_ID, FILING_ID).content(body)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
@@ -241,24 +384,30 @@ class OfficerFilingControllerImplIT {
     }
 
     @Test
-    void createFilingWhenResignedOnBlankThenResponse400() throws Exception {
+    void createFilingWhenResignedOnBlankThenResponse201() throws Exception {
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "") + "}";
         final var expectedError = createExpectedError(
             "JSON parse error:", "$.resigned_on", 1, 75);
-
+        final var filing = OfficerFiling.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .build();
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .build();
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
+                        OfficerFiling.builder(filing).id(FILING_ID)
+                                .build()) // copy of 'filing' with id=FILING_ID
+                .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
+                        .build());
+        when(filingMapper.map(dto)).thenReturn(filing);
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(header().doesNotExist("Location"))
-                .andExpect(jsonPath("$.errors", hasSize(1)))
-                .andExpect(jsonPath("$.errors[0]",
-                        allOf(hasEntry("location", expectedError.getLocation()),
-                                hasEntry("location_type", expectedError.getLocationType()),
-                                hasEntry("type", expectedError.getType()))))
-                .andExpect(jsonPath("$.errors[0].error", containsString("must not be null")))
-                .andExpect(jsonPath("$.errors[0].error_values", is(nullValue())));
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -302,8 +451,8 @@ class OfficerFilingControllerImplIT {
             .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
-
         when(filingMapper.map(filing)).thenReturn(dto);
+
 
         mockMvc.perform(get("/transactions/{id}/officers/{filingId}", TRANS_ID, FILING_ID)
             .headers(httpHeaders))
@@ -328,7 +477,6 @@ class OfficerFilingControllerImplIT {
             .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
-
         when(filingMapper.map(filing)).thenReturn(dto);
 
         mockMvc.perform(get("/transactions/{id}/officers/{filingId}", TRANS_ID, FILING_ID)
@@ -370,7 +518,6 @@ class OfficerFilingControllerImplIT {
             .pathSegment("transactions", TRANS_ID, "officers", FILING_ID)
             .build();
 
-        when(filingMapper.map(dto)).thenReturn(filing);
         when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
                 OfficerFiling.builder(filing).id(FILING_ID)
                     .build()) // copy of 'filing' with id=FILING_ID
@@ -380,7 +527,7 @@ class OfficerFilingControllerImplIT {
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
-
+        when(filingMapper.map(dto)).thenReturn(filing);
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
                         .headers(httpHeaders))

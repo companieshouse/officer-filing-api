@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import org.springframework.validation.annotation.Validated;
@@ -31,13 +32,10 @@ public class OfficerFilingDto {
     private String name;
     private String nationality;
     private String occupation;
-    @NotBlank
     private String referenceEtag;
-    @NotBlank
     private String referenceAppointmentId;
     private String referenceOfficerListEtag;
     @PastOrPresent
-    @NotNull
     private LocalDate resignedOn;
     private AddressDto residentialAddress;
     private Boolean residentialAddressSameAsCorrespondenceAddress;
