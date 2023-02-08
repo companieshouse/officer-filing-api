@@ -10,6 +10,7 @@ import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
 import uk.gov.companieshouse.officerfiling.api.error.ErrorType;
 import uk.gov.companieshouse.officerfiling.api.error.LocationType;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
+import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
@@ -90,6 +91,9 @@ public class OfficerTerminationValidator {
             return Optional.ofNullable(
                     companyAppointmentService.getCompanyAppointment(transaction.getId(), transaction.getCompanyNumber(),
                             dto.getReferenceAppointmentId(), passthroughHeader));
+        } catch (ServiceUnavailableException e) {
+            errorList.add(new ApiError("The service is down. Try again later", request.getRequestURI(),
+                LocationType.JSON_PATH.getValue(), ErrorType.SERVICE.getType()));
         } catch (CompanyAppointmentServiceException e) {
             createValidationError(request, errorList, "Officer not found. Please confirm the details and resubmit");
         }

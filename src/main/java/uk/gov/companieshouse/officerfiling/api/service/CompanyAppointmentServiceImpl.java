@@ -1,11 +1,16 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException.NotFound;
+import org.springframework.web.client.HttpServerErrorException.ServiceUnavailable;
+import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
+import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 import java.io.IOException;
@@ -48,6 +53,9 @@ public class CompanyAppointmentServiceImpl implements CompanyAppointmentService{
                     .withCompanyName(companyAppointment.getName())
                     .build());
             return companyAppointment;
+        }
+        catch (final ApiErrorResponseException e) {
+            throw new ServiceUnavailableException();
         }
         catch (final URIValidationException | IOException e) {
             throw new CompanyAppointmentServiceException("Error Retrieving appointment " + appointmentId + " for company " + companyNumber, e);
