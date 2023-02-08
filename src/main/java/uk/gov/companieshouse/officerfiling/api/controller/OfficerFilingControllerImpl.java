@@ -154,7 +154,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         if(officerFilingOptional.isPresent()){
             // Update the existing filing
             officerFiling = officerFilingOptional.get();
-            officerFilingService.mergeFilings(officerFiling, filingMapper.map(dto), transaction);
+            officerFiling = officerFilingService.mergeFilings(officerFiling, filingMapper.map(dto), transaction);
         }
         else{
             // Else just create a new filing

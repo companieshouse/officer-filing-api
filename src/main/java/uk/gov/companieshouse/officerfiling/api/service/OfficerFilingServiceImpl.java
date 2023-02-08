@@ -62,10 +62,10 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
     }
 
     /**
-     * Merges the contents of an OfficerFiling patch into the original record
-     * @param original
-     * @param patch
-     * @return
+     * Merges the contents of an OfficerFiling patch into the original record.
+     * @param original The base record
+     * @param patch A record with updated values
+     * @return The merged record
      */
     @Override
     public OfficerFiling mergeFilings(OfficerFiling original, OfficerFiling patch, Transaction transaction) {
@@ -125,7 +125,9 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
                 fieldMap.put(fieldName, fieldValue);
             }
         }
-        // Remove value from getClass here to avoid extra string comparisons
+        // Remove some extra entries here to avoid extra string comparisons during the merge
+        // These will be added to the record on load and cause issues when converting from JSON
         fieldMap.remove("class");
+        fieldMap.remove("links");
     }
 }
