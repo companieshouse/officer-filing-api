@@ -148,6 +148,32 @@ class OfficerFilingControllerImplTest {
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
     }
 
+    @ParameterizedTest(name = "[{index}] null binding result={0}")
+    @ValueSource(booleans = {true, false})
+    void patchFiling(final boolean nullBindingResult) {
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(filingMapper.map(dto)).thenReturn(filing);
+        final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
+                .build();
+        final var withLinks = OfficerFiling.builder(withFilingId).links(links)
+                .build();
+        when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
+        when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
+
+        final var response =
+                testController.patchFiling(transaction, dto, "12345", nullBindingResult ? null : result,
+                        request);
+
+        // refEq needed to compare Map value objects; Resource does not override equals()
+        verify(transaction).setResources(refEq(resourceMap));
+        verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
+        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
+    }
+
     @Test
     void createFilingWhenRequestHasBindingError() {
         final var codes = new String[]{"code1", "code2.name", "code3"};

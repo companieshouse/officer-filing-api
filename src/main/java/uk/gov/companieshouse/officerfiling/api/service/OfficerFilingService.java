@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;

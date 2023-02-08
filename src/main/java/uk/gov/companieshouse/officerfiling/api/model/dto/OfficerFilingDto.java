@@ -11,12 +11,8 @@ import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import org.springframework.validation.annotation.Validated;
-import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 
 @JsonDeserialize(builder = OfficerFilingDto.Builder.class)
 @Validated

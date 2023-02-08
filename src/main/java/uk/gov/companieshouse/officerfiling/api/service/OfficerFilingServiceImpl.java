@@ -79,7 +79,7 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
         extractFields(original, fieldMap, transaction);
         extractFields(patch, fieldMap, transaction);
         // JavaTimeModule handles Instant serialisation
-        ObjectMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+        var mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
         ObjectNode updatedFiling = mapper.createObjectNode();
         for(Map.Entry<String,String> entry : fieldMap.entrySet()){
@@ -87,7 +87,7 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
             String value = entry.getValue();
             updatedFiling.put(field, value);
         }
-        String updatedFilingJson = updatedFiling.toString();
+        var updatedFilingJson = updatedFiling.toString();
         try {
             mergedFiling = mapper.readerFor(OfficerFiling.class).readValue(updatedFilingJson);
         } catch (JsonProcessingException e) {
@@ -109,7 +109,7 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
                 //Get the string representations of each field
                 String fieldValue;
                 try {
-                    Object fieldValueObject = method.invoke(filing, null);
+                    var fieldValueObject = method.invoke(filing, null);
                     if(fieldValueObject==null)
                         continue;
                     fieldValue = fieldValueObject.toString();
@@ -118,7 +118,7 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
                             + transaction.getCompanyNumber(), e);
                 }
                 //Get the name of the field
-                String fieldName = methodName.substring(3);
+                var fieldName = methodName.substring(3);
                 //Lower case the first character to match field name
                 fieldName = Character.toLowerCase(fieldName.charAt(0)) + fieldName.substring(1);
                 //Add to our map
