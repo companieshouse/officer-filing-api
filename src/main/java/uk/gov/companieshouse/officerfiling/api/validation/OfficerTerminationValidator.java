@@ -10,6 +10,7 @@ import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
 import uk.gov.companieshouse.officerfiling.api.error.ErrorType;
 import uk.gov.companieshouse.officerfiling.api.error.LocationType;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
+import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
@@ -65,20 +66,22 @@ public class OfficerTerminationValidator {
 
         // Retrieve data objects required for the validation process
         final Optional<AppointmentFullRecordAPI> companyAppointment = getOfficerAppointment(request, errorList, dto, transaction, passthroughHeader);
-        final CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(transaction.getId(), transaction.getCompanyNumber(), passthroughHeader);
+        final Optional<CompanyProfileApi> companyProfile = getCompanyProfile(request, errorList, transaction, passthroughHeader);
 
         if (companyAppointment.isEmpty()) {
             return new ApiErrors(errorList);
         }
-
+        if (companyProfile.isEmpty()) {
+            return new ApiErrors(errorList);
+        }
         // Perform validation
         validateSubmissionInformationInDate(request, dto, companyAppointment.get(), errorList);
         validateMinResignationDate(request, errorList, dto);
         validateSubmissionInformationInDate(request, dto, companyAppointment.get(), errorList);
-        validateCompanyNotDissolved(request, errorList, companyProfile);
-        validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile, companyAppointment.get());
+        validateCompanyNotDissolved(request, errorList, companyProfile.get());
+        validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile.get(), companyAppointment.get());
         validateTerminationDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
-        validateAllowedCompanyType(request, errorList, companyProfile);
+        validateAllowedCompanyType(request, errorList, companyProfile.get());
         validateOfficerIsNotTerminated(request,errorList,companyAppointment.get());
         validateOfficerRole(request, errorList, companyAppointment.get());
 
@@ -92,10 +95,23 @@ public class OfficerTerminationValidator {
                     companyAppointmentService.getCompanyAppointment(transaction.getId(), transaction.getCompanyNumber(),
                             dto.getReferenceAppointmentId(), passthroughHeader));
         } catch (ServiceUnavailableException e) {
-            errorList.add(new ApiError("The service is down. Try again later", request.getRequestURI(),
-                LocationType.JSON_PATH.getValue(), ErrorType.SERVICE.getType()));
+            createServiceError(request, errorList);
         } catch (CompanyAppointmentServiceException e) {
             createValidationError(request, errorList, "Officer not found. Please confirm the details and resubmit");
+        }
+        return Optional.empty();
+    }
+
+    public Optional<CompanyProfileApi> getCompanyProfile(HttpServletRequest request,
+        List<ApiError> errorList, Transaction transaction, String passthroughHeader) {
+        try {
+            return Optional.ofNullable(
+                companyProfileService.getCompanyProfile(transaction.getId(), transaction.getCompanyNumber(),
+                    passthroughHeader));
+        } catch (ServiceUnavailableException e) {
+            createServiceError(request, errorList);
+        } catch (CompanyProfileServiceException e) {
+            createValidationError(request, errorList, "Company not found. Please confirm the details and resubmit");
         }
         return Optional.empty();
     }
@@ -159,9 +175,15 @@ public class OfficerTerminationValidator {
     }
 
     public void validateOfficerRole(HttpServletRequest request, List<ApiError> errorList, AppointmentFullRecordAPI companyAppointment) {
-        if(!ALLOWED_OFFICER_ROLES.contains(companyAppointment.getOfficerRole())){
+        if (!ALLOWED_OFFICER_ROLES.contains(companyAppointment.getOfficerRole())) {
             createValidationError(request, errorList, "You can only remove directors");
         }
+    }
+
+    private void createServiceError (HttpServletRequest request, List<ApiError> errorList) {
+        final var apiError = new ApiError("The service is down. Try again later", request.getRequestURI(),
+            LocationType.JSON_PATH.getValue(), ErrorType.SERVICE.getType());
+        errorList.add(apiError);
     }
 
     private void createValidationError(HttpServletRequest request, List<ApiError> errorList, String errorMessage) {
@@ -169,5 +191,4 @@ public class OfficerTerminationValidator {
                 LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
         errorList.add(apiError);
     }
-
 }
