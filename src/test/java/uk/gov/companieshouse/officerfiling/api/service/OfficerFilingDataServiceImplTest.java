@@ -5,6 +5,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.delta.Officer;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.repository.OfficerFilingRepository;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
@@ -95,6 +98,15 @@ class OfficerFilingDataServiceImplTest {
         assertThat(updatedFiling.getReferenceEtag(), is("NewETAG"));
         assertThat(updatedFiling.getReferenceAppointmentId(), is("Appoint"));
         assertThat(updatedFiling.getResignedOn(), is(Instant.parse("2022-09-13T00:00:00Z")));
+    }
+
+    @Test
+    void testErrorHandling() throws URISyntaxException {
+        OfficerFiling original = OfficerFiling.builder().referenceEtag("ETAG")
+                .resignedOn(Instant.parse("2022-09-13T00:00:00Z")).build();
+        OfficerFiling patch = OfficerFiling.builder().referenceAppointmentId("Appoint")
+                .referenceEtag("NewETAG").links(new Links(new URI("URI"), new URI("URI"))).build();
+        OfficerFiling updatedFiling = testService.mergeFilings(original, patch, transaction);
     }
 
 }

@@ -2,6 +2,7 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.companieshouse.api.model.transaction.Resource;
@@ -28,6 +30,7 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
+import uk.gov.companieshouse.officerfiling.api.utils.LogHelper.Builder;
 import uk.gov.companieshouse.officerfiling.api.validation.OfficerTerminationValidator;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
@@ -131,7 +134,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             @RequestBody @Valid @NotNull final OfficerFilingDto dto,
             @PathVariable("filingResourceId") final String filingResourceId,
             final BindingResult bindingResult, final HttpServletRequest request) {
-        logger.debugContext(transaction.getId(), "Patching Filing", new LogHelper.Builder(transaction)
+        logger.debugContext(transaction.getId(), "Patching Filing", new Builder(transaction)
                 .withRequest(request)
                 .build());
 
@@ -167,8 +170,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         transaction.setResources(resourceMap);
         transactionService.updateTransaction(transaction, passthroughHeader);
 
-        return ResponseEntity.created(links.getSelf())
-                .build();
+        return ResponseEntity.ok(null);
     }
 
     /**

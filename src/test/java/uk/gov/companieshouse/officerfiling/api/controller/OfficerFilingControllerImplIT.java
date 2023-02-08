@@ -213,8 +213,7 @@ class OfficerFilingControllerImplIT {
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(header().string("Location", locationUri.toUriString()))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$").doesNotExist());
         verify(filingMapper).map(dto);
     }
@@ -251,8 +250,7 @@ class OfficerFilingControllerImplIT {
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(header().string("Location", locationUri.toUriString()))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$").doesNotExist());
         verify(filingMapper).map(dto);
     }
@@ -287,8 +285,7 @@ class OfficerFilingControllerImplIT {
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(header().string("Location", locationUri.toUriString()))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$").doesNotExist());
         verify(filingMapper).map(dto);
     }
@@ -323,8 +320,7 @@ class OfficerFilingControllerImplIT {
                         .contentType("application/json")
                         .headers(httpHeaders))
                 .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(header().string("Location", locationUri.toUriString()))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$").doesNotExist());
         verify(filingMapper).map(dto);
     }

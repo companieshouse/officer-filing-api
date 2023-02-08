@@ -171,7 +171,7 @@ class OfficerFilingControllerImplTest {
         // refEq needed to compare Map value objects; Resource does not override equals()
         verify(transaction).setResources(refEq(resourceMap));
         verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
-        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
 
         final var filingOptional = Optional.of(withFilingId);
         when(officerFilingService.get("12345", TRANS_ID)).thenReturn(filingOptional);
@@ -179,7 +179,7 @@ class OfficerFilingControllerImplTest {
         final var mergeResponse =
                 testController.patchFiling(transaction, dto, "12345", nullBindingResult ? null : result,
                         request);
-        assertThat(mergeResponse.getStatusCode(), is(HttpStatus.CREATED));
+        assertThat(mergeResponse.getStatusCode(), is(HttpStatus.OK));
     }
 
     @Test
