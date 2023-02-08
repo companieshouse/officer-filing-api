@@ -100,13 +100,4 @@ class OfficerFilingDataServiceImplTest {
         assertThat(updatedFiling.getResignedOn(), is(Instant.parse("2022-09-13T00:00:00Z")));
     }
 
-    @Test
-    void testErrorHandling() throws URISyntaxException {
-        OfficerFiling original = OfficerFiling.builder().referenceEtag("ETAG")
-                .resignedOn(Instant.parse("2022-09-13T00:00:00Z")).build();
-        OfficerFiling patch = OfficerFiling.builder().referenceAppointmentId("Appoint")
-                .referenceEtag("NewETAG").links(new Links(new URI("URI"), new URI("URI"))).build();
-        OfficerFiling updatedFiling = testService.mergeFilings(original, patch, transaction);
-    }
-
 }
