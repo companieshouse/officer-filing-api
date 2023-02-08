@@ -35,11 +35,11 @@ import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 @ExtendWith(MockitoExtension.class)
 class ValidationStatusControllerImplTest {
 
-    public static final String TRANS_ID = "117524-754816-491724";
-    public static final String FILING_ID = "6332aa6ed28ad2333c3a520a";
+    private static final String TRANS_ID = "117524-754816-491724";
+    private static final String FILING_ID = "6332aa6ed28ad2333c3a520a";
     private static final String ETAG = "etag";
     private static final String COMPANY_TYPE = "ltd";
-    public static final String COMPANY_NUMBER = "COMPANY_NUMBER";
+    private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     private static final String PASSTHROUGH_HEADER = "passthrough";
     @Mock
     private OfficerFilingService officerFilingService;

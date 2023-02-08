@@ -48,9 +48,9 @@ class ValidationStatusControllerImplIT {
     private static final String FILING_ID = "632c8e65105b1b4a9f0d1f5e";
     private static final String PASSTHROUGH_HEADER = "passthrough";
     private static final String COMPANY_NUMBER = "123456";
-    public static final LocalDate INCORPORATION_DATE = LocalDate.of(2010, Month.OCTOBER, 20);
-    public static final LocalDate APPOINTMENT_DATE = LocalDate.of(2010, Month.OCTOBER, 30);
-    public static final String DIRECTOR_NAME = "Director name";
+    private static final LocalDate INCORPORATION_DATE = LocalDate.of(2010, Month.OCTOBER, 20);
+    private static final LocalDate APPOINTMENT_DATE = LocalDate.of(2010, Month.OCTOBER, 30);
+    private static final String DIRECTOR_NAME = "Director name";
     private static final String ETAG = "etag";
     private static final String COMPANY_TYPE = "ltd";
     @MockBean
