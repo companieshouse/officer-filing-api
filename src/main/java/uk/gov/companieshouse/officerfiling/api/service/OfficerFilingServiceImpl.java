@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -81,7 +80,7 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
         // JavaTimeModule handles Instant serialisation
         var mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
-        ObjectNode updatedFiling = mapper.createObjectNode();
+        var updatedFiling = mapper.createObjectNode();
         for(Map.Entry<String,String> entry : fieldMap.entrySet()){
             String field = entry.getKey();
             String value = entry.getValue();

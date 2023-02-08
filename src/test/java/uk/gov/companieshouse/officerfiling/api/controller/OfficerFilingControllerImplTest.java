@@ -172,6 +172,14 @@ class OfficerFilingControllerImplTest {
         verify(transaction).setResources(refEq(resourceMap));
         verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
+
+        final var filingOptional = Optional.of(withFilingId);
+        when(officerFilingService.get("12345", TRANS_ID)).thenReturn(filingOptional);
+        when(officerFilingService.mergeFilings(withFilingId, filingOptional.get(), transaction)).thenReturn(filingOptional.get());
+        final var mergeResponse =
+                testController.patchFiling(transaction, dto, "12345", nullBindingResult ? null : result,
+                        request);
+        assertThat(mergeResponse.getStatusCode(), is(HttpStatus.CREATED));
     }
 
     @Test
@@ -189,6 +197,11 @@ class OfficerFilingControllerImplTest {
                 () -> testController.createFiling(transaction, dto, result, request));
 
         assertThat(exception.getFieldErrors(), contains(fieldErrorWithRejectedValue));
+
+        final var patchException = assertThrows(InvalidFilingException.class,
+                () -> testController.patchFiling(transaction, dto, null, result, request));
+
+        assertThat(patchException.getFieldErrors(), contains(fieldErrorWithRejectedValue));
     }
 
 
@@ -234,6 +247,9 @@ class OfficerFilingControllerImplTest {
         ReflectionTestUtils.setField(testController, "isTm01Enabled", false);
         assertThrows(FeatureNotEnabledException.class,
                 () -> testController.createFiling(transaction, dto, result, request));
+        assertThrows(FeatureNotEnabledException.class,
+                () -> testController.patchFiling(transaction, dto, null, result, request));
+
     }
 
     @Test
