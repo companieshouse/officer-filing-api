@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -13,18 +14,17 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.ErrorMapper;
-import uk.gov.companieshouse.officerfiling.api.model.mapper.ErrorMapperImpl;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
@@ -63,8 +63,8 @@ class ValidationStatusControllerImplTest {
     private CompanyProfileApi companyProfile;
     @Mock
     private OfficerFilingDto dto;
-    @InjectMocks
-    private ErrorMapper errorMapper = new ErrorMapperImpl();
+    @Mock
+    private ErrorMapper errorMapper;
     private OfficerFiling filing;
     private ValidationStatusControllerImpl testController;
 
@@ -92,21 +92,13 @@ class ValidationStatusControllerImplTest {
     @Test
     void validateWhenFilingFoundAndNoValidationErrors() {
 
-        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
-        when(officerFilingMapper.map(filing)).thenReturn(dto);
-        when(transaction.getId()).thenReturn(TRANS_ID);
-        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        validationStatusControllerMocks();
         when(dto.getReferenceEtag()).thenReturn(ETAG);
         when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
         when(dto.getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
-        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
-        when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2005, 10, 3));
         when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
-        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2007, 10, 5));
-        when(companyAppointment.getEtag()).thenReturn(ETAG);
-        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
 
         final var response = testController.validate(transaction, FILING_ID, request);
         assertThat(response.getValidationStatusError(), is(nullValue()));
@@ -116,26 +108,30 @@ class ValidationStatusControllerImplTest {
     @Test
     void validateWhenFilingFoundAndValidationErrors() {
 
-        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
-        when(officerFilingMapper.map(filing)).thenReturn(dto);
-        when(transaction.getId()).thenReturn(TRANS_ID);
-        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        validationStatusControllerMocks();
         when(dto.getReferenceEtag()).thenReturn("etag");
         when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
         when(dto.getResignedOn()).thenReturn(LocalDate.of(1022, 9, 13));
-        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
-        when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(companyProfile.getType()).thenReturn("invalid-type");
-        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
-        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
-        when(companyAppointment.getEtag()).thenReturn(ETAG);
-        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
-
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));;
+        when(errorMapper.map(anySet())).thenReturn(new ValidationStatusError[4]);
 
         final var response = testController.validate(transaction, FILING_ID, request);
         assertThat(response.isValid(), is(false));
         assertThat(response.getValidationStatusError().length, is(4));
+    }
+
+    void validationStatusControllerMocks() {
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
+        when(officerFilingMapper.map(filing)).thenReturn(dto);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
     }
 
 }
