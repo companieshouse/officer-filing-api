@@ -49,7 +49,7 @@ public class CompanyProfileServiceImpl implements CompanyProfileService {
             return companyProfile;
         }
         catch (final ApiErrorResponseException e) {
-            throw new ServiceUnavailableException();
+            throw new ServiceUnavailableException("The service is down. Try again later");
         }
         catch (final URIValidationException | IOException e) {
             throw new CompanyProfileServiceException("Error Retrieving company profile " + companyNumber, e);

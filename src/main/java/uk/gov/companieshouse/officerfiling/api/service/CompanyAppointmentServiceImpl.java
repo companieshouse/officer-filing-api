@@ -55,7 +55,7 @@ public class CompanyAppointmentServiceImpl implements CompanyAppointmentService{
             return companyAppointment;
         }
         catch (final ApiErrorResponseException e) {
-            throw new ServiceUnavailableException();
+            throw new ServiceUnavailableException("The service is down. Try again later");
         }
         catch (final URIValidationException | IOException e) {
             throw new CompanyAppointmentServiceException("Error Retrieving appointment " + appointmentId + " for company " + companyNumber, e);

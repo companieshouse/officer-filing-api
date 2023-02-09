@@ -58,7 +58,8 @@ public class OfficerTerminationValidator {
      * @param passthroughHeader ERIC pass through header for authorisation
      * @return An object containing a list of any validation errors that have been raised
      */
-    public ApiErrors validate(HttpServletRequest request, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
+    public ApiErrors validate(HttpServletRequest request, OfficerFilingDto dto, Transaction transaction, String passthroughHeader)
+        throws ServiceUnavailableException {
             logger.debugContext(transaction.getId(), "Beginning officer termination validation", new LogHelper.Builder(transaction)
                 .withRequest(request)
                 .build());
@@ -89,13 +90,12 @@ public class OfficerTerminationValidator {
     }
 
     public Optional<AppointmentFullRecordAPI> getOfficerAppointment(HttpServletRequest request,
-        List<ApiError> errorList, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
+        List<ApiError> errorList, OfficerFilingDto dto, Transaction transaction, String passthroughHeader)
+        throws ServiceUnavailableException {
         try {
             return Optional.ofNullable(
                     companyAppointmentService.getCompanyAppointment(transaction.getId(), transaction.getCompanyNumber(),
                             dto.getReferenceAppointmentId(), passthroughHeader));
-        } catch (ServiceUnavailableException e) {
-            createServiceError(request, errorList);
         } catch (CompanyAppointmentServiceException e) {
             createValidationError(request, errorList, "Officer not found. Please confirm the details and resubmit");
         }
@@ -103,13 +103,11 @@ public class OfficerTerminationValidator {
     }
 
     public Optional<CompanyProfileApi> getCompanyProfile(HttpServletRequest request,
-        List<ApiError> errorList, Transaction transaction, String passthroughHeader) {
+        List<ApiError> errorList, Transaction transaction, String passthroughHeader) throws ServiceUnavailableException {
         try {
             return Optional.ofNullable(
                 companyProfileService.getCompanyProfile(transaction.getId(), transaction.getCompanyNumber(),
                     passthroughHeader));
-        } catch (ServiceUnavailableException e) {
-            createServiceError(request, errorList);
         } catch (CompanyProfileServiceException e) {
             createValidationError(request, errorList, "Company not found. Please confirm the details and resubmit");
         }
@@ -140,7 +138,7 @@ public class OfficerTerminationValidator {
     }
 
     /**
-     * Check to ensure an request isn't being filed for an officer who has already resigned.
+     * Check to ensure a request isn't being filed for an officer who has already resigned.
      * Used for Validation rules D19_9A/D19_9
      * @param request
      * @param errorList

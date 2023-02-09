@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.InternalApiClient;
+import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.company.CompanyResourceHandler;
 import uk.gov.companieshouse.api.handler.company.request.CompanyGet;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
@@ -17,6 +18,7 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 
 import java.io.IOException;
+import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -77,6 +79,19 @@ class CompanyProfileServiceImplTest {
                 () -> testService.getCompanyProfile(TRANSACTION_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER));
         assertThat(exception.getMessage(),
                 is("Error Retrieving company profile " + COMPANY_NUMBER));
+    }
+
+    @Test
+    void exceptionIsThrownWhenCompanyProfileServiceUnavailable() throws IOException, URIValidationException {
+        when(companyGet.execute()).thenThrow(ApiErrorResponseException.class);
+        when(companyResourceHandler.get(URI)).thenReturn(companyGet);
+        when(internalApiClient.company()).thenReturn(companyResourceHandler);
+        when(apiClientService.getInternalApiClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
+
+        final var exception = assertThrows(ServiceUnavailableException.class,
+            () -> testService.getCompanyProfile(TRANSACTION_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER));
+        assertThat(exception.getMessage(),
+            is("The service is down. Try again later"));
     }
 
 }
