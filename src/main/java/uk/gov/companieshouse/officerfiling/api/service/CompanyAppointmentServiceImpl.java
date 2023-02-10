@@ -1,20 +1,16 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException.NotFound;
-import org.springframework.web.client.HttpServerErrorException.ServiceUnavailable;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
-import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 import java.io.IOException;
-import java.util.Map;
 
 @Service
 public class CompanyAppointmentServiceImpl implements CompanyAppointmentService{
@@ -35,6 +31,7 @@ public class CompanyAppointmentServiceImpl implements CompanyAppointmentService{
      * @param ericPassThroughHeader includes authorisation for company appointment fetch
      * @return the appointment if found
      * @throws CompanyAppointmentServiceException if not found or an error occurred
+     * @throws ServiceUnavailableException if Company Appointments API is unavailable
      */
     @Override
     public AppointmentFullRecordAPI getCompanyAppointment(String transactionId, String companyNumber, String appointmentId,

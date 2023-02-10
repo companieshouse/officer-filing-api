@@ -31,6 +31,7 @@ public class CompanyProfileServiceImpl implements CompanyProfileService {
      * @param ericPassThroughHeader includes authorisation details
      * @return the company profile if found
      * @throws CompanyProfileServiceException if not found or an error occurred
+     * @throws ServiceUnavailableException if public API is unavailable
      */
     @Override
     public CompanyProfileApi getCompanyProfile(final String transactionId, final String companyNumber, final String ericPassThroughHeader)

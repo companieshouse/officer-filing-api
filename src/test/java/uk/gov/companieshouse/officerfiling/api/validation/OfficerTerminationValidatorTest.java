@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.validation;
 
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +10,6 @@ import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
@@ -28,8 +26,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -102,16 +98,17 @@ class OfficerTerminationValidatorTest {
             .referenceAppointmentId(FILING_ID)
             .resignedOn(LocalDate.of(2022, 9, 13))
             .build();
-        List<ApiError> errorList = new ArrayList<>();
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenThrow(
             new ServiceUnavailableException("The service is down. Try again later"));
 
-        final var exception = assertThrows(ServiceUnavailableException.class,
-            () -> officerTerminationValidator.getOfficerAppointment(request, errorList, dto, transaction, PASSTHROUGH_HEADER));
-        MatcherAssert.assertThat(exception.getMessage(),
-            is("The service is down. Try again later"));
+        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+            .as("An error should be produced when the Company Appointment Service is unavailable")
+            .hasSize(1)
+            .extracting(ApiError::getError)
+            .contains("The service is down. Try again later");
     }
 
     @Test
@@ -121,16 +118,17 @@ class OfficerTerminationValidatorTest {
             .referenceAppointmentId(FILING_ID)
             .resignedOn(LocalDate.of(2022, 9, 13))
             .build();
-        List<ApiError> errorList = new ArrayList<>();
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenThrow(
             new ServiceUnavailableException("The service is down. Try again later"));
 
-        final var exception = assertThrows(ServiceUnavailableException.class,
-            () -> officerTerminationValidator.getCompanyProfile(request, errorList, transaction, PASSTHROUGH_HEADER));
-        MatcherAssert.assertThat(exception.getMessage(),
-            is("The service is down. Try again later"));
+        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+            .as("An error should be produced when the Company Profile Service is unavailable")
+            .hasSize(1)
+            .extracting(ApiError::getError)
+            .contains("The service is down. Try again later");
     }
 
     @Test
