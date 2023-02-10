@@ -81,6 +81,7 @@ class OfficerFilingControllerImplIT {
     public static final String DIRECTOR_NAME = "Director name";
     private static final String ETAG = "etag";
     private static final String COMPANY_TYPE = "ltd";
+    private static final String OFFICER_ROLE = "director";
 
     @MockBean
     private TransactionService transactionService;
@@ -136,6 +137,7 @@ class OfficerFilingControllerImplIT {
         companyAppointment.setName(DIRECTOR_NAME);
         companyAppointment.setAppointedOn(APPOINTMENT_DATE);
         companyAppointment.setEtag(ETAG);
+        companyAppointment.setOfficerRole(OFFICER_ROLE);
 
         when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
         when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);
@@ -576,6 +578,30 @@ class OfficerFilingControllerImplIT {
                                 + " from String \"" + replacementString + "\"")))
                 .andExpect(jsonPath("$.errors[0].error_values",
                         is(Map.of("offset", "line: 1, column: 97", "line", "1", "column", "97"))));
+    }
+
+    @Test
+    void createFilingWhenTransactionIsNull() throws Exception {
+        final var body = "{" + TM01_FRAGMENT + "}";
+        final var dto = OfficerFilingDto.builder()
+            .referenceEtag("etag")
+            .referenceAppointmentId(FILING_ID)
+            .resignedOn(LocalDate.of(2022, 9, 13))
+            .build();
+
+        when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
+        when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);
+        when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
+        when(transactionGetMock.execute()).thenReturn(apiResponse);
+        when(apiResponse.getData()).thenReturn(null);
+
+
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                .contentType("application/json")
+                .headers(httpHeaders))
+            .andDo(print())
+            .andExpect(status().isForbidden())
+            .andExpect(header().doesNotExist("Location"));
     }
 
 
