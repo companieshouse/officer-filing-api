@@ -5,13 +5,19 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.companieshouse.api.delta.Officer;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.repository.OfficerFilingRepository;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
@@ -30,6 +36,8 @@ class OfficerFilingDataServiceImplTest {
     private Logger logger;
     @Mock
     private LogHelper logHelper;
+    @Mock
+    private Transaction transaction;
 
     @BeforeEach
     void setUp() {
@@ -58,6 +66,38 @@ class OfficerFilingDataServiceImplTest {
         final var officerFiling = testService.get(FILING_ID, TRANS_ID);
 
         assertThat(officerFiling.isPresent(), is(false));
+    }
+
+    @Test
+    void testMergePartial(){
+        OfficerFiling original = OfficerFiling.builder().referenceEtag("ETAG").build();
+        OfficerFiling patch = OfficerFiling.builder().referenceAppointmentId("Appoint").build();
+        OfficerFiling updatedFiling = testService.mergeFilings(original, patch, transaction);
+        assertThat(updatedFiling.getReferenceEtag(), is("ETAG"));
+        assertThat(updatedFiling.getReferenceAppointmentId(), is("Appoint"));
+    }
+
+    @Test
+    void testMergeFull(){
+        OfficerFiling original = OfficerFiling.builder().referenceEtag("ETAG")
+                .resignedOn(Instant.parse("2022-09-13T00:00:00Z")).build();
+        OfficerFiling patch = OfficerFiling.builder().referenceAppointmentId("Appoint").build();
+        OfficerFiling updatedFiling = testService.mergeFilings(original, patch, transaction);
+        assertThat(updatedFiling.getReferenceEtag(), is("ETAG"));
+        assertThat(updatedFiling.getReferenceAppointmentId(), is("Appoint"));
+        assertThat(updatedFiling.getResignedOn(), is(Instant.parse("2022-09-13T00:00:00Z")));
+    }
+
+    @Test
+    void testMergeOverwrite(){
+        OfficerFiling original = OfficerFiling.builder().referenceEtag("ETAG")
+                .resignedOn(Instant.parse("2022-09-13T00:00:00Z")).build();
+        OfficerFiling patch = OfficerFiling.builder().referenceAppointmentId("Appoint")
+                .referenceEtag("NewETAG").build();
+        OfficerFiling updatedFiling = testService.mergeFilings(original, patch, transaction);
+        assertThat(updatedFiling.getReferenceEtag(), is("NewETAG"));
+        assertThat(updatedFiling.getReferenceAppointmentId(), is("Appoint"));
+        assertThat(updatedFiling.getResignedOn(), is(Instant.parse("2022-09-13T00:00:00Z")));
     }
 
 }

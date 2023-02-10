@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
@@ -28,6 +29,23 @@ public interface OfficerFilingController {
     default ResponseEntity<Object> createFiling(@RequestAttribute("transaction") Transaction transaction,
             @RequestBody @Valid @NotNull final OfficerFilingDto dto, final BindingResult result,
             final HttpServletRequest request) {
+        throw new NotImplementedException();
+    }
+
+    /**
+     * Patch an Officer Filing.
+     *
+     * @param transaction the Transaction
+     * @param dto           the request body payload DTO
+     * @param bindingResult the MVC binding result (with any validation errors)
+     * @param request       the servlet request
+     * @return CREATED response containing the populated Filing resource
+     */
+    @PatchMapping(produces = {"application/json"}, consumes = {"application/json"})
+    default ResponseEntity<Object> patchFiling(@RequestAttribute("transaction") Transaction transaction,
+            @RequestBody @Valid @NotNull final OfficerFilingDto dto,
+            @PathVariable("filingResourceId") final String filingResourceId,
+            final BindingResult bindingResult, final HttpServletRequest request) {
         throw new NotImplementedException();
     }
 

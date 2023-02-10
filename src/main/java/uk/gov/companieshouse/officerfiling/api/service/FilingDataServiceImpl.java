@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
@@ -70,7 +71,7 @@ public class FilingDataServiceImpl implements FilingDataService {
                 .corporateDirector(mapCorporateDirector(transaction, companyAppointment))
                 .build();
         var filingData = filingMapper.mapFiling(enhancedOfficerFiling);
-        var dataMap = MapHelper.convertObject(filingData);
+        var dataMap = MapHelper.convertObject(filingData, PropertyNamingStrategies.SNAKE_CASE);
 
         logger.debugContext(transactionId, "Created filing data for submission", new LogHelper.Builder(transaction)
                 .withFilingId(filingId)

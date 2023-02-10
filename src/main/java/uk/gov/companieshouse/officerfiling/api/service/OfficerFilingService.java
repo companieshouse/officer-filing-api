@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
 import java.util.Optional;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 
 /**
@@ -11,4 +12,5 @@ public interface OfficerFilingService {
 
     Optional<OfficerFiling> get(String officerFilingId, String transactionId);
 
+    OfficerFiling mergeFilings(OfficerFiling original, OfficerFiling patch, Transaction transaction);
 }
