@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -83,8 +81,8 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
 
         var updatedFiling = mapper.createObjectNode();
         for(Map.Entry<String,Object> entry : fieldMap.entrySet()){
-            String field = entry.getKey();
-            String value = entry.getValue().toString();
+            var field = entry.getKey();
+            var value = entry.getValue().toString();
             updatedFiling.put(field, value);
         }
         var updatedFilingJson = updatedFiling.toString();
