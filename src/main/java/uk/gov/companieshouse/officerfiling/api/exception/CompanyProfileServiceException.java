@@ -5,6 +5,10 @@ package uk.gov.companieshouse.officerfiling.api.exception;
  */
 public class CompanyProfileServiceException extends RuntimeException{
 
+    public CompanyProfileServiceException(final String message) {
+        super(message);
+    }
+
     public CompanyProfileServiceException(final String s, final Exception e) {
         super(s, e);
     }
