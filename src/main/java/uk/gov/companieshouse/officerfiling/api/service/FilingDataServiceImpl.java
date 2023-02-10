@@ -3,6 +3,7 @@ package uk.gov.companieshouse.officerfiling.api.service;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
@@ -66,6 +67,7 @@ public class FilingDataServiceImpl implements FilingDataService {
         var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
                 .dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()))
                 .name(companyAppointment.getName())
+                .corporateDirector(mapCorporateDirector(transaction, companyAppointment))
                 .build();
         var filingData = filingMapper.mapFiling(enhancedOfficerFiling);
         var dataMap = MapHelper.convertObject(filingData);
@@ -75,6 +77,22 @@ public class FilingDataServiceImpl implements FilingDataService {
                 .build());
 
         filing.setData(dataMap);
+    }
+
+    /**
+     * Map officer role to corporate_director boolean.
+     */
+    public Boolean mapCorporateDirector(Transaction transaction, AppointmentFullRecordAPI companyAppointment) {
+        switch(companyAppointment.getOfficerRole()) {
+            case("corporate-director"):
+                return true;
+            case("director"):
+                return false;
+            default:
+                logger.infoContext(transaction.getId(), "Unrecognised Officer Role: " + companyAppointment.getOfficerRole(),
+                        new LogHelper.Builder(transaction).build());
+                return false;
+        }
     }
 
 }

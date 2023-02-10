@@ -76,6 +76,7 @@ class OfficerFilingControllerImplIT {
     public static final String DIRECTOR_NAME = "Director name";
     private static final String ETAG = "etag";
     private static final String COMPANY_TYPE = "ltd";
+    private static final String OFFICER_ROLE = "director";
 
     @MockBean
     private TransactionService transactionService;
@@ -131,6 +132,7 @@ class OfficerFilingControllerImplIT {
         companyAppointment.setName(DIRECTOR_NAME);
         companyAppointment.setAppointedOn(APPOINTMENT_DATE);
         companyAppointment.setEtag(ETAG);
+        companyAppointment.setOfficerRole(OFFICER_ROLE);
 
         when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
         when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);

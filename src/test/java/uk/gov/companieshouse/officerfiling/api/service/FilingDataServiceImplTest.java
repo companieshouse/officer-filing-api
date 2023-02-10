@@ -12,6 +12,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
@@ -54,7 +56,7 @@ class FilingDataServiceImplTest {
     @Mock
     private AppointmentFullRecordAPI companyAppointment;
 
-    private FilingDataService testService;
+    private FilingDataServiceImpl testService;
 
     @BeforeEach
     void setUp() {
@@ -64,7 +66,7 @@ class FilingDataServiceImplTest {
 
     @Test
     void generateOfficerFilingWhenFound() {
-        final var filingData = new FilingData(FIRSTNAME, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, REF_ETAG);
+        final var filingData = new FilingData(FIRSTNAME, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, true);
         final var officerFiling = OfficerFiling.builder()
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
                 .firstName(FIRSTNAME)
@@ -79,6 +81,7 @@ class FilingDataServiceImplTest {
         dateOfBirthAPI.setYear(2000);
 
         when(companyAppointment.getDateOfBirth()).thenReturn(dateOfBirthAPI);
+        when(companyAppointment.getOfficerRole()).thenReturn("corporate-director");
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
         when(officerFilingMapper.mapFiling(officerFiling)).thenReturn(filingData);
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
@@ -91,7 +94,7 @@ class FilingDataServiceImplTest {
                 Map.of("first_name", FIRSTNAME, "last_name", LASTNAME,
                         "date_of_birth", DATE_OF_BIRTH_STR,
                         "resigned_on", RESIGNED_ON_STR,
-                        "referenceEtag", REF_ETAG);
+                        "is_corporate_director", true);
 
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#termination"));
@@ -106,5 +109,17 @@ class FilingDataServiceImplTest {
 
         assertThat(exception.getMessage(),
                 is("Officer not found when generating filing for " + FILING_ID));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "corporate-director,true",
+            "director,false",
+            "invalid-role,false",
+    })
+    void mapCorporateDirector(String officerRole, boolean isCorporateDirector) {
+        when(companyAppointment.getOfficerRole()).thenReturn(officerRole);
+        final Boolean corporateDirector = testService.mapCorporateDirector(transaction, companyAppointment);
+        assertThat(corporateDirector, is(isCorporateDirector));
     }
 }
