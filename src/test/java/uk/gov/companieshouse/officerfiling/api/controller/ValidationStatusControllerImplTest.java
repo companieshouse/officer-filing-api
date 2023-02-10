@@ -40,6 +40,7 @@ class ValidationStatusControllerImplTest {
     private static final String ETAG = "etag";
     private static final String COMPANY_TYPE = "ltd";
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
+    private static final String OFFICER_ROLE = "director";
     private static final String PASSTHROUGH_HEADER = "passthrough";
     @Mock
     private OfficerFilingService officerFilingService;
@@ -131,6 +132,7 @@ class ValidationStatusControllerImplTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointment.getEtag()).thenReturn(ETAG);
+        when(companyAppointment.getOfficerRole()).thenReturn(OFFICER_ROLE);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
     }
 

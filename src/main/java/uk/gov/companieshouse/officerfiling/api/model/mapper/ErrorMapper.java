@@ -11,7 +11,7 @@ import uk.gov.companieshouse.officerfiling.api.error.LocationType;
 @Mapper(componentModel = "spring", imports = {ErrorType.class, LocationType.class})
 public interface ErrorMapper {
     @Mapping(target = "error", source = "error")
-    @Mapping(target="type", expression = "java(ErrorType.VALIDATION.getType())")
+    @Mapping(target="type", expression = "java(apiError.getType())")
     @Mapping(target="location", expression = "java(\"$.\" + apiError.getLocation())")
     @Mapping(target="locationType", expression = "java(LocationType.JSON_PATH.getValue())")
     ValidationStatusError map(final ApiError apiError);
