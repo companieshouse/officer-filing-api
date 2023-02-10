@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.lang.reflect.InvocationTargetException;
@@ -15,6 +16,7 @@ import uk.gov.companieshouse.officerfiling.api.exception.OfficerFilingServiceExc
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.repository.OfficerFilingRepository;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
+import uk.gov.companieshouse.officerfiling.api.utils.MapHelper;
 
 /**
  * Store/retrieve Officer Filing entities using the persistence layer.
@@ -70,19 +72,19 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
         logger.debugContext(transaction.getId(), "Patching filings", new LogHelper.Builder(transaction.getId())
                 .withCompanyNumber(transaction.getCompanyNumber()).withFilingId(original.getId())
                 .build());
-        HashMap<String,String> fieldMap = new HashMap<>();
-        OfficerFiling mergedFiling = null;
+        HashMap<String,Object> fieldMap = new HashMap<>();
+        OfficerFiling mergedFiling;
         // Get the current values of the original and patch filings, patch values will overwrite
         // Original values
-        extractFields(original, fieldMap, transaction);
-        extractFields(patch, fieldMap, transaction);
+        extractFields(original, fieldMap);
+        extractFields(patch, fieldMap);
         // JavaTimeModule handles Instant serialisation
         var mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
         var updatedFiling = mapper.createObjectNode();
-        for(Map.Entry<String,String> entry : fieldMap.entrySet()){
+        for(Map.Entry<String,Object> entry : fieldMap.entrySet()){
             String field = entry.getKey();
-            String value = entry.getValue();
+            String value = entry.getValue().toString();
             updatedFiling.put(field, value);
         }
         var updatedFilingJson = updatedFiling.toString();
@@ -98,31 +100,9 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
     /**
      * Extracts the fields from an OfficerFiling object and adds them to the given map
      */
-    private void extractFields(OfficerFiling filing, HashMap<String,String> fieldMap, Transaction transaction){
-        Class<OfficerFiling> yourClass = OfficerFiling.class;
-        for (Method method : yourClass.getMethods()) {
-            // Just call the getters
-            String methodName = method.getName();
-            if (methodName.startsWith("get")) {
-                //Get the string representations of each field
-                String fieldValue;
-                try {
-                    var fieldValueObject = method.invoke(filing, null);
-                    if(fieldValueObject==null)
-                        continue;
-                    fieldValue = fieldValueObject.toString();
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new OfficerFilingServiceException("Failed to patch an officer filing for company "
-                            + transaction.getCompanyNumber(), e);
-                }
-                //Get the name of the field
-                var fieldName = methodName.substring(3);
-                //Lower case the first character to match field name
-                fieldName = Character.toLowerCase(fieldName.charAt(0)) + fieldName.substring(1);
-                //Add to our map
-                fieldMap.put(fieldName, fieldValue);
-            }
-        }
+    private void extractFields(OfficerFiling filing, HashMap<String,Object> fieldMap){
+        Map<String, Object> originalMap = MapHelper.convertObject(filing, PropertyNamingStrategies.LOWER_CAMEL_CASE);
+        fieldMap.putAll(originalMap);
         // Remove some extra entries here to avoid extra string comparisons during the merge
         // These will be added to the record on load and cause issues when converting from JSON
         fieldMap.remove("class");
