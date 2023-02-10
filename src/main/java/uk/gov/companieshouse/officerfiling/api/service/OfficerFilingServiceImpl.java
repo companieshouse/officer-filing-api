@@ -67,8 +67,8 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
      */
     @Override
     public OfficerFiling mergeFilings(OfficerFiling original, OfficerFiling patch, Transaction transaction) {
-        logger.debugContext(transaction.getId(), "Patching filings", new LogHelper.Builder(transaction.getId())
-                .withCompanyNumber(transaction.getCompanyNumber()).withFilingId(original.getId())
+        logger.debugContext(transaction.getId(), "Patching filings", new LogHelper.Builder(transaction)
+                .withFilingId(original.getId())
                 .build());
         HashMap<String,Object> fieldMap = new HashMap<>();
         OfficerFiling mergedFiling;

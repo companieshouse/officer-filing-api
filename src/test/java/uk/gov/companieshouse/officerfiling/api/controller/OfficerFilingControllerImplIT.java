@@ -182,7 +182,7 @@ class OfficerFilingControllerImplIT {
     }
 
     @Test
-    void patchFilingWhenFullTM01PayloadOKThenResponse201() throws Exception {
+    void patchFilingWhenFullTM01PayloadOKThenResponse200() throws Exception {
         final var body = "{" + TM01_FRAGMENT + "}";
         final var dto = OfficerFilingDto.builder()
                 .referenceEtag("etag")
@@ -219,44 +219,7 @@ class OfficerFilingControllerImplIT {
     }
 
     @Test
-    void patchMergeFilingThenResponse201() throws Exception {
-        final var body = "{" + TM01_FRAGMENT + "}";
-        final var dto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(LocalDate.of(2022, 9, 13))
-                .build();
-        final var filing = OfficerFiling.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
-                .build();
-        final var locationUri = UriComponentsBuilder.fromPath("/")
-                .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
-                .build();
-
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
-        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
-        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
-        when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
-                        OfficerFiling.builder(filing).id(FILING_ID)
-                                .build()) // copy of 'filing' with id=FILING_ID
-                .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
-                        .build()); // copy of first argument
-        when(clock.instant()).thenReturn(FIRST_INSTANT);
-        when(filingMapper.map(dto)).thenReturn(filing);
-
-        mockMvc.perform(patch("/transactions/{id}/officers/{filing_id}", TRANS_ID, FILING_ID).content(body)
-                        .contentType("application/json")
-                        .headers(httpHeaders))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").doesNotExist());
-        verify(filingMapper).map(dto);
-    }
-
-    @Test
-    void patchFilingWhenMissingResignedOnTM01PayloadOKThenResponse201() throws Exception {
+    void patchFilingWhenMissingResignedOnTM01PayloadOKThenResponse200() throws Exception {
         final var body = "{" + PARTIAL_TM01_FRAGMENT_MISSING_RESIGNED_ON + "}";
         final var dto = OfficerFilingDto.builder()
                 .referenceEtag("etag")
@@ -291,7 +254,7 @@ class OfficerFilingControllerImplIT {
     }
 
     @Test
-    void patchFilingWhenMissingEtagTM01PayloadOKThenResponse201() throws Exception {
+    void patchFilingWhenMissingEtagTM01PayloadOKThenResponse200() throws Exception {
         final var body = "{" + PARTIAL_TM01_FRAGMENT_MISSING_ETAG + "}";
         final var dto = OfficerFilingDto.builder()
                 .referenceAppointmentId(FILING_ID)
