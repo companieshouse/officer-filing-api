@@ -106,9 +106,8 @@ class OfficerFilingControllerImplTest {
                 .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
                 .build();
         final var builder = UriComponentsBuilder.fromUri(REQUEST_URI);
-        final var privateBuilder = UriComponentsBuilder.fromUri(URI.create(PREFIX_PRIVATE + "/" + REQUEST_URI));
         links = new Links(builder.pathSegment(FILING_ID)
-                .build().toUri(), privateBuilder.pathSegment(FILING_ID).pathSegment("validation_status")
+                .build().toUri(), builder.pathSegment("validation_status")
                 .build().toUri());
         resourceMap = createResources();
     }
