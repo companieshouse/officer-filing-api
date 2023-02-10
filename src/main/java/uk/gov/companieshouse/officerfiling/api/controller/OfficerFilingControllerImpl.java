@@ -97,11 +97,11 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
         final var passthroughHeader =
                     request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
-        final var validator = new OfficerTerminationValidator(logger, transactionService, companyProfileService, companyAppointmentService);
-        final ApiErrors validationErrors = validator.validate(request, dto, transaction, passthroughHeader);
-        if(validationErrors.hasErrors()) {
-            return ResponseEntity.badRequest().body(validationErrors);
-        }
+      //  final var validator = new OfficerTerminationValidator(logger, transactionService, companyProfileService, companyAppointmentService);
+      //  final ApiErrors validationErrors = validator.validate(request, dto, transaction, passthroughHeader);
+      //  if(validationErrors.hasErrors()) {
+      //      return ResponseEntity.badRequest().body(validationErrors);
+      //  }
         final var entity = filingMapper.map(dto);
         final var links = saveFilingWithLinks(entity, transaction, request);
         final var resourceMap = buildResourceMap(links);
