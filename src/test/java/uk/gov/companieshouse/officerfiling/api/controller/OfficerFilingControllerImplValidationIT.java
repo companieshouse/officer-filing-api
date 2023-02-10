@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,6 +41,7 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
@@ -65,6 +65,7 @@ class OfficerFilingControllerImplValidationIT {
     public static final String DIRECTOR_NAME = "Director name";
     private static final String ETAG = "ETAG";
     private static final String COMPANY_TYPE = "ltd";
+    private static final String OFFICER_ROLE = "director";
 
     @MockBean
     private TransactionService transactionService;
@@ -117,6 +118,7 @@ class OfficerFilingControllerImplValidationIT {
         companyAppointment.setName(DIRECTOR_NAME);
         companyAppointment.setAppointedOn(APPOINTMENT_DATE);
         companyAppointment.setEtag(ETAG);
+        companyAppointment.setOfficerRole(OFFICER_ROLE);
         when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
         when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);
         when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
@@ -398,6 +400,29 @@ class OfficerFilingControllerImplValidationIT {
     }
 
     @Test
+    void createFilingWhenProfileNotFoundThenResponse400() throws Exception {
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenThrow(
+            new CompanyProfileServiceException("Error Retrieving company"));
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER))
+            .thenReturn(companyAppointment);
+        final var body = "{"
+            + TM01_FRAGMENT
+            + "}";
+
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                .contentType("application/json")
+                .headers(httpHeaders))
+            .andDo(print())
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.errors", hasSize(1)))
+            .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
+            .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
+            .andExpect(jsonPath("$.errors[0].error",
+                containsString("Company not found. Please confirm the details and resubmit")));
+    }
+
+    @Test
     void createFilingWhenTypeIsInvalidThenResponse400() throws Exception {
         companyProfileApi.setType("invalid-type");
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
@@ -418,5 +443,28 @@ class OfficerFilingControllerImplValidationIT {
                 .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
                 .andExpect(jsonPath("$.errors[0].error",
                         containsString("You cannot remove an officer from a invalid-type using this service")));
+    }
+
+    @Test
+    void createFilingWhenOfficerRoleIsInvalidThenResponse400() throws Exception {
+        companyAppointment.setOfficerRole("invalid-role");
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
+
+        final var body = "{"
+                + TM01_FRAGMENT
+                + "}";
+
+        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
+                        .contentType("application/json")
+                        .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
+                .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
+                .andExpect(jsonPath("$.errors[0].error",
+                        containsString("You can only remove directors")));
     }
 }

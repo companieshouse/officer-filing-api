@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.InternalApiClient;
+import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.delta.PrivateDeltaResourceHandler;
 import uk.gov.companieshouse.api.handler.delta.company.appointment.request.PrivateOfficerGet;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
@@ -16,6 +17,7 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 
 import java.io.IOException;
+import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -75,6 +77,19 @@ class CompanyAppointmentServiceImplTest {
                 () -> testService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, APPOINTMENT_ID, PASSTHROUGH_HEADER));
         assertThat(exception.getMessage(),
                 is("Error Retrieving appointment " + APPOINTMENT_ID + " for company " + COMPANY_NUMBER));
+    }
+
+    @Test
+    void exceptionIsThrownWhenCompanyAppointmentServiceUnavailable() throws IOException, URIValidationException {
+        when(getAppointment.execute()).thenThrow(ApiErrorResponseException.class);
+        when(privateDeltaResourceHandler.getAppointment("/company/" + COMPANY_NUMBER + "/appointments/" + APPOINTMENT_ID + "/full_record")).thenReturn(getAppointment);
+        when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
+        when(apiClientService.getInternalApiClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
+
+        final var exception = assertThrows(ServiceUnavailableException.class,
+            () -> testService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, APPOINTMENT_ID, PASSTHROUGH_HEADER));
+        assertThat(exception.getMessage(),
+            is("The service is down. Try again later"));
     }
 
     private AppointmentFullRecordAPI testCompanyAppointment(String name) {
