@@ -27,7 +27,7 @@ public class TransactionServiceImpl implements TransactionService {
      * Query the transaction service for a given transaction.
      *
      * @param transactionId         the Transaction ID
-     * @param ericPassThroughHeader includes authorisation for the transaction query
+     * @param ericPassThroughHeader includes authorisation for the transaction query 
      * @return the transaction if found
      *
      * @throws TransactionServiceException if not found or an error occurred

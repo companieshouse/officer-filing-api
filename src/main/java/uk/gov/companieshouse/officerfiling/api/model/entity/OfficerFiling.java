@@ -43,6 +43,7 @@ public class OfficerFiling {
     private Instant updatedAt;
     private Address residentialAddress;
     private Boolean residentialAddressSameAsCorrespondenceAddress;
+    private Boolean corporateDirector;
 
     private OfficerFiling() {
     }
@@ -147,6 +148,10 @@ public class OfficerFiling {
         return residentialAddressSameAsCorrespondenceAddress;
     }
 
+    public Boolean getCorporateDirector() {
+        return corporateDirector;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -224,6 +229,7 @@ public class OfficerFiling {
                 .add("residentialAddress=" + residentialAddress)
                 .add("residentialAddressSameAsCorrespondenceAddress="
                         + residentialAddressSameAsCorrespondenceAddress)
+                .add("corporateDirector=" + corporateDirector)
                 .toString();
     }
 
@@ -250,6 +256,7 @@ public class OfficerFiling {
                     .addressSameAsRegisteredOfficeAddress(
                             other.getAddressSameAsRegisteredOfficeAddress())
                     .appointedOn(other.getAppointedOn())
+                    .corporateDirector(other.getCorporateDirector())
                     .countryOfResidence(other.getCountryOfResidence())
                     .createdAt(other.getCreatedAt())
                     .dateOfBirth(other.getDateOfBirth())
@@ -437,6 +444,11 @@ public class OfficerFiling {
         public Builder residentialAddressSameAsCorrespondenceAddress(final Boolean value) {
 
             buildSteps.add(data -> data.residentialAddressSameAsCorrespondenceAddress = value);
+            return this;
+        }
+
+        public Builder corporateDirector(final Boolean value) {
+            buildSteps.add(data -> data.corporateDirector = value);
             return this;
         }
 

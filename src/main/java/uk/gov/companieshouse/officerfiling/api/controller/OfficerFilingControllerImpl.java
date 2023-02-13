@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
@@ -27,6 +28,7 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
+import uk.gov.companieshouse.officerfiling.api.utils.LogHelper.Builder;
 import uk.gov.companieshouse.officerfiling.api.validation.OfficerTerminationValidator;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
@@ -111,6 +113,61 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
         return ResponseEntity.created(links.getSelf())
                 .build();
+    }
+
+    /**
+     * Patch an Officer Filing.
+     *
+     * @param transaction the Transaction
+     * @param dto           the request body payload DTO
+     * @param bindingResult the MVC binding result (with any validation errors)
+     * @param request       the servlet request
+     * @return CREATED response containing the populated Filing resource
+     */
+    @Override
+    @PatchMapping(value = "/{filingResourceId}", produces = {"application/json"}, consumes = {"application/json"})
+    public ResponseEntity<Object> patchFiling(
+            @RequestAttribute("transaction") Transaction transaction,
+            @RequestBody @Valid @NotNull final OfficerFilingDto dto,
+            @PathVariable("filingResourceId") final String filingResourceId,
+            final BindingResult bindingResult, final HttpServletRequest request) {
+        logger.debugContext(transaction.getId(), "Patching Filing", new Builder(transaction)
+                .withRequest(request)
+                .build());
+
+        if(!isTm01Enabled){
+            throw new FeatureNotEnabledException();
+        }
+
+        if (bindingResult != null && bindingResult.hasErrors()) {
+            throw new InvalidFilingException(bindingResult.getFieldErrors());
+        }
+
+        final var passthroughHeader =
+                request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
+
+        String transId = transaction.getId();
+        // Get the current filing if it exists
+        var officerFilingOptional = officerFilingService.get(filingResourceId, transId);
+        OfficerFiling officerFiling;
+        // If it does, then update it with the patch data
+        if(officerFilingOptional.isPresent()){
+            // Update the existing filing
+            officerFiling = officerFilingOptional.get();
+            officerFiling = officerFilingService.mergeFilings(officerFiling, filingMapper.map(dto), transaction);
+        }
+        else{
+            // Else just create a new filing
+            officerFiling = filingMapper.map(dto);
+        }
+
+        final var links = saveFilingWithLinks(officerFiling, transaction, request);
+        final var resourceMap = buildResourceMap(links);
+
+        transaction.setResources(resourceMap);
+        transactionService.updateTransaction(transaction, passthroughHeader);
+
+        return ResponseEntity.ok(null);
     }
 
     /**

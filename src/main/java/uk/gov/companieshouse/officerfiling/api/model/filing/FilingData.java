@@ -11,19 +11,20 @@ public class FilingData {
     private String lastName;
     private String dateOfBirth;
     private String resignedOn;
-    private String referenceEtag;
+    @JsonProperty("is_corporate_director")
+    private Boolean corporateDirector;
 
     @JsonCreator
     public FilingData(@JsonProperty("first_name") String firstName,
                       @JsonProperty("last_name") String lastName,
                       @JsonProperty("date_of_birth") String dateOfBirth,
                       @JsonProperty("resigned_on") String resignedOn,
-                      @JsonProperty("referenceEtag") String referenceEtag) {
+                      @JsonProperty("is_corporate_director") Boolean corporateDirector) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
         this.resignedOn = resignedOn;
-        this.referenceEtag = referenceEtag;
+        this.corporateDirector = corporateDirector;
     }
 
     public String getFirstName() {
@@ -42,7 +43,7 @@ public class FilingData {
         return resignedOn;
     }
 
-    public String getReferenceEtag() {
-        return referenceEtag;
+    public Boolean getCorporateDirector() {
+        return corporateDirector;
     }
 }

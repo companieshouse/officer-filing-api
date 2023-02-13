@@ -62,6 +62,7 @@ class OfficerFilingControllerImplTest {
     public static final String DIRECTOR_NAME = "director name";
     private static final String ETAG = "etag";
     private static final String COMPANY_TYPE = "ltd";
+    private static final String OFFICER_ROLE = "director";
 
     private OfficerFilingController testController;
     @Mock
@@ -127,6 +128,7 @@ class OfficerFilingControllerImplTest {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyAppointment.getEtag()).thenReturn(ETAG);
+        when(companyAppointment.getOfficerRole()).thenReturn(OFFICER_ROLE);
         when(filingMapper.map(dto)).thenReturn(filing);
         final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
                 .build();
@@ -147,6 +149,40 @@ class OfficerFilingControllerImplTest {
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
     }
 
+    @ParameterizedTest(name = "[{index}] null binding result={0}")
+    @ValueSource(booleans = {true, false})
+    void patchFiling(final boolean nullBindingResult) {
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(filingMapper.map(dto)).thenReturn(filing);
+        final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
+                .build();
+        final var withLinks = OfficerFiling.builder(withFilingId).links(links)
+                .build();
+        when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
+        when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
+
+        final var response =
+                testController.patchFiling(transaction, dto, "12345", nullBindingResult ? null : result,
+                        request);
+
+        // refEq needed to compare Map value objects; Resource does not override equals()
+        verify(transaction).setResources(refEq(resourceMap));
+        verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+
+        final var filingOptional = Optional.of(withFilingId);
+        when(officerFilingService.get("12345", TRANS_ID)).thenReturn(filingOptional);
+        when(officerFilingService.mergeFilings(withFilingId, filingOptional.get(), transaction)).thenReturn(filingOptional.get());
+        final var mergeResponse =
+                testController.patchFiling(transaction, dto, "12345", nullBindingResult ? null : result,
+                        request);
+        assertThat(mergeResponse.getStatusCode(), is(HttpStatus.OK));
+    }
+
     @Test
     void createFilingWhenRequestHasBindingError() {
         final var codes = new String[]{"code1", "code2.name", "code3"};
@@ -162,6 +198,11 @@ class OfficerFilingControllerImplTest {
                 () -> testController.createFiling(transaction, dto, result, request));
 
         assertThat(exception.getFieldErrors(), contains(fieldErrorWithRejectedValue));
+
+        final var patchException = assertThrows(InvalidFilingException.class,
+                () -> testController.patchFiling(transaction, dto, null, result, request));
+
+        assertThat(patchException.getFieldErrors(), contains(fieldErrorWithRejectedValue));
     }
 
 
@@ -207,11 +248,15 @@ class OfficerFilingControllerImplTest {
         ReflectionTestUtils.setField(testController, "isTm01Enabled", false);
         assertThrows(FeatureNotEnabledException.class,
                 () -> testController.createFiling(transaction, dto, result, request));
+        assertThrows(FeatureNotEnabledException.class,
+                () -> testController.patchFiling(transaction, dto, null, result, request));
+
     }
 
     @Test
     void doNotCreateFilingWhenRequestHasTooOldDate() {
         when(companyAppointment.getEtag()).thenReturn(ETAG);
+        when(companyAppointment.getOfficerRole()).thenReturn(OFFICER_ROLE);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));

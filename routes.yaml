@@ -5,3 +5,4 @@ routes:
   1: ^/officers
   2: ^/transactions/.*/officers
   3: ^/private/transactions/.*/officers
+  4: ^/transactions/.*/officers/.*
