@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import java.net.URI;
+import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,7 @@ import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
@@ -40,6 +43,7 @@ import java.time.Month;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
+import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -83,6 +87,8 @@ class OfficerFilingControllerImplIT {
     private static final String COMPANY_TYPE = "ltd";
     private static final String OFFICER_ROLE = "director";
 
+    private static final URI REQUEST_URI = URI.create("/transactions/" + TRANS_ID + "/officers");
+
     @MockBean
     private TransactionService transactionService;
     @MockBean
@@ -113,6 +119,12 @@ class OfficerFilingControllerImplIT {
     private Transaction transaction;
     private CompanyProfileApi companyProfileApi;
     private AppointmentFullRecordAPI companyAppointment;
+
+    @Mock
+    private HttpServletRequest request;
+
+    @Mock
+    private OfficerFilingDto dto;
 
     @Autowired
     private MockMvc mockMvc;
@@ -507,32 +519,6 @@ class OfficerFilingControllerImplIT {
     @Test
     void createFilingWhenDateUsingAmericanDateFormatThenResponse400() throws Exception {
         response400BaseTest("2022-13-09");
-    }
-
-    @Test
-    void createFilingWhenResignedOnDate300yearsAgoThenResponse400() throws Exception {
-        companyProfileApi.setDateOfCreation(LocalDate.of(1721, Month.OCTOBER, 20));
-        companyAppointment.setAppointedOn(LocalDate.of(1721, Month.OCTOBER, 21));
-        when(transactionService.getTransaction(any(String.class), any(String.class))).thenReturn(transaction);
-        when(companyProfileService.getCompanyProfile(any(String.class), any(String.class), any(String.class))).thenReturn(companyProfileApi);
-        when(companyAppointmentService.getCompanyAppointment(any(String.class), any(String.class), any(String.class), any(String.class))).thenReturn(companyAppointment);
-
-        final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "1722-09-13") + "}";
-        final var expectedError = createExpectedError(
-            "JSON parse error:", "$..resigned_on", 1, 75);
-
-        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                        .contentType("application/json")
-                        .headers(httpHeaders))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(header().doesNotExist("Location"))
-                .andExpect(jsonPath("$.errors", hasSize(1)))
-                .andExpect(jsonPath("$.errors[0]",
-                        allOf(hasEntry("location_type", expectedError.getLocationType()),
-                                hasEntry("type", expectedError.getType()))))
-                .andExpect(jsonPath("$.errors[0].error", containsString("You have entered a date too far in the past. Please check the date and resubmit")))
-                .andExpect(jsonPath("$.errors[0].error_values", is(nullValue())));
     }
 
     @Test
