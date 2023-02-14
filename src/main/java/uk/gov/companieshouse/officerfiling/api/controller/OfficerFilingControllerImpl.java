@@ -107,7 +107,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         }
         final var entity = filingMapper.map(dto);
         final var saveData = saveFilingWithLinks(entity, transaction, request);
-        Links links = saveData.getLeft();
+        final var links = saveData.getLeft();
         String filingId = saveData.getRight();
         final var resourceMap = buildResourceMap(links);
 
@@ -164,7 +164,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         }
 
         final var saveDetails = saveFilingWithLinks(officerFiling, transaction, request);
-        Links links = saveDetails.getLeft();
+        final var links = saveDetails.getLeft();
         final var resourceMap = buildResourceMap(links);
 
         transaction.setResources(resourceMap);
@@ -221,8 +221,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
                         .withFilingId(resaved.getId())
                         .withRequest(request)
                         .build());
-        ImmutablePair<Links,String> pair = new ImmutablePair<>(links, resaved.getId());
-        return pair;
+        return new ImmutablePair<>(links, resaved.getId());
     }
 
     private Links buildLinks(final OfficerFiling savedFiling, final HttpServletRequest request) {
