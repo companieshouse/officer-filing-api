@@ -24,15 +24,15 @@ class RequestLoggingInterceptorTest {
   private final static String TEST_REQUEST_PATH = "/";
 
   @Mock
-  Object handler;
+  private Object handler;
   @Mock
-  ModelAndView modelAndView;
+  private ModelAndView modelAndView;
   @Mock
-  HttpServletRequest mockRequest;
+  private HttpServletRequest mockRequest;
   @Mock
-  HttpServletResponse mockResponse;
+  private HttpServletResponse mockResponse;
   @Mock
-  HttpSession requestSession;
+  private HttpSession requestSession;
   private RequestLoggingInterceptor requestLoggingInterceptor;
 
   @BeforeEach
