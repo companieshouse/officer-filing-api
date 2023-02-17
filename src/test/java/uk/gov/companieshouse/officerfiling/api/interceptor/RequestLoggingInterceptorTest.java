@@ -36,14 +36,14 @@ class RequestLoggingInterceptorTest {
   private RequestLoggingInterceptor requestLoggingInterceptor;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     when(mockRequest.getSession()).thenReturn(requestSession);
     when(mockRequest.getRequestURI()).thenReturn(TEST_REQUEST_PATH);
     requestLoggingInterceptor = new RequestLoggingInterceptor();
   }
 
   @Test
-  public void verifyRequestLoggingPreHandle() {
+  void verifyRequestLoggingPreHandle() {
     var response = requestLoggingInterceptor.preHandle(mockRequest, mockResponse, handler);
     verify(mockRequest, times(1)).getSession();
     verify(requestSession, times(1)).setAttribute(anyString(), anyLong());
