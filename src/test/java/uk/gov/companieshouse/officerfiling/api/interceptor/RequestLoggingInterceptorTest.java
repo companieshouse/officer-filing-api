@@ -51,7 +51,7 @@ class RequestLoggingInterceptorTest {
   }
 
   @Test
-  public void verifyRequestLoggingPostHandle() {
+  void verifyRequestLoggingPostHandle() {
     long startTime = System.currentTimeMillis();
     when(mockRequest.getSession().getAttribute(LogContextProperties.START_TIME_KEY.value()))
         .thenReturn(startTime);
