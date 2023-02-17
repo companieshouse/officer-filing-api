@@ -11,16 +11,16 @@ import static org.mockito.Mockito.when;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.logging.util.LogContextProperties;
 import org.springframework.web.servlet.ModelAndView;
 
-@RunWith(MockitoJUnitRunner.class)
-public class RequestLoggingInterceptorTest {
+@ExtendWith(MockitoExtension.class)
+class RequestLoggingInterceptorTest {
   private final static String TEST_REQUEST_PATH = "/";
 
   @Mock
@@ -35,7 +35,7 @@ public class RequestLoggingInterceptorTest {
   HttpSession requestSession;
   private RequestLoggingInterceptor requestLoggingInterceptor;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     when(mockRequest.getSession()).thenReturn(requestSession);
     when(mockRequest.getRequestURI()).thenReturn(TEST_REQUEST_PATH);
