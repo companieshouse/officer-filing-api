@@ -66,7 +66,7 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
         @PathVariable("filingResourceId") final String filingResourceId,
         final HttpServletRequest request) {
 
-        logger.debugContext(transaction.getId(), "GET validation request", new LogHelper.Builder(transaction)
+        logger.debugContext(transaction.getId(), "GET validation status request", new LogHelper.Builder(transaction)
                 .withFilingId(filingResourceId)
                 .withRequest(request)
                 .build());
