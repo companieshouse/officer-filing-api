@@ -45,8 +45,8 @@ class RequestLoggingInterceptorTest {
   @Test
   void verifyRequestLoggingPreHandle() {
     var response = requestLoggingInterceptor.preHandle(mockRequest, mockResponse, handler);
-    verify(mockRequest, times(1)).getSession();
-    verify(requestSession, times(1)).setAttribute(anyString(), anyLong());
+    verify(mockRequest).getSession();
+    verify(requestSession).setAttribute(anyString(), anyLong());
     assertThat(response, is(true));
   }
 
