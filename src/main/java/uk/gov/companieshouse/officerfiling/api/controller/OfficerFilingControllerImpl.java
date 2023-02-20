@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -100,14 +101,15 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         final var passthroughHeader =
                     request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
         final var entity = filingMapper.map(dto);
-        final var links = saveFilingWithLinks(entity, transaction, request);
+        final var saveData = saveFilingWithLinks(entity, transaction, request);
+        final var links = saveData.getLeft();
+        String filingId = saveData.getRight();
         final var resourceMap = buildResourceMap(links);
 
         transaction.setResources(resourceMap);
         transactionService.updateTransaction(transaction, passthroughHeader);
 
-        return ResponseEntity.created(links.getSelf())
-                .build();
+        return ResponseEntity.created(links.getSelf()).body(filingId);
     }
 
     /**
@@ -156,7 +158,8 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             officerFiling = filingMapper.map(dto);
         }
 
-        final var links = saveFilingWithLinks(officerFiling, transaction, request);
+        final var saveDetails = saveFilingWithLinks(officerFiling, transaction, request);
+        final var links = saveDetails.getLeft();
         final var resourceMap = buildResourceMap(links);
 
         transaction.setResources(resourceMap);
@@ -201,7 +204,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         return resourceMap;
     }
 
-    private Links saveFilingWithLinks(final OfficerFiling entity, final Transaction transaction,
+    private ImmutablePair<Links,String> saveFilingWithLinks(final OfficerFiling entity, final Transaction transaction,
             final HttpServletRequest request) {
         final var saved = officerFilingService.save(entity, transaction.getId());
         final var links = buildLinks(saved, request);
@@ -213,7 +216,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
                         .withFilingId(resaved.getId())
                         .withRequest(request)
                         .build());
-        return links;
+        return new ImmutablePair<>(links, resaved.getId());
     }
 
     private Links buildLinks(final OfficerFiling savedFiling, final HttpServletRequest request) {
