@@ -65,6 +65,12 @@ public class OfficerTerminationValidator {
                 .build());
         final List<ApiError> errorList = new ArrayList<>();
 
+        // Validate transaction
+        validateTransaction(request, errorList, transaction);
+        if (!errorList.isEmpty()) {
+            return new ApiErrors(errorList);
+        }
+
         // Retrieve data objects required for the validation process
         final Optional<AppointmentFullRecordAPI> companyAppointment = getOfficerAppointment(request, errorList, dto, transaction, passthroughHeader);
         final Optional<CompanyProfileApi> companyProfile = getCompanyProfile(request, errorList, transaction, passthroughHeader);
@@ -83,6 +89,12 @@ public class OfficerTerminationValidator {
         validateOfficerRole(request, errorList, companyAppointment.get());
 
         return new ApiErrors(errorList);
+    }
+
+    private void validateTransaction(HttpServletRequest request, List<ApiError> errorList, Transaction transaction) {
+        if (transaction.getCompanyNumber() == null || transaction.getCompanyNumber().isBlank()) {
+            createValidationError(request, errorList, "The company number cannot be null or blank");
+        }
     }
 
     public Optional<AppointmentFullRecordAPI> getOfficerAppointment(HttpServletRequest request,

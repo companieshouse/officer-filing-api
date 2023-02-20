@@ -95,6 +95,40 @@ class OfficerTerminationValidatorTest {
     }
 
     @Test
+    void validateWhenTransactionCompanyNumberNull() {
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
+        when(transaction.getCompanyNumber()).thenReturn(null);
+
+        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Fail-early validation error should occur if transaction contains a null company number")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The company number cannot be null or blank");
+    }
+
+    @Test
+    void validateWhenTransactionCompanyNumberBlank() {
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
+        when(transaction.getCompanyNumber()).thenReturn(" ");
+
+        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Fail-early validation error should occur if transaction contains a blank company number")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The company number cannot be null or blank");
+    }
+
+    @Test
     void validationWhenCompanyAppointmentServiceUnavailable() {
         final var dto = OfficerFilingDto.builder()
             .referenceEtag(ETAG)
@@ -568,4 +602,5 @@ class OfficerTerminationValidatorTest {
                 .as("Validation should be skipped when officerRole is null")
                 .isEmpty();
     }
+
 }
