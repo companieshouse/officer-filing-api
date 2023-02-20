@@ -56,7 +56,7 @@ class RequestLoggingInterceptorTest {
     when(mockRequest.getSession().getAttribute(LogContextProperties.START_TIME_KEY.value()))
         .thenReturn(startTime);
     requestLoggingInterceptor.postHandle(mockRequest, mockResponse, handler, modelAndView);
-    verify(mockResponse, times(1)).getStatus();
+    verify(mockResponse).getStatus();
   }
 
 }
