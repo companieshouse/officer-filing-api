@@ -17,10 +17,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.service.FilingDataService;
@@ -35,6 +40,9 @@ class FilingDataControllerImplIT {
     private static final String REF_APPOINTMENT_ID = "12345";
     private static final String REF_ETAG = "6789";
     private static final String RESIGNED_ON = "2022-10-05";
+    private static final String USER ="user";
+    private static final String KEY ="key";
+    private static final String KEY_ROLE ="*";
     @MockBean
     private FilingDataService filingDataService;
     @MockBean
@@ -55,6 +63,9 @@ class FilingDataControllerImplIT {
     void setUp() {
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
+        httpHeaders.add("ERIC-Identity", USER);
+        httpHeaders.add("ERIC-Identity-Type", KEY);
+        httpHeaders.add("ERIC-Authorised-Key-Roles", KEY_ROLE);
         when(transactionInterceptor.preHandle(any(), any(), any())).thenReturn(true);
         when(openTransactionInterceptor.preHandle(any(), any(), any())).thenReturn(true);
     }
@@ -67,9 +78,11 @@ class FilingDataControllerImplIT {
                 Map.of("referenceEtag", REF_ETAG, "referenceAppointmentId", REF_APPOINTMENT_ID, "resignedOn", RESIGNED_ON);
         filingApi.setData(dataMap);
         when(filingDataService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(filingApi);
+        Transaction transaction = new Transaction();
+        transaction.setStatus(TransactionStatus.CLOSED);
 
         mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/filings", TRANS_ID, FILING_ID)
-            .headers(httpHeaders))
+            .headers(httpHeaders).requestAttr("transaction", transaction))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(1)))
@@ -80,14 +93,39 @@ class FilingDataControllerImplIT {
     @Test
     void getFilingsWhenNotFound() throws Exception {
         when(filingDataService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER)).thenThrow(new ResourceNotFoundException("for Not Found scenario"));
+        Transaction transaction = new Transaction();
+        transaction.setStatus(TransactionStatus.CLOSED);
 
         mockMvc.perform(
                         get("/private/transactions/{id}/officers/{filingId}/filings", TRANS_ID,
-                                FILING_ID).headers(httpHeaders))
+                                FILING_ID).headers(httpHeaders)
+                                .requestAttr("transaction", transaction))
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(status().reason(is("Resource not found")))
                 .andExpect(jsonPath("$").doesNotExist());
+    }
 
+    @Test
+    void getFilingsTransactionOpen() throws Exception {
+        Transaction transaction = new Transaction();
+        transaction.setStatus(TransactionStatus.OPEN);
+
+        mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/filings", TRANS_ID, FILING_ID)
+                        .headers(httpHeaders).requestAttr("transaction", transaction))
+                .andDo(print())
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void getFilingsNonKey() throws Exception {
+        Transaction transaction = new Transaction();
+        transaction.setStatus(TransactionStatus.CLOSED);
+        httpHeaders.set("ERIC-Authorised-Key-Roles", "");
+
+        mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/filings", TRANS_ID, FILING_ID)
+                        .headers(httpHeaders).requestAttr("transaction", transaction))
+                .andDo(print())
+                .andExpect(status().isForbidden());
     }
 }

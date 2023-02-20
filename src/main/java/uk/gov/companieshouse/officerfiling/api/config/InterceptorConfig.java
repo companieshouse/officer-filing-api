@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import uk.gov.companieshouse.api.interceptor.ClosedTransactionInterceptor;
+import uk.gov.companieshouse.api.interceptor.InternalUserInterceptor;
 import uk.gov.companieshouse.api.interceptor.TokenPermissionsInterceptor;
 import uk.gov.companieshouse.officerfiling.api.interceptor.OfficersCRUDAuthenticationInterceptor;
 import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
@@ -16,7 +18,8 @@ import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 public class InterceptorConfig implements WebMvcConfigurer {
 
     private static final String TRANSACTIONS = "/transactions/**";
-    private static final String[] TRANSACTIONS_LIST = {TRANSACTIONS, "/private/**"};
+    private static final String PRIVATE = "/private/**";
+    private static final String[] TRANSACTIONS_LIST = {TRANSACTIONS, PRIVATE};
 
     /**
      * Setup the interceptors to run against endpoints when the endpoints are called
@@ -28,6 +31,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
         addTransactionInterceptor(registry);
         addOpenTransactionInterceptor(registry);
         addTokenPermissionInterceptor(registry);
+        addInternalUserInterceptor(registry);
+        addClosedTransactionInterceptor(registry);
     }
 
     /**
@@ -51,6 +56,16 @@ public class InterceptorConfig implements WebMvcConfigurer {
             .addPathPatterns(TRANSACTIONS);
     }
 
+    private void addInternalUserInterceptor(InterceptorRegistry registry){
+        registry.addInterceptor(internalUserInterceptor())
+                .addPathPatterns(PRIVATE);
+    }
+
+    private void addClosedTransactionInterceptor(InterceptorRegistry registry){
+        registry.addInterceptor(closedTransactionInterceptor())
+                .addPathPatterns(PRIVATE);
+    }
+
     @Bean
     public TransactionInterceptor transactionInterceptor() {
         return new TransactionInterceptor();
@@ -67,5 +82,13 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     public TokenPermissionsInterceptor tokenPermissionsInterceptor() {
         return new TokenPermissionsInterceptor();
+    }
+
+    public InternalUserInterceptor internalUserInterceptor(){
+        return new InternalUserInterceptor();
+    }
+
+    public ClosedTransactionInterceptor closedTransactionInterceptor(){
+        return new ClosedTransactionInterceptor();
     }
 }
