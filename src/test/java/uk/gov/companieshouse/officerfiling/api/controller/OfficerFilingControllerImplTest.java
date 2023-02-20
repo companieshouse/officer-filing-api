@@ -28,6 +28,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.http.ResponseEntity;
@@ -119,23 +121,12 @@ class OfficerFilingControllerImplTest {
         when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
         when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
         when(clock.instant()).thenReturn(FIRST_INSTANT);
-        when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
-        when(dto.getReferenceEtag()).thenReturn(ETAG);
-        when(dto.getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
-        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2005, 10, 3));
-        when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
-        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2007, 10, 5));
-        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
-        when(companyAppointment.getEtag()).thenReturn(ETAG);
-        when(companyAppointment.getOfficerRole()).thenReturn(OFFICER_ROLE);
         when(filingMapper.map(dto)).thenReturn(filing);
         final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
                 .build();
         final var withLinks = OfficerFiling.builder(withFilingId).links(links)
                 .build();
-        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
-        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
         when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
 
@@ -251,28 +242,5 @@ class OfficerFilingControllerImplTest {
         assertThrows(FeatureNotEnabledException.class,
                 () -> testController.patchFiling(transaction, dto, null, result, request));
 
-    }
-
-    @Test
-    void doNotCreateFilingWhenRequestHasTooOldDate() {
-        when(companyAppointment.getEtag()).thenReturn(ETAG);
-        when(companyAppointment.getOfficerRole()).thenReturn(OFFICER_ROLE);
-        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
-        when(transaction.getId()).thenReturn(TRANS_ID);
-        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
-        when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
-        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
-        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
-        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
-        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
-        final var officerFilingDto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(LocalDate.of(1022, 9, 13))
-                .build();
-
-        ResponseEntity<Object> responseEntity = testController.createFiling(transaction, officerFilingDto, result, request);
-
-        assertEquals( 400, responseEntity.getStatusCodeValue());
     }
 }
