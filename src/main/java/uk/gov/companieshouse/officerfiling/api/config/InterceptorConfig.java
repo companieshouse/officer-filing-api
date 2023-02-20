@@ -10,6 +10,7 @@ import uk.gov.companieshouse.api.interceptor.TokenPermissionsInterceptor;
 import uk.gov.companieshouse.officerfiling.api.interceptor.OfficersCRUDAuthenticationInterceptor;
 import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
+import uk.gov.companieshouse.officerfiling.api.interceptor.RequestLoggingInterceptor;
 
 @Configuration
 @ComponentScan(basePackages = {"uk.gov.companieshouse.api", "uk.gov.companieshouse.officerfiling.api"})
@@ -25,9 +26,14 @@ public class InterceptorConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(@NonNull InterceptorRegistry registry) {
+        addRequestLoggingInterceptor(registry);
         addTransactionInterceptor(registry);
         addOpenTransactionInterceptor(registry);
         addTokenPermissionInterceptor(registry);
+    }
+
+    private void addRequestLoggingInterceptor(InterceptorRegistry registry) {
+        registry.addInterceptor(requestLoggingInterceptor());
     }
 
     /**
@@ -43,6 +49,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
         registry.addInterceptor(openTransactionInterceptor())
             .addPathPatterns(TRANSACTIONS_LIST);
     }
+
     
     private void addTokenPermissionInterceptor(InterceptorRegistry registry) {
         registry.addInterceptor(tokenPermissionsInterceptor());
@@ -59,6 +66,10 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Bean
     public OpenTransactionInterceptor openTransactionInterceptor() {
         return new OpenTransactionInterceptor();
+    }
+
+    public RequestLoggingInterceptor requestLoggingInterceptor() {
+        return new RequestLoggingInterceptor();
     }
 
     public OfficersCRUDAuthenticationInterceptor officersCRUDAuthenticationInterceptor() {
