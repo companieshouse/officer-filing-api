@@ -118,7 +118,7 @@ class FilingDataControllerImplIT {
     void getFilingsNonKey() throws Exception {
         Transaction transaction = new Transaction();
         transaction.setStatus(TransactionStatus.CLOSED);
-        httpHeaders.set("ERIC-Authorised-Key-Roles", "");
+        httpHeaders.set("ERIC-Identity-Type", "oauth2");
 
         mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/filings", TRANS_ID, FILING_ID)
                         .headers(httpHeaders).requestAttr("transaction", transaction))
