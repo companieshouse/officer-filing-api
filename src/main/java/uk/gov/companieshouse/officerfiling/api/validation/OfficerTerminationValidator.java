@@ -63,22 +63,18 @@ public class OfficerTerminationValidator {
             logger.debugContext(transaction.getId(), "Beginning officer termination validation", new LogHelper.Builder(transaction)
                 .withRequest(request)
                 .build());
-        List<ApiError> errorList = new ArrayList<>();
+        final List<ApiError> errorList = new ArrayList<>();
 
         // Retrieve data objects required for the validation process
         final Optional<AppointmentFullRecordAPI> companyAppointment = getOfficerAppointment(request, errorList, dto, transaction, passthroughHeader);
         final Optional<CompanyProfileApi> companyProfile = getCompanyProfile(request, errorList, transaction, passthroughHeader);
+        if (companyAppointment.isEmpty() || companyProfile.isEmpty()) {
+            return new ApiErrors(errorList);
+        }
 
-        if (companyAppointment.isEmpty()) {
-            return new ApiErrors(errorList);
-        }
-        if (companyProfile.isEmpty()) {
-            return new ApiErrors(errorList);
-        }
         // Perform validation
         validateSubmissionInformationInDate(request, dto, companyAppointment.get(), errorList);
         validateMinResignationDate(request, errorList, dto);
-        validateSubmissionInformationInDate(request, dto, companyAppointment.get(), errorList);
         validateCompanyNotDissolved(request, errorList, companyProfile.get());
         validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile.get(), companyAppointment.get());
         validateTerminationDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
@@ -118,11 +114,12 @@ public class OfficerTerminationValidator {
     }
 
     public void validateSubmissionInformationInDate(HttpServletRequest request, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment, List<ApiError> errorList) {
-        // If submission information is not out of date, the ETAG retrieved from the Company Appointments API and the ETAG passed from the request will match
-        String companyAppointmentEtag = companyAppointment.getEtag();
-        String requestEtag = dto.getReferenceEtag();
-
-        if(!Objects.equals(requestEtag, companyAppointmentEtag)) {
+        if (companyAppointment.getEtag() == null) {
+            logger.errorRequest(request, "null data was found in the Company Appointment API within the etag field");
+            return;
+        }
+        // If submission information is not out-of-date, the ETAG retrieved from the Company Appointments API and the ETAG passed from the request will match
+        if(!Objects.equals(dto.getReferenceEtag(), companyAppointment.getEtag())) {
             createValidationError(request, errorList,"The Officers information is out of date. Please start the process again and make a new submission");
         }
     }
@@ -135,6 +132,10 @@ public class OfficerTerminationValidator {
     }
 
     public void validateTerminationDateAfterIncorporationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, CompanyProfileApi companyProfile, AppointmentFullRecordAPI companyAppointment) {
+        if (companyProfile.getDateOfCreation() == null) {
+            logger.errorRequest(request, "null data was found in the Company Profile API within the Date Of Creation field");
+            return;
+        }
         if (dto.getResignedOn().isBefore(companyProfile.getDateOfCreation())) {
             createValidationError(request, errorList, companyAppointment.getName() + " has not been found");
         }
@@ -143,9 +144,6 @@ public class OfficerTerminationValidator {
     /**
      * Check to ensure a request isn't being filed for an officer who has already resigned.
      * Used for Validation rules D19_9A/D19_9
-     * @param request
-     * @param errorList
-     * @param companyAppointment
      */
     public void validateOfficerIsNotTerminated(HttpServletRequest request, List<ApiError> errorList, AppointmentFullRecordAPI companyAppointment){
         if(companyAppointment.getResignedOn() != null){
@@ -155,42 +153,61 @@ public class OfficerTerminationValidator {
     }
 
     public void validateCompanyNotDissolved(HttpServletRequest request, List<ApiError> errorList, CompanyProfileApi companyProfile) {
+        if (companyProfile.getCompanyStatus() == null) {
+            logger.errorRequest(request, "null data was found in the Company Profile API within the Company Status field");
+            return;
+        }
         if (Objects.equals(companyProfile.getCompanyStatus(), "dissolved")) {
             createValidationError(request, errorList, "You cannot remove an officer from a company that has been dissolved");
-        }
-        else if (companyProfile.getDateOfCessation() != null){
+        } else if (companyProfile.getDateOfCessation() != null){
             createValidationError(request, errorList, "You cannot remove an officer from a company that is about to be dissolved");
         }
     }
 
-    public Optional<LocalDate> getAppointmentDate(AppointmentFullRecordAPI companyAppointment) {
-        if (companyAppointment.getIsPre1992Appointment() != null) {
-            return Optional.ofNullable(
-                    companyAppointment.getIsPre1992Appointment() ? companyAppointment.getAppointedBefore() : companyAppointment.getAppointedOn());
-        }
-        return Optional.empty();
-    }
-
     public void validateTerminationDateAfterAppointmentDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment) {
-        var companyAppointmentDate = getAppointmentDate(companyAppointment);
-        if (companyAppointmentDate.isPresent()) {
-            final var appointmentDate = companyAppointmentDate.get();
-            if (dto.getResignedOn().isBefore(appointmentDate)) {
-                createValidationError(request, errorList, "Date director was removed must be on or after the date the director was appointed");
-            }
+        var companyAppointmentDate = getAppointmentDate(request, companyAppointment);
+        if (companyAppointmentDate.isPresent() && dto.getResignedOn().isBefore(companyAppointmentDate.get())) {
+            createValidationError(request, errorList, "Date director was removed must be on or after the date the director was appointed");
         }
     }
 
     public void validateAllowedCompanyType(HttpServletRequest request, List<ApiError> errorList, CompanyProfileApi companyProfile) {
+        if (companyProfile.getType() == null) {
+            logger.errorRequest(request, "null data was found in the Company Profile API within the Company Type field");
+            return;
+        }
         if (!ALLOWED_COMPANY_TYPES.contains(companyProfile.getType())) {
             createValidationError(request, errorList, String.format("You cannot remove an officer from a %s using this service", companyProfile.getType()));
         }
     }
 
     public void validateOfficerRole(HttpServletRequest request, List<ApiError> errorList, AppointmentFullRecordAPI companyAppointment) {
+        if (companyAppointment.getOfficerRole() == null) {
+            logger.errorRequest(request, "null data was found in the Company Appointment API within the Officer Role field");
+            return;
+        }
         if (!ALLOWED_OFFICER_ROLES.contains(companyAppointment.getOfficerRole())) {
             createValidationError(request, errorList, "You can only remove directors");
         }
+    }
+
+    private Optional<LocalDate> getAppointmentDate(HttpServletRequest request, AppointmentFullRecordAPI companyAppointment) {
+        if (companyAppointment.getIsPre1992Appointment() == null) {
+            logger.errorRequest(request, "null data was found in the Company Appointment API within the Pre-1992 Appointment field");
+            return Optional.empty();
+        }
+        // If pre-1992 then set as appointedBefore field
+        if (companyAppointment.getIsPre1992Appointment()) {
+            return Optional.ofNullable(companyAppointment.getAppointedBefore()).or(() -> {
+                logger.errorRequest(request, "null data was found in the Company Appointment API within the Appointed Before field");
+                return Optional.empty();
+            });
+        }
+        // Else set as appointedOn field
+        return Optional.ofNullable(companyAppointment.getAppointedOn()).or(() -> {
+            logger.errorRequest(request, "null data was found in the Company Appointment API within the Appointed On field");
+            return Optional.empty();
+        });
     }
 
     private void createServiceError (HttpServletRequest request, List<ApiError> errorList) {

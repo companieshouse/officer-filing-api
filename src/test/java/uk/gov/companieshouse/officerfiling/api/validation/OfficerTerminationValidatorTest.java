@@ -72,18 +72,17 @@ class OfficerTerminationValidatorTest {
     @Test
     void validationWhenValid() {
         final var dto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
+                .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
 
-        when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
-        when(companyAppointment.getEtag()).thenReturn("etag");
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(companyAppointment.getOfficerRole()).thenReturn(OFFICER_ROLE);
 
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
@@ -98,7 +97,7 @@ class OfficerTerminationValidatorTest {
     @Test
     void validationWhenCompanyAppointmentServiceUnavailable() {
         final var dto = OfficerFilingDto.builder()
-            .referenceEtag("etag")
+            .referenceEtag(ETAG)
             .referenceAppointmentId(FILING_ID)
             .resignedOn(LocalDate.of(2022, 9, 13))
             .build();
@@ -118,7 +117,7 @@ class OfficerTerminationValidatorTest {
     @Test
     void validationWhenCompanyProfileServiceUnavailable() {
         final var dto = OfficerFilingDto.builder()
-            .referenceEtag("etag")
+            .referenceEtag(ETAG)
             .referenceAppointmentId(FILING_ID)
             .resignedOn(LocalDate.of(2022, 9, 13))
             .build();
@@ -138,7 +137,7 @@ class OfficerTerminationValidatorTest {
     @Test
     void validationWhenOfficerNotIdentified() {
         final var dto = OfficerFilingDto.builder()
-            .referenceEtag("etag")
+            .referenceEtag(ETAG)
             .referenceAppointmentId(FILING_ID)
             .resignedOn(LocalDate.of(2022, 9, 13))
             .build();
@@ -159,7 +158,7 @@ class OfficerTerminationValidatorTest {
     @Test
     void validationWhenCompanyNotFound() {
         final var dto = OfficerFilingDto.builder()
-            .referenceEtag("etag")
+            .referenceEtag(ETAG)
             .referenceAppointmentId(FILING_ID)
             .resignedOn(LocalDate.of(2022, 9, 13))
             .build();
@@ -179,7 +178,7 @@ class OfficerTerminationValidatorTest {
     @Test
     void validationWhenOfficerIdentifiedButFilingInvalid() {
         final var dto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
+                .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(1022, 9, 13))
                 .build();
@@ -188,6 +187,7 @@ class OfficerTerminationValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));
         when(companyAppointment.getOfficerRole()).thenReturn(OFFICER_ROLE);
+        when(companyAppointment.getEtag()).thenReturn("invalid-etag");
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(companyProfile.getType()).thenReturn("invalid-type");
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
@@ -204,7 +204,7 @@ class OfficerTerminationValidatorTest {
     @Test
     void validateMinResignationDateWhenValid() {
         final var officerFilingDto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
+                .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2009, Month.OCTOBER, 2))
                 .build();
@@ -217,7 +217,7 @@ class OfficerTerminationValidatorTest {
     @Test
     void validateMinResignationDateWhenInvalid() {
         final var officerFilingDto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
+                .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2009, Month.SEPTEMBER, 30))
                 .build();
@@ -232,7 +232,7 @@ class OfficerTerminationValidatorTest {
     @Test
     void validateMinResignationDateWhenSameDay() {
         final var officerFilingDto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
+                .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2009, Month.OCTOBER, 1))
                 .build();
@@ -246,7 +246,7 @@ class OfficerTerminationValidatorTest {
     void validateTerminationDateAfterIncorporationDateWhenValid() {
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
         final var officerFilingDto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
+                .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
@@ -261,7 +261,7 @@ class OfficerTerminationValidatorTest {
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 6));
         when(companyAppointment.getName()).thenReturn(DIRECTOR_NAME);
         final var officerFilingDto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
+                .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
@@ -277,13 +277,27 @@ class OfficerTerminationValidatorTest {
     void validateTerminationDateAfterIncorporationDateWhenSameDay() {
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 5));
         final var officerFilingDto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
+                .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
         officerTerminationValidator.validateTerminationDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile, companyAppointment);
         assertThat(apiErrorsList)
                 .as("An error should not be produced when resignation date is the creation date")
+                .isEmpty();
+    }
+
+    @Test
+    void validateTerminationDateAfterIncorporationDateWhenCreationDateNull() {
+        when(companyProfile.getDateOfCreation()).thenReturn(null);
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerTerminationValidator.validateTerminationDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("Validation should be skipped when creation date is null")
                 .isEmpty();
     }
 
@@ -308,7 +322,9 @@ class OfficerTerminationValidatorTest {
                 .isEmpty();
     }
 
+    @Test
     void validateCompanyNotDissolvedWhenDissolvedDateExists() {
+        when(companyProfile.getCompanyStatus()).thenReturn("active");
         when(companyProfile.getDateOfCessation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
         officerTerminationValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
         assertThat(apiErrorsList)
@@ -339,11 +355,20 @@ class OfficerTerminationValidatorTest {
     }
 
     @Test
+    void validateCompanyNotDissolvedWhenCompanyStatusNull() {
+        when(companyProfile.getCompanyStatus()).thenReturn(null);
+        officerTerminationValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
+        assertThat(apiErrorsList)
+                .as("Validation should be skipped when company status is null")
+                .isEmpty();
+    }
+
+    @Test
     void validateTerminationDateAfterAppointmentDateWhenValidAndPost1992() {
         when(companyAppointment.getIsPre1992Appointment()).thenReturn(false);
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
         final var officerFilingDto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
+                .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
@@ -358,7 +383,7 @@ class OfficerTerminationValidatorTest {
         when(companyAppointment.getIsPre1992Appointment()).thenReturn(true);
         when(companyAppointment.getAppointedBefore()).thenReturn(LocalDate.of(1990, Month.JANUARY, 4));
         final var officerFilingDto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
+                .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
@@ -372,7 +397,7 @@ class OfficerTerminationValidatorTest {
     void validateTerminationDateAfterAppointmentDateWhenInvalid() {
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 6));
         final var officerFilingDto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
+                .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
@@ -388,7 +413,7 @@ class OfficerTerminationValidatorTest {
     void validateTerminationDateAfterAppointmentDateWhenSameDay() {
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 5));
         final var officerFilingDto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
+                .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
@@ -399,10 +424,54 @@ class OfficerTerminationValidatorTest {
     }
 
     @Test
+    void validateTerminationDateAfterAppointmentDateWhenPre1992AppointmentNull() {
+        when(companyAppointment.getIsPre1992Appointment()).thenReturn(null);
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerTerminationValidator.validateTerminationDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("Validation should be skipped when isPre1992Appointment is null")
+                .isEmpty();
+    }
+
+    @Test
+    void validateTerminationDateAfterAppointmentDateWhenAppointedOnNull() {
+        when(companyAppointment.getIsPre1992Appointment()).thenReturn(false);
+        when(companyAppointment.getAppointedOn()).thenReturn(null);
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerTerminationValidator.validateTerminationDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("Validation should be skipped when appointedOn is null")
+                .isEmpty();
+    }
+
+    @Test
+    void validateTerminationDateAfterAppointmentDateWhenAppointedBeforeNull() {
+        when(companyAppointment.getIsPre1992Appointment()).thenReturn(true);
+        when(companyAppointment.getAppointedBefore()).thenReturn(null);
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerTerminationValidator.validateTerminationDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("Validation should be skipped when appointedBefore is null")
+                .isEmpty();
+    }
+
+    @Test
     void validateSubmissionInformationInDateWhenValid() {
         when(companyAppointment.getEtag()).thenReturn(ETAG);
         final var officerFilingDto = OfficerFilingDto.builder()
-            .referenceEtag("etag")
+            .referenceEtag(ETAG)
             .referenceAppointmentId(FILING_ID)
             .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
             .build();
@@ -429,6 +498,20 @@ class OfficerTerminationValidatorTest {
     }
 
     @Test
+    void validateSubmissionInformationInDateWhenEtagNull() {
+        when(companyAppointment.getEtag()).thenReturn(null);
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag("invalid_etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerTerminationValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
+        assertThat(apiErrorsList)
+                .as("Validation should be skipped when referenceEtag is null")
+                .isEmpty();
+    }
+
+    @Test
     void validateAllowedCompanyTypeWhenValid() {
         when(companyProfile.getType()).thenReturn("ltd");
         officerTerminationValidator.validateAllowedCompanyType(request, apiErrorsList, companyProfile);
@@ -449,6 +532,15 @@ class OfficerTerminationValidatorTest {
     }
 
     @Test
+    void validateAllowedCompanyTypeWhenNull() {
+        when(companyProfile.getType()).thenReturn(null);
+        officerTerminationValidator.validateAllowedCompanyType(request, apiErrorsList, companyProfile);
+        assertThat(apiErrorsList)
+                .as("Validation should be skipped when companyType is null")
+                .isEmpty();
+    }
+
+    @Test
     void validateOfficerRoleWhenValid() {
         when(companyAppointment.getOfficerRole()).thenReturn("corporate-director");
         officerTerminationValidator.validateOfficerRole(request, apiErrorsList, companyAppointment);
@@ -466,5 +558,14 @@ class OfficerTerminationValidatorTest {
                 .hasSize(1)
                 .extracting(ApiError::getError)
                 .contains("You can only remove directors");
+    }
+
+    @Test
+    void validateOfficerRoleWhenNull() {
+        when(companyAppointment.getOfficerRole()).thenReturn(null);
+        officerTerminationValidator.validateOfficerRole(request, apiErrorsList, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("Validation should be skipped when officerRole is null")
+                .isEmpty();
     }
 }
