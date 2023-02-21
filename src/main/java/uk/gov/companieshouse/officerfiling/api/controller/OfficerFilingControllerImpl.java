@@ -220,9 +220,14 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     }
 
     private Links buildLinks(final OfficerFiling savedFiling, final HttpServletRequest request) {
+        final var requestUri = request.getRequestURI();
+        final var uriBuilder = UriComponentsBuilder.fromUriString(requestUri);
         final var objectId = new ObjectId(Objects.requireNonNull(savedFiling.getId()));
-        final var uriBuilder = UriComponentsBuilder.fromUriString(request.getRequestURI())
-            .pathSegment(objectId.toHexString());
+        final var objectIdString = objectId.toHexString();
+        // A patch URI already ends with the filingId
+        if(!requestUri.endsWith(objectIdString)){
+            uriBuilder.pathSegment(objectIdString);
+        }
         final var selfUri = uriBuilder.build().toUri();
 
         final var validateUri = uriBuilder.pathSegment(VALIDATION_STATUS)
