@@ -100,6 +100,7 @@ class ValidationStatusControllerImplIT {
         companyProfileApi = new CompanyProfileApi();
         companyProfileApi.setDateOfCreation(INCORPORATION_DATE);
         companyProfileApi.setType(COMPANY_TYPE);
+        companyProfileApi.setCompanyStatus("active");
         companyAppointment = new AppointmentFullRecordAPI();
         companyAppointment.setName(DIRECTOR_NAME);
         companyAppointment.setAppointedOn(APPOINTMENT_DATE);
@@ -207,7 +208,7 @@ class ValidationStatusControllerImplIT {
                                 .headers(httpHeaders))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors", hasSize(3)))
+                .andExpect(jsonPath("$.errors", hasSize(2)))
                 .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
                 .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
                 .andExpect(jsonPath("$.errors[0].location", is("$./transactions/4f56fdf78b357bfc/officers/632c8e65105b1b4a9f0d1f5e/validation_status")))
@@ -235,7 +236,7 @@ class ValidationStatusControllerImplIT {
                                 .headers(httpHeaders))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors", hasSize(3)))
+                .andExpect(jsonPath("$.errors", hasSize(2)))
                 .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
                 .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
                 .andExpect(jsonPath("$.errors[0].location", is("$./transactions/4f56fdf78b357bfc/officers/632c8e65105b1b4a9f0d1f5e/validation_status")))

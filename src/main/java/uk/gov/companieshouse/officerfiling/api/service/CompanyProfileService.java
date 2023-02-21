@@ -18,6 +18,6 @@ public interface CompanyProfileService {
      * @throws ServiceUnavailableException if public API is unavailable
      */
     CompanyProfileApi getCompanyProfile(final String transactionId, final String companyNumber, final String ericPassThroughHeader)
-            throws CompanyAppointmentServiceException, ServiceUnavailableException;
+            throws CompanyProfileServiceException, ServiceUnavailableException;
 
 }
