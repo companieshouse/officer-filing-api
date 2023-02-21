@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.validation;
 
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +10,6 @@ import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
@@ -28,8 +26,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -166,6 +162,104 @@ class OfficerTerminationValidatorTest {
             .hasSize(1)
             .extracting(ApiError::getError)
             .contains("The service is down. Try again later");
+    }
+
+    @Test
+    void validationWhenNullETagValueInput(){
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag(null)
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
+
+        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when no ETag is provided")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("ETag cannot be null or blank");
+    }
+
+    @Test
+    void validationWhenBlankETagValueInput(){
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag("")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
+
+        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when a blank ETag is provided")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("ETag cannot be null or blank");
+    }
+
+    @Test
+    void validationWhenNullTerminationDateValueInput(){
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(null)
+                .build();
+
+        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when no Termination date is provided")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Termination date cannot be null or blank");
+    }
+
+    @Test
+    void validationWhenNullOfficerIdValueInput(){
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(null)
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
+
+        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when no Officer ID is provided")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Director cannot be null or blank");
+    }
+
+    @Test
+    void validationWhenBlankOfficerIdValueInput(){
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId("")
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
+
+        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when a blank Officer ID is provided")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Director cannot be null or blank");
+    }
+
+    @Test
+    void validationWhenMultipleNullValuesInput(){
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag(null)
+                .referenceAppointmentId(null)
+                .resignedOn(null)
+                .build();
+
+        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when no Termination date is provided")
+                .hasSize(3)
+                .extracting(ApiError::getError)
+                .contains("ETag cannot be null or blank")
+                .contains("Director cannot be null or blank")
+                .contains("Termination date cannot be null or blank");
     }
 
     @Test
