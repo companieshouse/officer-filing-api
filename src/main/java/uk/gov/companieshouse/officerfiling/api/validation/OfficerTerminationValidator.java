@@ -65,6 +65,12 @@ public class OfficerTerminationValidator {
                 .build());
         final List<ApiError> errorList = new ArrayList<>();
 
+        // Check null or blank officer id, eTag and termination date
+        checkRequiredFieldsAreNotNull(request, dto, errorList);
+        if (!errorList.isEmpty()) {
+            return new ApiErrors(errorList);
+        }
+
         // Validate transaction
         validateTransaction(request, errorList, transaction);
         if (!errorList.isEmpty()) {
@@ -89,6 +95,21 @@ public class OfficerTerminationValidator {
         validateOfficerRole(request, errorList, companyAppointment.get());
 
         return new ApiErrors(errorList);
+    }
+
+    public void checkRequiredFieldsAreNotNull(HttpServletRequest request, OfficerFilingDto dto, List<ApiError> errorList) {
+        // check for blank officer id, eTag and termination date
+        if (dto.getReferenceAppointmentId() == null || dto.getReferenceAppointmentId().isBlank()) {
+            createValidationError(request, errorList, "Director cannot be null or blank");
+        }
+
+        if (dto.getReferenceEtag() == null || dto.getReferenceEtag().isBlank()) {
+            createValidationError(request, errorList, "ETag cannot be null or blank");
+        }
+
+        if (dto.getResignedOn() == null) {
+            createValidationError(request, errorList, "Termination date cannot be null or blank");
+        }
     }
 
     private void validateTransaction(HttpServletRequest request, List<ApiError> errorList, Transaction transaction) {
