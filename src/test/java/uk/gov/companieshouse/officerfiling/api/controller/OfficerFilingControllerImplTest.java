@@ -3,7 +3,6 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.verify;
@@ -12,9 +11,9 @@ import static uk.gov.companieshouse.officerfiling.api.controller.OfficerFilingCo
 import static uk.gov.companieshouse.officerfiling.api.model.entity.Links.PREFIX_PRIVATE;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
@@ -28,11 +27,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -241,6 +237,16 @@ class OfficerFilingControllerImplTest {
                 () -> testController.createFiling(transaction, dto, result, request));
         assertThrows(FeatureNotEnabledException.class,
                 () -> testController.patchFiling(transaction, dto, null, result, request));
+
+    }
+
+    @Test
+    void checkPatchLinks() throws URISyntaxException {
+        OfficerFiling idFiling = OfficerFiling.builder().id("63f4afcf5cd8192a09d6a9e8").build();
+        when(request.getRequestURI()).thenReturn("/transactions/027314-549816-769801/officers/63f4afcf5cd8192a09d6a9e8");
+        Links buildLinks = ReflectionTestUtils.invokeMethod(testController, "buildLinks", idFiling,
+                request);
+        assertThat(buildLinks.getSelf(), is(new URI("/transactions/027314-549816-769801/officers/63f4afcf5cd8192a09d6a9e8")));
 
     }
 }
