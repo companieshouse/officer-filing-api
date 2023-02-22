@@ -104,6 +104,7 @@ class ValidationStatusControllerImplIT {
         companyAppointment = new AppointmentFullRecordAPI();
         companyAppointment.setName(DIRECTOR_NAME);
         companyAppointment.setAppointedOn(APPOINTMENT_DATE);
+        companyAppointment.setIsPre1992Appointment(false);
         companyAppointment.setEtag(ETAG);
         companyAppointment.setOfficerRole(OFFICER_ROLE);
 
