@@ -3,6 +3,8 @@ package uk.gov.companieshouse.officerfiling.api.validation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.error.ApiError;
@@ -668,9 +670,10 @@ class OfficerTerminationValidatorTest {
                 .isEmpty();
     }
 
-    @Test
-    void validateOfficerRoleWhenValid() {
-        when(companyAppointment.getOfficerRole()).thenReturn("corporate-director");
+    @ParameterizedTest
+    @ValueSource(strings = {"corporate-director", "corporate-nominee-director", "director", "nominee-director"})
+    void validateOfficerRoleWhenValid(String officerRole) {
+        when(companyAppointment.getOfficerRole()).thenReturn(officerRole);
         officerTerminationValidator.validateOfficerRole(request, apiErrorsList, companyAppointment);
         assertThat(apiErrorsList)
                 .as("An error should not be produced when officer role is of a valid type")

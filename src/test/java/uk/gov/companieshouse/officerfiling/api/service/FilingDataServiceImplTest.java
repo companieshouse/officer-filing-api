@@ -114,7 +114,9 @@ class FilingDataServiceImplTest {
     @ParameterizedTest
     @CsvSource({
             "corporate-director,true",
+            "corporate-nominee-director,true",
             "director,false",
+            "nominee-director,false",
             "invalid-role,false",
     })
     void mapCorporateDirector(String officerRole, boolean isCorporateDirector) {

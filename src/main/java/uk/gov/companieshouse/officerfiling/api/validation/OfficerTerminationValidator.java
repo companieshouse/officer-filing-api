@@ -33,7 +33,7 @@ public class OfficerTerminationValidator {
     private static final LocalDate EARLIEST_POSSIBLE_DATE = LocalDate.of(2009, 10, 1);
     private static final List<String> ALLOWED_COMPANY_TYPES = List.of("private-unlimited", "ltd", "plc", "old-public-company", "private-limited-guarant-nsc-limited-exemption",
             "private-limited-guarant-nsc", "private-unlimited-nsc", "private-limited-shares-section-30-exemption");
-    private static final List<String> ALLOWED_OFFICER_ROLES = List.of("director", "corporate-director");
+    private static final List<String> ALLOWED_OFFICER_ROLES = List.of("director", "corporate-director", "nominee-director", "corporate-nominee-director");
 
     private final TransactionService transactionService;
     private final CompanyProfileService companyProfileService;
