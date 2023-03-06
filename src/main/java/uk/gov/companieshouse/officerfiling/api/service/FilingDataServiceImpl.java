@@ -13,6 +13,8 @@ import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.officerfiling.api.utils.MapHelper;
 
+import java.util.List;
+
 /**
  * Produces Filing Data format for consumption as JSON by filing-resource-handler external service.
  */
@@ -84,16 +86,16 @@ public class FilingDataServiceImpl implements FilingDataService {
      * Map officer role to corporate_director boolean.
      */
     public Boolean mapCorporateDirector(Transaction transaction, AppointmentFullRecordAPI companyAppointment) {
-        switch(companyAppointment.getOfficerRole()) {
-            case("corporate-director"):
-                return true;
-            case("director"):
-                return false;
-            default:
-                logger.infoContext(transaction.getId(), "Unrecognised Officer Role: " + companyAppointment.getOfficerRole(),
-                        new LogHelper.Builder(transaction).build());
-                return false;
+        if (List.of("corporate-director", "corporate-nominee-director").contains(companyAppointment.getOfficerRole())) {
+            return true;
         }
+        if (List.of("director", "nominee-director").contains(companyAppointment.getOfficerRole())) {
+            return false;
+        }
+
+        logger.infoContext(transaction.getId(), "Unrecognised Officer Role: " + companyAppointment.getOfficerRole(),
+                new LogHelper.Builder(transaction).build());
+        return false;
     }
 
 }
