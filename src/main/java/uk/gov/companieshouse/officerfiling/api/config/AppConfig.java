@@ -1,6 +1,8 @@
 package uk.gov.companieshouse.officerfiling.api.config;
 
 import java.time.Clock;
+import java.time.LocalDate;
+import java.util.function.Supplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,5 +24,10 @@ public class AppConfig {
     @Bean
     public Clock clock() {
         return Clock.systemUTC();
+    }
+
+    @Bean
+    public Supplier<LocalDate> dateNow() {
+        return LocalDate::now;
     }
 }
