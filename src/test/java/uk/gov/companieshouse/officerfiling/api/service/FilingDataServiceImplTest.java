@@ -91,7 +91,8 @@ class FilingDataServiceImplTest {
 
         when(companyAppointment.getDateOfBirth()).thenReturn(dateOfBirthAPI);
         when(companyAppointment.getOfficerRole()).thenReturn("corporate-director");
-        when(companyAppointment.getOfficerName()).thenReturn(FULL_NAME);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
         when(officerFilingMapper.mapFiling(officerFiling)).thenReturn(filingData);
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
@@ -110,7 +111,7 @@ class FilingDataServiceImplTest {
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#termination"));
         assertThat(filingApi.getDescription(), is("(TM01) Termination of appointment of director. Terminating appointment of "
-            + FULL_NAME + " on 16 March 2023"));
+            + FIRSTNAME + " " + LASTNAME.toUpperCase()  + " on 16 March 2023"));
     }
 
     @Test
