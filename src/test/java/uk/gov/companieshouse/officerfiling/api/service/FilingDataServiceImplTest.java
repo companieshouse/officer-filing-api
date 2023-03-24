@@ -7,8 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +18,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.delta.officers.SensitiveDateOfBirthAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -37,10 +40,12 @@ class FilingDataServiceImplTest {
     private static final Instant RESIGNED_ON_INS = Instant.parse("2022-10-05T00:00:00Z");
     public static final String FIRSTNAME = "JOE";
     public static final String LASTNAME = "BLOGGS";
+    public static final String FULL_NAME = FIRSTNAME + " " + LASTNAME;
     public static final String DATE_OF_BIRTH_STR = "2000-10-20";
     private static final String PASSTHROUGH_HEADER = "passthrough";
     private static final String COMPANY_NUMBER = null;
     public static final Date3Tuple DATE_OF_BIRTH_TUPLE = new Date3Tuple(20, 10, 2000);
+    private static final LocalDate DUMMY_DATE = LocalDate.of(2023, 3, 16);
     @Mock
     private OfficerFilingService officerFilingService;
     @Mock
@@ -55,13 +60,17 @@ class FilingDataServiceImplTest {
     private Transaction transaction;
     @Mock
     private AppointmentFullRecordAPI companyAppointment;
+    @Mock
+    private Supplier<LocalDate> dateNowSupplier;
 
     private FilingDataServiceImpl testService;
 
     @BeforeEach
     void setUp() {
         testService = new FilingDataServiceImpl(officerFilingService, officerFilingMapper, logger, transactionService,
-                companyAppointmentService);
+                companyAppointmentService, dateNowSupplier);
+        ReflectionTestUtils.setField(testService, "filingDescription",
+            "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}");
     }
 
     @Test
@@ -82,11 +91,14 @@ class FilingDataServiceImplTest {
 
         when(companyAppointment.getDateOfBirth()).thenReturn(dateOfBirthAPI);
         when(companyAppointment.getOfficerRole()).thenReturn("corporate-director");
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
         when(officerFilingMapper.mapFiling(officerFiling)).thenReturn(filingData);
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER ))
                 .thenReturn(companyAppointment);
+        when(dateNowSupplier.get()).thenReturn(DUMMY_DATE);
 
         final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
 
@@ -98,6 +110,8 @@ class FilingDataServiceImplTest {
 
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#termination"));
+        assertThat(filingApi.getDescription(), is("(TM01) Termination of appointment of director. Terminating appointment of "
+            + FIRSTNAME + " " + LASTNAME.toUpperCase()  + " on 16 March 2023"));
     }
 
     @Test
