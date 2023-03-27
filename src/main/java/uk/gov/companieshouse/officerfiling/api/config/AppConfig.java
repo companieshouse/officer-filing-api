@@ -26,12 +26,10 @@ public class AppConfig {
     public Clock clock() {
         return Clock.systemUTC();
     }
-
     @Bean
     public Supplier<LocalDate> dateNow() {
         return LocalDate::now;
     }
-
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
