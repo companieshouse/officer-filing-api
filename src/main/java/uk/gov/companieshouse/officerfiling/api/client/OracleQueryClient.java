@@ -22,14 +22,15 @@ public class OracleQueryClient {
     private static final String CALLING_ORACLE_QUERY_API_URL_GET = "Calling Oracle Query API URL: %s";
     public static final String ORACLE_QUERY_API_STATUS_MESSAGE = "Oracle query api returned with status = %s, companyNumber = %s";
     @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
-    @Value("${ORACLE_QUERY_API_URL:http://oracle-query-api:8080}")
+    @Value("${ORACLE_QUERY_API_URL}")
     private String oracleQueryApiUrl;
 
     private final Logger logger;
 
-    public OracleQueryClient(Logger logger) {
+    public OracleQueryClient(RestTemplate restTemplate, Logger logger) {
+        this.restTemplate = restTemplate;
         this.logger = logger;
     }
 
