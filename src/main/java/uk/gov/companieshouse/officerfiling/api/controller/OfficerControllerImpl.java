@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
@@ -21,12 +22,14 @@ public class OfficerControllerImpl implements OfficerController {
     private final OfficerService officerService;
     private final Logger logger;
 
-    public OfficerControllerImpl(OfficerService officerService, final Logger logger) {
+    public OfficerControllerImpl(final OfficerService officerService, final Logger logger) {
         this.officerService = officerService;
         this.logger = logger;
     }
 
-    @GetMapping("/transactions/{transactionId}/officers/{filingResourceId}/active-officers-details")
+    @Override
+    @ResponseBody
+    @GetMapping(value = "/transactions/{transactionId}/officers/{filingResourceId}/active-officers-details", produces = {"application/json"})
     public ResponseEntity<Object> getListActiveDirectorsDetails(
             @RequestAttribute("transaction") Transaction transaction,
             final HttpServletRequest request) {
@@ -39,7 +42,9 @@ public class OfficerControllerImpl implements OfficerController {
                 .withRequest(request)
                 .build());
 
-            return ResponseEntity.status(HttpStatus.OK).body(officerService.getListActiveDirectorsDetails(request, transaction.getCompanyNumber()));
+            final var directorsDetails = officerService.getListActiveDirectorsDetails(request, transaction.getCompanyNumber());
+
+            return ResponseEntity.status(HttpStatus.OK).body(directorsDetails);
         } catch (OfficerServiceException e) {
             logger.debugContext(transaction.getId(), "Error retrieving active officers details", new Builder(transaction)
                 .withRequest(request)

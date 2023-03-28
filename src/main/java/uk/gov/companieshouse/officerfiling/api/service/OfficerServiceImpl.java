@@ -3,7 +3,6 @@ package uk.gov.companieshouse.officerfiling.api.service;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.client.OracleQueryClient;
@@ -16,7 +15,6 @@ public class OfficerServiceImpl implements OfficerService {
     private final OracleQueryClient oracleQueryClient;
     private final Logger logger;
 
-    @Autowired
     public OfficerServiceImpl(OracleQueryClient oracleQueryClient,
         Logger logger) {
         this.oracleQueryClient = oracleQueryClient;

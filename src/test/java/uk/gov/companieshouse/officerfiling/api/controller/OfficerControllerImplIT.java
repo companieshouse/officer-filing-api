@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -20,19 +19,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.client.RestTemplate;
 import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
-import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.client.OracleQueryClient;
+import uk.gov.companieshouse.officerfiling.api.exception.OfficerServiceException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.ActiveOfficerDetails;
-import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerIdentificationTypeMapper;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerService;
-import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 @Tag("web")
@@ -48,32 +44,22 @@ class OfficerControllerImplIT {
     @MockBean
     private OfficerFilingService officerFilingService;
     @MockBean
-    private TransactionService transactionService;
-    @MockBean
     private LogHelper logHelper;
     @MockBean
     private Logger logger;
     @MockBean
-    private ApiClientService apiClientService;
-    @MockBean
-    private OfficerIdentificationTypeMapper identificationTypeMapper;
-    @MockBean
     private TransactionInterceptor transactionInterceptor;
     @MockBean
     private OpenTransactionInterceptor openTransactionInterceptor;
-    @MockBean
+    @Mock
     private OfficerService officerService;
     @MockBean
     private OracleQueryClient oracleQueryClient;
-    @MockBean
-    private RestTemplate restTemplate;
     @Mock
     private HttpServletRequest request;
     @Mock
     private Transaction transaction;
     private HttpHeaders httpHeaders;
-    @Autowired
-    private OfficerControllerImpl testController;
     @Autowired
     private MockMvc mockMvc;
 
@@ -94,60 +80,31 @@ class OfficerControllerImplIT {
     }
 
     @Test
-    void getListOfActiveDirectorsDetailsDetailsWhenFound() throws Exception {
-        final var officer = new ActiveOfficerDetails();
+    void getListOfActiveDirectorsDetailsDetailsWhenFoundTthen200() throws Exception {
+        var officer = new ActiveOfficerDetails();
         officer.setForeName1("John");
         officer.setSurname("DOE");
+        officer.setRole("Director");
 
         final var officers = Arrays.asList(officer, officer);
-        when(officerService.getListActiveDirectorsDetails(request, transaction.getCompanyNumber())).thenReturn(officers);
-        //when(oracleQueryClient.getActiveOfficersDetails(COMPANY_NUMBER)).thenReturn(officers);
+
+        when(oracleQueryClient.getActiveOfficersDetails(COMPANY_NUMBER)).thenReturn(officers);
 
         mockMvc.perform(get("/transactions/{transactionId}/officers/{filingResourceId}/active-officers-details", TRANS_ID, FILING_ID)
             .headers(httpHeaders).requestAttr("transaction", transaction))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(2)))
-            .andExpect(jsonPath("$[0].data", is(officers)))
-            .andExpect(jsonPath("$[0].kind", is("officer-filing#termination")));
+            .andExpect(jsonPath("$", hasSize(2)));
     }
 
-//    @Test
-//    void getListOfActiveDirectorsDetailsDetailsWhenNotFound() throws Exception {
-//        when(filingDataService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER)).thenThrow(new ResourceNotFoundException("for Not Found scenario"));
-//        Transaction transaction = new Transaction();
-//        transaction.setStatus(TransactionStatus.CLOSED);
-//
-//        mockMvc.perform(
-//                        get("/private/transactions/{id}/officers/{filingId}/filings", TRANS_ID,
-//                                FILING_ID).headers(httpHeaders)
-//                                .requestAttr("transaction", transaction))
-//                .andDo(print())
-//                .andExpect(status().isNotFound())
-//                .andExpect(status().reason(is("Resource not found")))
-//                .andExpect(jsonPath("$").doesNotExist());
-//    }
-//
-//    @Test
-//    void getFilingsTransactionOpen() throws Exception {
-//        Transaction transaction = new Transaction();
-//        transaction.setStatus(TransactionStatus.OPEN);
-//
-//        mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/filings", TRANS_ID, FILING_ID)
-//                        .headers(httpHeaders).requestAttr("transaction", transaction))
-//                .andDo(print())
-//                .andExpect(status().isInternalServerError());
-//    }
-//
-//    @Test
-//    void getFilingsNonKey() throws Exception {
-//        Transaction transaction = new Transaction();
-//        transaction.setStatus(TransactionStatus.CLOSED);
-//        httpHeaders.set("ERIC-Identity-Type", "oauth2");
-//
-//        mockMvc.perform(get("/private/transactions/{id}/officers/{filingId}/filings", TRANS_ID, FILING_ID)
-//                        .headers(httpHeaders).requestAttr("transaction", transaction))
-//                .andDo(print())
-//                .andExpect(status().isForbidden());
-//    }
+    @Test
+    void getListOfActiveDirectorsDetailsDetailsWhenNotFoundThen500() throws Exception {
+
+        when(oracleQueryClient.getActiveOfficersDetails(COMPANY_NUMBER)).thenThrow(new OfficerServiceException("Error retrieving Officers"));
+
+        mockMvc.perform(get("/transactions/{transactionId}/officers/{filingResourceId}/active-officers-details", TRANS_ID, FILING_ID)
+                .headers(httpHeaders).requestAttr("transaction", transaction))
+            .andDo(print())
+            .andExpect(status().isInternalServerError());
+    }
 }

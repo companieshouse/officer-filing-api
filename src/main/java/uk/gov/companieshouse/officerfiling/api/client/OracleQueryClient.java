@@ -15,7 +15,6 @@ import uk.gov.companieshouse.officerfiling.api.exception.OfficerServiceException
 import uk.gov.companieshouse.officerfiling.api.model.entity.ActiveOfficerDetails;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
-
 @Component
 public class OracleQueryClient {
 
@@ -32,7 +31,6 @@ public class OracleQueryClient {
         this.logger = logger;
     }
 
-
     public List<ActiveOfficerDetails> getActiveOfficersDetails(String companyNumber) throws OfficerServiceException {
         var officersDetailsUrl = String.format("%s/company/%s/officers/active", oracleQueryApiUrl, companyNumber);
 
@@ -48,6 +46,4 @@ public class OracleQueryClient {
         }
         return Arrays.asList(response.getBody());
     }
-
-
 }

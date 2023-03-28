@@ -2,10 +2,11 @@ package uk.gov.companieshouse.officerfiling.api.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.data.mongodb.core.mapping.Document;
 import uk.gov.companieshouse.api.model.common.Address;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerIdentificationTypeMapper;
 
-
+@Document(collection = "officer")
 public class ActiveOfficerDetails {
     @JsonProperty("fore_name_1")
     private String foreName1;
