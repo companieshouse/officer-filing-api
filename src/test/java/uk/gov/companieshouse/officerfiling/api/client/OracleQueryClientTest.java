@@ -56,6 +56,20 @@ class OracleQueryClientTest {
     }
 
     @Test
+    void listOfActiveOfficersDetailsReturnedFromOracleIsNull() throws OfficerServiceException {
+        var officer1 = new ActiveOfficerDetails();
+        var officer2 = new ActiveOfficerDetails();
+        ActiveOfficerDetails[] officerArray = {};
+
+        when(restTemplate.getForEntity(CLIENT_URL + "/company/" + COMPANY_NUMBER + ACTIVE_OFFICERS_PATH, ActiveOfficerDetails[].class))
+            .thenReturn(new ResponseEntity<>(null, HttpStatus.OK));
+
+        var result = testClient.getActiveOfficersDetails(COMPANY_NUMBER);
+        assertNotNull(result);
+        assertEquals(0, result.size());
+    }
+
+    @Test
     void exceptionIsThrownWhenListOfActiveDirectorsIsNotFound() {
         when(restTemplate.getForEntity(CLIENT_URL + "/company/" + COMPANY_NUMBER + ACTIVE_OFFICERS_PATH, ActiveOfficerDetails[].class))
                 .thenReturn(new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE));

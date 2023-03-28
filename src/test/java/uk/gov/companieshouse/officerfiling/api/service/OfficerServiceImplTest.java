@@ -65,8 +65,7 @@ class OfficerServiceImplTest {
         when(oracleQueryClient.getActiveOfficersDetails(COMPANY_NUMBER)).thenReturn(officers);
 
         var response = testService.getListActiveDirectorsDetails(request, COMPANY_NUMBER);
-        assertThat(response).hasSize(2);
-        assertThat(response).isEqualTo(Directors);
+        assertThat(response).hasSize(2).isEqualTo(Directors);
     }
 
     @Test
