@@ -18,7 +18,6 @@ import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 @Component
 public class OracleQueryClient {
 
-    private static final String CALLING_ORACLE_QUERY_API_URL_GET = "Calling Oracle Query API URL: %s";
     public static final String ORACLE_QUERY_API_STATUS_MESSAGE = "Oracle query api returned with status = %s, companyNumber = %s";
     @Value("${ORACLE_QUERY_API_URL}")
     private String oracleQueryApiUrl;
@@ -34,7 +33,7 @@ public class OracleQueryClient {
     public List<ActiveOfficerDetails> getActiveOfficersDetails(String companyNumber) throws OfficerServiceException {
         var officersDetailsUrl = String.format("%s/company/%s/officers/active", oracleQueryApiUrl, companyNumber);
 
-        logger.debugContext(companyNumber, String.format(CALLING_ORACLE_QUERY_API_URL_GET, officersDetailsUrl),
+        logger.debugContext(companyNumber, "Calling Oracle Query API URL",
             new LogHelper.Builder(companyNumber).build());
 
         ResponseEntity<ActiveOfficerDetails[]> response = restTemplate.getForEntity(officersDetailsUrl, ActiveOfficerDetails[].class);
