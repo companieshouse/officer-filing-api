@@ -80,7 +80,7 @@ class OfficerControllerImplIT {
     }
 
     @Test
-    void getListOfActiveDirectorsDetailsDetailsWhenFoundTthen200() throws Exception {
+    void getListOfActiveDirectorsDetailsWhenFoundThen200() throws Exception {
         var officer = new ActiveOfficerDetails();
         officer.setForeName1("John");
         officer.setSurname("DOE");
@@ -90,7 +90,7 @@ class OfficerControllerImplIT {
 
         when(oracleQueryClient.getActiveOfficersDetails(COMPANY_NUMBER)).thenReturn(officers);
 
-        mockMvc.perform(get("/transactions/{transactionId}/officers/active-officers-details", TRANS_ID, FILING_ID)
+        mockMvc.perform(get("/private/transactions/{transactionId}/officers/active-directors-details", TRANS_ID)
             .headers(httpHeaders).requestAttr("transaction", transaction))
             .andDo(print())
             .andExpect(status().isOk())
@@ -102,7 +102,7 @@ class OfficerControllerImplIT {
 
         when(oracleQueryClient.getActiveOfficersDetails(COMPANY_NUMBER)).thenThrow(new OfficerServiceException("Error retrieving Officers"));
 
-        mockMvc.perform(get("/transactions/{transactionId}/officers/active-officers-details", TRANS_ID, FILING_ID)
+        mockMvc.perform(get("/private/transactions/{transactionId}/officers/active-directors-details", TRANS_ID)
                 .headers(httpHeaders).requestAttr("transaction", transaction))
             .andDo(print())
             .andExpect(status().isInternalServerError());

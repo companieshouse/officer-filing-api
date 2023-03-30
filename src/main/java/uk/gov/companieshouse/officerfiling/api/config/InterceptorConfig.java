@@ -20,6 +20,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     private static final String TRANSACTIONS = "/transactions/**";
     private static final String PRIVATE = "/private/**";
+    private static final String PRIVATE_CLOSED = "/private/transactions/{transactionId}/officers/{filingResourceId}/filings";
     private static final String[] TRANSACTIONS_LIST = {TRANSACTIONS, PRIVATE};
 
     /**
@@ -70,7 +71,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     private void addClosedTransactionInterceptor(InterceptorRegistry registry){
         registry.addInterceptor(closedTransactionInterceptor())
-                .addPathPatterns(PRIVATE);
+                .addPathPatterns(PRIVATE_CLOSED);
     }
 
     @Bean

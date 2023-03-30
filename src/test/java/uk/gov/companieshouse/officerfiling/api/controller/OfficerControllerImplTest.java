@@ -20,7 +20,7 @@ import uk.gov.companieshouse.officerfiling.api.service.OfficerService;
 @ExtendWith(MockitoExtension.class)
 class OfficerControllerImplTest {
 
-    public static final String TRANS_ID = "117524-754816-491724";
+    private static final String TRANS_ID = "117524-754816-491724";
     @Mock
     private Logger logger;
     @Mock

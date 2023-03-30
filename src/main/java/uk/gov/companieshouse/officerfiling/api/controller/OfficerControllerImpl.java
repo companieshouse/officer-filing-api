@@ -29,7 +29,7 @@ public class OfficerControllerImpl implements OfficerController {
 
     @Override
     @ResponseBody
-    @GetMapping(value = "/transactions/{transactionId}/officers/active-officers-details", produces = {"application/json"})
+    @GetMapping(value = "/private/transactions/{transactionId}/officers/active-directors-details", produces = {"application/json"})
     public ResponseEntity<Object> getListActiveDirectorsDetails(
             @RequestAttribute("transaction") Transaction transaction,
             final HttpServletRequest request) {
