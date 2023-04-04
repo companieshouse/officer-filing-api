@@ -27,14 +27,13 @@ public class OfficerServiceImpl implements OfficerService {
     }
 
     /**
-     * Query the officers service for a given company.
+     * Retrieves list of active Directors
      *
-     * @param transactionId the ID of the related transaction
-     * @param companyNumber the Company Number
-     * @param ericPassThroughHeader includes authorisation details
-     * @return the list of officers if found
-     * @throws OfficerServiceException if not found or an error occurred
-     * @throws ServiceUnavailableException if public API is unavailable
+     * @param companyNumber the company number
+     * @param request the HTTP request
+     * @return the Officers if found
+     *
+     * @throws OfficerServiceException if Officers not found or an error occurred
      */
 
     @Override

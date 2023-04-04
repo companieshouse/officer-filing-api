@@ -10,7 +10,7 @@ import uk.gov.companieshouse.officerfiling.api.exception.NotImplementedException
 public interface DirectorsController {
 
     /**
-     * Create an Officer Filing.
+     * Retrieve list of directors.
      *
      * @param transaction the Transaction
      * @param request the servlet request
