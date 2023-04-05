@@ -11,7 +11,6 @@ import uk.gov.companieshouse.api.model.officers.OfficersApi;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.OfficerServiceException;
-import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 @Service
