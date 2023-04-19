@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
+import com.google.api.client.http.HttpHeaders;
+import com.google.api.client.http.HttpResponseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,7 +69,21 @@ class CompanyAppointmentServiceImplTest {
     }
 
     @Test
-    void exceptionIsThrownWhenCompanyAppointmentIsNotFound() throws IOException, URIValidationException {
+    void exceptionIsThrownWhenCompanyAppointmentIsNotFoundViaApiErrorResponse() throws IOException, URIValidationException {
+        ApiErrorResponseException apiErrorResponseException = new ApiErrorResponseException(new HttpResponseException.Builder(404, "404 Not Found", new HttpHeaders()));
+        when(getAppointment.execute()).thenThrow(apiErrorResponseException);
+        when(privateDeltaResourceHandler.getAppointment("/company/" + COMPANY_NUMBER + "/appointments/" + APPOINTMENT_ID + "/full_record")).thenReturn(getAppointment);
+        when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
+        when(apiClientService.getInternalApiClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
+
+        final var exception = assertThrows(CompanyAppointmentServiceException.class,
+                () -> testService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, APPOINTMENT_ID, PASSTHROUGH_HEADER));
+        assertThat(exception.getMessage(),
+                is("Error Retrieving appointment " + APPOINTMENT_ID + " for company " + COMPANY_NUMBER));
+    }
+
+    @Test
+    void exceptionIsThrownWhenCompanyAppointmentIsNotFoundViaUriValidation() throws IOException, URIValidationException {
         when(getAppointment.execute()).thenThrow(URIValidationException.class);
         when(privateDeltaResourceHandler.getAppointment("/company/" + COMPANY_NUMBER + "/appointments/" + APPOINTMENT_ID + "/full_record")).thenReturn(getAppointment);
         when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
@@ -81,7 +97,8 @@ class CompanyAppointmentServiceImplTest {
 
     @Test
     void exceptionIsThrownWhenCompanyAppointmentServiceUnavailable() throws IOException, URIValidationException {
-        when(getAppointment.execute()).thenThrow(ApiErrorResponseException.class);
+        ApiErrorResponseException apiErrorResponseException = new ApiErrorResponseException(new HttpResponseException.Builder(404, "404 Not Found", new HttpHeaders()).setContent("{}"));
+        when(getAppointment.execute()).thenThrow(apiErrorResponseException);
         when(privateDeltaResourceHandler.getAppointment("/company/" + COMPANY_NUMBER + "/appointments/" + APPOINTMENT_ID + "/full_record")).thenReturn(getAppointment);
         when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
         when(apiClientService.getInternalApiClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);

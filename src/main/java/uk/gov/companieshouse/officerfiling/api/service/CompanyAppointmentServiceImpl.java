@@ -52,7 +52,12 @@ public class CompanyAppointmentServiceImpl implements CompanyAppointmentService{
             return companyAppointment;
         }
         catch (final ApiErrorResponseException e) {
-            throw new ServiceUnavailableException("The service is down. Try again later");
+            // Temporary hack to differentiate between 404 service is down and 404 appointment not found. When the CA API is fixed to properly differentiate between these two scenarios, this should be fixed to match.
+            if (e.getContent() == null) {
+                throw new CompanyAppointmentServiceException("Error Retrieving appointment " + appointmentId + " for company " + companyNumber, e);
+            } else {
+                throw new ServiceUnavailableException("The service is down. Try again later");
+            }
         }
         catch (final URIValidationException | IOException e) {
             throw new CompanyAppointmentServiceException("Error Retrieving appointment " + appointmentId + " for company " + companyNumber, e);
