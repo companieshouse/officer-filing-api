@@ -9,6 +9,11 @@ clean:
 	rm -rf ./build-*
 	rm -rf ./build.log-*
 
+.PHONY: submodules
+submodules:
+	git submodule init
+	git submodule update
+
 .PHONY: test-unit
 test-unit: clean
 	mvn test -Dskip.integration.tests=true
@@ -42,7 +47,7 @@ build:
 	cp ./target/$(artifact_name)-$(version).jar ./$(artifact_name).jar
 
 .PHONY: dist
-dist: clean build package coverage
+dist: clean build submodules package coverage
 
 .PHONY: coverage
 coverage:

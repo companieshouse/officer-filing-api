@@ -25,6 +25,8 @@ git clone git@github.com:companieshouse/officer-filing-api.git
 
 cd officer-filing-api
 
+git submodule init update
+
 make dist
 ```
 

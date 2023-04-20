@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
@@ -35,11 +36,12 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
     private final CompanyAppointmentService companyAppointmentService;
     private final OfficerFilingMapper officerFilingMapper;
     private final ErrorMapper errorMapper;
+    private final ApiEnumerations apiEnumerations;
 
     public ValidationStatusControllerImpl(OfficerFilingService officerFilingService, Logger logger,
         TransactionService transactionService, CompanyProfileService companyProfileService,
         CompanyAppointmentService companyAppointmentService, OfficerFilingMapper officerFilingMapper,
-        ErrorMapper errorMapper) {
+        ErrorMapper errorMapper, ApiEnumerations apiEnumerations) {
         this.officerFilingService = officerFilingService;
         this.logger = logger;
         this.transactionService = transactionService;
@@ -47,6 +49,7 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
         this.companyAppointmentService = companyAppointmentService;
         this.officerFilingMapper = officerFilingMapper;
         this.errorMapper = errorMapper;
+        this.apiEnumerations = apiEnumerations;
     }
 
     /**
@@ -86,8 +89,7 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
         Transaction transaction, String passthroughHeader) {
         var validationStatus = new ValidationStatusResponse();
 
-        final var validator = new OfficerTerminationValidator(logger, transactionService,
-            companyProfileService, companyAppointmentService);
+        final var validator = new OfficerTerminationValidator(logger, companyProfileService, companyAppointmentService, apiEnumerations);
         final ApiErrors validationErrors  = validator.validate(request, officerFiling, transaction, passthroughHeader);
 
         if(validationErrors.hasErrors()) {
