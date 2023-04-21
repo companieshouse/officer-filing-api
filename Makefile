@@ -41,7 +41,7 @@ endif
 	rm -rf $(tmpdir)
 
 .PHONY: build
-build:
+build: clean submodules
 	mvn versions:set -DnewVersion=$(version) -DgenerateBackupPoms=false
 	mvn package -Dmaven.test.skip=true
 	cp ./target/$(artifact_name)-$(version).jar ./$(artifact_name).jar

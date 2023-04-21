@@ -27,4 +27,3 @@ class OfficerFilingEnumerationsConfigTest {
                 is("The Director’s information was updated before you sent this submission. You will need to start again"));
     }
 }
-
