@@ -9,6 +9,10 @@ clean:
 	rm -rf ./build-*
 	rm -rf ./build.log-*
 
+.PHONY: submodules
+submodules:
+	test -f ./api-enumerations/constants.yml || git submodule update --init --recursive -- src/main/resources/api-enumerations
+
 .PHONY: test-unit
 test-unit: clean
 	mvn test -Dskip.integration.tests=true
@@ -36,13 +40,13 @@ endif
 	rm -rf $(tmpdir)
 
 .PHONY: build
-build:
+build: clean submodules
 	mvn versions:set -DnewVersion=$(version) -DgenerateBackupPoms=false
 	mvn package -Dmaven.test.skip=true
 	cp ./target/$(artifact_name)-$(version).jar ./$(artifact_name).jar
 
 .PHONY: dist
-dist: clean build package coverage
+dist: clean build submodules package coverage
 
 .PHONY: coverage
 coverage:

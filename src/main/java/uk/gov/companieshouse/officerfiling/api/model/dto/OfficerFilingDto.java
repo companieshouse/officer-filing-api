@@ -31,7 +31,6 @@ public class OfficerFilingDto {
     private String referenceEtag;
     private String referenceAppointmentId;
     private String referenceOfficerListEtag;
-    @PastOrPresent
     private LocalDate resignedOn;
     private AddressDto residentialAddress;
     private Boolean residentialAddressSameAsCorrespondenceAddress;

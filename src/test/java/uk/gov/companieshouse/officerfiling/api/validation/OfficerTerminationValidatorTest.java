@@ -12,6 +12,8 @@ import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
+import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
@@ -36,7 +38,6 @@ class OfficerTerminationValidatorTest {
     private static final String TRANS_ID = "12345-54321-76666";
     private static final String PASSTHROUGH_HEADER = "passthrough";
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
-    private static final String DIRECTOR_NAME = "director name";
     private static final String ETAG = "etag";
     private static final String COMPANY_TYPE = "ltd";
     private static final String OFFICER_ROLE = "director";
@@ -60,10 +61,12 @@ class OfficerTerminationValidatorTest {
     private CompanyProfileApi companyProfile;
     @Mock
     private AppointmentFullRecordAPI companyAppointment;
+    @Mock
+    private ApiEnumerations apiEnumerations;
 
     @BeforeEach
     void setUp() {
-        officerTerminationValidator = new OfficerTerminationValidator(logger, transactionService, companyProfileService, companyAppointmentService);
+        officerTerminationValidator = new OfficerTerminationValidator(logger, companyProfileService, companyAppointmentService, apiEnumerations);
         apiErrorsList = new ArrayList<>();
     }
 
@@ -135,15 +138,16 @@ class OfficerTerminationValidatorTest {
             .build();
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
+        when(apiEnumerations.getValidation(ValidationEnum.SERVICE_UNAVAILABLE)).thenReturn("Sorry, this service is unavailable. You will be able to use the service later");
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenThrow(
-            new ServiceUnavailableException("The service is down. Try again later"));
+            new ServiceUnavailableException());
 
         final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
             .as("An error should be produced when the Company Appointment Service is unavailable")
             .hasSize(1)
             .extracting(ApiError::getError)
-            .contains("The service is down. Try again later");
+            .contains("Sorry, this service is unavailable. You will be able to use the service later");
     }
 
     @Test
@@ -155,113 +159,122 @@ class OfficerTerminationValidatorTest {
             .build();
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
+        when(apiEnumerations.getValidation(ValidationEnum.SERVICE_UNAVAILABLE)).thenReturn("Sorry, this service is unavailable. You will be able to use the service later");
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenThrow(
-            new ServiceUnavailableException("The service is down. Try again later"));
+            new ServiceUnavailableException());
 
         final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
             .as("An error should be produced when the Company Profile Service is unavailable")
             .hasSize(1)
             .extracting(ApiError::getError)
-            .contains("The service is down. Try again later");
+            .contains("Sorry, this service is unavailable. You will be able to use the service later");
     }
 
     @Test
-    void validationWhenNullETagValueInput(){
+    void validateRequiredDtoFieldsWhenNullEtag() {
         final var dto = OfficerFilingDto.builder()
                 .referenceEtag(null)
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
+        when(apiEnumerations.getValidation(ValidationEnum.ETAG_BLANK)).thenReturn("ETag must be completed");
 
-        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
-        assertThat(apiErrors.getErrors())
+        officerTerminationValidator.validateRequiredDtoFields(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
                 .as("An error should be produced when no ETag is provided")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("ETag cannot be null or blank");
+                .contains("ETag must be completed");
     }
 
     @Test
-    void validationWhenBlankETagValueInput(){
+    void validateRequiredDtoFieldsWhenBlankEtag() {
         final var dto = OfficerFilingDto.builder()
                 .referenceEtag("")
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
+        when(apiEnumerations.getValidation(ValidationEnum.ETAG_BLANK)).thenReturn("ETag must be completed");
 
-        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
-        assertThat(apiErrors.getErrors())
+        officerTerminationValidator.validateRequiredDtoFields(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
                 .as("An error should be produced when a blank ETag is provided")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("ETag cannot be null or blank");
+                .contains("ETag must be completed");
     }
 
     @Test
-    void validationWhenNullTerminationDateValueInput(){
+    void validateRequiredDtoFieldsWhenNullTerminationDate() {
         final var dto = OfficerFilingDto.builder()
                 .referenceEtag("etag")
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(null)
                 .build();
+        when(apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_MISSING, "Director")).thenReturn("Date Director was removed is missing");
 
-        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
-        assertThat(apiErrors.getErrors())
+        officerTerminationValidator.validateRequiredDtoFields(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
                 .as("An error should be produced when no Termination date is provided")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("Termination date cannot be null or blank");
+                .contains("Date Director was removed is missing");
     }
 
     @Test
-    void validationWhenNullOfficerIdValueInput(){
+    void validateRequiredDtoFieldsWhenNullOfficerId() {
         final var dto = OfficerFilingDto.builder()
                 .referenceEtag("etag")
                 .referenceAppointmentId(null)
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
+        when(apiEnumerations.getValidation(ValidationEnum.OFFICER_ID_BLANK)).thenReturn("The Officer ID must be completed");
 
-        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
-        assertThat(apiErrors.getErrors())
+        officerTerminationValidator.validateRequiredDtoFields(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
                 .as("An error should be produced when no Officer ID is provided")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("Director cannot be null or blank");
+                .contains("The Officer ID must be completed");
     }
 
     @Test
-    void validationWhenBlankOfficerIdValueInput(){
+    void validateRequiredDtoFieldsWhenBlankOfficerId() {
         final var dto = OfficerFilingDto.builder()
                 .referenceEtag("etag")
                 .referenceAppointmentId("")
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
+        when(apiEnumerations.getValidation(ValidationEnum.OFFICER_ID_BLANK)).thenReturn("The Officer ID must be completed");
 
-        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
-        assertThat(apiErrors.getErrors())
+        officerTerminationValidator.validateRequiredDtoFields(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
                 .as("An error should be produced when a blank Officer ID is provided")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("Director cannot be null or blank");
+                .contains("The Officer ID must be completed");
     }
 
     @Test
-    void validationWhenMultipleNullValuesInput(){
+    void validateRequiredDtoFieldsWhenMultipleNullValuesInput() {
         final var dto = OfficerFilingDto.builder()
                 .referenceEtag(null)
                 .referenceAppointmentId(null)
                 .resignedOn(null)
                 .build();
+        when(apiEnumerations.getValidation(ValidationEnum.ETAG_BLANK)).thenReturn("ETag must be completed");
+        when(apiEnumerations.getValidation(ValidationEnum.OFFICER_ID_BLANK)).thenReturn("The Officer ID must be completed");
+        when(apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_MISSING, "Director")).thenReturn("Date Director was removed is missing");
 
-        final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
-        assertThat(apiErrors.getErrors())
+        officerTerminationValidator.validateRequiredDtoFields(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
                 .as("An error should be produced when no Termination date is provided")
                 .hasSize(3)
                 .extracting(ApiError::getError)
-                .contains("ETag cannot be null or blank")
-                .contains("Director cannot be null or blank")
-                .contains("Termination date cannot be null or blank");
+                .contains("ETag must be completed")
+                .contains("The Officer ID must be completed")
+                .contains("Date Director was removed is missing");
     }
 
     @Test
@@ -276,13 +289,15 @@ class OfficerTerminationValidatorTest {
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenThrow(
             new CompanyAppointmentServiceException("Error Retrieving appointment"));
+        when(apiEnumerations.getValidation(ValidationEnum.DIRECTOR_NOT_FOUND, "Director")).thenReturn("Director cannot be found");
+
 
         final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
             .as("An error should be produced when an Officer cannot be identified")
             .hasSize(1)
             .extracting(ApiError::getError)
-            .contains("Officer not found. Please confirm the details and resubmit");
+            .contains("Director cannot be found");
     }
 
     @Test
@@ -298,13 +313,16 @@ class OfficerTerminationValidatorTest {
             new CompanyProfileServiceException("Error Retrieving company"));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER))
             .thenReturn(companyAppointment);
+        when(apiEnumerations.getValidation(ValidationEnum.CANNOT_FIND_COMPANY)).thenReturn("We cannot find the company");
+
         final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
             .as("An error should be produced when a Company cannot be found")
             .hasSize(1)
             .extracting(ApiError::getError)
-            .contains("Company not found. Please confirm the details and resubmit");
+            .contains("We cannot find the company");
     }
+
     @Test
     void validationWhenOfficerIdentifiedButFilingInvalid() {
         final var dto = OfficerFilingDto.builder()
@@ -322,6 +340,13 @@ class OfficerTerminationValidatorTest {
         when(companyProfile.getType()).thenReturn("invalid-type");
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+
+        when(apiEnumerations.getCompanyType("invalid-type")).thenReturn("Invalid Company Type");
+        when(apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_APPOINTMENT_DATE, "Director")).thenReturn("Date Director was removed must be on or after the date the director was appointed");
+        when(apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_INCORPORATION_DATE)).thenReturn("The date you enter must be after the company's incorporation date");
+        when(apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_2009)).thenReturn("Enter a date that is on or after 1 October 2009. If the director was removed before this date, you must file form 288b instead");
+        when(apiEnumerations.getValidation(ValidationEnum.COMPANY_TYPE_NOT_PERMITTED, "Invalid Company Type")).thenReturn("Invalid Company Type not permitted");
+        when(apiEnumerations.getValidation(ValidationEnum.ETAG_INVALID)).thenReturn("The Director’s information was updated before you sent this submission. You will need to start again");
 
         final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -351,12 +376,13 @@ class OfficerTerminationValidatorTest {
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2009, Month.SEPTEMBER, 30))
                 .build();
+        when(apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_2009)).thenReturn("Enter a date that is on or after 1 October 2009. If the director was removed before this date, you must file form 288b instead");
         officerTerminationValidator.validateMinResignationDate(request, apiErrorsList, officerFilingDto);
         assertThat(apiErrorsList)
                 .as("An error should be produced when resignation date is before 1st October 2009")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("You have entered a date too far in the past. Please check the date and resubmit");
+                .contains("Enter a date that is on or after 1 October 2009. If the director was removed before this date, you must file form 288b instead");
     }
 
     @Test
@@ -389,18 +415,18 @@ class OfficerTerminationValidatorTest {
     @Test
     void validateTerminationDateAfterIncorporationDateWhenInvalid() {
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 6));
-        when(companyAppointment.getName()).thenReturn(DIRECTOR_NAME);
         final var officerFilingDto = OfficerFilingDto.builder()
                 .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
+        when(apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_INCORPORATION_DATE)).thenReturn("The date you enter must be after the company's incorporation date");
         officerTerminationValidator.validateTerminationDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile, companyAppointment);
         assertThat(apiErrorsList)
                 .as("An error should be produced when resignation date is before creation date")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("director name has not been found");
+                .contains("The date you enter must be after the company's incorporation date");
     }
 
     @Test
@@ -434,13 +460,27 @@ class OfficerTerminationValidatorTest {
     @Test
     void validationAlreadyResigned() {
         when(companyAppointment.getResignedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 5));
-        when(companyAppointment.getName()).thenReturn("Vhagar Dragon");
+        when(companyAppointment.getForename()).thenReturn("Vhagar");
+        when(companyAppointment.getSurname()).thenReturn("Dragon");
+        when(apiEnumerations.getValidation(ValidationEnum.DIRECTOR_ALREADY_REMOVED, "Vhagar Dragon")).thenReturn("Vhagar Dragon has already been removed from the company");
         officerTerminationValidator.validateOfficerIsNotTerminated(request, apiErrorsList,companyAppointment);
         assertThat(apiErrorsList)
                 .as("An error should be produced when an officer has already resigned")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("An application to remove Vhagar Dragon has already been submitted");
+                .contains("Vhagar Dragon has already been removed from the company");
+    }
+
+    @Test
+    void validationAlreadyResignedWhenNullDirectorName() {
+        when(companyAppointment.getResignedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 5));
+        when(apiEnumerations.getValidation(ValidationEnum.DIRECTOR_ALREADY_REMOVED, "Director")).thenReturn("Director has already been removed from the company");
+        officerTerminationValidator.validateOfficerIsNotTerminated(request, apiErrorsList,companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when an officer has already resigned")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Director has already been removed from the company");
     }
 
     @Test
@@ -456,23 +496,25 @@ class OfficerTerminationValidatorTest {
     void validateCompanyNotDissolvedWhenDissolvedDateExists() {
         when(companyProfile.getCompanyStatus()).thenReturn("active");
         when(companyProfile.getDateOfCessation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
+        when(apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED)).thenReturn("You cannot remove a director from a company that has been dissolved or is in the process of being dissolved");
         officerTerminationValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
         assertThat(apiErrorsList)
                 .as("An error should be produced when dissolved date exists")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("You cannot remove an officer from a company that is about to be dissolved");
+                .contains("You cannot remove a director from a company that has been dissolved or is in the process of being dissolved");
     }
 
     @Test
     void validateCompanyNotDissolvedWhenStatusIsDissolved() {
         when(companyProfile.getCompanyStatus()).thenReturn("dissolved");
+        when(apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED)).thenReturn("You cannot remove a director from a company that has been dissolved or is in the process of being dissolved");
         officerTerminationValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
         assertThat(apiErrorsList)
                 .as("An error should be produced when the company has a status of 'dissolved'")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("You cannot remove an officer from a company that has been dissolved");
+                .contains("You cannot remove a director from a company that has been dissolved or is in the process of being dissolved");
     }
 
     @Test
@@ -526,6 +568,7 @@ class OfficerTerminationValidatorTest {
     @Test
     void validateTerminationDateAfterAppointmentDateWhenInvalid() {
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 6));
+        when(apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_APPOINTMENT_DATE, "Director")).thenReturn("Date Director was removed must be on or after the date the director was appointed");
         final var officerFilingDto = OfficerFilingDto.builder()
                 .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
@@ -536,7 +579,7 @@ class OfficerTerminationValidatorTest {
                 .as("An error should be produced when resignation date is before appointment date")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("Date director was removed must be on or after the date the director was appointed");
+                .contains("Date Director was removed must be on or after the date the director was appointed");
     }
 
     @Test
@@ -614,6 +657,7 @@ class OfficerTerminationValidatorTest {
     @Test
     void validateSubmissionInformationInDateWhenInvalid() {
         when(companyAppointment.getEtag()).thenReturn(ETAG);
+        when(apiEnumerations.getValidation(ValidationEnum.ETAG_INVALID)).thenReturn("The Director’s information was updated before you sent this submission. You will need to start again");
         final var officerFilingDto = OfficerFilingDto.builder()
             .referenceEtag("invalid_etag")
             .referenceAppointmentId(FILING_ID)
@@ -624,7 +668,7 @@ class OfficerTerminationValidatorTest {
             .as("An error should be produced when the referenceEtag is invalid/ out of date")
             .hasSize(1)
             .extracting(ApiError::getError)
-            .contains("The Officers information is out of date. Please start the process again and make a new submission");
+            .contains("The Director’s information was updated before you sent this submission. You will need to start again");
     }
 
     @Test
@@ -653,12 +697,14 @@ class OfficerTerminationValidatorTest {
     @Test
     void validateAllowedCompanyTypeWhenInvalid() {
         when(companyProfile.getType()).thenReturn("invalid-type");
+        when(apiEnumerations.getValidation(ValidationEnum.COMPANY_TYPE_NOT_PERMITTED, "Invalid Company Type")).thenReturn("Invalid Company Type not permitted");
+        when(apiEnumerations.getCompanyType("invalid-type")).thenReturn("Invalid Company Type");
         officerTerminationValidator.validateAllowedCompanyType(request, apiErrorsList, companyProfile);
         assertThat(apiErrorsList)
                 .as("An error should be produced when the company does not have a valid type")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("You cannot remove an officer from a invalid-type using this service");
+                .contains("Invalid Company Type not permitted");
     }
 
     @Test
@@ -683,6 +729,7 @@ class OfficerTerminationValidatorTest {
     @Test
     void validateOfficerRoleWhenInvalid() {
         when(companyAppointment.getOfficerRole()).thenReturn("invalid-role");
+        when(apiEnumerations.getValidation(ValidationEnum.OFFICER_ROLE)).thenReturn("You can only remove directors");
         officerTerminationValidator.validateOfficerRole(request, apiErrorsList, companyAppointment);
         assertThat(apiErrorsList)
                 .as("An error should be produced when officer role is not a valid type")
@@ -697,6 +744,48 @@ class OfficerTerminationValidatorTest {
         officerTerminationValidator.validateOfficerRole(request, apiErrorsList, companyAppointment);
         assertThat(apiErrorsList)
                 .as("Validation should be skipped when officerRole is null")
+                .isEmpty();
+    }
+
+    @Test
+    void validateResignationDatePastOrPresentWhenFuture() {
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.now().plusDays(1))
+                .build();
+        when(apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_IN_PAST, "Director")).thenReturn("Date Director was removed must be today or in the past");
+        officerTerminationValidator.validateResignationDatePastOrPresent(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when resignation date is in the future")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Date Director was removed must be today or in the past");
+    }
+
+    @Test
+    void validateResignationDatePastOrPresentWhenPresent() {
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.now())
+                .build();
+        officerTerminationValidator.validateResignationDatePastOrPresent(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when resignation date is in the present")
+                .isEmpty();
+    }
+
+    @Test
+    void validateResignationDatePastOrPresentWhenPast() {
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.now().minusDays(1))
+                .build();
+        officerTerminationValidator.validateResignationDatePastOrPresent(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when resignation date is in the past")
                 .isEmpty();
     }
 
