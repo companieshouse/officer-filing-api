@@ -31,7 +31,7 @@ public class ApiEnumerations {
 
     private String overwriteCustomElements(String message, String... customElements) {
         for (String customElement : customElements) {
-            message = message.replaceFirst("<[\\w_-]*>", customElement);
+            message = message.replaceFirst("<[\\w-]*>", customElement);
         }
         return message;
     }

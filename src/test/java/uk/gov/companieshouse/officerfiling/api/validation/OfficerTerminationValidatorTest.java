@@ -7,7 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
@@ -774,7 +773,7 @@ class OfficerTerminationValidatorTest {
         officerTerminationValidator.validateResignationDatePastOrPresent(request, apiErrorsList, dto, companyAppointment);
         assertThat(apiErrorsList)
                 .as("An error should not be produced when resignation date is in the present")
-                .hasSize(0);
+                .isEmpty();
     }
 
     @Test
@@ -787,7 +786,7 @@ class OfficerTerminationValidatorTest {
         officerTerminationValidator.validateResignationDatePastOrPresent(request, apiErrorsList, dto, companyAppointment);
         assertThat(apiErrorsList)
                 .as("An error should not be produced when resignation date is in the past")
-                .hasSize(0);
+                .isEmpty();
     }
 
 }
