@@ -11,8 +11,7 @@ clean:
 
 .PHONY: submodules
 submodules:
-	git submodule init
-	git submodule update
+	test -f ./api-enumerations/constants.yml || git submodule update --init --recursive -- src/main/resources/api-enumerations
 
 .PHONY: test-unit
 test-unit: clean
