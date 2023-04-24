@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
@@ -39,10 +40,10 @@ public class CompanyProfileServiceImpl implements CompanyProfileService {
         try {
             final String uri = "/company/" + companyNumber;
             final CompanyProfileApi companyProfile = apiClientService.getInternalApiClient(ericPassThroughHeader)
-                            .company()
-                            .get(uri)
-                            .execute()
-                            .getData();
+                    .company()
+                    .get(uri)
+                    .execute()
+                    .getData();
             logger.debugContext(transactionId, "Retrieved company profile details", new LogHelper.Builder(transactionId)
                     .withCompanyNumber(companyNumber)
                     .withCompanyName(companyProfile.getCompanyName())
@@ -50,6 +51,9 @@ public class CompanyProfileServiceImpl implements CompanyProfileService {
             return companyProfile;
         }
         catch (final ApiErrorResponseException e) {
+            if (HttpStatus.NOT_FOUND.value() == e.getStatusCode()) {
+                throw new CompanyProfileServiceException("Error Retrieving company profile " + companyNumber, e);
+            }
             throw new ServiceUnavailableException("The service is down. Try again later");
         }
         catch (final URIValidationException | IOException e) {
