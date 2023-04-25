@@ -5,10 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.ResponseBody;
-import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
-import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
+import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,17 +24,18 @@ public class StopScreenValidationControllerImpl implements StopScreenValidationC
 
     @Override
     @ResponseBody
-    @GetMapping(value = "/company/{companyNumber}", produces = {"application/json"})
-    public ResponseEntity<Object> getHasCessationDate(
+    @GetMapping(value = "/transactions/{transactionId}/company/{companyNumber}/past-future-dissolved", produces = {"application/json"})
+    public ResponseEntity<Object> getCurrentOrFutureDissolved(
             @RequestAttribute("companyNumber") String companyNumber,
-            @RequestAttribute("transaction") Transaction transaction,
+            @RequestAttribute("transactionId") String transactionId,
             final HttpServletRequest request) {
 
-        final var companyProfile = companyProfileService.getHasCessationDate(companyNumber, transaction, request);
+        final var passthroughHeader =
+                request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
 
-        //check dissolved status too
+        final var companyProfile = companyProfileService.getCompanyProfile(transactionId, companyNumber, passthroughHeader);
 
-        if (companyProfile.getDateOfCessation() != null) {
+        if (companyProfile.getDateOfCessation() != null || companyProfile.getCompanyStatus() == "dissolved") {
             return ResponseEntity.status(HttpStatus.OK).body(true);
         } else {
             return ResponseEntity.status(HttpStatus.OK).body(false);
