@@ -15,14 +15,12 @@ public interface StopScreenValidationController {
      * Check if company has a cessation date.
      *
      * @param companyNumber the company number to check
-     * @param transactionId the transaction id passed for logging
      * @param request       the servlet request
      * @throws NotImplementedException implementing classes must perform work
      */
     @GetMapping
     default ResponseEntity<Object> getCurrentOrFutureDissolved(
             @RequestAttribute("companyNumber") String companyNumber,
-            @RequestAttribute("transactionId") String transactionId,
             HttpServletRequest request) {
         throw new NotImplementedException();
     }

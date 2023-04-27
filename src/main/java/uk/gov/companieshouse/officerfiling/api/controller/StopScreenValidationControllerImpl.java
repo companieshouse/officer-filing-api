@@ -24,14 +24,15 @@ public class StopScreenValidationControllerImpl implements StopScreenValidationC
 
     @Override
     @ResponseBody
-    @GetMapping(value = "/transactions/{transactionId}/company/{companyNumber}/officers/past-future-dissolved", produces = {"application/json"})
+    @GetMapping(value = "/officer-filing/company/{companyNumber}/past-future-dissolved", produces = {"application/json"})
     public ResponseEntity<Object> getCurrentOrFutureDissolved(
             @RequestAttribute("companyNumber") String companyNumber,
-            @RequestAttribute("transactionId") String transactionId,
             final HttpServletRequest request) {
 
         final var passthroughHeader =
                 request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
+
+        final var transactionId = "No Transaction ID";
 
         final var companyProfile = companyProfileService.getCompanyProfile(transactionId, companyNumber, passthroughHeader);
 
