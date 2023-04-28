@@ -6,3 +6,4 @@ routes:
   2: ^/transactions/.*/officers
   3: ^/private/transactions/.*/officers
   4: ^/transactions/.*/officers/.*
+  5: ^/officer-filing/company/.*/stop-screen-checks/.*
