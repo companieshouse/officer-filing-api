@@ -27,7 +27,7 @@ public class StopScreenValidationControllerImpl implements StopScreenValidationC
 
     @Override
     @ResponseBody
-    @GetMapping(value = "/officer-filing/company/{companyNumber}/stop-screen-checks/past-future-dissolved", produces = {"application/json"})
+    @GetMapping(value = "/officer-filing/company/{companyNumber}/eligibility-check/past-future-dissolved", produces = {"application/json"})
     public ResponseEntity<Object> getCurrentOrFutureDissolved(
             @PathVariable("companyNumber") String companyNumber,
             final HttpServletRequest request) {
