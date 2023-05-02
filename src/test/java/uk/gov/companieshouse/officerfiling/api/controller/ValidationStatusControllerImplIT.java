@@ -1,22 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.Map;
-import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -42,6 +25,23 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.Optional;
+
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Tag("web")
 @WebMvcTest(controllers = ValidationStatusControllerImpl.class)
@@ -163,7 +163,7 @@ class ValidationStatusControllerImplIT {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.is_valid", is(false)))
             .andExpect(jsonPath("$.errors[0].error", containsString(
-                "The Officers information is out of date. Please start the process again and make a new submission")));
+                "The Director’s information was updated before you sent this submission. You will need to start again")));
     }
 
     @Test
@@ -214,7 +214,7 @@ class ValidationStatusControllerImplIT {
                 .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
                 .andExpect(jsonPath("$.errors[0].location", is("$./transactions/4f56fdf78b357bfc/officers/632c8e65105b1b4a9f0d1f5e/validation_status")))
                 .andExpect(jsonPath("$.errors[0].error",
-                        is("You have entered a date too far in the past. Please check the date and resubmit")));
+                        is("The date you enter must be after the company's incorporation date")));
     }
 
     @Test
@@ -224,8 +224,8 @@ class ValidationStatusControllerImplIT {
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(Instant.parse("2008-09-13T00:00:00Z"))
                 .build();
-        companyProfileApi.setDateOfCreation(LocalDate.of(2009, 1, 1));
-        companyAppointment.setAppointedOn(LocalDate.of(2009, 1, 2));
+        companyProfileApi.setDateOfCreation(LocalDate.of(2000, 1, 1));
+        companyAppointment.setAppointedOn(LocalDate.of(2008, 1, 2));
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID,
                 PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
@@ -237,12 +237,12 @@ class ValidationStatusControllerImplIT {
                                 .headers(httpHeaders))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors", hasSize(3)))
+                .andExpect(jsonPath("$.errors", hasSize(1)))
                 .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
                 .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
                 .andExpect(jsonPath("$.errors[0].location", is("$./transactions/4f56fdf78b357bfc/officers/632c8e65105b1b4a9f0d1f5e/validation_status")))
                 .andExpect(jsonPath("$.errors[0].error",
-                        is("You have entered a date too far in the past. Please check the date and resubmit")));
+                        is("Enter a date that is on or after 1 October 2009. If the director was removed before this date, you must file form 288b instead")));
     }
 
     @Test
@@ -269,7 +269,7 @@ class ValidationStatusControllerImplIT {
                 .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
                 .andExpect(jsonPath("$.errors[0].location", is("$./transactions/4f56fdf78b357bfc/officers/632c8e65105b1b4a9f0d1f5e/validation_status")))
                 .andExpect(jsonPath("$.errors[0].error",
-                        is("Director name has not been found")));
+                        is("The date you enter must be after the company's incorporation date")));
     }
 
     @Test
@@ -296,6 +296,32 @@ class ValidationStatusControllerImplIT {
                 .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
                 .andExpect(jsonPath("$.errors[0].location", is("$./transactions/4f56fdf78b357bfc/officers/632c8e65105b1b4a9f0d1f5e/validation_status")))
                 .andExpect(jsonPath("$.errors[0].error",
-                        is("You cannot remove an officer from a company that is about to be dissolved")));
+                        is("You cannot remove a director from a company that has been dissolved or is in the process of being dissolved")));
+    }
+
+    @Test
+    void validationStatusWhenResignedOnInFuture() throws Exception {
+        final var filing = OfficerFiling.builder()
+                .referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(Instant.parse("3022-09-13T00:00:00Z"))
+                .build();
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID,
+                PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER,
+                PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
+
+        mockMvc.perform(
+                        get("/transactions/{id}/officers/{filingId}/validation_status", TRANS_ID, FILING_ID)
+                                .headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
+                .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
+                .andExpect(jsonPath("$.errors[0].location", is("$./transactions/4f56fdf78b357bfc/officers/632c8e65105b1b4a9f0d1f5e/validation_status")))
+                .andExpect(jsonPath("$.errors[0].error",
+                        is("Date Director was removed must be today or in the past")));
     }
 }

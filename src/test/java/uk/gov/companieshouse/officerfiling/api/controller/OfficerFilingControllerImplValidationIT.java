@@ -219,29 +219,6 @@ class OfficerFilingControllerImplValidationIT {
     }
 
     @Test
-    void createFilingWhenReferenceResignedOnInFutureThenResponse400() throws Exception {
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
-        final var tomorrow = LocalDate.now().plusDays(1);
-        final var body = "{"
-                + TM01_FRAGMENT.replace("2022-09-13", tomorrow.toString())
-                + "}";
-
-        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                        .contentType("application/json")
-                        .headers(httpHeaders))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors", hasSize(1)))
-                .andExpect(jsonPath("$.errors[0].type", is("ch:validation")))
-                .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
-                .andExpect(jsonPath("$.errors[0].location", is("$.resigned_on")))
-                .andExpect(jsonPath("$.errors[0].error_values",
-                        is(Map.of("rejected", tomorrow.toString()))))
-                .andExpect(jsonPath("$.errors[0].error",
-                        is("must be a date in the past or in the present")));
-    }
-
-    @Test
     void createFilingWhenResignedOnInvalidThenResponse400() throws Exception {
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);

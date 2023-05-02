@@ -21,6 +21,8 @@ import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
+import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
@@ -42,6 +44,7 @@ class ValidationStatusControllerImplTest {
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     private static final String OFFICER_ROLE = "director";
     private static final String PASSTHROUGH_HEADER = "passthrough";
+
     @Mock
     private OfficerFilingService officerFilingService;
     @Mock
@@ -66,15 +69,17 @@ class ValidationStatusControllerImplTest {
     private OfficerFilingDto dto;
     @Mock
     private ErrorMapper errorMapper;
+    @Mock
+    private ApiEnumerations apiEnumerations;
+
     private OfficerFiling filing;
     private ValidationStatusControllerImpl testController;
-
 
     @BeforeEach
     void setUp() {
         testController = new ValidationStatusControllerImpl(officerFilingService, logger,
             transactionService, companyProfileService, companyAppointmentService, officerFilingMapper,
-            errorMapper);
+            errorMapper, apiEnumerations);
         filing = OfficerFiling.builder()
             .referenceAppointmentId("off-id")
             .referenceEtag("etag")
@@ -117,6 +122,12 @@ class ValidationStatusControllerImplTest {
         when(companyProfile.getType()).thenReturn("invalid-type");
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));;
         when(errorMapper.map(anySet())).thenReturn(new ValidationStatusError[4]);
+
+        when(apiEnumerations.getCompanyType("invalid-type")).thenReturn("Invalid Company Type");
+        when(apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_APPOINTMENT_DATE, "Director")).thenReturn("Date Director was removed must be on or after the date the director was appointed");
+        when(apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_INCORPORATION_DATE)).thenReturn("The date you enter must be after the company's incorporation date");
+        when(apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_2009)).thenReturn("Enter a date that is on or after 1 October 2009. If the director was removed before this date, you must file form 288b instead");
+        when(apiEnumerations.getValidation(ValidationEnum.COMPANY_TYPE_NOT_PERMITTED, "Invalid Company Type")).thenReturn("Invalid Company Type not permitted");
 
         final var response = testController.validate(transaction, FILING_ID, request);
         assertThat(response.isValid(), is(false));

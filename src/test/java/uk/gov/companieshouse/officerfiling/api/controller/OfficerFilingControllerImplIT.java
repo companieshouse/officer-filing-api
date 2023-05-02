@@ -334,29 +334,6 @@ class OfficerFilingControllerImplIT {
     }
 
     @Test
-    void createFilingWhenResignedOnInvalidThenResponse400() throws Exception {
-        final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "3000-09-13") + "}";
-        final var expectedError = createExpectedError(
-            "JSON parse error:", "$.resigned_on", 1, 75);
-
-        mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
-                        .contentType("application/json")
-                        .headers(httpHeaders))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(header().doesNotExist("Location"))
-                .andExpect(jsonPath("$.errors", hasSize(1)))
-                .andExpect(jsonPath("$.errors[0]",
-                        allOf(hasEntry("location", expectedError.getLocation()),
-                                hasEntry("location_type", expectedError.getLocationType()),
-                                hasEntry("type", expectedError.getType()))))
-                .andExpect(jsonPath("$.errors[0].error", containsString(
-                        "must be a date in the past or in the present")))
-                .andExpect(jsonPath("$.errors[0].error_values",
-                        is(Map.of("rejected", "3000-09-13"))));
-    }
-
-    @Test
     void createFilingWhenResignedOnBlankThenResponse201() throws Exception {
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "") + "}";
         final var expectedError = createExpectedError(

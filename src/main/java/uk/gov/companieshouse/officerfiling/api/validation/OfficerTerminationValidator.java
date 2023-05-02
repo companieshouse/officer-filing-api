@@ -5,6 +5,8 @@ import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
+import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
 import uk.gov.companieshouse.officerfiling.api.error.ErrorType;
 import uk.gov.companieshouse.officerfiling.api.error.LocationType;
@@ -14,7 +16,6 @@ import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableExcep
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
-import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,24 +31,24 @@ import java.util.Optional;
  */
 public class OfficerTerminationValidator {
 
-    private static final LocalDate EARLIEST_POSSIBLE_DATE = LocalDate.of(2009, 10, 1);
+    private static final LocalDate MIN_RESIGNATION_DATE = LocalDate.of(2009, 10, 1);
     private static final List<String> ALLOWED_COMPANY_TYPES = List.of("private-unlimited", "ltd", "plc", "old-public-company", "private-limited-guarant-nsc-limited-exemption",
             "private-limited-guarant-nsc", "private-unlimited-nsc", "private-limited-shares-section-30-exemption");
     private static final List<String> ALLOWED_OFFICER_ROLES = List.of("director", "corporate-director", "nominee-director", "corporate-nominee-director");
 
-    private final TransactionService transactionService;
     private final CompanyProfileService companyProfileService;
     private final CompanyAppointmentService companyAppointmentService;
     private final Logger logger;
+    private final ApiEnumerations apiEnumerations;
 
     public OfficerTerminationValidator(final Logger logger,
-                                       final TransactionService transactionService,
                                        final CompanyProfileService companyProfileService,
-                                       final CompanyAppointmentService companyAppointmentService) {
+                                       final CompanyAppointmentService companyAppointmentService,
+                                       final ApiEnumerations apiEnumerations) {
         this.logger = logger;
-        this.transactionService = transactionService;
         this.companyProfileService = companyProfileService;
         this.companyAppointmentService = companyAppointmentService;
+        this.apiEnumerations = apiEnumerations;
     }
 
     /**
@@ -58,21 +59,15 @@ public class OfficerTerminationValidator {
      * @param passthroughHeader ERIC pass through header for authorisation
      * @return An object containing a list of any validation errors that have been raised
      */
-    public ApiErrors validate(HttpServletRequest request, OfficerFilingDto dto, Transaction transaction,
-        String passthroughHeader) {
+    public ApiErrors validate(HttpServletRequest request, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
             logger.debugContext(transaction.getId(), "Beginning officer termination validation", new LogHelper.Builder(transaction)
                 .withRequest(request)
                 .build());
         final List<ApiError> errorList = new ArrayList<>();
 
-        // Check null or blank officer id, eTag and termination date
-        checkRequiredFieldsAreNotNull(request, dto, errorList);
-        if (!errorList.isEmpty()) {
-            return new ApiErrors(errorList);
-        }
-
-        // Validate transaction
-        validateTransaction(request, errorList, transaction);
+        // Validate required dto and transaction fields and fail early
+        validateRequiredDtoFields(request, errorList, dto);
+        validateRequiredTransactionFields(request, errorList, transaction);
         if (!errorList.isEmpty()) {
             return new ApiErrors(errorList);
         }
@@ -86,6 +81,7 @@ public class OfficerTerminationValidator {
 
         // Perform validation
         validateSubmissionInformationInDate(request, dto, companyAppointment.get(), errorList);
+        validateResignationDatePastOrPresent(request, errorList, dto, companyAppointment.get());
         validateMinResignationDate(request, errorList, dto);
         validateCompanyNotDissolved(request, errorList, companyProfile.get());
         validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile.get(), companyAppointment.get());
@@ -97,22 +93,22 @@ public class OfficerTerminationValidator {
         return new ApiErrors(errorList);
     }
 
-    public void checkRequiredFieldsAreNotNull(HttpServletRequest request, OfficerFilingDto dto, List<ApiError> errorList) {
+    public void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         // check for blank officer id, eTag and termination date
         if (dto.getReferenceAppointmentId() == null || dto.getReferenceAppointmentId().isBlank()) {
-            createValidationError(request, errorList, "Director cannot be null or blank");
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.OFFICER_ID_BLANK));
         }
 
         if (dto.getReferenceEtag() == null || dto.getReferenceEtag().isBlank()) {
-            createValidationError(request, errorList, "ETag cannot be null or blank");
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ETAG_BLANK));
         }
 
         if (dto.getResignedOn() == null) {
-            createValidationError(request, errorList, "Termination date cannot be null or blank");
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_MISSING, getDirectorName(null)));
         }
     }
 
-    private void validateTransaction(HttpServletRequest request, List<ApiError> errorList, Transaction transaction) {
+    public void validateRequiredTransactionFields(HttpServletRequest request, List<ApiError> errorList, Transaction transaction) {
         if (transaction.getCompanyNumber() == null || transaction.getCompanyNumber().isBlank()) {
             createValidationError(request, errorList, "The company number cannot be null or blank");
         }
@@ -127,7 +123,8 @@ public class OfficerTerminationValidator {
         } catch (ServiceUnavailableException e) {
             createServiceError(request, errorList);
         } catch (CompanyAppointmentServiceException e) {
-            createValidationError(request, errorList, "Officer not found. Please confirm the details and resubmit");
+            // We do not have the directors name in this scenario for the error message
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DIRECTOR_NOT_FOUND, getDirectorName(null)));
         }
         return Optional.empty();
     }
@@ -141,7 +138,7 @@ public class OfficerTerminationValidator {
         } catch (ServiceUnavailableException e) {
             createServiceError(request, errorList);
         } catch (CompanyProfileServiceException e) {
-            createValidationError(request, errorList, "Company not found. Please confirm the details and resubmit");
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CANNOT_FIND_COMPANY));
         }
         return Optional.empty();
     }
@@ -153,14 +150,20 @@ public class OfficerTerminationValidator {
         }
         // If submission information is not out-of-date, the ETAG retrieved from the Company Appointments API and the ETAG passed from the request will match
         if(!Objects.equals(dto.getReferenceEtag(), companyAppointment.getEtag())) {
-            createValidationError(request, errorList,"The Officers information is out of date. Please start the process again and make a new submission");
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ETAG_INVALID));
+        }
+    }
+
+    public void validateResignationDatePastOrPresent(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment) {
+        if (dto.getResignedOn().isAfter(LocalDate.now())) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_IN_PAST, getDirectorName(companyAppointment)));
         }
     }
 
     public void validateMinResignationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         // Earliest ever possible date that a director can have been removed that is valid on the CH system is the 1st of october 2009.
-        if(dto.getResignedOn().isBefore(EARLIEST_POSSIBLE_DATE)) {
-            createValidationError(request, errorList, "You have entered a date too far in the past. Please check the date and resubmit");
+        if(dto.getResignedOn().isBefore(MIN_RESIGNATION_DATE)) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_2009));
         }
     }
 
@@ -170,7 +173,7 @@ public class OfficerTerminationValidator {
             return;
         }
         if (dto.getResignedOn().isBefore(companyProfile.getDateOfCreation())) {
-            createValidationError(request, errorList, companyAppointment.getName() + " has not been found");
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_INCORPORATION_DATE));
         }
     }
 
@@ -180,8 +183,7 @@ public class OfficerTerminationValidator {
      */
     public void validateOfficerIsNotTerminated(HttpServletRequest request, List<ApiError> errorList, AppointmentFullRecordAPI companyAppointment){
         if(companyAppointment.getResignedOn() != null){
-            createValidationError(request, errorList, "An application to remove " +
-                    companyAppointment.getName() + " has already been submitted");
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DIRECTOR_ALREADY_REMOVED, getDirectorName(companyAppointment)));
         }
     }
 
@@ -190,17 +192,15 @@ public class OfficerTerminationValidator {
             logger.errorRequest(request, "null data was found in the Company Profile API within the Company Status field");
             return;
         }
-        if (Objects.equals(companyProfile.getCompanyStatus(), "dissolved")) {
-            createValidationError(request, errorList, "You cannot remove an officer from a company that has been dissolved");
-        } else if (companyProfile.getDateOfCessation() != null){
-            createValidationError(request, errorList, "You cannot remove an officer from a company that is about to be dissolved");
+        if (Objects.equals(companyProfile.getCompanyStatus(), "dissolved") || companyProfile.getDateOfCessation() != null) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED));
         }
     }
 
     public void validateTerminationDateAfterAppointmentDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment) {
         var companyAppointmentDate = getAppointmentDate(request, companyAppointment);
         if (companyAppointmentDate.isPresent() && dto.getResignedOn().isBefore(companyAppointmentDate.get())) {
-            createValidationError(request, errorList, "Date director was removed must be on or after the date the director was appointed");
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_APPOINTMENT_DATE, getDirectorName(companyAppointment)));
         }
     }
 
@@ -210,7 +210,7 @@ public class OfficerTerminationValidator {
             return;
         }
         if (!ALLOWED_COMPANY_TYPES.contains(companyProfile.getType())) {
-            createValidationError(request, errorList, String.format("You cannot remove an officer from a %s using this service", companyProfile.getType()));
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.COMPANY_TYPE_NOT_PERMITTED, apiEnumerations.getCompanyType(companyProfile.getType())));
         }
     }
 
@@ -220,7 +220,7 @@ public class OfficerTerminationValidator {
             return;
         }
         if (!ALLOWED_OFFICER_ROLES.contains(companyAppointment.getOfficerRole())) {
-            createValidationError(request, errorList, "You can only remove directors");
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.OFFICER_ROLE));
         }
     }
 
@@ -243,8 +243,15 @@ public class OfficerTerminationValidator {
         });
     }
 
+    private String getDirectorName(AppointmentFullRecordAPI appointment) {
+        if (appointment != null && appointment.getForename() != null && appointment.getSurname() != null) {
+            return appointment.getForename() + " " + appointment.getSurname();
+        }
+        return "Director";
+    }
+
     private void createServiceError (HttpServletRequest request, List<ApiError> errorList) {
-        final var apiError = new ApiError("The service is down. Try again later", request.getRequestURI(),
+        final var apiError = new ApiError(apiEnumerations.getValidation(ValidationEnum.SERVICE_UNAVAILABLE), request.getRequestURI(),
             LocationType.JSON_PATH.getValue(), ErrorType.SERVICE.getType());
         errorList.add(apiError);
     }

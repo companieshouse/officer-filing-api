@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
+import com.google.api.client.http.HttpHeaders;
+import com.google.api.client.http.HttpResponseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,13 +14,12 @@ import uk.gov.companieshouse.api.handler.company.request.CompanyGet;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
-import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
+import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 
 import java.io.IOException;
-import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -69,8 +70,22 @@ class CompanyProfileServiceImplTest {
     }
 
     @Test
-    void exceptionIsThrownWhenCompanyProfileIsNotFound() throws IOException, URIValidationException {
+    void exceptionIsThrownWhenCompanyProfileIsNotFoundUriException() throws IOException, URIValidationException {
         when(companyGet.execute()).thenThrow(URIValidationException.class);
+        when(companyResourceHandler.get(URI)).thenReturn(companyGet);
+        when(internalApiClient.company()).thenReturn(companyResourceHandler);
+        when(apiClientService.getInternalApiClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
+
+        final var exception = assertThrows(CompanyProfileServiceException.class,
+                () -> testService.getCompanyProfile(TRANSACTION_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER));
+        assertThat(exception.getMessage(),
+                is("Error Retrieving company profile " + COMPANY_NUMBER));
+    }
+
+    @Test
+    void exceptionIsThrownWhenCompanyProfileIsNotFoundHttpResponse() throws IOException, URIValidationException {
+        ApiErrorResponseException apiErrorResponseException = new ApiErrorResponseException(new HttpResponseException.Builder(404, "404 Not Found", new HttpHeaders()));
+        when(companyGet.execute()).thenThrow(apiErrorResponseException);
         when(companyResourceHandler.get(URI)).thenReturn(companyGet);
         when(internalApiClient.company()).thenReturn(companyResourceHandler);
         when(apiClientService.getInternalApiClient(PASSTHROUGH_HEADER)).thenReturn(internalApiClient);
