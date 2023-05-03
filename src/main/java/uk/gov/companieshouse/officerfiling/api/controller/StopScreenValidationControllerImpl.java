@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
+import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
@@ -16,12 +18,9 @@ import java.util.Objects;
 @RestController
 public class StopScreenValidationControllerImpl implements StopScreenValidationController {
 
-    private final Logger logger;
-
     private final CompanyProfileService companyProfileService;
 
-    public StopScreenValidationControllerImpl(final Logger logger, final CompanyProfileService companyProfileService) {
-        this.logger = logger;
+    public StopScreenValidationControllerImpl(final CompanyProfileService companyProfileService) {
         this.companyProfileService = companyProfileService;
     }
 
@@ -32,17 +31,21 @@ public class StopScreenValidationControllerImpl implements StopScreenValidationC
             @PathVariable("companyNumber") String companyNumber,
             final HttpServletRequest request) {
 
-        final var passthroughHeader =
-                request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
+        try {
+            final var passthroughHeader =
+                    request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
 
-        final var transactionId = "No Transaction ID";
+            final var transactionId = "No Transaction ID";
 
-        final var companyProfile = companyProfileService.getCompanyProfile(transactionId, companyNumber, passthroughHeader);
+            final var companyProfile = companyProfileService.getCompanyProfile(transactionId, companyNumber, passthroughHeader);
 
-        if (companyProfile.getDateOfCessation() != null || Objects.equals(companyProfile.getCompanyStatus(), "dissolved")){
-            return ResponseEntity.status(HttpStatus.OK).body(true);
-        } else {
-            return ResponseEntity.status(HttpStatus.OK).body(false);
+            if (companyProfile.getDateOfCessation() != null || Objects.equals(companyProfile.getCompanyStatus(), "dissolved")) {
+                return ResponseEntity.status(HttpStatus.OK).body(true);
+            } else {
+                return ResponseEntity.status(HttpStatus.OK).body(false);
+            }
+        } catch (CompanyProfileServiceException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
