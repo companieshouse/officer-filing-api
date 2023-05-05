@@ -54,7 +54,8 @@ class DirectorsControllerImplTest {
 
   @Test
   void getListOfActiveDirectorsDetailsThrowsExceptionWhenNotFound() throws OfficerServiceException {
-    when(officerService.getListOfActiveDirectorsDetails(request, TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenThrow(OfficerServiceException.class);
+    when(officerService.getListOfActiveDirectorsDetails(request, TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER))
+            .thenThrow(OfficerServiceException.class);
     var response = testService.getListActiveDirectorsDetails(transaction, request);
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
   }
