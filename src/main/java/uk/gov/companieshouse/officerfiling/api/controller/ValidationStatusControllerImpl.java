@@ -1,7 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestAttribute;
@@ -21,30 +19,29 @@ import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
-import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.officerfiling.api.validation.OfficerTerminationValidator;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/transactions/{transactionId}/officers")
 public class ValidationStatusControllerImpl implements ValidationStatusController {
     private final OfficerFilingService officerFilingService;
     private final Logger logger;
-    private final TransactionService transactionService;
     private final CompanyProfileService companyProfileService;
     private final CompanyAppointmentService companyAppointmentService;
     private final OfficerFilingMapper officerFilingMapper;
     private final ErrorMapper errorMapper;
     private final ApiEnumerations apiEnumerations;
 
-    public ValidationStatusControllerImpl(OfficerFilingService officerFilingService, Logger logger,
-        TransactionService transactionService, CompanyProfileService companyProfileService,
-        CompanyAppointmentService companyAppointmentService, OfficerFilingMapper officerFilingMapper,
-        ErrorMapper errorMapper, ApiEnumerations apiEnumerations) {
+    public ValidationStatusControllerImpl(OfficerFilingService officerFilingService, Logger logger, CompanyProfileService companyProfileService,
+                                          CompanyAppointmentService companyAppointmentService, OfficerFilingMapper officerFilingMapper,
+                                          ErrorMapper errorMapper, ApiEnumerations apiEnumerations) {
         this.officerFilingService = officerFilingService;
         this.logger = logger;
-        this.transactionService = transactionService;
         this.companyProfileService = companyProfileService;
         this.companyAppointmentService = companyAppointmentService;
         this.officerFilingMapper = officerFilingMapper;
@@ -74,8 +71,7 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
                 .withRequest(request)
                 .build());
 
-        final var passthroughHeader =
-            request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
+        final var passthroughHeader = request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
 
         Optional<OfficerFiling> maybeOfficerFiling = officerFilingService.get(filingResourceId, transaction.getId());
 

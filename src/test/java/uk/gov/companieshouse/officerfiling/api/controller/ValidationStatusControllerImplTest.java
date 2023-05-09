@@ -1,16 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.Mockito.when;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,8 +20,19 @@ import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
-import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
+
+import javax.servlet.http.HttpServletRequest;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Optional;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ValidationStatusControllerImplTest {
@@ -51,8 +51,6 @@ class ValidationStatusControllerImplTest {
     private HttpServletRequest request;
     @Mock
     private Logger logger;
-    @Mock
-    private TransactionService transactionService;
     @Mock
     private CompanyProfileService companyProfileService;
     @Mock
@@ -77,9 +75,8 @@ class ValidationStatusControllerImplTest {
 
     @BeforeEach
     void setUp() {
-        testController = new ValidationStatusControllerImpl(officerFilingService, logger,
-            transactionService, companyProfileService, companyAppointmentService, officerFilingMapper,
-            errorMapper, apiEnumerations);
+        testController = new ValidationStatusControllerImpl(officerFilingService, logger, companyProfileService,
+                companyAppointmentService, officerFilingMapper, errorMapper, apiEnumerations);
         filing = OfficerFiling.builder()
             .referenceAppointmentId("off-id")
             .referenceEtag("etag")
