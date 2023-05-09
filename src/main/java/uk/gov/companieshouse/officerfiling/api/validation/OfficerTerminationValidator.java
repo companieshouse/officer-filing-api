@@ -84,7 +84,7 @@ public class OfficerTerminationValidator {
         validateResignationDatePastOrPresent(request, errorList, dto, companyAppointment.get());
         validateMinResignationDate(request, errorList, dto);
         validateCompanyNotDissolved(request, errorList, companyProfile.get());
-        validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile.get(), companyAppointment.get());
+        validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
         validateTerminationDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
         validateAllowedCompanyType(request, errorList, companyProfile.get());
         validateOfficerIsNotTerminated(request,errorList,companyAppointment.get());
@@ -167,7 +167,7 @@ public class OfficerTerminationValidator {
         }
     }
 
-    public void validateTerminationDateAfterIncorporationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, CompanyProfileApi companyProfile, AppointmentFullRecordAPI companyAppointment) {
+    public void validateTerminationDateAfterIncorporationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, CompanyProfileApi companyProfile) {
         if (companyProfile.getDateOfCreation() == null) {
             logger.errorRequest(request, "null data was found in the Company Profile API within the Date Of Creation field");
             return;

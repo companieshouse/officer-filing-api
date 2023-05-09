@@ -406,7 +406,7 @@ class OfficerTerminationValidatorTest {
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
-        officerTerminationValidator.validateTerminationDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile, companyAppointment);
+        officerTerminationValidator.validateTerminationDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
         assertThat(apiErrorsList)
                 .as("An error should not be produced when resignation date is after creation date")
                 .isEmpty();
@@ -421,7 +421,7 @@ class OfficerTerminationValidatorTest {
                 .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
         when(apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_INCORPORATION_DATE)).thenReturn("The date you enter must be after the company's incorporation date");
-        officerTerminationValidator.validateTerminationDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile, companyAppointment);
+        officerTerminationValidator.validateTerminationDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
         assertThat(apiErrorsList)
                 .as("An error should be produced when resignation date is before creation date")
                 .hasSize(1)
@@ -437,7 +437,7 @@ class OfficerTerminationValidatorTest {
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
-        officerTerminationValidator.validateTerminationDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile, companyAppointment);
+        officerTerminationValidator.validateTerminationDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
         assertThat(apiErrorsList)
                 .as("An error should not be produced when resignation date is the creation date")
                 .isEmpty();
@@ -451,7 +451,7 @@ class OfficerTerminationValidatorTest {
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
-        officerTerminationValidator.validateTerminationDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile, companyAppointment);
+        officerTerminationValidator.validateTerminationDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
         assertThat(apiErrorsList)
                 .as("Validation should be skipped when creation date is null")
                 .isEmpty();
