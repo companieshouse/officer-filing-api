@@ -1,14 +1,12 @@
 package uk.gov.companieshouse.officerfiling.api.utils;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.logging.util.LogContext;
 import uk.gov.companieshouse.logging.util.LogContextProperties;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public final class LogHelper {

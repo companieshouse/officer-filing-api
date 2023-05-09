@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
-import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 

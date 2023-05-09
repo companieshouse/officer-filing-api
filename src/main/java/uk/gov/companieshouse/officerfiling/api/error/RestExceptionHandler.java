@@ -4,14 +4,6 @@ import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +24,13 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.exception.TransactionServiceException;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Handle exceptions caused by client REST requests, propagated from Spring or the service

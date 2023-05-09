@@ -17,7 +17,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
 import uk.gov.companieshouse.officerfiling.api.error.InvalidFilingException;
 import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
@@ -30,7 +29,6 @@ import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper.Builder;
-import uk.gov.companieshouse.officerfiling.api.validation.OfficerTerminationValidator;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,7 +39,6 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
 
 @RestController
 @RequestMapping("/transactions/{transactionId}/officers")

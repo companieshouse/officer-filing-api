@@ -6,9 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
-import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
@@ -32,18 +30,14 @@ public class StopScreenValidationControllerImpl implements StopScreenValidationC
             final HttpServletRequest request) {
 
         try {
-            final var passthroughHeader =
-                    request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
-
+            final var passthroughHeader = request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
             final var transactionId = "No Transaction ID";
 
             final var companyProfile = companyProfileService.getCompanyProfile(transactionId, companyNumber, passthroughHeader);
 
-            if (companyProfile.getDateOfCessation() != null || Objects.equals(companyProfile.getCompanyStatus(), "dissolved")) {
-                return ResponseEntity.status(HttpStatus.OK).body(true);
-            } else {
-                return ResponseEntity.status(HttpStatus.OK).body(false);
-            }
+            boolean responseBody = companyProfile.getDateOfCessation() != null || Objects.equals(companyProfile.getCompanyStatus(), "dissolved");
+            return ResponseEntity.status(HttpStatus.OK).body(responseBody);
+
         } catch (CompanyProfileServiceException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
