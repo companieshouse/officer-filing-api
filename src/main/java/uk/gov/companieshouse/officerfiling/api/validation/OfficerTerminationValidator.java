@@ -230,7 +230,7 @@ public class OfficerTerminationValidator {
             return Optional.empty();
         }
         // If pre-1992 then set as appointedBefore field
-        if (companyAppointment.getIsPre1992Appointment()) {
+        if (Boolean.TRUE.equals(companyAppointment.getIsPre1992Appointment())) {
             return Optional.ofNullable(companyAppointment.getAppointedBefore()).or(() -> {
                 logger.errorRequest(request, "null data was found in the Company Appointment API within the Appointed Before field");
                 return Optional.empty();

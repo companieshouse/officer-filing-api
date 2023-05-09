@@ -35,7 +35,7 @@ public class StopScreenValidationControllerImpl implements StopScreenValidationC
 
             final var companyProfile = companyProfileService.getCompanyProfile(transactionId, companyNumber, passthroughHeader);
 
-            boolean responseBody = companyProfile.getDateOfCessation() != null || Objects.equals(companyProfile.getCompanyStatus(), "dissolved");
+            final boolean responseBody = companyProfile.getDateOfCessation() != null || Objects.equals(companyProfile.getCompanyStatus(), "dissolved");
             return ResponseEntity.status(HttpStatus.OK).body(responseBody);
 
         } catch (CompanyProfileServiceException e) {
