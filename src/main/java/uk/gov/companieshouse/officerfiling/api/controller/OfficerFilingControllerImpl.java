@@ -46,9 +46,9 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     public static final String VALIDATION_STATUS = "validation_status";
     private final TransactionService transactionService;
     private final OfficerFilingService officerFilingService;
-    @SuppressWarnings({"squid:s1128"})
+    @SuppressWarnings({"squid:s1172"})
     private final CompanyProfileService companyProfileService;
-    @SuppressWarnings({"squid:s1128"})
+    @SuppressWarnings({"squid:s1172"})
     private final CompanyAppointmentService companyAppointmentService;
     private final OfficerFilingMapper filingMapper;
     private final Clock clock;
