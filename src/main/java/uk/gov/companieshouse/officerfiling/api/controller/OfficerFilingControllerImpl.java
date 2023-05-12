@@ -17,7 +17,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
 import uk.gov.companieshouse.officerfiling.api.error.InvalidFilingException;
 import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
@@ -30,7 +29,6 @@ import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper.Builder;
-import uk.gov.companieshouse.officerfiling.api.validation.OfficerTerminationValidator;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 import javax.servlet.http.HttpServletRequest;
@@ -86,13 +84,14 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     public ResponseEntity<Object> createFiling(@RequestAttribute("transaction") Transaction transaction,
             @RequestBody @Valid @NotNull final OfficerFilingDto dto,
             final BindingResult bindingResult, final HttpServletRequest request) {
-        logger.debugContext(transaction.getId(), "Creating filing", new LogHelper.Builder(transaction)
-                .withRequest(request)
-                .build());
 
         if(!isTm01Enabled){
             throw new FeatureNotEnabledException();
         }
+
+        logger.debugContext(transaction.getId(), "Creating filing", new LogHelper.Builder(transaction)
+                .withRequest(request)
+                .build());
 
         if (bindingResult != null && bindingResult.hasErrors()) {
             throw new InvalidFilingException(bindingResult.getFieldErrors());
@@ -128,13 +127,14 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             @RequestBody @Valid @NotNull final OfficerFilingDto dto,
             @PathVariable("filingResourceId") final String filingResourceId,
             final BindingResult bindingResult, final HttpServletRequest request) {
-        logger.debugContext(transaction.getId(), "Patching Filing", new Builder(transaction)
-                .withRequest(request)
-                .build());
 
         if(!isTm01Enabled){
             throw new FeatureNotEnabledException();
         }
+
+        logger.debugContext(transaction.getId(), "Patching Filing", new Builder(transaction)
+                .withRequest(request)
+                .build());
 
         if (bindingResult != null && bindingResult.hasErrors()) {
             throw new InvalidFilingException(bindingResult.getFieldErrors());
@@ -180,6 +180,10 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     public ResponseEntity<OfficerFilingDto> getFilingForReview(
             @PathVariable("transactionId") final String transId,
             @PathVariable("filingResourceId") final String filingResource) {
+
+        if(!isTm01Enabled){
+            throw new FeatureNotEnabledException();
+        }
 
         var maybeOfficerFiling = officerFilingService.get(filingResource, transId);
 

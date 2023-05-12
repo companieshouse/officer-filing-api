@@ -12,8 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.service.FilingDataService;
@@ -43,6 +45,7 @@ class FilingDataControllerImplTest {
     @BeforeEach
     void setUp() {
         testController = new FilingDataControllerImpl(filingDataService, logger);
+        ReflectionTestUtils.setField(testController, "isTm01Enabled", true);
     }
 
     @Test
@@ -66,5 +69,12 @@ class FilingDataControllerImplTest {
         final var exception = assertThrows(ResourceNotFoundException.class,
                 () -> testController.getFilingsData(TRANS_ID, FILING_ID, request));
         assertThat(exception.getMessage(), is("Test Resource not found"));
+    }
+
+    @Test
+    void checkTm01FeatureFlagDisabled(){
+        ReflectionTestUtils.setField(testController, "isTm01Enabled", false);
+        assertThrows(FeatureNotEnabledException.class,
+            () -> testController.getFilingsData(TRANS_ID, FILING_ID, request));
     }
 }

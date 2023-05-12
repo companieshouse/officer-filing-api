@@ -4,6 +4,7 @@ import static uk.gov.companieshouse.officerfiling.api.utils.Constants.TRANSACTIO
 
 import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.exception.OfficerServiceException;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper.Builder;
@@ -22,6 +24,8 @@ public class DirectorsControllerImpl implements DirectorsController {
 
     private final OfficerService officerService;
     private final Logger logger;
+    @Value("${FEATURE_FLAG_ENABLE_TM01:true}")
+    private boolean isTm01Enabled;
 
     public DirectorsControllerImpl(final OfficerService officerService, final Logger logger) {
         this.officerService = officerService;
@@ -34,6 +38,10 @@ public class DirectorsControllerImpl implements DirectorsController {
     public ResponseEntity<Object> getListActiveDirectorsDetails(
         @RequestAttribute("transaction") Transaction transaction,
         final HttpServletRequest request) {
+
+        if(!isTm01Enabled){
+            throw new FeatureNotEnabledException();
+        }
 
         var logMap = new HashMap<String, Object>();
         logMap.put(TRANSACTION_ID_KEY, transaction.getId());

@@ -2,12 +2,14 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.service.FilingDataService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
@@ -17,6 +19,8 @@ import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 public class FilingDataControllerImpl implements FilingDataController {
     private final FilingDataService filingDataService;
     private final Logger logger;
+    @Value("${FEATURE_FLAG_ENABLE_TM01:true}")
+    private boolean isTm01Enabled;
 
     public FilingDataControllerImpl(final FilingDataService filingDataService,
             final Logger logger) {
@@ -39,6 +43,11 @@ public class FilingDataControllerImpl implements FilingDataController {
     public List<FilingApi> getFilingsData(@PathVariable("transactionId") final String transId,
             @PathVariable("filingResourceId") final String filingResourceId,
             final HttpServletRequest request) {
+
+        if(!isTm01Enabled){
+            throw new FeatureNotEnabledException();
+        }
+
         logger.debugContext(transId, "Getting filing data", new LogHelper.Builder(transId)
                         .withFilingId(filingResourceId)
                         .withRequest(request)

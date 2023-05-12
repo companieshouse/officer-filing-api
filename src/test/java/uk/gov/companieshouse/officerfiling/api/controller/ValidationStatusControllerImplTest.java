@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -23,6 +24,7 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
+import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
@@ -80,6 +82,7 @@ class ValidationStatusControllerImplTest {
         testController = new ValidationStatusControllerImpl(officerFilingService, logger,
             transactionService, companyProfileService, companyAppointmentService, officerFilingMapper,
             errorMapper, apiEnumerations);
+        ReflectionTestUtils.setField(testController, "isTm01Enabled", true);
         filing = OfficerFiling.builder()
             .referenceAppointmentId("off-id")
             .referenceEtag("etag")
@@ -132,6 +135,13 @@ class ValidationStatusControllerImplTest {
         final var response = testController.validate(transaction, FILING_ID, request);
         assertThat(response.isValid(), is(false));
         assertThat(response.getValidationStatusError().length, is(4));
+    }
+
+    @Test
+    void checkTm01FeatureFlagDisabled(){
+        ReflectionTestUtils.setField(testController, "isTm01Enabled", false);
+        assertThrows(FeatureNotEnabledException.class,
+            () -> testController.validate(transaction, FILING_ID, request));
     }
 
     void validationStatusControllerMocks() {
