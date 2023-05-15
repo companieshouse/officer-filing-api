@@ -2,6 +2,7 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestAttribute;
@@ -13,6 +14,7 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
+import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
@@ -37,6 +39,8 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
     private final OfficerFilingMapper officerFilingMapper;
     private final ErrorMapper errorMapper;
     private final ApiEnumerations apiEnumerations;
+    @Value("${FEATURE_FLAG_ENABLE_TM01:true}")
+    private boolean isTm01Enabled;
 
     public ValidationStatusControllerImpl(OfficerFilingService officerFilingService, Logger logger,
         TransactionService transactionService, CompanyProfileService companyProfileService,
@@ -68,6 +72,10 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
         @RequestAttribute("transaction") Transaction transaction,
         @PathVariable("filingResourceId") final String filingResourceId,
         final HttpServletRequest request) {
+
+        if(!isTm01Enabled){
+            throw new FeatureNotEnabledException();
+        }
 
         logger.debugContext(transaction.getId(), "GET validation status request", new LogHelper.Builder(transaction)
                 .withFilingId(filingResourceId)
