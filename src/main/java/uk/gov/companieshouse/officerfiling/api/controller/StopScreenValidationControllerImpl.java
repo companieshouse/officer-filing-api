@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
+import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
@@ -19,6 +21,8 @@ import java.util.Objects;
 public class StopScreenValidationControllerImpl implements StopScreenValidationController {
 
     private final CompanyProfileService companyProfileService;
+    @Value("${FEATURE_FLAG_ENABLE_TM01:true}")
+    private boolean isTm01Enabled;
 
     public StopScreenValidationControllerImpl(final CompanyProfileService companyProfileService) {
         this.companyProfileService = companyProfileService;
@@ -30,6 +34,10 @@ public class StopScreenValidationControllerImpl implements StopScreenValidationC
     public ResponseEntity<Object> getCurrentOrFutureDissolved(
             @PathVariable("companyNumber") String companyNumber,
             final HttpServletRequest request) {
+
+        if(!isTm01Enabled){
+            throw new FeatureNotEnabledException();
+        }
 
         try {
             final var passthroughHeader =

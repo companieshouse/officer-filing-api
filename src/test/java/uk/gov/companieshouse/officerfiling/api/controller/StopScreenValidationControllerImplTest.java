@@ -6,8 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
+import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
@@ -15,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -35,7 +38,7 @@ public class StopScreenValidationControllerImplTest {
     @BeforeEach
     void setUp() {
         testService = new StopScreenValidationControllerImpl(companyProfileService);
-        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        ReflectionTestUtils.setField(testService, "isTm01Enabled", true);
         companyProfileApi = new CompanyProfileApi();
         companyProfileApi.setCompanyStatus("active"); ;
         companyProfileApi.setDateOfCessation(null);
@@ -44,6 +47,7 @@ public class StopScreenValidationControllerImplTest {
     @Test
     void getCurrentOrFutureDissolvedReturnsFalse() throws CompanyProfileServiceException {
         getMockCompanyProfile(companyProfileApi);
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
         var response = testService.getCurrentOrFutureDissolved(COMPANY_NUMBER, request);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(false, response.getBody());
@@ -53,6 +57,7 @@ public class StopScreenValidationControllerImplTest {
     void getCurrentOrFutureDissolvedWithDissolvedStatusReturnsTrue() throws CompanyProfileServiceException {
         companyProfileApi.setCompanyStatus("dissolved");
         getMockCompanyProfile(companyProfileApi);
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
         var response = testService.getCurrentOrFutureDissolved(COMPANY_NUMBER, request);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(true, response.getBody());
@@ -62,6 +67,7 @@ public class StopScreenValidationControllerImplTest {
     void getCurrentOrFutureDissolvedWithDateOfCessationReturnsTrue() throws CompanyProfileServiceException {
         companyProfileApi.setDateOfCessation(LocalDate.of(2023, 1, 1));
         getMockCompanyProfile(companyProfileApi);
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
         var response = testService.getCurrentOrFutureDissolved(COMPANY_NUMBER, request);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(true, response.getBody());
@@ -72,6 +78,7 @@ public class StopScreenValidationControllerImplTest {
         companyProfileApi.setCompanyStatus("dissolved");
         companyProfileApi.setDateOfCessation(LocalDate.of(2023, 1, 1));
         getMockCompanyProfile(companyProfileApi);
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
         var response = testService.getCurrentOrFutureDissolved(COMPANY_NUMBER, request);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(true, response.getBody());
@@ -81,6 +88,7 @@ public class StopScreenValidationControllerImplTest {
     void getCurrentOrFutureDissolvedThrowsExceptionWhenNotFound() throws CompanyProfileServiceException {
         when(companyProfileService.getCompanyProfile(anyString(), eq(COMPANY_NUMBER), eq(PASSTHROUGH_HEADER)))
                 .thenThrow(CompanyProfileServiceException.class);
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
         var response = testService.getCurrentOrFutureDissolved(COMPANY_NUMBER, request);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
@@ -88,5 +96,12 @@ public class StopScreenValidationControllerImplTest {
     private void getMockCompanyProfile(CompanyProfileApi companyProfileApi) {
         when(companyProfileService.getCompanyProfile(anyString(), eq(COMPANY_NUMBER), eq(PASSTHROUGH_HEADER)))
                 .thenReturn(companyProfileApi);
+    }
+
+    @Test
+    void checkTm01FeatureFlagDisabled(){
+        ReflectionTestUtils.setField(testService, "isTm01Enabled", false);
+        assertThrows(FeatureNotEnabledException.class,
+            () -> testService.getCurrentOrFutureDissolved(COMPANY_NUMBER, request));
     }
 }
