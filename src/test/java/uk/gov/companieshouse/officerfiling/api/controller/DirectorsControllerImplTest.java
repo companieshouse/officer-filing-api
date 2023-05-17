@@ -15,6 +15,8 @@ import uk.gov.companieshouse.api.model.officers.CompanyOfficerApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.OfficerServiceException;
+import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
+import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerService;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
@@ -29,13 +31,17 @@ class DirectorsControllerImplTest {
   @Mock
   private OfficerService officerService;
   @Mock
+  private OfficerFilingService officerFilingService;
+  @Mock
+  private CompanyAppointmentService companyAppointmentService;
+  @Mock
   private HttpServletRequest request;
   private DirectorsController testService;
   private Transaction transaction;
 
   @BeforeEach
   void setUp() {
-    testService = new DirectorsControllerImpl(officerService, logger);
+    testService = new DirectorsControllerImpl(officerService, companyAppointmentService, officerFilingService, logger);
     transaction = new Transaction();
     transaction.setId(TRANS_ID);
     transaction.setCompanyNumber(COMPANY_NUMBER);
