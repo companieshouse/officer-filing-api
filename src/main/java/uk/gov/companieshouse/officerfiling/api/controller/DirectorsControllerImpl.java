@@ -9,6 +9,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.exception.OfficerServiceException;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
@@ -32,6 +34,8 @@ public class DirectorsControllerImpl implements DirectorsController {
     private final Logger logger;
     private final CompanyAppointmentService companyAppointmentService;
     private final OfficerFilingService officerFilingService;
+    @Value("${FEATURE_FLAG_ENABLE_TM01:true}")
+    private boolean isTm01Enabled;
 
     public DirectorsControllerImpl(final OfficerService officerService,
             final CompanyAppointmentService companyAppointmentService, OfficerFilingService officerFilingService,
@@ -48,6 +52,10 @@ public class DirectorsControllerImpl implements DirectorsController {
     public ResponseEntity<Object> getListActiveDirectorsDetails(
         @RequestAttribute("transaction") Transaction transaction,
         final HttpServletRequest request) {
+
+        if(!isTm01Enabled){
+            throw new FeatureNotEnabledException();
+        }
 
         var logMap = new HashMap<String, Object>();
         logMap.put(TRANSACTION_ID_KEY, transaction.getId());

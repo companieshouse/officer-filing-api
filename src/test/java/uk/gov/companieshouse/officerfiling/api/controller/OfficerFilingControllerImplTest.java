@@ -237,6 +237,8 @@ class OfficerFilingControllerImplTest {
                 () -> testController.createFiling(transaction, dto, result, request));
         assertThrows(FeatureNotEnabledException.class,
                 () -> testController.patchFiling(transaction, dto, null, result, request));
+        assertThrows(FeatureNotEnabledException.class,
+            () -> testController.getFilingForReview(TRANS_ID, FILING_ID));
 
     }
 
