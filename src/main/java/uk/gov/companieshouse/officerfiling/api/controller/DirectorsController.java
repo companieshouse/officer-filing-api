@@ -22,4 +22,18 @@ public interface DirectorsController {
         HttpServletRequest request) {
         throw new NotImplementedException();
     }
+
+    /**
+     * Retrieve information needed for the TM01 check your answers page.
+     *
+     * @param transaction the Transaction
+     * @param request the servlet request
+     * @throws NotImplementedException implementing classes must perform work
+     */
+    @GetMapping
+    default ResponseEntity<Object> getRemoveCheckAnswersDirectorDetails(
+            @RequestAttribute("transaction") Transaction transaction,
+            @RequestAttribute("filingId") String filingId, HttpServletRequest request) {
+        throw new NotImplementedException();
+    }
 }
