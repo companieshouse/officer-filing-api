@@ -1,23 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import java.io.IOException;
-import java.net.URI;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -38,15 +20,32 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
-import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
+
+import java.io.IOException;
+import java.net.URI;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Month;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Tag("web")
 @WebMvcTest(controllers = OfficerFilingControllerImpl.class)
@@ -148,6 +147,7 @@ class OfficerFilingControllerImplValidationIT {
                                 .build()) // copy of 'filing' with id=FILING_ID
                 .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
                         .build()); // copy of first argument
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
@@ -157,7 +157,7 @@ class OfficerFilingControllerImplValidationIT {
     }
 
     @Test
-    void createFilingWhenReferenceReferenceAppointmentIdBlankThenResponse201() throws Exception {
+    void createFilingWhenReferenceAppointmentIdBlankThenResponse201() throws Exception {
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var body = "{" + TM01_FRAGMENT.replace(FILING_ID, "") + "}";
         final var dto = OfficerFilingDto.builder()
@@ -177,6 +177,7 @@ class OfficerFilingControllerImplValidationIT {
                                 .build()) // copy of 'filing' with id=FILING_ID
                 .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
                         .build()); // copy of first argument
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                 .contentType("application/json")
@@ -210,6 +211,7 @@ class OfficerFilingControllerImplValidationIT {
                                 .build()) // copy of 'filing' with id=FILING_ID
                 .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
                         .build()); // copy of first argument
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
 
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")

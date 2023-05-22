@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
+import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.error.InvalidFilingException;
 import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
+import uk.gov.companieshouse.officerfiling.api.model.filing.FilingResponse;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
@@ -39,7 +41,6 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
 
 @RestController
 @RequestMapping("/transactions/{transactionId}/officers")
@@ -88,7 +89,6 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         if(!isTm01Enabled){
             throw new FeatureNotEnabledException();
         }
-
         logger.debugContext(transaction.getId(), "Creating filing", new LogHelper.Builder(transaction)
                 .withRequest(request)
                 .build());
@@ -108,7 +108,15 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         transaction.setResources(resourceMap);
         transactionService.updateTransaction(transaction, passthroughHeader);
 
-        return ResponseEntity.created(links.getSelf()).body(filingId);
+        // Create response with filing ID
+        if (dto.getReferenceAppointmentId() == null || dto.getReferenceAppointmentId().isBlank()) {
+            return ResponseEntity.created(links.getSelf()).body(new FilingResponse(filingId));
+        }
+        // Create response with filing ID and name
+        final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transaction.getId(),
+                transaction.getCompanyNumber(), dto.getReferenceAppointmentId(), passthroughHeader);
+        final var filingResponse = new FilingResponse(filingId, companyAppointment.getName());
+        return ResponseEntity.created(links.getSelf()).body(filingResponse);
     }
 
     /**
