@@ -1,7 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import java.net.URI;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -26,7 +24,6 @@ import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
-import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
@@ -34,7 +31,9 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.Instant;
@@ -43,12 +42,10 @@ import java.time.Month;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
-import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
@@ -191,7 +188,8 @@ class OfficerFilingControllerImplIT {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", locationUri.toUriString()))
-                .andExpect(jsonPath("$").value("632c8e65105b1b4a9f0d1f5e"));
+                .andExpect(jsonPath("$.submission_id").value("632c8e65105b1b4a9f0d1f5e"))
+                .andExpect(jsonPath("$.name").value(DIRECTOR_NAME));
         verify(filingMapper).map(dto);
     }
 
@@ -352,6 +350,7 @@ class OfficerFilingControllerImplIT {
                                 .build()) // copy of 'filing' with id=FILING_ID
                 .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
                         .build());
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(filingMapper.map(dto)).thenReturn(filing);
         mockMvc.perform(post("/transactions/{id}/officers", TRANS_ID).content(body)
                         .contentType("application/json")
@@ -484,7 +483,8 @@ class OfficerFilingControllerImplIT {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", locationUri.toUriString()))
-                .andExpect(jsonPath("$").value("632c8e65105b1b4a9f0d1f5e"));
+                .andExpect(jsonPath("$.submission_id").value("632c8e65105b1b4a9f0d1f5e"))
+                .andExpect(jsonPath("$.name").value(DIRECTOR_NAME));
         verify(filingMapper).map(dto);
     }
 

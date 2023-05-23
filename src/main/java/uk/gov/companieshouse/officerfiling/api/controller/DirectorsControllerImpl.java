@@ -1,12 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import static uk.gov.companieshouse.officerfiling.api.utils.Constants.TRANSACTION_ID_KEY;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.HashMap;
-import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +17,14 @@ import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper.Builder;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
+
+import javax.servlet.http.HttpServletRequest;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.HashMap;
+
+import static uk.gov.companieshouse.officerfiling.api.utils.Constants.TRANSACTION_ID_KEY;
 
 @RestController
 public class DirectorsControllerImpl implements DirectorsController {
@@ -54,9 +55,6 @@ public class DirectorsControllerImpl implements DirectorsController {
         if(!isTm01Enabled){
             throw new FeatureNotEnabledException();
         }
-
-        var logMap = new HashMap<String, Object>();
-        logMap.put(TRANSACTION_ID_KEY, transaction.getId());
 
         try {
             logger.debugContext(transaction.getId(), "Calling service to retrieve the active officers details", new Builder(transaction)
