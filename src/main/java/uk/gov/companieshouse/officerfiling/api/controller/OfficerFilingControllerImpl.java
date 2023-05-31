@@ -113,9 +113,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             return ResponseEntity.created(links.getSelf()).body(new FilingResponse(filingId));
         }
         // Create response with filing ID and name
-        final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transaction.getId(),
-                transaction.getCompanyNumber(), dto.getReferenceAppointmentId(), passthroughHeader);
-        final var filingResponse = new FilingResponse(filingId, companyAppointment.getName());
+        final var filingResponse = new FilingResponse(filingId, dto.getReferenceAppointmentId());
         return ResponseEntity.created(links.getSelf()).body(filingResponse);
     }
 
