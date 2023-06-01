@@ -109,11 +109,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         transactionService.updateTransaction(transaction, passthroughHeader);
 
         // Create response with filing ID
-        if (dto.getReferenceAppointmentId() == null || dto.getReferenceAppointmentId().isBlank()) {
-            return ResponseEntity.created(links.getSelf()).body(new FilingResponse(filingId));
-        }
-        // Create response with filing ID and name
-        final var filingResponse = new FilingResponse(filingId, dto.getReferenceAppointmentId());
+        final var filingResponse = new FilingResponse(filingId);
         return ResponseEntity.created(links.getSelf()).body(filingResponse);
     }
 

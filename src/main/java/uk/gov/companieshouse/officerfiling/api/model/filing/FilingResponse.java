@@ -6,12 +6,6 @@ package uk.gov.companieshouse.officerfiling.api.model.filing;
 public class FilingResponse {
 
     private final String submissionId;
-    private String name;
-
-    public FilingResponse(String submissionId, String name) {
-        this.submissionId = submissionId;
-        this.name = name;
-    }
 
     public FilingResponse(String submissionId) {
         this.submissionId = submissionId;
@@ -19,9 +13,5 @@ public class FilingResponse {
 
     public String getSubmissionId() {
         return submissionId;
-    }
-
-    public String getName() {
-        return name;
     }
 }
