@@ -58,6 +58,8 @@ class DirectorsControllerImplTest {
   AppointmentFullRecordAPI appointmentFullRecordAPI;
   @Mock
   OfficerFiling officerFiling;
+  @Mock
+  OfficerServiceException serviceException;
   private DirectorsController testService;
   private Transaction transaction;
 
@@ -85,9 +87,11 @@ class DirectorsControllerImplTest {
   void getListOfActiveDirectorsDetailsThrowsExceptionWhenNotFound() throws OfficerServiceException {
     when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
     when(officerService.getListOfActiveDirectorsDetails(request, TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER))
-            .thenThrow(OfficerServiceException.class);
+            .thenThrow(serviceException);
+    when(serviceException.getCause()).thenReturn(serviceException);
+    when(serviceException.getMessage()).thenReturn("404 not found\n{}");
     var response = testService.getListActiveDirectorsDetails(transaction, request);
-    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
   }
 
   @Test
