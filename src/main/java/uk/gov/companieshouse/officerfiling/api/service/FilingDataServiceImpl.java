@@ -83,6 +83,8 @@ public class FilingDataServiceImpl implements FilingDataService {
         var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
                 .dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()))
                 .name(companyAppointment.getName())
+                .firstName(companyAppointment.getForename())
+                .lastName(companyAppointment.getSurname())
                 .corporateDirector(mapCorporateDirector(transaction, companyAppointment))
                 .build();
         var filingData = filingMapper.mapFiling(enhancedOfficerFiling);
@@ -91,6 +93,9 @@ public class FilingDataServiceImpl implements FilingDataService {
         logger.debugContext(transactionId, "Created filing data for submission", new LogHelper.Builder(transaction)
                 .withFilingId(filingId)
                 .build());
+
+        logger.debug("this is the filing data we will send to chips filing consumer");
+        logger.debug(dataMap);
 
         filing.setData(dataMap);
         setDescriptionFields(filing, companyAppointment);
