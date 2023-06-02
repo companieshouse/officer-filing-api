@@ -72,6 +72,10 @@ public class DirectorsControllerImpl implements DirectorsController {
             logger.debugContext(transaction.getId(), "Error retrieving active officers details", new Builder(transaction)
                 .withRequest(request)
                 .build());
+            //If the exception contains an empty json, this means the officers could not be found for the company
+            if(e.getCause().getMessage().endsWith("{}")){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
