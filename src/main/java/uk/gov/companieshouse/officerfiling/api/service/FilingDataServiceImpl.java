@@ -94,9 +94,6 @@ public class FilingDataServiceImpl implements FilingDataService {
                 .withFilingId(filingId)
                 .build());
 
-        logger.debug("this is the filing data we will send to chips filing consumer");
-        logger.debug(dataMap);
-
         filing.setData(dataMap);
         setDescriptionFields(filing, companyAppointment);
     }
