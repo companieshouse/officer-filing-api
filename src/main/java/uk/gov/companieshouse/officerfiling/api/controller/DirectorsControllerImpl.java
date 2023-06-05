@@ -73,7 +73,7 @@ public class DirectorsControllerImpl implements DirectorsController {
                 .withRequest(request)
                 .build());
             //If the exception contains an empty json, this means the officers could not be found for the company
-            if(e.getCause().getMessage().endsWith("{}")){
+            if(e.getCause() != null && e.getCause().getMessage() !=null && e.getCause().getMessage().endsWith("{}")){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
