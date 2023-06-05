@@ -13,16 +13,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
-import static uk.gov.companieshouse.officerfiling.api.utils.Constants.ERIC_REQUEST_ID_KEY;
-import static uk.gov.companieshouse.officerfiling.api.utils.Constants.TRANSACTION_ID_KEY;
 
 @Component
 public class ValidTransactionInterceptor implements HandlerInterceptor {
-
-    @Autowired
-    private final OfficerFilingService officerFilingService;
-
     private Logger logger;
+    @Autowired
+    private OfficerFilingService officerFilingService;
+
 
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request,
