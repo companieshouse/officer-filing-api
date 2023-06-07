@@ -104,8 +104,7 @@ class DirectorsControllerImplTest {
     var response = testService.getListActiveDirectorsDetails(transaction, request);
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
   }
-
-
+  
   @Test
   void getRemoveCheckAnswersDirectorDetailsWhenFound() throws Exception {
     when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
