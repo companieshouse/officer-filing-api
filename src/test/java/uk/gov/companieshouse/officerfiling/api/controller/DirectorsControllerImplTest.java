@@ -95,16 +95,16 @@ class DirectorsControllerImplTest {
   }
 
   @Test
-  void getListOfActiveDirectorsDetailsThrowsExceptionWhenServerError() throws OfficerServiceException {
+  void getListOfActiveDirectorsDetailsThrowsExceptionWhenError() throws OfficerServiceException {
     when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
     when(officerService.getListOfActiveDirectorsDetails(request, TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER))
             .thenThrow(serviceException);
     when(serviceException.getCause()).thenReturn(serviceException);
-    when(serviceException.getMessage()).thenReturn("Internal error");
+    when(serviceException.getMessage()).thenReturn("Internal Server Error");
     var response = testService.getListActiveDirectorsDetails(transaction, request);
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
   }
-
+  
   @Test
   void getRemoveCheckAnswersDirectorDetailsWhenFound() throws Exception {
     when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);

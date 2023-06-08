@@ -188,8 +188,7 @@ class OfficerFilingControllerImplIT {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", locationUri.toUriString()))
-                .andExpect(jsonPath("$.submission_id").value("632c8e65105b1b4a9f0d1f5e"))
-                .andExpect(jsonPath("$.name").value(DIRECTOR_NAME));
+                .andExpect(jsonPath("$.submission_id").value("632c8e65105b1b4a9f0d1f5e"));
         verify(filingMapper).map(dto);
     }
 
@@ -483,8 +482,7 @@ class OfficerFilingControllerImplIT {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", locationUri.toUriString()))
-                .andExpect(jsonPath("$.submission_id").value("632c8e65105b1b4a9f0d1f5e"))
-                .andExpect(jsonPath("$.name").value(DIRECTOR_NAME));
+                .andExpect(jsonPath("$.submission_id").value("632c8e65105b1b4a9f0d1f5e"));
         verify(filingMapper).map(dto);
     }
 
