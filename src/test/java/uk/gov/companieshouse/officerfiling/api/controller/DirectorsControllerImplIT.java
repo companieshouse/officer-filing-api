@@ -76,6 +76,8 @@ class DirectorsControllerImplIT {
     AppointmentFullRecordAPI appointmentFullRecordAPI;
     @Mock
     OfficerFiling officerFiling;
+    @Mock
+    OfficerServiceException serviceException;
     private HttpHeaders httpHeaders;
     @Autowired
     private MockMvc mockMvc;
@@ -122,7 +124,9 @@ class DirectorsControllerImplIT {
     void getListOfActiveDirectorsDetailsDetailsWhenNotFoundThen500() throws Exception {
 
         when(officerService.getListOfActiveDirectorsDetails(any(HttpServletRequest.class), eq(TRANS_ID), eq(COMPANY_NUMBER), eq(PASSTHROUGH_HEADER)))
-            .thenThrow(new OfficerServiceException("Error retrieving Officers"));
+            .thenThrow(serviceException);
+        when(serviceException.getCause()).thenReturn(serviceException);
+        when(serviceException.getMessage()).thenReturn("Internal error");
 
         mockMvc.perform(get("/transactions/{transactionId}/officers/active-directors-details", TRANS_ID)
                 .headers(httpHeaders).requestAttr("transaction", transaction))
