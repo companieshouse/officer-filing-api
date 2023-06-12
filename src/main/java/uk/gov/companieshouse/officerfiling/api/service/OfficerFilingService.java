@@ -16,5 +16,5 @@ public interface OfficerFilingService {
 
     OfficerFiling mergeFilings(OfficerFiling original, OfficerFiling patch, Transaction transaction);
 
-    boolean requestMatchesResourceSelf(HttpServletRequest request, OfficerFiling filing);
+    boolean requestUriContainsFilingSelfLink(HttpServletRequest request, OfficerFiling filing);
 }

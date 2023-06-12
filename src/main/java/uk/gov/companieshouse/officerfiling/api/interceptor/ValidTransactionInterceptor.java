@@ -32,7 +32,7 @@ public class ValidTransactionInterceptor implements HandlerInterceptor {
 
         // check filing id from request matches filing id from transaction
         final var patchResult = officerFilingService.get(filingId, transactionId).filter(
-                f1 -> officerFilingService.requestMatchesResourceSelf(request, f1));
+                f1 -> officerFilingService.requestUriContainsFilingSelfLink(request, f1));
 
         if (patchResult.isPresent()) {
             return true;
