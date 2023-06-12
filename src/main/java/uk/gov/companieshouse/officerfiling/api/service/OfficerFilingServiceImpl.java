@@ -114,13 +114,15 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
 
     @Override
     public boolean requestMatchesResourceSelf(final HttpServletRequest request, final OfficerFiling filing) {
-        final var selfLinkUri = filing.getLinks().getSelf();
+        final String selfLinkString = filing.getLinks().getSelf().toString() + "/validation_status";
         final URI requestUri;
+        final URI selfLinkUri;
         try {
-            requestUri = new URI(request.getRequestURI());
+            requestUri = new URI(request.getRequestURI()).normalize();
+            selfLinkUri = new URI(selfLinkString).normalize();
         } catch (final URISyntaxException e) {
             return false;
         }
-        return selfLinkUri.equals(requestUri.normalize());
+        return selfLinkUri.equals(requestUri);
     }
 }

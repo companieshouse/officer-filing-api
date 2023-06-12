@@ -112,6 +112,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
         return new ClosedTransactionInterceptor();
     }
 
+    @Bean
     public ValidTransactionInterceptor validTransactionInterceptor() {
         return new ValidTransactionInterceptor();
     }
