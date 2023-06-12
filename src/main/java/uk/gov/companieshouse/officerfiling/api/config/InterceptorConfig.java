@@ -23,7 +23,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
     private static final String PRIVATE = "/private/**";
     private static final String[] TRANSACTIONS_LIST = {TRANSACTIONS, PRIVATE};
 
-    private static final String GET_VALIDATION = "**/validation_status";
+    private static final String GET_VALIDATION = "/**/validation_status";
 
     /**
      * Setup the interceptors to run against endpoints when the endpoints are called
@@ -38,14 +38,14 @@ public class InterceptorConfig implements WebMvcConfigurer {
         addTokenPermissionInterceptor(registry);
         addInternalUserInterceptor(registry);
         addClosedTransactionInterceptor(registry);
-        addVaildTransctionInterceptor(registry);
+        addValidTransactionInterceptor(registry);
     }
 
     private void addRequestLoggingInterceptor(InterceptorRegistry registry) {
         registry.addInterceptor(requestLoggingInterceptor());
     }
 
-    private void addVaildTransctionInterceptor(InterceptorRegistry registry){
+    private void addValidTransactionInterceptor(InterceptorRegistry registry){
         registry.addInterceptor(validTransactionInterceptor())
                 .addPathPatterns(GET_VALIDATION);
     }

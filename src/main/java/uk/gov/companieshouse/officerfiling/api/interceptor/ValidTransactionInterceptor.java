@@ -7,6 +7,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
+import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,15 +27,12 @@ public class ValidTransactionInterceptor implements HandlerInterceptor {
                              @NonNull HttpServletResponse response,
                              @NonNull Object handler) {
 
-        OfficerFilingService officerFilingService = this.officerFilingService;
-
         final Map<String, String> pathVariables = (Map)request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 
         final String transactionId = (String)pathVariables.get("transactionId");
         final var filingId = pathVariables.get("filingId");
 
         // check filing id from request matches filing id from transaction
-
         final var patchResult = officerFilingService.get(filingId, transactionId).filter(
                 f1 -> officerFilingService.requestMatchesResourceSelf(request, f1));
 
