@@ -28,6 +28,8 @@ import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
@@ -36,6 +38,7 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -113,6 +116,7 @@ class ValidationStatusControllerImplIT {
         when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
         when(transactionGetMock.execute()).thenReturn(apiResponse);
         when(apiResponse.getData()).thenReturn(transaction);
+        when(officerFilingService.requestUriContainsFilingSelfLink(any(), any())).thenReturn(true);
     }
 
     @Test

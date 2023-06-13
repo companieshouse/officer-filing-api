@@ -30,11 +30,19 @@ public class ValidTransactionInterceptor implements HandlerInterceptor {
         final String transactionId = pathVariables.get("transactionId");
         final String filingId = pathVariables.get("filingResourceId");
 
+        // check filing exists
+        final var officerFiling = officerFilingService.get(filingId, transactionId);
+        if (officerFiling.isEmpty()) {
+            logger.errorRequest(request, "Filing resource does not exist");
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return false;
+        }
+
         // check filing id from request matches filing id from transaction
-        final var officerFiling = officerFilingService.get(filingId, transactionId)
+        var matchingOfficerFiling = officerFiling
                 .filter(filing -> officerFilingService.requestUriContainsFilingSelfLink(request, filing));
 
-        if (officerFiling.isPresent()) {
+        if (matchingOfficerFiling.isPresent()) {
             return true;
         } else {
             logger.errorRequest(request, "Filing resource not found");

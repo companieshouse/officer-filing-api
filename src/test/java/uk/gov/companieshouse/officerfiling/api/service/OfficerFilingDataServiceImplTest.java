@@ -105,9 +105,8 @@ class OfficerFilingDataServiceImplTest {
         assertThat(updatedFiling.getResignedOn(), is(Instant.parse("2022-09-13T00:00:00Z")));
     }
 
-    @Test
-    void testRequestUriContainsFilingSelfLinkPassesWithValidTransaction() throws URISyntaxException {
-        URI selfUri = new URI("/transactions/012345-67891-01112/officers/abcdefghijklmnopqrstuvwx");
+    OfficerFiling setUpFiling() throws URISyntaxException {
+        URI selfUri = new URI("/transactions/012345-67891-01112/officers/abcd");
         URI validationStatusURI = new URI("");
         Links links = new Links(selfUri, validationStatusURI);
 
@@ -115,8 +114,14 @@ class OfficerFilingDataServiceImplTest {
                 .links(links)
                 .build();
 
-        String matchingRequestURI= "/transactions/012345-67891-01112/officers/abcdefghijklmnopqrstuvwx";
-        when(request.getRequestURI()).thenReturn(matchingRequestURI);
+        return filing;
+    }
+    @Test
+    void testRequestUriContainsFilingSelfLinkPassesWithValidTransaction() throws URISyntaxException {
+        filing = setUpFiling();
+
+        String validRequestURI = "/transactions/012345-67891-01112/officers/abcd";
+        when(request.getRequestURI()).thenReturn(validRequestURI);
 
         Boolean result = testService.requestUriContainsFilingSelfLink(request, filing);
         assertThat(result, is(true));
@@ -124,16 +129,10 @@ class OfficerFilingDataServiceImplTest {
 
     @Test
     void testRequestUriContainsFilingSelfLinkPassesWithValidTransactionAndAppendedGetValidation() throws URISyntaxException {
-        URI selfUri = new URI("/transactions/012345-67891-01112/officers/abcdefghijklmnopqrstuvwx");
-        URI validationStatusURI = new URI("");
-        Links links = new Links(selfUri, validationStatusURI);
+        filing = setUpFiling();
 
-        OfficerFiling filing = OfficerFiling.builder()
-                .links(links)
-                .build();
-
-        String matchingRequestURIWithAppendedPath = "/transactions/012345-67891-01112/officers/abcdefghijklmnopqrstuvwx/validation_status";
-        when(request.getRequestURI()).thenReturn(matchingRequestURIWithAppendedPath);
+        String validRequestURIWithAppendedPath = "/transactions/012345-67891-01112/officers/abcd/validation_status";
+        when(request.getRequestURI()).thenReturn(validRequestURIWithAppendedPath);
 
         Boolean result = testService.requestUriContainsFilingSelfLink(request, filing);
         assertThat(result, is(true));
@@ -141,16 +140,10 @@ class OfficerFilingDataServiceImplTest {
 
     @Test
     void testRequestUriContainsFilingSelfLinkFailsWithInValidTransaction() throws URISyntaxException {
-        URI selfUri = new URI("/transactions/012345-67891-01112/officers/abcdefghijklmnopqrstuvwx");
-        URI validationStatusURI = new URI("");
-        Links links = new Links(selfUri, validationStatusURI);
+        filing = setUpFiling();
 
-        OfficerFiling filing = OfficerFiling.builder()
-                .links(links)
-                .build();
-
-        String matchingRequestURI = "/transactions/012345-67891-12345/officers/abcdefghijklmnopqrstuvwx";
-        when(request.getRequestURI()).thenReturn(matchingRequestURI);
+        String invalidRequestURI = "/transactions/98765-67891-12345/officers/abcd";
+        when(request.getRequestURI()).thenReturn(invalidRequestURI);
 
         Boolean result = testService.requestUriContainsFilingSelfLink(request, filing);
         assertThat(result, is(false));
@@ -158,16 +151,10 @@ class OfficerFilingDataServiceImplTest {
 
     @Test
     void testRequestUriContainsFilingSelfLinkFailsWithInValidTransactionAndAppendedPath() throws URISyntaxException {
-        URI selfUri = new URI("/transactions/012345-67891-01112/officers/abcdefghijklmnopqrstuvwx");
-        URI validationStatusURI = new URI("");
-        Links links = new Links(selfUri, validationStatusURI);
+        filing = setUpFiling();
 
-        OfficerFiling filing = OfficerFiling.builder()
-                .links(links)
-                .build();
-
-        String matchingRequestURIWithAppendedPath = "/transactions/012345-67891-12345/officers/abcdefghijklmnopqrstuvwx/validation_status";
-        when(request.getRequestURI()).thenReturn(matchingRequestURIWithAppendedPath);
+        String invalidRequestURIWithAppendedPath = "/transactions/98765-67891-12345/officers/abcd/validation_status";
+        when(request.getRequestURI()).thenReturn(invalidRequestURIWithAppendedPath);
 
         Boolean result = testService.requestUriContainsFilingSelfLink(request, filing);
         assertThat(result, is(false));
