@@ -28,8 +28,6 @@ import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
