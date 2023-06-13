@@ -33,7 +33,7 @@ public class ValidTransactionInterceptor implements HandlerInterceptor {
         // check filing exists
         final var officerFiling = officerFilingService.get(filingId, transactionId);
         if (officerFiling.isEmpty()) {
-            logger.errorRequest(request, "Filing resource does not exist");
+            logger.errorRequest(request, "Filing resource not found");
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return false;
         }
@@ -45,7 +45,7 @@ public class ValidTransactionInterceptor implements HandlerInterceptor {
         if (matchingOfficerFiling.isPresent()) {
             return true;
         } else {
-            logger.errorRequest(request, "Filing resource not found");
+            logger.errorRequest(request, "Filing resource does not match request");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return false;
         }
