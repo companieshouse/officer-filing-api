@@ -5,15 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.util.Collections;
+import java.time.Instant;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -27,52 +26,67 @@ public class ValidTransactionInterceptorTest {
     @Mock
     private OfficerFilingService mockOfficerFilingService;
     @Mock
+    private Logger logger;
+    @Mock
     private Object handler;
     @Mock
     private HttpServletRequest mockRequest;
     @Mock
     private HttpServletResponse mockResponse;
-    @Mock
-    private HttpSession requestSession;
 
     private ValidTransactionInterceptor validTransactionInterceptor;
 
-    private final static String TEST_REQUEST_PATH = "/";
     private static final String TRANS_ID = "12345";
     private static final String FILING_ID = "abcde";
 
-    HashMap<String, String> pathVariablesMap = new HashMap<>();
+    private static final OfficerFiling FILING = OfficerFiling.builder()
+            .referenceEtag("etag")
+            .referenceAppointmentId(FILING_ID)
+            .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+            .build();
+
+    HashMap<String, String> pathVariablesMap;
 
     @BeforeEach
     void setUp() {
-        when(mockRequest.getSession()).thenReturn(requestSession);
-        when(mockRequest.getRequestURI()).thenReturn(TEST_REQUEST_PATH);
+        validTransactionInterceptor = new ValidTransactionInterceptor(logger, mockOfficerFilingService);
+        pathVariablesMap = new HashMap<>();
+        pathVariablesMap.put("transactionId", "12345");
+        pathVariablesMap.put("filingResourceId", "abcde");
         when(mockRequest.getAttribute(any())).thenReturn(pathVariablesMap);
-        validTransactionInterceptor = new ValidTransactionInterceptor();
-//        loggerFactory.getLogger()
     }
 
-//    @Test
-//    void getOfficerFilingReturnsEmptyOptional() {
-//
-//        when(mockOfficerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
-//
-//        var response = validTransactionInterceptor.preHandle(mockRequest, mockResponse, handler);
-//        verify(mockRequest).getSession();
-//
-//        assertThat(response, is(false));
-//        verify(mockResponse, times(1)).setStatus(HttpServletResponse.SC_NOT_FOUND);
-//    }
+    @Test
+    void getOfficerFilingReturnsEmptyOptional() {
+        when(mockOfficerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
 
-//    @Test
-//    void requestURiContainsFilingSelfLinkReturnsTrue() {
-//        when(officerFilingService.requestUriContainsFilingSelfLink(any(), any())).thenReturn(true);
-//
-//    }
-//
-//    @Test
-//    void requestURiContainsFilingSelfLinkReturnsFalse() {
-//        when(officerFilingService.requestUriContainsFilingSelfLink(any(), any())).thenReturn(false);
-//
-//    }
+        var response = validTransactionInterceptor.preHandle(mockRequest, mockResponse, handler);
+
+        assertThat(response, is(false));
+        verify(logger, times (1)).errorRequest(mockRequest, "Filing resource not found");
+        verify(mockResponse, times(1)).setStatus(HttpServletResponse.SC_NOT_FOUND);
+    }
+
+    @Test
+    void requestURiContainsFilingSelfLinkReturnsTrue() {
+        when(mockOfficerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(FILING));
+        when(mockOfficerFilingService.requestUriContainsFilingSelfLink(any(), any())).thenReturn(true);
+
+        var response = validTransactionInterceptor.preHandle(mockRequest, mockResponse, handler);
+
+        assertThat(response, is(true));
+    }
+
+    @Test
+    void requestURiContainsFilingSelfLinkReturnsFalse() {
+        when(mockOfficerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(FILING));
+        when(mockOfficerFilingService.requestUriContainsFilingSelfLink(any(), any())).thenReturn(false);
+
+        var response = validTransactionInterceptor.preHandle(mockRequest, mockResponse, handler);
+
+        assertThat(response, is(false));
+        verify(logger, times (1))
+                .errorRequest(mockRequest, "Filing resource does not match request");
+        verify(mockResponse, times(1)).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    }
 }

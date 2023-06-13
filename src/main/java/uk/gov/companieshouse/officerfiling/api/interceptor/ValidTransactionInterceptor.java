@@ -20,6 +20,13 @@ public class ValidTransactionInterceptor implements HandlerInterceptor {
     @Autowired
     private OfficerFilingService officerFilingService;
 
+    public ValidTransactionInterceptor(){}
+
+    public ValidTransactionInterceptor(Logger logger, OfficerFilingService officerFilingService) {
+        this.logger = logger;
+        this.officerFilingService = officerFilingService;
+    }
+
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request,
                              @NonNull HttpServletResponse response,
