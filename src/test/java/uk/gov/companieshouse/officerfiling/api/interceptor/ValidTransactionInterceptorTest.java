@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ValidTransactionInterceptorTest {
+class ValidTransactionInterceptorTest {
 
     @Mock
     private OfficerFilingService mockOfficerFilingService;

@@ -112,7 +112,7 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
 
     @Override
     public boolean requestUriContainsFilingSelfLink(final HttpServletRequest request, final OfficerFiling filing) {
-        final String selfLinkString = filing.getLinks().getSelf().toString();
+        final var selfLinkString = filing.getLinks().getSelf().toString();
         return request.getRequestURI().contains(selfLinkString);
     }
 }
