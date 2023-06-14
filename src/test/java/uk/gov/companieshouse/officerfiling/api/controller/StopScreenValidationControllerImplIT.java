@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Tag("web")
 @WebMvcTest(controllers = StopScreenValidationControllerImpl.class)
-public class StopScreenValidationControllerImplIT {
+class StopScreenValidationControllerImplIT {
 
     private static final String PASSTHROUGH_HEADER = "passthrough";
     private static final String COMPANY_NUMBER = "12345678";
