@@ -225,12 +225,13 @@ public class OfficerTerminationValidator {
     }
 
     private Optional<LocalDate> getAppointmentDate(HttpServletRequest request, AppointmentFullRecordAPI companyAppointment) {
-        if (companyAppointment.getIsPre1992Appointment() == null) {
+        var isPre1992 = companyAppointment.getIsPre1992Appointment();
+        if (isPre1992 == null) {
             logger.errorRequest(request, "null data was found in the Company Appointment API within the Pre-1992 Appointment field");
             return Optional.empty();
         }
         // If pre-1992 then set as appointedBefore field
-        if (companyAppointment.getIsPre1992Appointment()) {
+        if (isPre1992) {
             return Optional.ofNullable(companyAppointment.getAppointedBefore()).or(() -> {
                 logger.errorRequest(request, "null data was found in the Company Appointment API within the Appointed Before field");
                 return Optional.empty();
