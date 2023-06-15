@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
 import java.io.File;
-import java.nio.file.Path;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
-import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
@@ -257,16 +255,15 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     }
 
     private String getExistingFilingId(Transaction transaction){
-        // Should we always get transaction from API? Possible to inject resources into a transaction
-        // object from web?
         Map<String, Resource> resources = transaction.getResources();
+        String filingId = null;
         if(resources != null && !resources.isEmpty()){
-            for(var entry : resources.entrySet()){
-                String resource = entry.getValue().getLinks().get("resource");
-                File resourcePath = new File(resource);
-                return resourcePath.getName();
-            }
+            // There should only be one resource.
+            Resource entry = (Resource) resources.values().toArray()[0];
+            var resource = entry.getLinks().get("resource");
+            var resourcePath = new File(resource);
+            filingId = resourcePath.getName();
         }
-        return null;
+        return filingId;
     }
 }
