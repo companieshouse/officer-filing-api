@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import java.io.File;
+import java.nio.file.Path;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
@@ -99,14 +101,26 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
         final var passthroughHeader =
                     request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
-        final var entity = filingMapper.map(dto);
+
+        var entity = filingMapper.map(dto);
+
+        // Get copy of transaction from API to prevent user injecting a filingId
+        transaction = transactionService.getTransaction(transaction.getId(),
+                passthroughHeader);
+        // Reuse this filing ID as we can only have one per transaction
+        String preExistingFilingId = getExistingFilingId(transaction);
+        if(preExistingFilingId != null){
+            entity = OfficerFiling.builder(entity).id(preExistingFilingId).build();
+        }
         final var saveData = saveFilingWithLinks(entity, transaction, request);
         final var links = saveData.getLeft();
         String filingId = saveData.getRight();
         final var resourceMap = buildResourceMap(links);
 
         transaction.setResources(resourceMap);
-        transactionService.updateTransaction(transaction, passthroughHeader);
+        if(preExistingFilingId == null) {
+            transactionService.updateTransaction(transaction, passthroughHeader);
+        }
 
         // Create response with filing ID
         final var filingResponse = new FilingResponse(filingId);
@@ -240,5 +254,23 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             .build().toUri();
 
         return new Links(selfUri, validateUri);
+    }
+
+    private String getExistingFilingId(Transaction transaction){
+        // Should we always get transaction from API? Possible to inject resources into a transaction
+        // object from web?
+        Map<String, Resource> resources = transaction.getResources();
+        if(resources != null && !resources.isEmpty()){
+            if(resources.size() > 1){
+                throw new IllegalStateException("More than one resource was found in transaction "
+                        + transaction.getId());
+            }
+            for(var entry : resources.entrySet()){
+                String resource = entry.getValue().getLinks().get("resource");
+                File resourcePath = new File(resource);
+                return resourcePath.getName();
+            }
+        }
+        return null;
     }
 }
