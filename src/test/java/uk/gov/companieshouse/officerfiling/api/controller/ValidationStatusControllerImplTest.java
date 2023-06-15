@@ -80,7 +80,7 @@ class ValidationStatusControllerImplTest {
     @BeforeEach
     void setUp() {
         testController = new ValidationStatusControllerImpl(officerFilingService, logger,
-            transactionService, companyProfileService, companyAppointmentService, officerFilingMapper,
+             companyProfileService, companyAppointmentService, officerFilingMapper,
             errorMapper, apiEnumerations);
         ReflectionTestUtils.setField(testController, "isTm01Enabled", true);
         filing = OfficerFiling.builder()
