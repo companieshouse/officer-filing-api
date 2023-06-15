@@ -107,7 +107,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         // Get copy of transaction from API to prevent user injecting a filingId
         transaction = transactionService.getTransaction(transaction.getId(),
                 passthroughHeader);
-        // Reuse this filing ID as we can only have one per transaction
+        // Reuse this filing ID if it exists as we can only have one per transaction
         String preExistingFilingId = getExistingFilingId(transaction);
         if(preExistingFilingId != null){
             entity = OfficerFiling.builder(entity).id(preExistingFilingId).build();
@@ -261,10 +261,6 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         // object from web?
         Map<String, Resource> resources = transaction.getResources();
         if(resources != null && !resources.isEmpty()){
-            if(resources.size() > 1){
-                throw new IllegalStateException("More than one resource was found in transaction "
-                        + transaction.getId());
-            }
             for(var entry : resources.entrySet()){
                 String resource = entry.getValue().getLinks().get("resource");
                 File resourcePath = new File(resource);

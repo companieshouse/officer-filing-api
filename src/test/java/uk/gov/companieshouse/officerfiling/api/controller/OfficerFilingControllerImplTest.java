@@ -46,6 +46,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.refEq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.officerfiling.api.controller.OfficerFilingControllerImpl.VALIDATION_STATUS;
@@ -128,6 +129,7 @@ class OfficerFilingControllerImplTest {
                 .build();
         when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
         when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
 
         final var response =
                 testController.createFiling(transaction, dto, nullBindingResult ? null : result,
@@ -137,6 +139,38 @@ class OfficerFilingControllerImplTest {
         verify(transaction).setResources(refEq(resourceMap));
         verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
+    }
+    @Test
+    void createFilingWithExistingSubmission() {
+        final var resources = new HashMap<String,Resource>();
+        final var resource = new Resource();
+        final Map <String,String> resourcesMap = new HashMap<>();
+        resourcesMap.put("resource","/transactions/115025-478816-868338/officers/648b0b3a246067277f8dcb70");
+        resource.setLinks(resourcesMap);
+        resources.put("/transactions/115025-478816-868338/officers/648b0b3a246067277f8dcb70", resource);
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(transaction.getResources()).thenReturn(resources);
+        when(filingMapper.map(dto)).thenReturn(filing);
+        final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
+                .build();
+        final var withLinks = OfficerFiling.builder(withFilingId).links(links)
+                .build();
+        when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
+        when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+
+        final var response =
+                testController.createFiling(transaction, dto, result,
+                        request);
+
+        // refEq needed to compare Map value objects; Resource does not override equals()
+        verify(transaction).setResources(refEq(resourceMap));
+        verify(transactionService, never()).updateTransaction(transaction, PASSTHROUGH_HEADER);
+        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
+
     }
 
     @Test
@@ -152,6 +186,7 @@ class OfficerFilingControllerImplTest {
                 .build();
         when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
         when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
 
         final var response = testController.createFiling(transaction, dto, result, request);
 
@@ -176,6 +211,7 @@ class OfficerFilingControllerImplTest {
                 .build();
         when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
         when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
 
         final var response = testController.createFiling(transaction, dto, result, request);
 
