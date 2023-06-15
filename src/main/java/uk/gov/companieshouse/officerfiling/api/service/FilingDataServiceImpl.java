@@ -80,11 +80,23 @@ public class FilingDataServiceImpl implements FilingDataService {
         final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transactionId, companyNumber,
                 appointmentId, ericPassThroughHeader);
 
+        String surname = "";
+        // if it is a corporate Director then we must pass the name field into the lastName field
+        // as that is where chips expects the corporate director name to be
+        if (companyAppointment.getOfficerRole().equalsIgnoreCase("CorporateDirector")) {
+            surname = companyAppointment.getName();
+        } else {
+            surname = companyAppointment.getSurname();
+        }
+
+        logger.debug("surname == " + surname);
+        logger.debug("companyAppointment.getName() == " + companyAppointment.getName());
+        logger.debug("companyAppointment.getSurname() == " + companyAppointment.getSurname());
         var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
                 .dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()))
                 .name(companyAppointment.getName())
                 .firstName(companyAppointment.getForename())
-                .lastName(companyAppointment.getSurname())
+                .lastName(surname)
                 .corporateDirector(mapCorporateDirector(transaction, companyAppointment))
                 .build();
         var filingData = filingMapper.mapFiling(enhancedOfficerFiling);
