@@ -50,7 +50,7 @@ public class ValidTransactionInterceptor implements HandlerInterceptor {
             return true;
         } else {
             logger.errorRequest(request, "Filing resource does not match request");
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return false;
         }
     }
