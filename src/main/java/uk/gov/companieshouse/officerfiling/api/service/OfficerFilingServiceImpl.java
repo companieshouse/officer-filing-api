@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -15,6 +16,8 @@ import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.repository.OfficerFilingRepository;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.officerfiling.api.utils.MapHelper;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Store/retrieve Officer Filing entities using the persistence layer.
@@ -105,5 +108,11 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
         // These will be added to the record on load and cause issues when converting from JSON
         fieldMap.remove("class");
         fieldMap.remove("links");
+    }
+
+    @Override
+    public boolean requestUriContainsFilingSelfLink(final HttpServletRequest request, final OfficerFiling filing) {
+        final var selfLinkString = filing.getLinks().getSelf().toString();
+        return request.getRequestURI().contains(selfLinkString);
     }
 }

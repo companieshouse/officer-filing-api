@@ -14,13 +14,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.delta.Officer;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.repository.OfficerFilingRepository;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
+
+import javax.servlet.http.HttpServletRequest;
 
 @ExtendWith(MockitoExtension.class)
 class OfficerFilingDataServiceImplTest {
@@ -38,6 +39,8 @@ class OfficerFilingDataServiceImplTest {
     private LogHelper logHelper;
     @Mock
     private Transaction transaction;
+    @Mock
+    private HttpServletRequest request;
 
     @BeforeEach
     void setUp() {
@@ -100,4 +103,58 @@ class OfficerFilingDataServiceImplTest {
         assertThat(updatedFiling.getResignedOn(), is(Instant.parse("2022-09-13T00:00:00Z")));
     }
 
+    OfficerFiling setUpFiling() throws URISyntaxException {
+        URI selfUri = new URI("/transactions/012345-67891-01112/officers/abcd");
+        URI validationStatusURI = new URI("");
+        Links links = new Links(selfUri, validationStatusURI);
+
+        OfficerFiling filing = OfficerFiling.builder()
+                .links(links)
+                .build();
+
+        return filing;
+    }
+    @Test
+    void testRequestUriContainsFilingSelfLinkPassesWithValidTransaction() throws URISyntaxException {
+        filing = setUpFiling();
+
+        String validRequestURI = "/transactions/012345-67891-01112/officers/abcd";
+        when(request.getRequestURI()).thenReturn(validRequestURI);
+
+        Boolean result = testService.requestUriContainsFilingSelfLink(request, filing);
+        assertThat(result, is(true));
+    }
+
+    @Test
+    void testRequestUriContainsFilingSelfLinkPassesWithValidTransactionAndAppendedGetValidation() throws URISyntaxException {
+        filing = setUpFiling();
+
+        String validRequestURIWithAppendedPath = "/transactions/012345-67891-01112/officers/abcd/validation_status";
+        when(request.getRequestURI()).thenReturn(validRequestURIWithAppendedPath);
+
+        Boolean result = testService.requestUriContainsFilingSelfLink(request, filing);
+        assertThat(result, is(true));
+    }
+
+    @Test
+    void testRequestUriContainsFilingSelfLinkFailsWithInValidTransaction() throws URISyntaxException {
+        filing = setUpFiling();
+
+        String invalidRequestURI = "/transactions/98765-67891-12345/officers/abcd";
+        when(request.getRequestURI()).thenReturn(invalidRequestURI);
+
+        Boolean result = testService.requestUriContainsFilingSelfLink(request, filing);
+        assertThat(result, is(false));
+    }
+
+    @Test
+    void testRequestUriContainsFilingSelfLinkFailsWithInValidTransactionAndAppendedPath() throws URISyntaxException {
+        filing = setUpFiling();
+
+        String invalidRequestURIWithAppendedPath = "/transactions/98765-67891-12345/officers/abcd/validation_status";
+        when(request.getRequestURI()).thenReturn(invalidRequestURIWithAppendedPath);
+
+        Boolean result = testService.requestUriContainsFilingSelfLink(request, filing);
+        assertThat(result, is(false));
+    }
 }
