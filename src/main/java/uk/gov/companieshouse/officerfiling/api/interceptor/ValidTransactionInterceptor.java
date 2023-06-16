@@ -43,15 +43,12 @@ public class ValidTransactionInterceptor implements HandlerInterceptor {
         }
 
         // check filing id from request matches filing id from transaction
-        var matchingOfficerFiling = officerFiling
-                .filter(filing -> officerFilingService.requestUriContainsFilingSelfLink(request, filing));
-
-        if (matchingOfficerFiling.isPresent()) {
-            return true;
-        } else {
+        if (!officerFilingService.requestUriContainsFilingSelfLink(request, officerFiling.get())) {
             logger.errorRequest(request, "Filing resource does not match request");
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return false;
         }
+
+        return true;
     }
 }
