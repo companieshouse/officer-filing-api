@@ -102,9 +102,6 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
         var entity = filingMapper.map(dto);
 
-        // Get copy of transaction from API to prevent user injecting a filingId
-        transaction = transactionService.getTransaction(transaction.getId(),
-                passthroughHeader);
         // Reuse this filing ID if it exists as we can only have one per transaction
         String preExistingFilingId = getExistingFilingId(transaction);
         if(preExistingFilingId != null){

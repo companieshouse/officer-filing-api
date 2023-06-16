@@ -129,7 +129,6 @@ class OfficerFilingControllerImplTest {
                 .build();
         when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
         when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
 
         final var response =
                 testController.createFiling(transaction, dto, nullBindingResult ? null : result,
@@ -160,7 +159,6 @@ class OfficerFilingControllerImplTest {
                 .build();
         when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
         when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
 
         final var response =
                 testController.createFiling(transaction, dto, result,
@@ -186,7 +184,6 @@ class OfficerFilingControllerImplTest {
                 .build();
         when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
         when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
 
         final var response = testController.createFiling(transaction, dto, result, request);
 
@@ -211,7 +208,6 @@ class OfficerFilingControllerImplTest {
                 .build();
         when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
         when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
 
         final var response = testController.createFiling(transaction, dto, result, request);
 
