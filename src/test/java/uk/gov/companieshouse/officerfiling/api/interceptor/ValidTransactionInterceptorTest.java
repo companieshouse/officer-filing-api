@@ -87,6 +87,6 @@ class ValidTransactionInterceptorTest {
         assertThat(response, is(false));
         verify(logger, times (1))
                 .errorRequest(mockRequest, "Filing resource does not match request");
-        verify(mockResponse, times(1)).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        verify(mockResponse, times(1)).setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
 }
