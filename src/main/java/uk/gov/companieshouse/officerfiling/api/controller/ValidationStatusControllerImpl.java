@@ -23,7 +23,6 @@ import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
-import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.officerfiling.api.validation.OfficerTerminationValidator;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
@@ -33,7 +32,6 @@ import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 public class ValidationStatusControllerImpl implements ValidationStatusController {
     private final OfficerFilingService officerFilingService;
     private final Logger logger;
-    private final TransactionService transactionService;
     private final CompanyProfileService companyProfileService;
     private final CompanyAppointmentService companyAppointmentService;
     private final OfficerFilingMapper officerFilingMapper;
@@ -43,12 +41,11 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
     private boolean isTm01Enabled;
 
     public ValidationStatusControllerImpl(OfficerFilingService officerFilingService, Logger logger,
-        TransactionService transactionService, CompanyProfileService companyProfileService,
+            CompanyProfileService companyProfileService,
         CompanyAppointmentService companyAppointmentService, OfficerFilingMapper officerFilingMapper,
         ErrorMapper errorMapper, ApiEnumerations apiEnumerations) {
         this.officerFilingService = officerFilingService;
         this.logger = logger;
-        this.transactionService = transactionService;
         this.companyProfileService = companyProfileService;
         this.companyAppointmentService = companyAppointmentService;
         this.officerFilingMapper = officerFilingMapper;
