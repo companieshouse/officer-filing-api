@@ -103,6 +103,12 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         var entity = filingMapper.map(dto);
 
         // Reuse this filing ID if it exists as we can only have one per transaction
+        //***********************************************************************************************
+        // NB for the moment to get around an issue where a web user could go back and select a different
+        // director, which would cause multiple resources in the transaction when only ONE is wanted.
+        // More thought is required for later when we will do this within Confirmation statemnet
+        // as that will need multiple resources in the same transaction.
+        //***********************************************************************************************
         String preExistingFilingId = getExistingFilingId(transaction);
         if(preExistingFilingId != null){
             entity = OfficerFiling.builder(entity).id(preExistingFilingId).build();
