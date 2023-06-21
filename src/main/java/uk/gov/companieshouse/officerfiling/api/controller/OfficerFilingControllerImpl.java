@@ -212,7 +212,21 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
     private ImmutablePair<Links,String> saveFilingWithLinks(final OfficerFiling entity, final Transaction transaction,
             final HttpServletRequest request) {
-        final var saved = officerFilingService.save(entity, transaction.getId());
+
+        final var now = clock.instant();
+        OfficerFiling entityWithCreatedUpdated;
+
+        if(entity.getCreatedAt() != null){
+            entityWithCreatedUpdated =
+                    OfficerFiling.builder(entity).updatedAt(now)
+                            .build();
+        } else {
+            entityWithCreatedUpdated =
+                    OfficerFiling.builder(entity).createdAt(now).updatedAt(now)
+                            .build();
+        }
+        final var finalEntityWithCreatedUpdated = entityWithCreatedUpdated;
+        final var saved = officerFilingService.save(finalEntityWithCreatedUpdated, transaction.getId());
         final var links = buildLinks(saved, request);
         final var updated = OfficerFiling.builder(saved).links(links)
                 .build();
