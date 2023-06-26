@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.handler.officers.request.OfficersList;
 import uk.gov.companieshouse.api.model.officers.CompanyOfficerApi;
 import uk.gov.companieshouse.api.model.officers.OfficersApi;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
@@ -49,15 +50,19 @@ public class OfficerServiceImpl implements OfficerService {
             throws OfficerServiceException {
         try {
             final String uri = "/company/" + companyNumber + "/officers";
-            final OfficersApi officersList = apiClientService.getInternalApiClient(ericPassThroughHeader)
+            final OfficersList officersList = apiClientService.getInternalApiClient(ericPassThroughHeader)
                             .officers()
-                            .list(uri)
-                            .execute()
-                            .getData();
+                            .list(uri);
+
+            officersList.addQueryParams("items_per_page", "100");
+
+            final OfficersApi officersApi = officersList.execute()
+                    .getData();
+
             logger.debugContext(transactionId, "Retrieved list of Officers", new LogHelper.Builder(transactionId)
                     .withCompanyNumber(companyNumber)
                     .build());
-            return officersList;
+            return officersApi;
         }
         catch (final URIValidationException | IOException e) {
             throw new OfficerServiceException("Error Retrieving list of officers for company: " + companyNumber, e);
