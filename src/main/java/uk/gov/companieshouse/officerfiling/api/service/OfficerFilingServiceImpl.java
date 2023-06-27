@@ -1,11 +1,14 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -74,6 +77,7 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
                 .withFilingId(original.getId())
                 .build());
         HashMap<String,Object> fieldMap = new HashMap<>();
+        HashMap<String,Object> innerFieldMap = new HashMap<>();
         OfficerFiling mergedFiling;
         // Get the current values of the original and patch filings, patch values will overwrite
         // Original values
@@ -81,15 +85,10 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
         extractFields(patch, fieldMap);
         // JavaTimeModule handles Instant serialisation
         var mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
-
         var updatedFiling = mapper.createObjectNode();
-        for(Map.Entry<String,Object> entry : fieldMap.entrySet()){
-            var field = entry.getKey();
-            var value = entry.getValue().toString();
-            updatedFiling.put(field, value);
-        }
-        var updatedFilingJson = updatedFiling.toString();
+
         try {
+            var updatedFilingJson = new ObjectMapper().writeValueAsString(fieldMap);
             mergedFiling = mapper.readerFor(OfficerFiling.class).readValue(updatedFilingJson);
         } catch (JsonProcessingException e) {
             throw new OfficerFilingServiceException("Failed to patch an officer filing for company "

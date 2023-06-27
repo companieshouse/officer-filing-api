@@ -112,6 +112,7 @@ public class OfficerFiling {
         public Builder(final OfficerFiling other) {
             this();
             this.id(other.getId())
+                    .createdAt(other.getCreatedAt())
                     .identification(other.getIdentification())
                     .kind(other.getKind())
                     .links(other.getLinks())
@@ -154,7 +155,6 @@ public class OfficerFiling {
         }
 
         public Builder data(final OfficerFilingData value) {
-
             buildSteps.add(data -> data.data = Optional.ofNullable(value)
                     .map(v -> new OfficerFilingData(
                             v.getAddress(),

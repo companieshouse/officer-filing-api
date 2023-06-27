@@ -82,8 +82,27 @@ public class OfficerFilingData {
         this.corporateDirector = corporateDirector;
 
     }
+    public OfficerFilingData(
+            final String referenceEtag,
+            final String referenceAppointmentId,
+            final Instant resignedOn
+    ) {
+        this.referenceEtag = referenceEtag;
+        this.referenceAppointmentId = referenceAppointmentId;
+        this.resignedOn = resignedOn;
+    }
 
+    public OfficerFilingData(
+            final String referenceEtag,
+            final String referenceAppointmentId
+    ) {
+        this.referenceEtag = referenceEtag;
+        this.referenceAppointmentId = referenceAppointmentId;
+    }
 
+    public OfficerFilingData() {
+
+    }
     public Address getAddress() {
         return address;
     }
@@ -233,6 +252,8 @@ public class OfficerFilingData {
                 .add("corporateDirector=" + corporateDirector)
                 .toString();
     }
+
+
 
     public static Builder builder() {
         return new Builder();
@@ -405,13 +426,6 @@ public class OfficerFilingData {
         public Builder corporateDirector(final Boolean value) {
             buildSteps.add(data -> data.corporateDirector = value);
             return this;
-        }
-
-        public OfficerFilingData build() {
-            final var officerFilingData = new OfficerFilingData();
-            buildSteps.forEach(s -> s.accept(officerFilingData));
-
-            return officerFilingData;
         }
     }
 }
