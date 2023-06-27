@@ -75,21 +75,14 @@ class FilingDataServiceImplTest {
 
     @Test
     void generateOfficerFilingWhenFound() {
-        final var filingData = new FilingData(FIRSTNAME, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, true);
+        final var filingData = new FilingData(FIRSTNAME, LASTNAME, null, RESIGNED_ON_STR, true);
         final var officerFiling = OfficerFiling.builder()
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
                 .firstName(FIRSTNAME)
                 .lastName(LASTNAME)
                 .resignedOn(RESIGNED_ON_INS)
-                .dateOfBirth(DATE_OF_BIRTH_TUPLE)
                 .build();
 
-        SensitiveDateOfBirthAPI dateOfBirthAPI = new SensitiveDateOfBirthAPI();
-        dateOfBirthAPI.setDay(20);
-        dateOfBirthAPI.setMonth(10);
-        dateOfBirthAPI.setYear(2000);
-
-        when(companyAppointment.getDateOfBirth()).thenReturn(dateOfBirthAPI);
         when(companyAppointment.getOfficerRole()).thenReturn("corporate-director");
         when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
         when(companyAppointment.getSurname()).thenReturn(LASTNAME);
@@ -104,7 +97,6 @@ class FilingDataServiceImplTest {
 
         final Map<String, Object> expectedMap =
                 Map.of("first_name", FIRSTNAME, "last_name", LASTNAME,
-                        "date_of_birth", DATE_OF_BIRTH_STR,
                         "resigned_on", RESIGNED_ON_STR,
                         "is_corporate_director", true);
 

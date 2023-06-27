@@ -80,11 +80,15 @@ public class FilingDataServiceImpl implements FilingDataService {
         final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transactionId, companyNumber,
                 appointmentId, ericPassThroughHeader);
 
-        var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
-                .dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()))
+        var enhancedOfficerFilingBuilder = OfficerFiling.builder(officerFiling)
                 .name(companyAppointment.getName())
-                .corporateDirector(mapCorporateDirector(transaction, companyAppointment))
-                .build();
+                .corporateDirector(mapCorporateDirector(transaction, companyAppointment));
+                // For non corporate Directors
+                if(companyAppointment.getDateOfBirth() != null){
+                    enhancedOfficerFilingBuilder = enhancedOfficerFilingBuilder.dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()));
+                }
+
+        OfficerFiling enhancedOfficerFiling = enhancedOfficerFilingBuilder.build();
         var filingData = filingMapper.mapFiling(enhancedOfficerFiling);
         var dataMap = MapHelper.convertObject(filingData, PropertyNamingStrategies.SNAKE_CASE);
 
