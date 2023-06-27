@@ -90,7 +90,7 @@ class FilingDataServiceImplTest {
         dateOfBirthAPI.setYear(2000);
 
         when(companyAppointment.getDateOfBirth()).thenReturn(dateOfBirthAPI);
-        when(companyAppointment.getOfficerRole()).thenReturn("corporate-director");
+        when(companyAppointment.getOfficerRole()).thenReturn("director");
         when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
         when(companyAppointment.getSurname()).thenReturn(LASTNAME);
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
@@ -112,6 +112,39 @@ class FilingDataServiceImplTest {
         assertThat(filingApi.getKind(), is("officer-filing#termination"));
         assertThat(filingApi.getDescription(), is("(TM01) Termination of appointment of director. Terminating appointment of "
             + FIRSTNAME + " " + LASTNAME.toUpperCase()  + " on 16 March 2023"));
+    }
+
+    @Test
+    void generateCorporateOfficerFilingWhenFound() {
+        final var filingData = new FilingData(FIRSTNAME, LASTNAME, null, RESIGNED_ON_STR, true);
+        final var officerFiling = OfficerFiling.builder()
+                .referenceAppointmentId(REF_APPOINTMENT_ID)
+                .firstName(FIRSTNAME)
+                .lastName(LASTNAME)
+                .resignedOn(RESIGNED_ON_INS)
+                .build();
+
+        when(companyAppointment.getOfficerRole()).thenReturn("corporate-director");
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
+        when(officerFilingMapper.mapFiling(officerFiling)).thenReturn(filingData);
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER ))
+                .thenReturn(companyAppointment);
+        when(dateNowSupplier.get()).thenReturn(DUMMY_DATE);
+
+        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        final Map<String, Object> expectedMap =
+                Map.of("first_name", FIRSTNAME, "last_name", LASTNAME,
+                        "resigned_on", RESIGNED_ON_STR,
+                        "is_corporate_director", true);
+
+        assertThat(filingApi.getData(), is(equalTo(expectedMap)));
+        assertThat(filingApi.getKind(), is("officer-filing#termination"));
+        assertThat(filingApi.getDescription(), is("(TM01) Termination of appointment of director. Terminating appointment of "
+                + FIRSTNAME + " " + LASTNAME.toUpperCase()  + " on 16 March 2023"));
     }
 
     @Test
