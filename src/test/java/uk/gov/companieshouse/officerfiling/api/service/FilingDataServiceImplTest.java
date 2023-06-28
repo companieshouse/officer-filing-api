@@ -6,8 +6,10 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -26,6 +28,7 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.filing.FilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 
@@ -64,6 +67,7 @@ class FilingDataServiceImplTest {
     private Supplier<LocalDate> dateNowSupplier;
 
     private FilingDataServiceImpl testService;
+    private Clock clock;
 
     @BeforeEach
     void setUp() {
@@ -76,12 +80,30 @@ class FilingDataServiceImplTest {
     @Test
     void generateOfficerFilingWhenFound() {
         final var filingData = new FilingData(FIRSTNAME, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, true);
-        final var officerFiling = OfficerFiling.builder()
-                .referenceAppointmentId(REF_APPOINTMENT_ID)
-                .firstName(FIRSTNAME)
-                .lastName(LASTNAME)
-                .resignedOn(RESIGNED_ON_INS)
-                .dateOfBirth(DATE_OF_BIRTH_TUPLE)
+        var offData = new OfficerFilingData(
+                null,
+                null,
+                null,
+                null,
+                DATE_OF_BIRTH_TUPLE,
+                Collections.singletonList(null),
+                null,
+                FIRSTNAME,
+                LASTNAME,
+                null,
+                null,
+                null,
+                null,
+                REF_APPOINTMENT_ID,
+                null,
+                RESIGNED_ON_INS,
+                null,
+                null,
+                null,
+                null
+        );
+        final var now = clock.instant();
+        final var officerFiling = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
 
         SensitiveDateOfBirthAPI dateOfBirthAPI = new SensitiveDateOfBirthAPI();

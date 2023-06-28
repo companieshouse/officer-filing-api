@@ -99,7 +99,7 @@ class DirectorsControllerImplIT {
         when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(officerFilingOptional);
         when(officerFilingOptional.isPresent()).thenReturn(true);
         when(officerFilingOptional.get()).thenReturn(officerFiling);
-        when(officerFiling.getResignedOn()).thenReturn(resignedOn);
+        when(officerFiling.getData().getResignedOn()).thenReturn(resignedOn);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, null, PASSTHROUGH_HEADER)).thenReturn(appointmentFullRecordAPI);
     }
 
@@ -147,7 +147,7 @@ class DirectorsControllerImplIT {
 
     @Test
     void getRemoveCheckAnswersDirectorDetailsWhenNotFoundThen500() throws Exception {
-        when(officerFiling.getResignedOn()).thenReturn(null);
+        when(officerFiling.getData().getResignedOn()).thenReturn(null);
         mockMvc.perform(get("/transactions/{transactionId}/officers/{filingId}/tm01-check-answers-directors-details", TRANS_ID, SUBMISSION_ID)
                         .headers(httpHeaders).requestAttr("transaction", transaction))
                 .andDo(print())
