@@ -87,6 +87,7 @@ class ValidationStatusControllerImplIT {
     private CompanyProfileApi companyProfileApi;
     private AppointmentFullRecordAPI companyAppointment;
 
+    @Mock
     private Clock clock;
 
     @Autowired
@@ -326,7 +327,7 @@ class ValidationStatusControllerImplIT {
                 FILING_ID,
                 Instant.parse("3022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).id(FILING_ID)
                 .build();
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID,

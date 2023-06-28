@@ -82,7 +82,9 @@ public class FilingDataServiceImpl implements FilingDataService {
                 appointmentId, ericPassThroughHeader);
 
         var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
+                .createdAt(officerFiling.getCreatedAt())
                 .data(new OfficerFilingData(null,null, null,null, new Date3Tuple(companyAppointment.getDateOfBirth()), null, companyAppointment.getName(), null, null, null, null, null, null, null, null, null, null, null, null, mapCorporateDirector(transaction, companyAppointment)))
+                .updatedAt(officerFiling.getUpdatedAt())
                 .build();
 
         var filingData = filingMapper.mapFiling(enhancedOfficerFiling);
