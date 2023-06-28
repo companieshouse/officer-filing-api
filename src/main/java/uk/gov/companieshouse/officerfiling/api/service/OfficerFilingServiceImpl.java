@@ -77,7 +77,6 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
                 .withFilingId(original.getId())
                 .build());
         HashMap<String,Object> fieldMap = new HashMap<>();
-        HashMap<String,Object> innerFieldMap = new HashMap<>();
         OfficerFiling mergedFiling;
         // Get the current values of the original and patch filings, patch values will overwrite
         // Original values
