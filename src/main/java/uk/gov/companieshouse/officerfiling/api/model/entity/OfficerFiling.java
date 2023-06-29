@@ -21,7 +21,7 @@ public class OfficerFiling {
     private Identification identification;
     private String kind;
     private Links links;
-    private OfficerFilingData officerFilingData;
+    private OfficerFilingData data;
     private Instant updatedAt;
 
     private OfficerFiling() {
@@ -46,8 +46,8 @@ public class OfficerFiling {
     public Links getLinks() {
         return links;
     }
-    public OfficerFilingData getOfficerFilingData() {
-        return officerFilingData;
+    public OfficerFilingData getData() {
+        return data;
     }
 
     public Instant getUpdatedAt() {
@@ -67,13 +67,13 @@ public class OfficerFiling {
                 && Objects.equals(getIdentification(), that.getIdentification())
                 && Objects.equals(getKind(), that.getKind())
                 && Objects.equals(getLinks(), that.getLinks())
-                && Objects.equals(getOfficerFilingData(), that.getOfficerFilingData())
+                && Objects.equals(getData(), that.getData())
                 && Objects.equals(getUpdatedAt(), that.getUpdatedAt());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getCreatedAt(), getIdentification(), getKind(), getLinks(), getOfficerFilingData(),
+        return Objects.hash(getCreatedAt(), getIdentification(), getKind(), getLinks(), getData(),
                  getUpdatedAt());
     }
 
@@ -85,7 +85,7 @@ public class OfficerFiling {
                 .add("identification=" + identification)
                 .add("kind='" + kind + "'")
                 .add("links=" + links)
-                .add("data='" + officerFilingData + "'")
+                .add("data='" + data + "'")
                 .add("updatedAt=" + updatedAt)
                 .toString();
     }
@@ -113,7 +113,7 @@ public class OfficerFiling {
                     .identification(other.getIdentification())
                     .kind(other.getKind())
                     .links(other.getLinks())
-                    .officerFilingData(other.getOfficerFilingData())
+                    .data(other.getData())
                     .updatedAt(other.getUpdatedAt());
         }
 
@@ -151,8 +151,8 @@ public class OfficerFiling {
             return this;
         }
 
-        public Builder officerFilingData(final OfficerFilingData value) {
-            buildSteps.add(data -> data.officerFilingData = Optional.ofNullable(value)
+        public Builder data(final OfficerFilingData value) {
+            buildSteps.add(data -> data.data = Optional.ofNullable(value)
                     .map(v -> new OfficerFilingData(
                             v.getAddress(),
                             v.getAddressSameAsRegisteredOfficeAddress(),

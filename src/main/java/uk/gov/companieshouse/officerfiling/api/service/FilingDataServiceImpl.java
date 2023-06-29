@@ -76,13 +76,13 @@ public class FilingDataServiceImpl implements FilingDataService {
 
         final var transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
         String companyNumber = transaction.getCompanyNumber();
-        String appointmentId = officerFiling.getOfficerFilingData().getReferenceAppointmentId();
+        String appointmentId = officerFiling.getData().getReferenceAppointmentId();
 
         final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transactionId, companyNumber,
                 appointmentId, ericPassThroughHeader);
 
         var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
-                .officerFilingData(new OfficerFilingData(null,null, null,null, new Date3Tuple(companyAppointment.getDateOfBirth()), null, companyAppointment.getName(), null, null, null, null, null, null, null, null, null, null, null, null, mapCorporateDirector(transaction, companyAppointment)))
+                .data(new OfficerFilingData(null,null, null,null, new Date3Tuple(companyAppointment.getDateOfBirth()), null, companyAppointment.getName(), null, null, null, null, null, null, null, null, null, null, null, null, mapCorporateDirector(transaction, companyAppointment)))
                 .createdAt(officerFiling.getCreatedAt())
                 .updatedAt(officerFiling.getUpdatedAt())
                 .build();

@@ -116,7 +116,7 @@ class DirectorsControllerImplTest {
     when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(officerFilingOptional);
     when(officerFilingOptional.isPresent()).thenReturn(true);
     when(officerFilingOptional.get()).thenReturn(officerFiling);
-    when(officerFiling.getOfficerFilingData()).thenReturn(offData);
+    when(officerFiling.getData()).thenReturn(offData);
     when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, null, PASSTHROUGH_HEADER)).thenReturn(appointmentFullRecordAPI);
     var response = testService.getRemoveCheckAnswersDirectorDetails(transaction, SUBMISSION_ID, request);
     assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -138,8 +138,8 @@ class DirectorsControllerImplTest {
     when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(officerFilingOptional);
     when(officerFilingOptional.isPresent()).thenReturn(true);
     when(officerFilingOptional.get()).thenReturn(officerFiling);
-    when(officerFiling.getOfficerFilingData()).thenReturn(offData);
-    when(officerFiling.getOfficerFilingData()).thenReturn(offData2);
+    when(officerFiling.getData()).thenReturn(offData);
+    when(officerFiling.getData()).thenReturn(offData2);
     var response = testService.getRemoveCheckAnswersDirectorDetails(transaction, SUBMISSION_ID, request);
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 

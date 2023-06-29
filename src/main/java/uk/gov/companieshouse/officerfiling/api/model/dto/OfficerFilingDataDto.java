@@ -1,9 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +12,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.validation.annotation.Validated;
-import uk.gov.companieshouse.officerfiling.api.model.entity.Address;
-import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
-import uk.gov.companieshouse.officerfiling.api.model.entity.FormerName;
 
 @JsonDeserialize(builder = OfficerFilingDataDto.Builder.class)
 @Validated

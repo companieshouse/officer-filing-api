@@ -136,14 +136,14 @@ class OfficerFilingControllerImplValidationIT {
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
         final var dto = OfficerFilingDto.builder()
-                .officerFilingData(dtoData)
+                .data(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "",
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
 
         when(filingMapper.map(dto)).thenReturn(filing);
@@ -171,14 +171,14 @@ class OfficerFilingControllerImplValidationIT {
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
         final var dto = OfficerFilingDto.builder()
-                .officerFilingData(dtoData)
+                .data(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "ETAG",
                 "",
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
         when(filingMapper.map(dto)).thenReturn(filing);
         when(clock.instant()).thenReturn(FIRST_INSTANT);
@@ -209,14 +209,14 @@ class OfficerFilingControllerImplValidationIT {
                 .resignedOn(null)
                 .build();
         final var dto = OfficerFilingDto.builder()
-                .officerFilingData(dtoData)
+                .data(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "ETAG",
                 FILING_ID,
                 null);
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
         when(filingMapper.map(dto)).thenReturn(filing);
         when(clock.instant()).thenReturn(FIRST_INSTANT);

@@ -104,7 +104,7 @@ class FilingDataServiceImplTest {
                 null
         );
         final var now = clock.instant();
-        final var officerFiling = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
+        final var officerFiling = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
 
         SensitiveDateOfBirthAPI dateOfBirthAPI = new SensitiveDateOfBirthAPI();

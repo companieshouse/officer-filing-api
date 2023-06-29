@@ -165,14 +165,14 @@ class OfficerFilingControllerImplIT {
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
         final var dto = OfficerFilingDto.builder()
-            .officerFilingData(dtoData)
+            .data(dtoData)
             .build();
         var offData = new OfficerFilingData(
                 "etag",
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
         final var locationUri = UriComponentsBuilder.fromPath("/")
             .pathSegment("transactions", TRANS_ID, "officers", FILING_ID)
@@ -206,14 +206,14 @@ class OfficerFilingControllerImplIT {
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
         final var dto = OfficerFilingDto.builder()
-                .officerFilingData(dtoData)
+                .data(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "etag",
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
         final var locationUri = UriComponentsBuilder.fromPath("/")
                 .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
@@ -246,14 +246,14 @@ class OfficerFilingControllerImplIT {
                 .referenceAppointmentId(FILING_ID)
                 .build();
         final var dto = OfficerFilingDto.builder()
-                .officerFilingData(dtoData)
+                .data(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "etag",
                 FILING_ID,
                 null);
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
         final var locationUri = UriComponentsBuilder.fromPath("/")
                 .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
@@ -286,14 +286,14 @@ class OfficerFilingControllerImplIT {
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
         final var dto = OfficerFilingDto.builder()
-                .officerFilingData(dtoData)
+                .data(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "",
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
         final var locationUri = UriComponentsBuilder.fromPath("/")
                 .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
@@ -360,13 +360,13 @@ class OfficerFilingControllerImplIT {
                 FILING_ID,
                 null);
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
         final var dtoData = OfficerFilingDataDto.builder().referenceEtag("etag")
                 .referenceAppointmentId(FILING_ID)
                 .build();
         final var dto = OfficerFilingDto.builder()
-                .officerFilingData(dtoData)
+                .data(dtoData)
                 .build();
         when(clock.instant()).thenReturn(FIRST_INSTANT);
         when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
@@ -417,14 +417,14 @@ class OfficerFilingControllerImplIT {
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
         final var dto = OfficerFilingDto.builder()
-                .officerFilingData(dtoData)
+                .data(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "etag",
                 "id",
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
@@ -447,14 +447,14 @@ class OfficerFilingControllerImplIT {
                 .resignedOn(LocalDate.of(2024, 2, 29))
                 .build();
         final var dto = OfficerFilingDto.builder()
-                .officerFilingData(dtoData)
+                .data(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "etag",
                 "id",
                 Instant.parse("2024-02-29T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
@@ -490,14 +490,14 @@ class OfficerFilingControllerImplIT {
                 .resignedOn(LocalDate.now())
                 .build();
         final var dto = OfficerFilingDto.builder()
-                .officerFilingData(dtoData)
+                .data(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "etag",
                 FILING_ID,
                 resignedToday);
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
         final var locationUri = UriComponentsBuilder.fromPath("/")
             .pathSegment("transactions", TRANS_ID, "officers", FILING_ID)
@@ -586,7 +586,7 @@ class OfficerFilingControllerImplIT {
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
         final var dto = OfficerFilingDto.builder()
-                .officerFilingData(dtoData)
+                .data(dtoData)
                 .build();
 
         when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);

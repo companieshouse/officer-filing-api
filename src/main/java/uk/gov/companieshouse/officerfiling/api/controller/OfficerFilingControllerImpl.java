@@ -225,7 +225,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
         final var create = createNow;
         entityWithCreatedUpdated =
-                OfficerFiling.builder(entity).createdAt(create).updatedAt(now).officerFilingData(offdata)
+                OfficerFiling.builder(entity).createdAt(create).updatedAt(now).data(offdata)
                         .build();
 
         final var finalEntityWithCreatedUpdated = entityWithCreatedUpdated;
@@ -265,21 +265,21 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         String refEtag = "";
         Instant resignOn = null;
         // if we have data already in the filing,  fill the fields with it.
-        if(officerFiling.getOfficerFilingData() != null) {
-            data = officerFiling.getOfficerFilingData();
+        if(officerFiling.getData() != null) {
+            data = officerFiling.getData();
             refEtag = data.getReferenceAppointmentId();
             refAppointmentId = data.getReferenceAppointmentId();
             resignOn = data.getResignedOn();
         }
         // if we have data coming in from the dto, replace existing data with the new data coming in.
-        if(dto.getOfficerFilingData().getReferenceEtag()  != null) {
-            refEtag = dto.getOfficerFilingData().getReferenceEtag();
+        if(dto.getData().getReferenceEtag()  != null) {
+            refEtag = dto.getData().getReferenceEtag();
         }
-        if(dto.getOfficerFilingData().getReferenceAppointmentId()  != null) {
-            refAppointmentId = dto.getOfficerFilingData().getReferenceAppointmentId();
+        if(dto.getData().getReferenceAppointmentId()  != null) {
+            refAppointmentId = dto.getData().getReferenceAppointmentId();
         }
-        if(dto.getOfficerFilingData().getResignedOn()  != null) {
-            resignOn = dto.getOfficerFilingData().getResignedOn().atStartOfDay(ZoneId.systemDefault()).toInstant();
+        if(dto.getData().getResignedOn()  != null) {
+            resignOn = dto.getData().getResignedOn().atStartOfDay(ZoneId.systemDefault()).toInstant();
         }
 
         final var referenceAppointmentId = refAppointmentId;

@@ -14,14 +14,14 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class OfficerFilingDto {
 
-    private OfficerFilingDataDto officerFilingData;
+    private OfficerFilingDataDto data;
     private IdentificationDto identification;
 
     private OfficerFilingDto() {
     }
 
-    public OfficerFilingDataDto getOfficerFilingData() {
-        return officerFilingData;
+    public OfficerFilingDataDto getData() {
+        return data;
     }
 
     public IdentificationDto getIdentification() {
@@ -39,19 +39,19 @@ public class OfficerFilingDto {
         }
         final var that = (OfficerFilingDto) o;
         return (Objects.equals(getIdentification(), that.getIdentification())
-                && Objects.equals(getOfficerFilingData(), that.getOfficerFilingData()));
+                && Objects.equals(getData(), that.getData()));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getIdentification(), getOfficerFilingData());
+        return Objects.hash(getIdentification(), getData());
     }
 
     @Override
     public String toString() {
         return new StringJoiner(", ", OfficerFilingDto.class.getSimpleName() + "[", "]")
                 .add("identification=" + identification.toString())
-                .add("officerFilingData='" + officerFilingData.toString() + "'")
+                .add("officerFilingData='" + data.toString() + "'")
                 .toString();
     }
 
@@ -78,9 +78,9 @@ public class OfficerFilingDto {
             return this;
         }
 
-        public Builder officerFilingData(final OfficerFilingDataDto value) {
+        public Builder data(final OfficerFilingDataDto value) {
 
-            buildSteps.add(data -> data.officerFilingData = Optional.ofNullable(value)
+            buildSteps.add(data -> data.data = Optional.ofNullable(value)
                     .map(v -> new OfficerFilingDataDto(v.getAddress(),
                             v.getAddressSameAsRegisteredOfficeAddress(),
                             v.getAppointedOn(),
