@@ -20,7 +20,6 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDataDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
@@ -131,12 +130,10 @@ class OfficerFilingControllerImplValidationIT {
     void createFilingWhenReferenceEtagBlankThenResponse201() throws Exception {
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var body = "{" + TM01_FRAGMENT.replace("ETAG", "") + "}";
-        final var dtoData = OfficerFilingDataDto.builder().referenceEtag("")
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag("")
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2022, 9, 13))
-                .build();
-        final var dto = OfficerFilingDto.builder()
-                .data(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "",
@@ -166,12 +163,10 @@ class OfficerFilingControllerImplValidationIT {
     void createFilingWhenReferenceAppointmentIdBlankThenResponse201() throws Exception {
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var body = "{" + TM01_FRAGMENT.replace(FILING_ID, "") + "}";
-        final var dtoData = OfficerFilingDataDto.builder().referenceEtag("ETAG")
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag("ETAG")
                 .referenceAppointmentId("")
                 .resignedOn(LocalDate.of(2022, 9, 13))
-                .build();
-        final var dto = OfficerFilingDto.builder()
-                .data(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "ETAG",
@@ -204,12 +199,10 @@ class OfficerFilingControllerImplValidationIT {
     void createFilingWhenReferenceResignedOnBlankThenResponse201() throws Exception {
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "") + "}";
-        final var dtoData = OfficerFilingDataDto.builder().referenceEtag("ETAG")
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag("ETAG")
                 .referenceAppointmentId("")
                 .resignedOn(null)
-                .build();
-        final var dto = OfficerFilingDto.builder()
-                .data(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "ETAG",

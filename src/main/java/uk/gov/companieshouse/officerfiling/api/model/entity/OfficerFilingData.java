@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,9 +10,6 @@ import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDataDto;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OfficerFilingData {

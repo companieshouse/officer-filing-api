@@ -272,14 +272,14 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             resignOn = data.getResignedOn();
         }
         // if we have data coming in from the dto, replace existing data with the new data coming in.
-        if(dto.getData().getReferenceEtag()  != null) {
-            refEtag = dto.getData().getReferenceEtag();
+        if(dto.getReferenceEtag()  != null) {
+            refEtag = dto.getReferenceEtag();
         }
-        if(dto.getData().getReferenceAppointmentId()  != null) {
-            refAppointmentId = dto.getData().getReferenceAppointmentId();
+        if(dto.getReferenceAppointmentId()  != null) {
+            refAppointmentId = dto.getReferenceAppointmentId();
         }
-        if(dto.getData().getResignedOn()  != null) {
-            resignOn = dto.getData().getResignedOn().atStartOfDay(ZoneId.systemDefault()).toInstant();
+        if(dto.getResignedOn()  != null) {
+            resignOn = dto.getResignedOn().atStartOfDay(ZoneId.systemDefault()).toInstant();
         }
 
         final var referenceAppointmentId = refAppointmentId;

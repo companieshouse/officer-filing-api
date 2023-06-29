@@ -95,15 +95,15 @@ public class OfficerTerminationValidator {
 
     public void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         // check for blank officer id, eTag and termination date
-        if (dto.getData().getReferenceAppointmentId() == null || dto.getData().getReferenceAppointmentId().isBlank()) {
+        if (dto.getReferenceAppointmentId() == null || dto.getReferenceAppointmentId().isBlank()) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.OFFICER_ID_BLANK));
         }
 
-        if (dto.getData().getReferenceEtag() == null || dto.getData().getReferenceEtag().isBlank()) {
+        if (dto.getReferenceEtag() == null || dto.getReferenceEtag().isBlank()) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ETAG_BLANK));
         }
 
-        if (dto.getData().getResignedOn() == null) {
+        if (dto.getResignedOn() == null) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_MISSING, getDirectorName(null)));
         }
     }
@@ -119,7 +119,7 @@ public class OfficerTerminationValidator {
         try {
             return Optional.ofNullable(
                     companyAppointmentService.getCompanyAppointment(transaction.getId(), transaction.getCompanyNumber(),
-                            dto.getData().getReferenceAppointmentId(), passthroughHeader));
+                            dto.getReferenceAppointmentId(), passthroughHeader));
         } catch (ServiceUnavailableException e) {
             createServiceError(request, errorList);
         } catch (CompanyAppointmentServiceException e) {
@@ -149,20 +149,20 @@ public class OfficerTerminationValidator {
             return;
         }
         // If submission information is not out-of-date, the ETAG retrieved from the Company Appointments API and the ETAG passed from the request will match
-        if(!Objects.equals(dto.getData().getReferenceEtag(), companyAppointment.getEtag())) {
+        if(!Objects.equals(dto.getReferenceEtag(), companyAppointment.getEtag())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ETAG_INVALID));
         }
     }
 
     public void validateResignationDatePastOrPresent(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment) {
-        if (dto.getData().getResignedOn().isAfter(LocalDate.now())) {
+        if (dto.getResignedOn().isAfter(LocalDate.now())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_IN_PAST, getDirectorName(companyAppointment)));
         }
     }
 
     public void validateMinResignationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         // Earliest ever possible date that a director can have been removed that is valid on the CH system is the 1st of october 2009.
-        if(dto.getData().getResignedOn().isBefore(MIN_RESIGNATION_DATE)) {
+        if(dto.getResignedOn().isBefore(MIN_RESIGNATION_DATE)) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_2009));
         }
     }
@@ -172,7 +172,7 @@ public class OfficerTerminationValidator {
             logger.errorRequest(request, "null data was found in the Company Profile API within the Date Of Creation field");
             return;
         }
-        if (dto.getData().getResignedOn().isBefore(companyProfile.getDateOfCreation())) {
+        if (dto.getResignedOn().isBefore(companyProfile.getDateOfCreation())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_INCORPORATION_DATE));
         }
     }
@@ -199,7 +199,7 @@ public class OfficerTerminationValidator {
 
     public void validateTerminationDateAfterAppointmentDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment) {
         var companyAppointmentDate = getAppointmentDate(request, companyAppointment);
-        if (companyAppointmentDate.isPresent() && dto.getData().getResignedOn().isBefore(companyAppointmentDate.get())) {
+        if (companyAppointmentDate.isPresent() && dto.getResignedOn().isBefore(companyAppointmentDate.get())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_APPOINTMENT_DATE, getDirectorName(companyAppointment)));
         }
     }

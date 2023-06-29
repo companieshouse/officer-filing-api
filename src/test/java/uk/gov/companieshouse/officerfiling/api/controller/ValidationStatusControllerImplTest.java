@@ -107,9 +107,9 @@ class ValidationStatusControllerImplTest {
     void validateWhenFilingFoundAndNoValidationErrors() {
 
         validationStatusControllerMocks();
-        when(dto.getData().getReferenceEtag()).thenReturn(ETAG);
-        when(dto.getData().getReferenceAppointmentId()).thenReturn(FILING_ID);
-        when(dto.getData().getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
+        when(dto.getReferenceEtag()).thenReturn(ETAG);
+        when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
+        when(dto.getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2005, 10, 3));
         when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2007, 10, 5));
@@ -123,9 +123,9 @@ class ValidationStatusControllerImplTest {
     void validateWhenFilingFoundAndValidationErrors() {
 
         validationStatusControllerMocks();
-        when(dto.getData().getReferenceEtag()).thenReturn("etag");
-        when(dto.getData().getReferenceAppointmentId()).thenReturn(FILING_ID);
-        when(dto.getData().getResignedOn()).thenReturn(LocalDate.of(1022, 9, 13));
+        when(dto.getReferenceEtag()).thenReturn("etag");
+        when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
+        when(dto.getResignedOn()).thenReturn(LocalDate.of(1022, 9, 13));
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(companyProfile.getType()).thenReturn("invalid-type");
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));;

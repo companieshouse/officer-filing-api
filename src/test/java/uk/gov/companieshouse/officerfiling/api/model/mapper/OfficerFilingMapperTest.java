@@ -22,7 +22,6 @@ import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.Date3TupleDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.FormerNameDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.IdentificationDto;
-import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDataDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Address;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
@@ -90,7 +89,9 @@ class OfficerFilingMapperTest {
 
     @Test
     void appointmentDtoToOfficerFiling() {
-        final var dataDto = OfficerFilingDataDto.builder().address(addressDto)
+        final var dto = OfficerFilingDto.builder()
+                .identification(identificationDto)
+                .address(addressDto)
                 .addressSameAsRegisteredOfficeAddress(true)
                 .appointedOn(localDate1)
                 .countryOfResidence("countryOfResidence")
@@ -105,11 +106,6 @@ class OfficerFilingMapperTest {
                 .residentialAddress(addressDto)
                 .residentialAddressSameAsCorrespondenceAddress(true)
                 .resignedOn(localDate1)
-                .build();
-
-        final var dto = OfficerFilingDto.builder()
-                .identification(identificationDto)
-                .data(dataDto)
                 .build();
 
         final var filing = testMapper.map(dto);
@@ -150,8 +146,7 @@ class OfficerFilingMapperTest {
 
     @Test
     void emptyAppointmentDtoToOfficerFiling() {
-        final var dtoData = OfficerFilingDataDto.builder().formerNames(Collections.singletonList(null)).build();
-        final var dto = OfficerFilingDto.builder().data(dtoData)
+        final var dto = OfficerFilingDto.builder().formerNames(Collections.singletonList(null))
                 .build();
         var offData = new OfficerFilingData(
                 null,
@@ -189,8 +184,7 @@ class OfficerFilingMapperTest {
 
     @Test
     void emptyAppointmentNullFormerNameDtoToOfficerFiling() {
-        final var dtoData = OfficerFilingDataDto.builder().formerNames(Collections.singletonList(null)).build();
-        final var dto = OfficerFilingDto.builder().data(dtoData)
+        final var dto = OfficerFilingDto.builder().formerNames(Collections.singletonList(null))
                 .build();
         var offData = new OfficerFilingData(
                 null,
@@ -253,23 +247,23 @@ false
 
         final var dto = testMapper.map(filing);
 
-        assertThat(dto.getData().getAddress(), is(equalTo(addressDto)));
-        assertThat(dto.getData().getAddressSameAsRegisteredOfficeAddress(), is(true));
-        assertThat(dto.getData().getAppointedOn(), is(localDate1));
-        assertThat(dto.getData().getCountryOfResidence(), is("countryOfResidence"));
-        assertThat(dto.getData().getDateOfBirth(),
+        assertThat(dto.getAddress(), is(equalTo(addressDto)));
+        assertThat(dto.getAddressSameAsRegisteredOfficeAddress(), is(true));
+        assertThat(dto.getAppointedOn(), is(localDate1));
+        assertThat(dto.getCountryOfResidence(), is("countryOfResidence"));
+        assertThat(dto.getDateOfBirth(),
                 is(new Date3TupleDto(dob1.getDay(), dob1.getMonth(), dob1.getYear())));
-        assertThat(dto.getData().getFormerNames(), is(equalTo(nameDtoList)));
+        assertThat(dto.getFormerNames(), is(equalTo(nameDtoList)));
         assertThat(dto.getIdentification(), is(equalTo(identificationDto)));
-        assertThat(dto.getData().getName(), is("name"));
-        assertThat(dto.getData().getReferenceEtag(), is("referenceEtag"));
-        assertThat(dto.getData().getReferenceAppointmentId(), is("referenceAppointmentId"));
-        assertThat(dto.getData().getNationality(), is("nation"));
-        assertThat(dto.getData().getOccupation(), is("work"));
-        assertThat(dto.getData().getReferenceOfficerListEtag(), is("list"));
-        assertThat(dto.getData().getResidentialAddress(), is(equalTo(addressDto)));
-        assertThat(dto.getData().getResidentialAddressSameAsCorrespondenceAddress(), is(true));
-        assertThat(dto.getData().getResignedOn(), is(localDate1));
+        assertThat(dto.getName(), is("name"));
+        assertThat(dto.getReferenceEtag(), is("referenceEtag"));
+        assertThat(dto.getReferenceAppointmentId(), is("referenceAppointmentId"));
+        assertThat(dto.getNationality(), is("nation"));
+        assertThat(dto.getOccupation(), is("work"));
+        assertThat(dto.getReferenceOfficerListEtag(), is("list"));
+        assertThat(dto.getResidentialAddress(), is(equalTo(addressDto)));
+        assertThat(dto.getResidentialAddressSameAsCorrespondenceAddress(), is(true));
+        assertThat(dto.getResignedOn(), is(localDate1));
     }
 
     @Test
@@ -319,8 +313,7 @@ false
         final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
 
-        final var dtoData = OfficerFilingDataDto.builder().formerNames(Collections.singletonList(null)).build();
-        final var emptyDto = OfficerFilingDto.builder().data(dtoData)
+        final var emptyDto = OfficerFilingDto.builder().formerNames(Collections.singletonList(null))
                 .build();
 
         final var dto = testMapper.map(filing);
@@ -355,15 +348,14 @@ false
         final var now = clock.instant();
         final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
-        final var dtoData = OfficerFilingDataDto.builder().formerNames(Collections.emptyList()).build();
-        final var emptyDto = OfficerFilingDto.builder().data(dtoData)
+        final var emptyDto = OfficerFilingDto.builder().formerNames(Collections.emptyList())
                 .build();
 
         final var dto = testMapper.map(filing);
 
         assertThat(dto, is(equalTo(emptyDto)));
-        assertThat(dto.getData().getAddressSameAsRegisteredOfficeAddress(), is(nullValue()));
-        assertThat(dto.getData().getResidentialAddressSameAsCorrespondenceAddress(), is(nullValue()));
+        assertThat(dto.getAddressSameAsRegisteredOfficeAddress(), is(nullValue()));
+        assertThat(dto.getResidentialAddressSameAsCorrespondenceAddress(), is(nullValue()));
     }
 
 }
