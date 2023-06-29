@@ -403,7 +403,7 @@ class OfficerFilingControllerImplIT {
     void getFilingForReviewThenResponse200() throws Exception {
         final var dto = OfficerFilingDto.builder()
                 .referenceEtag("etag")
-                .referenceAppointmentId(FILING_ID)
+                .referenceAppointmentId("id")
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
         var offData = new OfficerFilingData(
