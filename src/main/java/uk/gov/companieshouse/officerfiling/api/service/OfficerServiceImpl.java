@@ -48,16 +48,20 @@ public class OfficerServiceImpl implements OfficerService {
     private OfficersApi getOfficersList(final String transactionId, final String companyNumber, final String ericPassThroughHeader)
             throws OfficerServiceException {
         try {
-            final String uri = "/company/" + companyNumber + "/officers";
-            final OfficersApi officersList = apiClientService.getInternalApiClient(ericPassThroughHeader)
+            final var uri = "/company/" + companyNumber + "/officers";
+            final var officersList = apiClientService.getInternalApiClient(ericPassThroughHeader)
                             .officers()
-                            .list(uri)
-                            .execute()
-                            .getData();
+                            .list(uri);
+
+            officersList.addQueryParams("items_per_page", "100");
+
+            final var officersApi = officersList.execute()
+                    .getData();
+
             logger.debugContext(transactionId, "Retrieved list of Officers", new LogHelper.Builder(transactionId)
                     .withCompanyNumber(companyNumber)
                     .build());
-            return officersList;
+            return officersApi;
         }
         catch (final URIValidationException | IOException e) {
             throw new OfficerServiceException("Error Retrieving list of officers for company: " + companyNumber, e);
