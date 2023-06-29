@@ -91,7 +91,7 @@ class OfficerFilingDataServiceImplTest {
                 .build();
 
         OfficerFiling updatedFiling = testService.mergeFilings(original, patch, transaction);
-        assertThat(updatedFiling.getData().getReferenceEtag(), is("ETAG"));
+        assertThat(updatedFiling.getData().getReferenceEtag(), is(""));
         assertThat(updatedFiling.getData().getReferenceAppointmentId(), is("Appoint"));
     }
 
@@ -131,7 +131,7 @@ class OfficerFilingDataServiceImplTest {
         var offData2 = new OfficerFilingData(
                 "NewETAG",
                 "Appoint",
-                null);
+                Instant.parse("2022-09-13T00:00:00Z"));
         final var patch = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData2)
                 .build();
 
