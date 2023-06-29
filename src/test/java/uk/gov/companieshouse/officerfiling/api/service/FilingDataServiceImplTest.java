@@ -67,6 +67,7 @@ class FilingDataServiceImplTest {
     private Supplier<LocalDate> dateNowSupplier;
 
     private FilingDataServiceImpl testService;
+    @Mock
     private Clock clock;
 
     @BeforeEach
@@ -103,7 +104,7 @@ class FilingDataServiceImplTest {
                 null
         );
         final var now = clock.instant();
-        final var officerFiling = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var officerFiling = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
 
         SensitiveDateOfBirthAPI dateOfBirthAPI = new SensitiveDateOfBirthAPI();

@@ -20,6 +20,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDataDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
@@ -130,17 +131,19 @@ class OfficerFilingControllerImplValidationIT {
     void createFilingWhenReferenceEtagBlankThenResponse201() throws Exception {
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var body = "{" + TM01_FRAGMENT.replace("ETAG", "") + "}";
-        final var dto = OfficerFilingDto.builder()
-                .referenceEtag("")
+        final var dtoData = OfficerFilingDataDto.builder().referenceEtag("")
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
+        final var dto = OfficerFilingDto.builder()
+                .officerFilingData(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "",
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
 
         when(filingMapper.map(dto)).thenReturn(filing);
@@ -163,17 +166,19 @@ class OfficerFilingControllerImplValidationIT {
     void createFilingWhenReferenceAppointmentIdBlankThenResponse201() throws Exception {
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var body = "{" + TM01_FRAGMENT.replace(FILING_ID, "") + "}";
-        final var dto = OfficerFilingDto.builder()
-                .referenceEtag("ETAG")
+        final var dtoData = OfficerFilingDataDto.builder().referenceEtag("ETAG")
                 .referenceAppointmentId("")
                 .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
+        final var dto = OfficerFilingDto.builder()
+                .officerFilingData(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "ETAG",
                 "",
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
         when(filingMapper.map(dto)).thenReturn(filing);
         when(clock.instant()).thenReturn(FIRST_INSTANT);
@@ -199,17 +204,19 @@ class OfficerFilingControllerImplValidationIT {
     void createFilingWhenReferenceResignedOnBlankThenResponse201() throws Exception {
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "") + "}";
-        final var dto = OfficerFilingDto.builder()
-                .referenceEtag("ETAG")
-                .referenceAppointmentId(FILING_ID)
+        final var dtoData = OfficerFilingDataDto.builder().referenceEtag("ETAG")
+                .referenceAppointmentId("")
                 .resignedOn(null)
+                .build();
+        final var dto = OfficerFilingDto.builder()
+                .officerFilingData(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "ETAG",
                 FILING_ID,
                 null);
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
         when(filingMapper.map(dto)).thenReturn(filing);
         when(clock.instant()).thenReturn(FIRST_INSTANT);

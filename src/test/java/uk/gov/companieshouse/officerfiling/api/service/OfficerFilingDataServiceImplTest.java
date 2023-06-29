@@ -80,19 +80,19 @@ class OfficerFilingDataServiceImplTest {
                 "",
                 null);
         final Instant now = Instant.parse("2022-10-15T09:44:08.108Z");
-        final var original = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var original = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
 
         var offData2 = new OfficerFilingData(
                 "",
                 "Appoint",
                 null);
-        final var patch = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData2)
+        final var patch = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData2)
                 .build();
 
         OfficerFiling updatedFiling = testService.mergeFilings(original, patch, transaction);
-        assertThat(updatedFiling.getData().getReferenceEtag(), is("ETAG"));
-        assertThat(updatedFiling.getData().getReferenceAppointmentId(), is("Appoint"));
+        assertThat(updatedFiling.getOfficerFilingData().getReferenceEtag(), is("ETAG"));
+        assertThat(updatedFiling.getOfficerFilingData().getReferenceAppointmentId(), is("Appoint"));
     }
 
     @Test
@@ -102,20 +102,20 @@ class OfficerFilingDataServiceImplTest {
                 "",
                 Instant.parse("2022-09-13T00:00:00Z"));
         final Instant now = Instant.parse("2022-10-15T09:44:08.108Z");
-        final var original = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var original = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
 
         var offData2 = new OfficerFilingData(
                 null,
                 "Appoint",
                 null);
-        final var patch = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData2)
+        final var patch = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData2)
                 .build();
 
         OfficerFiling updatedFiling = testService.mergeFilings(original, patch, transaction);
-        assertThat(updatedFiling.getData().getReferenceEtag(), is("ETAG"));
-        assertThat(updatedFiling.getData().getReferenceAppointmentId(), is("Appoint"));
-        assertThat(updatedFiling.getData().getResignedOn(), is(Instant.parse("2022-09-13T00:00:00Z")));
+        assertThat(updatedFiling.getOfficerFilingData().getReferenceEtag(), is("ETAG"));
+        assertThat(updatedFiling.getOfficerFilingData().getReferenceAppointmentId(), is("Appoint"));
+        assertThat(updatedFiling.getOfficerFilingData().getResignedOn(), is(Instant.parse("2022-09-13T00:00:00Z")));
     }
 
     @Test
@@ -125,20 +125,20 @@ class OfficerFilingDataServiceImplTest {
                 "",
                 Instant.parse("2022-09-13T00:00:00Z"));
         final Instant now = Instant.parse("2022-10-15T09:44:08.108Z");
-        final var original = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var original = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
 
         var offData2 = new OfficerFilingData(
                 "NewETAG",
                 "Appoint",
                 null);
-        final var patch = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData2)
+        final var patch = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData2)
                 .build();
 
         OfficerFiling updatedFiling = testService.mergeFilings(original, patch, transaction);
-        assertThat(updatedFiling.getData().getReferenceEtag(), is("NewETAG"));
-        assertThat(updatedFiling.getData().getReferenceAppointmentId(), is("Appoint"));
-        assertThat(updatedFiling.getData().getResignedOn(), is(Instant.parse("2022-09-13T00:00:00Z")));
+        assertThat(updatedFiling.getOfficerFilingData().getReferenceEtag(), is("NewETAG"));
+        assertThat(updatedFiling.getOfficerFilingData().getReferenceAppointmentId(), is("Appoint"));
+        assertThat(updatedFiling.getOfficerFilingData().getResignedOn(), is(Instant.parse("2022-09-13T00:00:00Z")));
     }
 
     OfficerFiling setUpFiling() throws URISyntaxException {

@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
 import java.time.Instant;
-import java.util.List;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,15 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
-import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.error.InvalidFilingException;
 import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
-import uk.gov.companieshouse.officerfiling.api.model.entity.Address;
-import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
-import uk.gov.companieshouse.officerfiling.api.model.entity.FormerName;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.filing.FilingResponse;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
@@ -230,7 +225,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
         final var create = createNow;
         entityWithCreatedUpdated =
-                OfficerFiling.builder(entity).createdAt(create).updatedAt(now).data(offdata)
+                OfficerFiling.builder(entity).createdAt(create).updatedAt(now).officerFilingData(offdata)
                         .build();
 
         final var finalEntityWithCreatedUpdated = entityWithCreatedUpdated;
@@ -270,21 +265,21 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         String refEtag = "";
         Instant resignOn = null;
         // if we have data already in the filing,  fill the fields with it.
-        if(officerFiling.getData() != null) {
-            data = officerFiling.getData();
+        if(officerFiling.getOfficerFilingData() != null) {
+            data = officerFiling.getOfficerFilingData();
             refEtag = data.getReferenceAppointmentId();
             refAppointmentId = data.getReferenceAppointmentId();
             resignOn = data.getResignedOn();
         }
         // if we have data coming in from the dto, replace existing data with the new data coming in.
-        if(dto.getReferenceEtag()  != null) {
-            refEtag = dto.getReferenceEtag();
+        if(dto.getOfficerFilingData().getReferenceEtag()  != null) {
+            refEtag = dto.getOfficerFilingData().getReferenceEtag();
         }
-        if(dto.getReferenceAppointmentId()  != null) {
-            refAppointmentId = dto.getReferenceAppointmentId();
+        if(dto.getOfficerFilingData().getReferenceAppointmentId()  != null) {
+            refAppointmentId = dto.getOfficerFilingData().getReferenceAppointmentId();
         }
-        if(dto.getResignedOn()  != null) {
-            resignOn = dto.getResignedOn().atStartOfDay(ZoneId.systemDefault()).toInstant();
+        if(dto.getOfficerFilingData().getResignedOn()  != null) {
+            resignOn = dto.getOfficerFilingData().getResignedOn().atStartOfDay(ZoneId.systemDefault()).toInstant();
         }
 
         final var referenceAppointmentId = refAppointmentId;

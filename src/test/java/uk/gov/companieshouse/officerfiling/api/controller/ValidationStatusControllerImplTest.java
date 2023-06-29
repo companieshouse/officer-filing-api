@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.when;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -93,7 +92,7 @@ class ValidationStatusControllerImplTest {
                 "off-id",
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
     }
 
@@ -108,9 +107,9 @@ class ValidationStatusControllerImplTest {
     void validateWhenFilingFoundAndNoValidationErrors() {
 
         validationStatusControllerMocks();
-        when(dto.getReferenceEtag()).thenReturn(ETAG);
-        when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
-        when(dto.getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
+        when(dto.getOfficerFilingData().getReferenceEtag()).thenReturn(ETAG);
+        when(dto.getOfficerFilingData().getReferenceAppointmentId()).thenReturn(FILING_ID);
+        when(dto.getOfficerFilingData().getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2005, 10, 3));
         when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2007, 10, 5));
@@ -124,9 +123,9 @@ class ValidationStatusControllerImplTest {
     void validateWhenFilingFoundAndValidationErrors() {
 
         validationStatusControllerMocks();
-        when(dto.getReferenceEtag()).thenReturn("etag");
-        when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
-        when(dto.getResignedOn()).thenReturn(LocalDate.of(1022, 9, 13));
+        when(dto.getOfficerFilingData().getReferenceEtag()).thenReturn("etag");
+        when(dto.getOfficerFilingData().getReferenceAppointmentId()).thenReturn(FILING_ID);
+        when(dto.getOfficerFilingData().getResignedOn()).thenReturn(LocalDate.of(1022, 9, 13));
         when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2021, 10, 3));
         when(companyProfile.getType()).thenReturn("invalid-type");
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2021, 10, 5));;

@@ -1,8 +1,10 @@
-package uk.gov.companieshouse.officerfiling.api.model.entity;
+package uk.gov.companieshouse.officerfiling.api.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.net.URI;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -11,19 +13,21 @@ import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDataDto;
+import org.springframework.validation.annotation.Validated;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Address;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
+import uk.gov.companieshouse.officerfiling.api.model.entity.FormerName;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class OfficerFilingData {
+@JsonDeserialize(builder = OfficerFilingDataDto.Builder.class)
+@Validated
+public class OfficerFilingDataDto {
 
-    private Address address;
+    private AddressDto address;
     private Boolean addressSameAsRegisteredOfficeAddress;
-    private Instant appointedOn;
+    private LocalDate appointedOn;
     private String countryOfResidence;
-    private Date3Tuple dateOfBirth;
-    private List<FormerName> formerNames;
+    private Date3TupleDto dateOfBirth;
+    private List<FormerNameDto> formerNames;
     private String name;
     private String firstName;
     private String lastName;
@@ -33,19 +37,19 @@ public class OfficerFilingData {
     private String referenceEtag;
     private String referenceAppointmentId;
     private String referenceOfficerListEtag;
-    private Instant resignedOn;
+    private LocalDate resignedOn;
     private String status;
-    private Address residentialAddress;
+    private AddressDto residentialAddress;
     private Boolean residentialAddressSameAsCorrespondenceAddress;
     private Boolean corporateDirector;
 
-    public OfficerFilingData(
-            final Address address,
+    public OfficerFilingDataDto(
+            final AddressDto address,
             final Boolean addressSameAsRegisteredOfficeAddress,
-            final Instant appointedOn,
+            final LocalDate appointedOn,
             final String countryOfResidence,
-            final Date3Tuple dateOfBirth,
-            final List<FormerName> formerNames,
+            final Date3TupleDto dateOfBirth,
+            final List<FormerNameDto> formerNames,
             final String name,
             final String firstName,
             final String lastName,
@@ -55,9 +59,9 @@ public class OfficerFilingData {
             final String referenceEtag,
             final String referenceAppointmentId,
             final String referenceOfficerListEtag,
-            final Instant resignedOn,
+            final LocalDate resignedOn,
             final String status,
-            final Address residentialAddress,
+            final AddressDto residentialAddress,
             final Boolean residentialAddressSameAsCorrespondenceAddress,
             final Boolean corporateDirector
     ) {
@@ -83,28 +87,12 @@ public class OfficerFilingData {
         this.corporateDirector = corporateDirector;
 
     }
-    public OfficerFilingData(
-            final String referenceEtag,
-            final String referenceAppointmentId,
-            final Instant resignedOn
-    ) {
-        this.referenceEtag = referenceEtag;
-        this.referenceAppointmentId = referenceAppointmentId;
-        this.resignedOn = resignedOn;
-    }
 
-    public OfficerFilingData(
-            final String referenceEtag,
-            final String referenceAppointmentId
-    ) {
-        this.referenceEtag = referenceEtag;
-        this.referenceAppointmentId = referenceAppointmentId;
-    }
-
-    public OfficerFilingData() {
+    public OfficerFilingDataDto(){
 
     }
-    public Address getAddress() {
+
+    public AddressDto getAddress() {
         return address;
     }
 
@@ -112,7 +100,7 @@ public class OfficerFilingData {
         return addressSameAsRegisteredOfficeAddress;
     }
 
-    public Instant getAppointedOn() {
+    public LocalDate getAppointedOn() {
         return appointedOn;
     }
 
@@ -120,11 +108,11 @@ public class OfficerFilingData {
         return countryOfResidence;
     }
 
-    public Date3Tuple getDateOfBirth() {
+    public Date3TupleDto getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public List<FormerName> getFormerNames() {
+    public List<FormerNameDto> getFormerNames() {
         return formerNames;
     }
 
@@ -164,7 +152,7 @@ public class OfficerFilingData {
         return referenceOfficerListEtag;
     }
 
-    public Instant getResignedOn() {
+    public LocalDate getResignedOn() {
         return resignedOn;
     }
 
@@ -172,7 +160,7 @@ public class OfficerFilingData {
         return status;
     }
 
-    public Address getResidentialAddress() {
+    public AddressDto getResidentialAddress() {
         return residentialAddress;
     }
 
@@ -192,7 +180,7 @@ public class OfficerFilingData {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final OfficerFilingData that = (OfficerFilingData) o;
+        final OfficerFilingDataDto that = (OfficerFilingDataDto) o;
         return Objects.equals(getAddress(), that.getAddress())
                 && Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
                 that.getAddressSameAsRegisteredOfficeAddress())
@@ -229,7 +217,7 @@ public class OfficerFilingData {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", OfficerFilingData.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", OfficerFilingDataDto.class.getSimpleName() + "[", "]")
                 .add("address=" + address)
                 .add("addressSameAsRegisteredOfficeAddress=" + addressSameAsRegisteredOfficeAddress)
                 .add("appointedOn=" + appointedOn)
@@ -260,19 +248,20 @@ public class OfficerFilingData {
         return new Builder();
     }
 
-    public static Builder builder(final OfficerFilingData other) {
+    public static Builder builder(final OfficerFilingDataDto other) {
         return new Builder(other);
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
 
-        private final List<Consumer<OfficerFilingData>> buildSteps;
+        private final List<Consumer<OfficerFilingDataDto>> buildSteps;
 
         private Builder() {
             buildSteps = new ArrayList<>();
         }
 
-        public Builder(final OfficerFilingData other) {
+        public Builder(final OfficerFilingDataDto other) {
             this();
             this.address(other.getAddress())
                     .addressSameAsRegisteredOfficeAddress(
@@ -298,10 +287,10 @@ public class OfficerFilingData {
                     .status(other.getStatus());
         }
 
-        public Builder address(final Address value) {
+        public Builder address(final AddressDto value) {
 
             buildSteps.add(data -> data.address = Optional.ofNullable(value)
-                    .map(v -> Address.builder(v)
+                    .map(v -> AddressDto.builder(v)
                             .build())
                     .orElse(null));
             return this;
@@ -313,7 +302,7 @@ public class OfficerFilingData {
             return this;
         }
 
-        public Builder appointedOn(final Instant value) {
+        public Builder appointedOn(final LocalDate value) {
 
             buildSteps.add(data -> data.appointedOn = value);
             return this;
@@ -325,20 +314,20 @@ public class OfficerFilingData {
             return this;
         }
 
-        public Builder dateOfBirth(final Date3Tuple value) {
+        public Builder dateOfBirth(final Date3TupleDto value) {
 
             buildSteps.add(data -> data.dateOfBirth = Optional.ofNullable(value)
-                    .map(v -> new Date3Tuple(v.getDay(), v.getMonth(), v.getYear()))
+                    .map(v -> new Date3TupleDto(v.getDay(), v.getMonth(), v.getYear()))
                     .orElse(null));
             return this;
         }
 
-        public Builder formerNames(final List<FormerName> value) {
+        public Builder formerNames(final List<FormerNameDto> value) {
             buildSteps.add(data -> data.formerNames = value == null
                     ? null
                     : value.stream()
                             .flatMap(Stream::ofNullable)
-                            .map(v -> new FormerName(v.getForenames(), v.getSurname()))
+                            .map(v -> new FormerNameDto(v.getForenames(), v.getSurname()))
                             .collect(Collectors.toList()));
             return this;
         }
@@ -397,7 +386,7 @@ public class OfficerFilingData {
             return this;
         }
 
-        public Builder resignedOn(final Instant value) {
+        public Builder resignedOn(final LocalDate value) {
 
             buildSteps.add(data -> data.resignedOn = value);
             return this;
@@ -409,10 +398,10 @@ public class OfficerFilingData {
             return this;
         }
 
-        public Builder residentialAddress(final Address value) {
+        public Builder residentialAddress(final AddressDto value) {
 
             buildSteps.add(data -> data.residentialAddress = Optional.ofNullable(value)
-                    .map(v -> Address.builder(v)
+                    .map(v -> AddressDto.builder(v)
                             .build())
                     .orElse(null));
             return this;
@@ -429,9 +418,9 @@ public class OfficerFilingData {
             return this;
         }
 
-        public OfficerFilingData build() {
+        public OfficerFilingDataDto build() {
 
-            final var data = new OfficerFilingData();
+            final var data = new OfficerFilingDataDto();
             buildSteps.forEach(step -> step.accept(data));
 
             return data;

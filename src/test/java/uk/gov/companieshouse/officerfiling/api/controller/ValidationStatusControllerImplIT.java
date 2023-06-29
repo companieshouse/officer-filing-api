@@ -139,7 +139,7 @@ class ValidationStatusControllerImplIT {
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
@@ -160,7 +160,7 @@ class ValidationStatusControllerImplIT {
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
@@ -183,7 +183,7 @@ class ValidationStatusControllerImplIT {
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
 
         when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
@@ -209,7 +209,7 @@ class ValidationStatusControllerImplIT {
                 FILING_ID,
                 Instant.parse("1722-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
@@ -238,7 +238,7 @@ class ValidationStatusControllerImplIT {
                 FILING_ID,
                 Instant.parse("2008-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
         companyProfileApi.setDateOfCreation(LocalDate.of(2000, 1, 1));
         companyAppointment.setAppointedOn(LocalDate.of(2008, 1, 2));
@@ -268,7 +268,7 @@ class ValidationStatusControllerImplIT {
                 FILING_ID,
                 Instant.parse("2018-10-05T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
         companyProfileApi.setDateOfCreation(LocalDate.of(2020, 1, 1));
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
@@ -298,7 +298,7 @@ class ValidationStatusControllerImplIT {
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID,
@@ -326,7 +326,7 @@ class ValidationStatusControllerImplIT {
                 FILING_ID,
                 Instant.parse("3022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID,

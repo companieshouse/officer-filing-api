@@ -46,7 +46,7 @@ class ValidTransactionInterceptorTest {
             FILING_ID,
             Instant.parse("3022-09-13T00:00:00Z"));
     static final Instant now = clock.instant();
-    private static final OfficerFiling FILING = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+    private static final OfficerFiling FILING = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
             .build();
 
 

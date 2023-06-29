@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -111,7 +110,7 @@ class DirectorsControllerImplTest {
     when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(officerFilingOptional);
     when(officerFilingOptional.isPresent()).thenReturn(true);
     when(officerFilingOptional.get()).thenReturn(officerFiling);
-    when(officerFiling.getData().getResignedOn()).thenReturn(resignedOn);
+    when(officerFiling.getOfficerFilingData().getResignedOn()).thenReturn(resignedOn);
     when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, null, PASSTHROUGH_HEADER)).thenReturn(appointmentFullRecordAPI);
     var response = testService.getRemoveCheckAnswersDirectorDetails(transaction, SUBMISSION_ID, request);
     assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -125,8 +124,8 @@ class DirectorsControllerImplTest {
     when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(officerFilingOptional);
     when(officerFilingOptional.isPresent()).thenReturn(true);
     when(officerFilingOptional.get()).thenReturn(officerFiling);
-    when(officerFiling.getData().getResignedOn()).thenReturn(resignedOn);
-    when(officerFiling.getData().getResignedOn()).thenReturn(null);
+    when(officerFiling.getOfficerFilingData().getResignedOn()).thenReturn(resignedOn);
+    when(officerFiling.getOfficerFilingData().getResignedOn()).thenReturn(null);
     var response = testService.getRemoveCheckAnswersDirectorDetails(transaction, SUBMISSION_ID, request);
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 

@@ -23,6 +23,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDataDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
@@ -159,17 +160,19 @@ class OfficerFilingControllerImplIT {
     @Test
     void createFilingWhenTM01PayloadOKThenResponse201() throws Exception {
         final var body = "{" + TM01_FRAGMENT + "}";
+        final var dtoData = OfficerFilingDataDto.builder().referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
         final var dto = OfficerFilingDto.builder()
-            .referenceEtag("etag")
-            .referenceAppointmentId(FILING_ID)
-            .resignedOn(LocalDate.of(2022, 9, 13))
+            .officerFilingData(dtoData)
             .build();
         var offData = new OfficerFilingData(
                 "etag",
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
         final var locationUri = UriComponentsBuilder.fromPath("/")
             .pathSegment("transactions", TRANS_ID, "officers", FILING_ID)
@@ -198,17 +201,19 @@ class OfficerFilingControllerImplIT {
     @Test
     void patchFilingWhenFullTM01PayloadOKThenResponse200() throws Exception {
         final var body = "{" + TM01_FRAGMENT + "}";
-        final var dto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
+        final var dtoData = OfficerFilingDataDto.builder().referenceEtag("etag")
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
+        final var dto = OfficerFilingDto.builder()
+                .officerFilingData(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "etag",
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
         final var locationUri = UriComponentsBuilder.fromPath("/")
                 .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
@@ -237,16 +242,18 @@ class OfficerFilingControllerImplIT {
     @Test
     void patchFilingWhenMissingResignedOnTM01PayloadOKThenResponse200() throws Exception {
         final var body = "{" + PARTIAL_TM01_FRAGMENT_MISSING_RESIGNED_ON + "}";
-        final var dto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
+        final var dtoData = OfficerFilingDataDto.builder().referenceEtag("etag")
                 .referenceAppointmentId(FILING_ID)
+                .build();
+        final var dto = OfficerFilingDto.builder()
+                .officerFilingData(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "etag",
                 FILING_ID,
                 null);
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
         final var locationUri = UriComponentsBuilder.fromPath("/")
                 .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
@@ -275,16 +282,18 @@ class OfficerFilingControllerImplIT {
     @Test
     void patchFilingWhenMissingEtagTM01PayloadOKThenResponse200() throws Exception {
         final var body = "{" + PARTIAL_TM01_FRAGMENT_MISSING_ETAG + "}";
-        final var dto = OfficerFilingDto.builder()
-                .referenceAppointmentId(FILING_ID)
+        final var dtoData = OfficerFilingDataDto.builder().referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
+        final var dto = OfficerFilingDto.builder()
+                .officerFilingData(dtoData)
                 .build();
         var offData = new OfficerFilingData(
                 "",
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
         final var locationUri = UriComponentsBuilder.fromPath("/")
                 .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
@@ -351,11 +360,13 @@ class OfficerFilingControllerImplIT {
                 FILING_ID,
                 null);
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
+                .build();
+        final var dtoData = OfficerFilingDataDto.builder().referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
                 .build();
         final var dto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId(FILING_ID)
+                .officerFilingData(dtoData)
                 .build();
         when(clock.instant()).thenReturn(FIRST_INSTANT);
         when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
@@ -401,17 +412,19 @@ class OfficerFilingControllerImplIT {
 
     @Test
     void getFilingForReviewThenResponse200() throws Exception {
+        final var dtoData = OfficerFilingDataDto.builder().referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
         final var dto = OfficerFilingDto.builder()
-            .referenceEtag("etag")
-            .referenceAppointmentId("id")
-            .resignedOn(LocalDate.of(2022, 9, 13))
-            .build();
+                .officerFilingData(dtoData)
+                .build();
         var offData = new OfficerFilingData(
                 "etag",
                 "id",
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
@@ -429,17 +442,19 @@ class OfficerFilingControllerImplIT {
 
     @Test
     void getFilingForReviewOnLeapYearThenResponse200() throws Exception {
+        final var dtoData = OfficerFilingDataDto.builder().referenceEtag("etag")
+                .referenceAppointmentId("id")
+                .resignedOn(LocalDate.of(2024, 2, 29))
+                .build();
         final var dto = OfficerFilingDto.builder()
-            .referenceEtag("etag")
-            .referenceAppointmentId("id")
-            .resignedOn(LocalDate.of(2024, 2, 29))
-            .build();
+                .officerFilingData(dtoData)
+                .build();
         var offData = new OfficerFilingData(
                 "etag",
                 "id",
                 Instant.parse("2024-02-29T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
@@ -470,17 +485,19 @@ class OfficerFilingControllerImplIT {
         final Instant resignedToday = Instant.now();
         String formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(Date.from(resignedToday));
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", formattedDate) + "}";
+        final var dtoData = OfficerFilingDataDto.builder().referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.now())
+                .build();
         final var dto = OfficerFilingDto.builder()
-            .referenceEtag("etag")
-            .referenceAppointmentId(FILING_ID)
-            .resignedOn(LocalDate.now())
-            .build();
+                .officerFilingData(dtoData)
+                .build();
         var offData = new OfficerFilingData(
                 "etag",
                 FILING_ID,
                 resignedToday);
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).officerFilingData(offData)
                 .build();
         final var locationUri = UriComponentsBuilder.fromPath("/")
             .pathSegment("transactions", TRANS_ID, "officers", FILING_ID)
@@ -564,11 +581,13 @@ class OfficerFilingControllerImplIT {
     @Test
     void createFilingWhenTransactionIsNull() throws Exception {
         final var body = "{" + TM01_FRAGMENT + "}";
+        final var dtoData = OfficerFilingDataDto.builder().referenceEtag("etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
         final var dto = OfficerFilingDto.builder()
-            .referenceEtag("etag")
-            .referenceAppointmentId(FILING_ID)
-            .resignedOn(LocalDate.of(2022, 9, 13))
-            .build();
+                .officerFilingData(dtoData)
+                .build();
 
         when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
         when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);

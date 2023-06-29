@@ -20,9 +20,10 @@ public interface OfficerFilingMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "kind", ignore = true)
     @Mapping(target = "links", ignore = true)
-    @Mapping(target = "data", ignore = true)
+    @Mapping(source = "officerFilingData", target = "officerFilingData")
     @Mapping(target = "updatedAt", ignore = true)
     OfficerFiling map(OfficerFilingDto officerFilingDto);
+
 
     OfficerFilingDto map(OfficerFiling officerFiling);
 

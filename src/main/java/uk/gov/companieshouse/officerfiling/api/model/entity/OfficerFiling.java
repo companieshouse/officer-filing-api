@@ -8,8 +8,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -23,8 +21,7 @@ public class OfficerFiling {
     private Identification identification;
     private String kind;
     private Links links;
-
-    private OfficerFilingData data;
+    private OfficerFilingData officerFilingData;
     private Instant updatedAt;
 
     private OfficerFiling() {
@@ -49,8 +46,8 @@ public class OfficerFiling {
     public Links getLinks() {
         return links;
     }
-    public OfficerFilingData getData() {
-        return data;
+    public OfficerFilingData getOfficerFilingData() {
+        return officerFilingData;
     }
 
     public Instant getUpdatedAt() {
@@ -70,13 +67,13 @@ public class OfficerFiling {
                 && Objects.equals(getIdentification(), that.getIdentification())
                 && Objects.equals(getKind(), that.getKind())
                 && Objects.equals(getLinks(), that.getLinks())
-                && Objects.equals(getData(), that.getData())
+                && Objects.equals(getOfficerFilingData(), that.getOfficerFilingData())
                 && Objects.equals(getUpdatedAt(), that.getUpdatedAt());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getCreatedAt(), getIdentification(), getKind(), getLinks(), getData(),
+        return Objects.hash(getCreatedAt(), getIdentification(), getKind(), getLinks(), getOfficerFilingData(),
                  getUpdatedAt());
     }
 
@@ -88,7 +85,7 @@ public class OfficerFiling {
                 .add("identification=" + identification)
                 .add("kind='" + kind + "'")
                 .add("links=" + links)
-                .add("data='" + data + "'")
+                .add("data='" + officerFilingData + "'")
                 .add("updatedAt=" + updatedAt)
                 .toString();
     }
@@ -116,7 +113,7 @@ public class OfficerFiling {
                     .identification(other.getIdentification())
                     .kind(other.getKind())
                     .links(other.getLinks())
-                    .data(other.getData())
+                    .officerFilingData(other.getOfficerFilingData())
                     .updatedAt(other.getUpdatedAt());
         }
 
@@ -154,8 +151,8 @@ public class OfficerFiling {
             return this;
         }
 
-        public Builder data(final OfficerFilingData value) {
-            buildSteps.add(data -> data.data = Optional.ofNullable(value)
+        public Builder officerFilingData(final OfficerFilingData value) {
+            buildSteps.add(data -> data.officerFilingData = Optional.ofNullable(value)
                     .map(v -> new OfficerFilingData(
                             v.getAddress(),
                             v.getAddressSameAsRegisteredOfficeAddress(),
