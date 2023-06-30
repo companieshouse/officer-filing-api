@@ -217,8 +217,8 @@ class OfficerFilingControllerImplTest {
         verify(transaction).setResources(refEq(resourceMap));
         verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
-        final FilingResponse filingResponse = (FilingResponse) response.getBody();
-        assertThat(filingResponse.getSubmissionId(), is(FILING_ID));
+        final String filingResponse = (String) response.getBody();
+        assertThat(filingResponse.contains("FILING_ID"), is(true));
     }
 
     @ParameterizedTest(name = "[{index}] null binding result={0}")
