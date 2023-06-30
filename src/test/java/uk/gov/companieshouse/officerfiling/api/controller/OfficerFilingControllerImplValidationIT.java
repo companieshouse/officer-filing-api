@@ -201,7 +201,7 @@ class OfficerFilingControllerImplValidationIT {
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "") + "}";
         final var dto = OfficerFilingDto.builder()
                 .referenceEtag("ETAG")
-                .referenceAppointmentId("")
+                .referenceAppointmentId(FILING_ID)
                 .resignedOn(null)
                 .build();
         var offData = new OfficerFilingData(

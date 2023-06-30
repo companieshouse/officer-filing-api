@@ -75,43 +75,36 @@ class OfficerFilingDataServiceImplTest {
 
     @Test
     void testMergePartial(){
-        var offData = new OfficerFilingData(
-                "ETAG",
-                "",
-                null);
-        final Instant now = Instant.parse("2022-10-15T09:44:08.108Z");
-        final var original = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        OfficerFilingData originalData = OfficerFilingData.builder()
+                .referenceEtag("ETAG")
                 .build();
-
-        var offData2 = new OfficerFilingData(
-                "",
-                "Appoint",
-                null);
-        final var patch = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData2)
+        OfficerFiling original = OfficerFiling.builder()
+                .data(originalData)
                 .build();
-
+        OfficerFilingData patchData = OfficerFilingData.builder()
+                .referenceAppointmentId("Appoint")
+                .build();
+        OfficerFiling patch = OfficerFiling.builder().data(patchData).build();
         OfficerFiling updatedFiling = testService.mergeFilings(original, patch, transaction);
-        assertThat(updatedFiling.getData().getReferenceEtag(), is(""));
+        assertThat(updatedFiling.getData().getReferenceEtag(), is("ETAG"));
         assertThat(updatedFiling.getData().getReferenceAppointmentId(), is("Appoint"));
     }
 
     @Test
     void testMergeFull(){
-        var offData = new OfficerFilingData(
-                "ETAG",
-                "",
-                Instant.parse("2022-09-13T00:00:00Z"));
-        final Instant now = Instant.parse("2022-10-15T09:44:08.108Z");
-        final var original = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        OfficerFilingData originalData = OfficerFilingData.builder()
+                .referenceEtag("ETAG")
+                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
                 .build();
-
-        var offData2 = new OfficerFilingData(
-                null,
-                "Appoint",
-                null);
-        final var patch = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData2)
+        OfficerFiling original = OfficerFiling.builder()
+                .data(originalData)
                 .build();
-
+        OfficerFilingData patchData = OfficerFilingData.builder()
+                .referenceAppointmentId("Appoint")
+                .build();
+        OfficerFiling patch = OfficerFiling.builder()
+                .data(patchData)
+                .build();
         OfficerFiling updatedFiling = testService.mergeFilings(original, patch, transaction);
         assertThat(updatedFiling.getData().getReferenceEtag(), is("ETAG"));
         assertThat(updatedFiling.getData().getReferenceAppointmentId(), is("Appoint"));
@@ -120,21 +113,16 @@ class OfficerFilingDataServiceImplTest {
 
     @Test
     void testMergeOverwrite(){
-        var offData = new OfficerFilingData(
-                "ETAG",
-                "",
-                Instant.parse("2022-09-13T00:00:00Z"));
-        final Instant now = Instant.parse("2022-10-15T09:44:08.108Z");
-        final var original = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        OfficerFilingData originalData = OfficerFilingData.builder()
+                .referenceEtag("ETAG")
+                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
                 .build();
-
-        var offData2 = new OfficerFilingData(
-                "NewETAG",
-                "Appoint",
-                Instant.parse("2022-09-13T00:00:00Z"));
-        final var patch = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData2)
+        OfficerFiling original = OfficerFiling.builder().data(originalData).build();
+        OfficerFilingData patchData = OfficerFilingData.builder()
+                .referenceAppointmentId("Appoint")
+                .referenceEtag("NewETAG")
                 .build();
-
+        OfficerFiling patch = OfficerFiling.builder().data(patchData).build();
         OfficerFiling updatedFiling = testService.mergeFilings(original, patch, transaction);
         assertThat(updatedFiling.getData().getReferenceEtag(), is("NewETAG"));
         assertThat(updatedFiling.getData().getReferenceAppointmentId(), is("Appoint"));

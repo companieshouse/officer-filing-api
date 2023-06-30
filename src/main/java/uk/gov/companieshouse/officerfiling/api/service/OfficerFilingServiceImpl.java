@@ -100,8 +100,18 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
      * Extracts the fields from an OfficerFiling object and adds them to the given map
      */
     private void extractFields(OfficerFiling filing, HashMap<String,Object> fieldMap){
-        Map<String, Object> originalMap = MapHelper.convertObject(filing, PropertyNamingStrategies.LOWER_CAMEL_CASE);
-        fieldMap.putAll(originalMap);
+        Map<String, Object> patchMap = MapHelper.convertObject(filing, PropertyNamingStrategies.LOWER_CAMEL_CASE);
+        // Convert the data object to a map
+        Map<String, Object> patchDataMap = MapHelper.convertObject(filing.getData(), PropertyNamingStrategies.LOWER_CAMEL_CASE);
+        // Merge the patch map with the existing map, if it exists
+        Map<String, Object> mergedDataMap = new HashMap<>();
+        Map<String, Object> originalDataMap = (Map<String, Object>) fieldMap.get("data");
+        if(originalDataMap != null){
+            mergedDataMap.putAll(originalDataMap);
+        }
+        mergedDataMap.putAll(patchDataMap);
+        fieldMap.putAll(patchMap);
+        fieldMap.put("data", mergedDataMap);
         // Remove some extra entries here to avoid extra string comparisons during the merge
         // These will be added to the record on load and cause issues when converting from JSON
         fieldMap.remove("class");
