@@ -140,11 +140,14 @@ class FilingDataServiceImplTest {
     @Test
     void generateCorporateOfficerFilingWhenFound() {
         final var filingData = new FilingData(FIRSTNAME, LASTNAME, null, RESIGNED_ON_STR, true);
-        final var officerFiling = OfficerFiling.builder()
+        final var data = OfficerFilingData.builder()
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
                 .firstName(FIRSTNAME)
                 .lastName(LASTNAME)
                 .resignedOn(RESIGNED_ON_INS)
+                .build();
+        final var officerFiling = OfficerFiling.builder()
+                .data(data)
                 .build();
 
         when(companyAppointment.getOfficerRole()).thenReturn("corporate-director");

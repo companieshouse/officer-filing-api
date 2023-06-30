@@ -115,7 +115,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         if(preExistingFilingId != null){
             entity = OfficerFiling.builder(entity).id(preExistingFilingId).build();
         }
-        final var saveData = saveFilingWithLinks(entity, transaction, request);
+        final var saveData = saveFilingWithLinks(entity, transaction, request, dto);
         final var links = saveData.getLeft();
         String filingId = saveData.getRight();
         final var resourceMap = buildResourceMap(links);
