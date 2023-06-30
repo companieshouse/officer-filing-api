@@ -40,12 +40,11 @@ class ValidTransactionInterceptorTest {
 
     private static final String TRANS_ID = "12345";
     private static final String FILING_ID = "abcde";
-    private static Clock clock;
     private static final OfficerFilingData offData = new OfficerFilingData(
             "etag",
             FILING_ID,
             Instant.parse("3022-09-13T00:00:00Z"));
-    static final Instant now = clock.instant();
+    static final Instant now = Instant.parse("2022-09-13T00:00:00Z");
     private static final OfficerFiling FILING = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
             .build();
 

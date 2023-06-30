@@ -36,6 +36,7 @@ import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.OfficerServiceException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerService;
@@ -90,6 +91,10 @@ class DirectorsControllerImplIT {
         httpHeaders.add("ERIC-Identity-Type", KEY);
         httpHeaders.add("ERIC-Authorised-Key-Roles", KEY_ROLE);
         httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete");
+        var offData = new OfficerFilingData(
+                "etag",
+                null,
+                resignedOn);
         when(transactionInterceptor.preHandle(any(), any(), any())).thenReturn(true);
         when(openTransactionInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
@@ -99,7 +104,8 @@ class DirectorsControllerImplIT {
         when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(officerFilingOptional);
         when(officerFilingOptional.isPresent()).thenReturn(true);
         when(officerFilingOptional.get()).thenReturn(officerFiling);
-        when(officerFiling.getData().getResignedOn()).thenReturn(resignedOn);
+        when(officerFiling.getData()).thenReturn(offData);
+
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, null, PASSTHROUGH_HEADER)).thenReturn(appointmentFullRecordAPI);
     }
 
