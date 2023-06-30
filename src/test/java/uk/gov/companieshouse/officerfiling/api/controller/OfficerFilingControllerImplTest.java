@@ -47,6 +47,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.refEq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.officerfiling.api.controller.OfficerFilingControllerImpl.VALIDATION_STATUS;
@@ -107,8 +108,7 @@ class OfficerFilingControllerImplTest {
                 "etag",
                 "off-id",
                 Instant.parse("2022-09-13T00:00:00Z"));
-        final var now = clock.instant();
-        filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        filing = OfficerFiling.builder().createdAt(FIRST_INSTANT).updatedAt(FIRST_INSTANT).data(offData)
                 .build();
         final var builder = UriComponentsBuilder.fromUri(REQUEST_URI);
         links = new Links(builder.pathSegment(FILING_ID)

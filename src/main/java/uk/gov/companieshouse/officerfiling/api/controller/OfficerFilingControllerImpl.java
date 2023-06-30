@@ -267,7 +267,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         // if we have data already in the filing,  fill the fields with it.
         if(officerFiling.getData() != null) {
             data = officerFiling.getData();
-            refEtag = data.getReferenceAppointmentId();
+            refEtag = data.getReferenceEtag();
             refAppointmentId = data.getReferenceAppointmentId();
             resignOn = data.getResignedOn();
         }
