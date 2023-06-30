@@ -21,7 +21,7 @@ public class OfficerFiling {
     private Identification identification;
     private String kind;
     private Links links;
-    private OfficerFilingData data;
+    private OfficerFilingData officerFilingData;
     private Instant updatedAt;
 
     private OfficerFiling() {
@@ -47,7 +47,7 @@ public class OfficerFiling {
         return links;
     }
     public OfficerFilingData getData() {
-        return data;
+        return officerFilingData;
     }
 
     public Instant getUpdatedAt() {
@@ -85,7 +85,7 @@ public class OfficerFiling {
                 .add("identification=" + identification)
                 .add("kind='" + kind + "'")
                 .add("links=" + links)
-                .add("data='" + data + "'")
+                .add("data='" + officerFilingData + "'")
                 .add("updatedAt=" + updatedAt)
                 .toString();
     }
@@ -152,7 +152,7 @@ public class OfficerFiling {
         }
 
         public Builder data(final OfficerFilingData value) {
-            buildSteps.add(data -> data.data = Optional.ofNullable(value)
+            buildSteps.add(data -> data.officerFilingData = Optional.ofNullable(value)
                     .map(v -> new OfficerFilingData(
                             v.getAddress(),
                             v.getAddressSameAsRegisteredOfficeAddress(),

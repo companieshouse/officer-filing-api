@@ -276,8 +276,8 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
     private OfficerFilingData buildOfficerFilingData(OfficerFiling officerFiling, OfficerFilingDto dto) {
         OfficerFilingData data;
-        String refAppointmentId = "";
-        String refEtag = "";
+        var refAppointmentId = "";
+        var refEtag = "";
         Instant resignOn = null;
         // if we have data already in the filing,  fill the fields with it.
         if(officerFiling.getData() != null) {

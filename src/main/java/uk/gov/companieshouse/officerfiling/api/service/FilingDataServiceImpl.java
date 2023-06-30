@@ -71,7 +71,7 @@ public class FilingDataServiceImpl implements FilingDataService {
     private void setFilingApiData(FilingApi filing, String transactionId, String filingId,
                                   String ericPassThroughHeader) {
         var officerFilingOpt = officerFilingService.get(filingId, transactionId);
-        OfficerFiling officerFiling = officerFilingOpt.orElseThrow(() -> new ResourceNotFoundException(
+        var officerFiling = officerFilingOpt.orElseThrow(() -> new ResourceNotFoundException(
                 String.format("Officer not found when generating filing for %s", filingId)));
 
         final var transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
@@ -81,7 +81,7 @@ public class FilingDataServiceImpl implements FilingDataService {
         final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transactionId, companyNumber,
                 appointmentId, ericPassThroughHeader);
 
-        var dataBuilder = OfficerFilingData.builder(officerFilingOpt.get().getData())
+        var dataBuilder = OfficerFilingData.builder(officerFiling.getData())
                 .name(companyAppointment.getName())
                 .corporateDirector(mapCorporateDirector(transaction, companyAppointment));
         // For non corporate Directors
