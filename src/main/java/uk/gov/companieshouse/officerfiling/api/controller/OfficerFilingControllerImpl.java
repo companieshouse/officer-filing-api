@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
 import java.time.Instant;
+import java.io.File;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
@@ -100,14 +101,29 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
         final var passthroughHeader =
                     request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
-        final var entity = filingMapper.map(dto);
-        final var saveData = saveFilingWithLinks(entity, transaction, request, dto);
+
+        var entity = filingMapper.map(dto);
+
+        // Reuse this filing ID if it exists as we can only have one per transaction
+        //***********************************************************************************************
+        // NB for the moment to get around an issue where a web user could go back and select a different
+        // director, which would cause multiple resources in the transaction when only ONE is wanted.
+        // More thought is required for later when we will do this within Confirmation statemnet
+        // as that will need multiple resources in the same transaction.
+        //***********************************************************************************************
+        String preExistingFilingId = getExistingFilingId(transaction);
+        if(preExistingFilingId != null){
+            entity = OfficerFiling.builder(entity).id(preExistingFilingId).build();
+        }
+        final var saveData = saveFilingWithLinks(entity, transaction, request);
         final var links = saveData.getLeft();
         String filingId = saveData.getRight();
         final var resourceMap = buildResourceMap(links);
 
         transaction.setResources(resourceMap);
-        transactionService.updateTransaction(transaction, passthroughHeader);
+        if(preExistingFilingId == null) {
+            transactionService.updateTransaction(transaction, passthroughHeader);
+        }
 
         // Create response with filing ID
         final var filingResponse = new FilingResponse(filingId);
@@ -291,4 +307,16 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
                 resignedOn);
     }
 
+    private String getExistingFilingId(Transaction transaction){
+        Map<String, Resource> resources = transaction.getResources();
+        String filingId = null;
+        if(resources != null && !resources.isEmpty()){
+            // There should only be one resource.
+            Resource entry = (Resource) resources.values().toArray()[0];
+            var resource = entry.getLinks().get("resource");
+            var resourcePath = new File(resource);
+            filingId = resourcePath.getName();
+        }
+        return filingId;
+    }
 }
