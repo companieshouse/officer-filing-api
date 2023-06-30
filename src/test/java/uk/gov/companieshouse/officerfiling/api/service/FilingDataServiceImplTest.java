@@ -87,7 +87,7 @@ class FilingDataServiceImplTest {
                 null,
                 null,
                 DATE_OF_BIRTH_TUPLE,
-                Collections.singletonList(null),
+                null,
                 null,
                 FIRSTNAME,
                 LASTNAME,
