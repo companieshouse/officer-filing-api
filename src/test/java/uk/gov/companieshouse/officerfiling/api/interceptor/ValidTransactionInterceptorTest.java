@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.interceptor;
 
-import java.time.Clock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

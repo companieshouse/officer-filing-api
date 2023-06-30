@@ -36,50 +36,6 @@ public class OfficerFilingData {
     private Boolean corporateDirector;
 
     public OfficerFilingData(
-            final Address address,
-            final Boolean addressSameAsRegisteredOfficeAddress,
-            final Instant appointedOn,
-            final String countryOfResidence,
-            final Date3Tuple dateOfBirth,
-            final List<FormerName> formerNames,
-            final String name,
-            final String firstName,
-            final String lastName,
-            final String nationality,
-            final String occupation,
-            final String officerRole,
-            final String referenceEtag,
-            final String referenceAppointmentId,
-            final String referenceOfficerListEtag,
-            final Instant resignedOn,
-            final String status,
-            final Address residentialAddress,
-            final Boolean residentialAddressSameAsCorrespondenceAddress,
-            final Boolean corporateDirector
-    ) {
-        this.address = address;
-        this.addressSameAsRegisteredOfficeAddress = addressSameAsRegisteredOfficeAddress;
-        this.appointedOn = appointedOn;
-        this.countryOfResidence = countryOfResidence;
-        this.dateOfBirth = dateOfBirth;
-        this.formerNames = formerNames;
-        this.name = name;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.nationality = nationality;
-        this.occupation = occupation;
-        this.officerRole = officerRole;
-        this.referenceEtag = referenceEtag;
-        this.referenceAppointmentId = referenceAppointmentId;
-        this.referenceOfficerListEtag = referenceOfficerListEtag;
-        this.resignedOn = resignedOn;
-        this.status = status;
-        this.residentialAddress = residentialAddress;
-        this.residentialAddressSameAsCorrespondenceAddress = residentialAddressSameAsCorrespondenceAddress;
-        this.corporateDirector = corporateDirector;
-
-    }
-    public OfficerFilingData(
             final String referenceEtag,
             final String referenceAppointmentId,
             final Instant resignedOn

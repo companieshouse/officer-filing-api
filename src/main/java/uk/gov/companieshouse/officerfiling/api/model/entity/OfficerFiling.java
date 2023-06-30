@@ -21,7 +21,7 @@ public class OfficerFiling {
     private Identification identification;
     private String kind;
     private Links links;
-    private OfficerFilingData officerFilingData;
+    private OfficerFilingData data;
     private Instant updatedAt;
 
     private OfficerFiling() {
@@ -47,7 +47,7 @@ public class OfficerFiling {
         return links;
     }
     public OfficerFilingData getData() {
-        return officerFilingData;
+        return data;
     }
 
     public Instant getUpdatedAt() {
@@ -85,7 +85,7 @@ public class OfficerFiling {
                 .add("identification=" + identification)
                 .add("kind='" + kind + "'")
                 .add("links=" + links)
-                .add("data='" + officerFilingData + "'")
+                .add("data='" + data + "'")
                 .add("updatedAt=" + updatedAt)
                 .toString();
     }
@@ -118,19 +118,19 @@ public class OfficerFiling {
         }
 
         public Builder id(final String value) {
-            buildSteps.add(data -> data.id = value);
+            buildSteps.add(buildData -> buildData.id = value);
             return this;
         }
 
         public Builder createdAt(final Instant value) {
 
-            buildSteps.add(data -> data.createdAt = value);
+            buildSteps.add(buildData -> buildData.createdAt = value);
             return this;
         }
 
         public Builder identification(final Identification value) {
 
-            buildSteps.add(data -> data.identification = Optional.ofNullable(value)
+            buildSteps.add(buildData -> buildData.identification = Optional.ofNullable(value)
                     .map(v -> new Identification(v.getIdentificationType(), v.getLegalAuthority(),
                             v.getLegalForm(), v.getPlaceRegistered(), v.getRegistrationNumber()))
                     .orElse(null));
@@ -139,49 +139,48 @@ public class OfficerFiling {
 
         public Builder kind(final String value) {
 
-            buildSteps.add(data -> data.kind = value);
+            buildSteps.add(buildData -> buildData.kind = value);
             return this;
         }
 
         public Builder links(final Links value) {
 
-            buildSteps.add(data -> data.links = Optional.ofNullable(value)
+            buildSteps.add(buildData -> buildData.links = Optional.ofNullable(value)
                     .map(v -> new Links(v.getSelf(), v.getValidationStatus()))
                     .orElse(null));
             return this;
         }
 
         public Builder data(final OfficerFilingData value) {
-            buildSteps.add(data -> data.officerFilingData = Optional.ofNullable(value)
-                    .map(v -> new OfficerFilingData(
-                            v.getAddress(),
-                            v.getAddressSameAsRegisteredOfficeAddress(),
-                            v.getAppointedOn(),
-                            v.getCountryOfResidence(),
-                            v.getDateOfBirth(),
-                            v.getFormerNames(),
-                            v.getName(),
-                            v.getFirstName(),
-                            v.getLastName(),
-                            v.getNationality(),
-                            v.getOccupation(),
-                            v.getOfficerRole(),
-                            v.getReferenceEtag(),
-                            v.getReferenceAppointmentId(),
-                            v.getReferenceOfficerListEtag(),
-                            v.getResignedOn(),
-                            v.getStatus(),
-                            v.getResidentialAddress(),
-                            v.getResidentialAddressSameAsCorrespondenceAddress(),
-                            v.getCorporateDirector()
-                            ))
+            buildSteps.add(buildData -> buildData.data = Optional.ofNullable(value)
+                    .map(v -> OfficerFilingData.builder()
+                                    .address(v.getAddress())
+                                    .addressSameAsRegisteredOfficeAddress(v.getAddressSameAsRegisteredOfficeAddress())
+                                    .appointedOn(v.getAppointedOn())
+                                    .countryOfResidence(v.getCountryOfResidence())
+                                    .dateOfBirth(v.getDateOfBirth())
+                                    .formerNames(v.getFormerNames())
+                                    .name(v.getName())
+                                    .firstName(v.getFirstName())
+                                    .lastName(v.getLastName())
+                                    .nationality(v.getNationality())
+                                    .occupation(v.getOccupation())
+                                    .officerRole(v.getOfficerRole())
+                                    .referenceEtag(v.getReferenceEtag())
+                                    .referenceAppointmentId(v.getReferenceAppointmentId())
+                                    .referenceOfficerListEtag(v.getReferenceOfficerListEtag())
+                                    .resignedOn(v.getResignedOn())
+                                    .status(v.getStatus())
+                                    .residentialAddress(v.getResidentialAddress())
+                                    .residentialAddressSameAsCorrespondenceAddress(v.getAddressSameAsRegisteredOfficeAddress())
+                                    .corporateDirector(v.getCorporateDirector()).build())
                     .orElse(null));
             return this;
         }
 
         public Builder updatedAt(final Instant value) {
 
-            buildSteps.add(data -> data.updatedAt = value);
+            buildSteps.add(buildData -> buildData.updatedAt = value);
             return this;
         }
 

@@ -148,28 +148,7 @@ class OfficerFilingMapperTest {
     void emptyAppointmentDtoToOfficerFiling() {
         final var dto = OfficerFilingDto.builder().formerNames(Collections.singletonList(null))
                 .build();
-        var offData = new OfficerFilingData(
-                null,
-                null,
-                null,
-                null,
-                null,
-                Collections.emptyList(),
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
+        var offData = OfficerFilingData.builder().formerNames(Collections.emptyList()).build();
         final var now = clock.instant();
         final var emptyFiling = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
@@ -186,28 +165,7 @@ class OfficerFilingMapperTest {
     void emptyAppointmentNullFormerNameDtoToOfficerFiling() {
         final var dto = OfficerFilingDto.builder().formerNames(Collections.singletonList(null))
                 .build();
-        var offData = new OfficerFilingData(
-                null,
-                null,
-                null,
-                null,
-                null,
-                Collections.emptyList(),
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
+        var offData = OfficerFilingData.builder().formerNames(Collections.emptyList()).build();
         final var now = clock.instant();
         final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
@@ -219,28 +177,28 @@ class OfficerFilingMapperTest {
 
     @Test
     void officerFilingToOfficerFilingDto() {
-        var offData = new OfficerFilingData(
-                address,
-                true,
-                localDate1.atStartOfDay().toInstant(ZoneOffset.UTC),
-                "countryOfResidence",
-                dob1,
-                nameList,
-                "name",
-                "firstName",
-                "lastName",
-                "nation",
-                "work",
-                "role",
-                "referenceEtag",
-                "referenceAppointmentId",
-                "list",
-                instant1,
-                "status",
-                address,
-                true,
-false
-                );
+        var offData = OfficerFilingData.builder()
+                .address(address)
+                .addressSameAsRegisteredOfficeAddress(true)
+                .appointedOn(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC))
+                .countryOfResidence("countryOfResidence")
+                .dateOfBirth(dob1)
+                .formerNames(nameList)
+                .name("name")
+                .firstName("firstName")
+                .lastName("lastName")
+                .nationality("nation")
+                .occupation("work")
+                .officerRole("role")
+                .referenceEtag("referenceEtag")
+                .referenceAppointmentId("referenceAppointmentId")
+                .referenceOfficerListEtag("list")
+                .resignedOn(instant1)
+                .status("status")
+                .residentialAddress(address)
+                .addressSameAsRegisteredOfficeAddress(true)
+                .corporateDirector(false)
+                .build();
         final var now = clock.instant();
         final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .identification(identification).build();
@@ -287,28 +245,7 @@ false
 
     @Test
     void emptyOfficerFilingNullFormerNameToAppointmentDto() {
-        var offData = new OfficerFilingData(
-                null,
-                null,
-                null,
-                null,
-                null,
-                Collections.singletonList(null),
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
+        var offData = OfficerFilingData.builder().formerNames(Collections.emptyList()).build();
         final var now = clock.instant();
         final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
@@ -323,28 +260,7 @@ false
 
     @Test
     void emptyOfficerFilingToAppointmentDto() {
-        var offData = new OfficerFilingData(
-                null,
-                null,
-                null,
-                null,
-                null,
-                Collections.singletonList(null),
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
+        var offData = OfficerFilingData.builder().formerNames(Collections.emptyList()).build();
         final var now = clock.instant();
         final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
