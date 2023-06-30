@@ -218,7 +218,6 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         var createNow = now;
         OfficerFiling entityWithCreatedUpdated;
         var offdata = buildOfficerFilingData(entity, dto);
-        var test = entity.getCreatedAt() != null;
         if(entity.getCreatedAt() != null){
             createNow = entity.getCreatedAt();
         }
