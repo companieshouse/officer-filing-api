@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import java.time.Clock;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -28,6 +29,7 @@ import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledExcept
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.ErrorMapper;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
@@ -76,6 +78,8 @@ class ValidationStatusControllerImplTest {
 
     private OfficerFiling filing;
     private ValidationStatusControllerImpl testController;
+    @Mock
+    private Clock clock;
 
     @BeforeEach
     void setUp() {
@@ -83,12 +87,13 @@ class ValidationStatusControllerImplTest {
              companyProfileService, companyAppointmentService, officerFilingMapper,
             errorMapper, apiEnumerations);
         ReflectionTestUtils.setField(testController, "isTm01Enabled", true);
-        filing = OfficerFiling.builder()
-            .referenceAppointmentId("off-id")
-            .referenceEtag("etag")
-            .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
-            .build();
-
+        var offData = new OfficerFilingData(
+                "etag",
+                "off-id",
+                Instant.parse("2022-09-13T00:00:00Z"));
+        final var now = clock.instant();
+        filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+                .build();
     }
 
     @Test

@@ -18,10 +18,12 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.repository.OfficerFilingRepository;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 import javax.servlet.http.HttpServletRequest;
+
 
 @ExtendWith(MockitoExtension.class)
 class OfficerFilingDataServiceImplTest {
@@ -73,34 +75,58 @@ class OfficerFilingDataServiceImplTest {
 
     @Test
     void testMergePartial(){
-        OfficerFiling original = OfficerFiling.builder().referenceEtag("ETAG").build();
-        OfficerFiling patch = OfficerFiling.builder().referenceAppointmentId("Appoint").build();
+        OfficerFilingData originalData = OfficerFilingData.builder()
+                .referenceEtag("ETAG")
+                .build();
+        OfficerFiling original = OfficerFiling.builder()
+                .data(originalData)
+                .build();
+        OfficerFilingData patchData = OfficerFilingData.builder()
+                .referenceAppointmentId("Appoint")
+                .build();
+        OfficerFiling patch = OfficerFiling.builder().data(patchData).build();
         OfficerFiling updatedFiling = testService.mergeFilings(original, patch, transaction);
-        assertThat(updatedFiling.getReferenceEtag(), is("ETAG"));
-        assertThat(updatedFiling.getReferenceAppointmentId(), is("Appoint"));
+        assertThat(updatedFiling.getData().getReferenceEtag(), is("ETAG"));
+        assertThat(updatedFiling.getData().getReferenceAppointmentId(), is("Appoint"));
     }
 
     @Test
     void testMergeFull(){
-        OfficerFiling original = OfficerFiling.builder().referenceEtag("ETAG")
-                .resignedOn(Instant.parse("2022-09-13T00:00:00Z")).build();
-        OfficerFiling patch = OfficerFiling.builder().referenceAppointmentId("Appoint").build();
+        OfficerFilingData originalData = OfficerFilingData.builder()
+                .referenceEtag("ETAG")
+                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+                .build();
+        OfficerFiling original = OfficerFiling.builder()
+                .data(originalData)
+                .build();
+        OfficerFilingData patchData = OfficerFilingData.builder()
+                .referenceAppointmentId("Appoint")
+                .build();
+        OfficerFiling patch = OfficerFiling.builder()
+                .data(patchData)
+                .build();
         OfficerFiling updatedFiling = testService.mergeFilings(original, patch, transaction);
-        assertThat(updatedFiling.getReferenceEtag(), is("ETAG"));
-        assertThat(updatedFiling.getReferenceAppointmentId(), is("Appoint"));
-        assertThat(updatedFiling.getResignedOn(), is(Instant.parse("2022-09-13T00:00:00Z")));
+        assertThat(updatedFiling.getData().getReferenceEtag(), is("ETAG"));
+        assertThat(updatedFiling.getData().getReferenceAppointmentId(), is("Appoint"));
+        assertThat(updatedFiling.getData().getResignedOn(), is(Instant.parse("2022-09-13T00:00:00Z")));
     }
 
     @Test
     void testMergeOverwrite(){
-        OfficerFiling original = OfficerFiling.builder().referenceEtag("ETAG")
-                .resignedOn(Instant.parse("2022-09-13T00:00:00Z")).build();
-        OfficerFiling patch = OfficerFiling.builder().referenceAppointmentId("Appoint")
-                .referenceEtag("NewETAG").build();
+        OfficerFilingData originalData = OfficerFilingData.builder()
+                .referenceEtag("ETAG")
+                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+                .build();
+        OfficerFiling original = OfficerFiling.builder().data(originalData).build();
+        OfficerFilingData patchData = OfficerFilingData.builder()
+                .referenceAppointmentId("Appoint")
+                .referenceEtag("NewETAG")
+                .build();
+        OfficerFiling patch = OfficerFiling.builder().data(patchData).build();
         OfficerFiling updatedFiling = testService.mergeFilings(original, patch, transaction);
-        assertThat(updatedFiling.getReferenceEtag(), is("NewETAG"));
-        assertThat(updatedFiling.getReferenceAppointmentId(), is("Appoint"));
-        assertThat(updatedFiling.getResignedOn(), is(Instant.parse("2022-09-13T00:00:00Z")));
+        assertThat(updatedFiling.getData().getReferenceEtag(), is("NewETAG"));
+        assertThat(updatedFiling.getData().getReferenceAppointmentId(), is("Appoint"));
+        assertThat(updatedFiling.getData().getResignedOn(), is(Instant.parse("2022-09-13T00:00:00Z")));
     }
 
     OfficerFiling setUpFiling() throws URISyntaxException {

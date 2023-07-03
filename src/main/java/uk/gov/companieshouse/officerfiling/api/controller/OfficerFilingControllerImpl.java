@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import java.time.Instant;
 import java.io.File;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.bson.types.ObjectId;
@@ -20,6 +21,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.error.InvalidFilingException;
 import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.filing.FilingResponse;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
@@ -113,7 +115,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         if(preExistingFilingId != null){
             entity = OfficerFiling.builder(entity).id(preExistingFilingId).build();
         }
-        final var saveData = saveFilingWithLinks(entity, transaction, request);
+        final var saveData = saveFilingWithLinks(entity, transaction, request, dto);
         final var links = saveData.getLeft();
         String filingId = saveData.getRight();
         final var resourceMap = buildResourceMap(links);
@@ -175,7 +177,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             officerFiling = filingMapper.map(dto);
         }
 
-        final var saveDetails = saveFilingWithLinks(officerFiling, transaction, request);
+        final var saveDetails = saveFilingWithLinks(officerFiling, transaction, request, dto);
         final var links = saveDetails.getLeft();
         final var resourceMap = buildResourceMap(links);
 
@@ -226,13 +228,28 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     }
 
     private ImmutablePair<Links,String> saveFilingWithLinks(final OfficerFiling entity, final Transaction transaction,
-            final HttpServletRequest request) {
-        final var saved = officerFilingService.save(entity, transaction.getId());
-        final var links = buildLinks(saved, request);
+            final HttpServletRequest request, OfficerFilingDto dto) {
+
+        final var now = clock.instant();
+        var createNow = now;
+        OfficerFiling entityWithCreatedUpdated;
+        var offdata = buildOfficerFilingData(entity, dto);
+        if(entity.getCreatedAt() != null){
+            createNow = entity.getCreatedAt();
+        }
+
+        final var create = createNow;
+        entityWithCreatedUpdated =
+                OfficerFiling.builder(entity).createdAt(create).updatedAt(now).data(offdata)
+                        .build();
+
+        final var finalEntityWithCreatedUpdated = entityWithCreatedUpdated;
+        final var saved = officerFilingService.save(finalEntityWithCreatedUpdated, transaction.getId());
+        final var links = buildLinks(saved.getId(), request);
+
         final var updated = OfficerFiling.builder(saved).links(links)
                 .build();
         final var resaved = officerFilingService.save(updated, transaction.getId());
-
         logger.infoContext(transaction.getId(), "Filing saved", new LogHelper.Builder(transaction)
                         .withFilingId(resaved.getId())
                         .withRequest(request)
@@ -240,10 +257,10 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         return new ImmutablePair<>(links, resaved.getId());
     }
 
-    private Links buildLinks(final OfficerFiling savedFiling, final HttpServletRequest request) {
+    private Links buildLinks(final String savedFilingId, final HttpServletRequest request) {
         final var requestUri = request.getRequestURI();
         final var uriBuilder = UriComponentsBuilder.fromUriString(requestUri);
-        final var objectId = new ObjectId(Objects.requireNonNull(savedFiling.getId()));
+        final var objectId = new ObjectId(Objects.requireNonNull(savedFilingId));
         final var objectIdString = objectId.toHexString();
         // A patch URI already ends with the filingId
         if(!requestUri.endsWith(objectIdString)){
@@ -255,6 +272,39 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             .build().toUri();
 
         return new Links(selfUri, validateUri);
+    }
+
+    private OfficerFilingData buildOfficerFilingData(OfficerFiling officerFiling, OfficerFilingDto dto) {
+        OfficerFilingData data;
+        var refAppointmentId = "";
+        var refEtag = "";
+        Instant resignOn = null;
+        // if we have data already in the filing,  fill the fields with it.
+        if(officerFiling.getData() != null) {
+            data = officerFiling.getData();
+            refEtag = data.getReferenceEtag();
+            refAppointmentId = data.getReferenceAppointmentId();
+            resignOn = data.getResignedOn();
+        }
+        // if we have data coming in from the dto, replace existing data with the new data coming in.
+        if(dto.getReferenceEtag()  != null) {
+            refEtag = dto.getReferenceEtag();
+        }
+        if(dto.getReferenceAppointmentId()  != null) {
+            refAppointmentId = dto.getReferenceAppointmentId();
+        }
+        if(dto.getResignedOn()  != null) {
+            resignOn = dto.getResignedOn().atStartOfDay(ZoneId.systemDefault()).toInstant();
+        }
+
+        final var referenceAppointmentId = refAppointmentId;
+        final var referenceEtag = refEtag;
+        final var resignedOn = resignOn;
+
+        return new OfficerFilingData(
+                referenceEtag,
+                referenceAppointmentId,
+                resignedOn);
     }
 
     private String getExistingFilingId(Transaction transaction){

@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -81,15 +82,10 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
         extractFields(patch, fieldMap);
         // JavaTimeModule handles Instant serialisation
         var mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
-
         var updatedFiling = mapper.createObjectNode();
-        for(Map.Entry<String,Object> entry : fieldMap.entrySet()){
-            var field = entry.getKey();
-            var value = entry.getValue().toString();
-            updatedFiling.put(field, value);
-        }
-        var updatedFilingJson = updatedFiling.toString();
+
         try {
+            var updatedFilingJson = new ObjectMapper().writeValueAsString(fieldMap);
             mergedFiling = mapper.readerFor(OfficerFiling.class).readValue(updatedFilingJson);
         } catch (JsonProcessingException e) {
             throw new OfficerFilingServiceException("Failed to patch an officer filing for company "
@@ -102,8 +98,18 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
      * Extracts the fields from an OfficerFiling object and adds them to the given map
      */
     private void extractFields(OfficerFiling filing, HashMap<String,Object> fieldMap){
-        Map<String, Object> originalMap = MapHelper.convertObject(filing, PropertyNamingStrategies.LOWER_CAMEL_CASE);
-        fieldMap.putAll(originalMap);
+        Map<String, Object> patchMap = MapHelper.convertObject(filing, PropertyNamingStrategies.LOWER_CAMEL_CASE);
+        // Convert the data object to a map
+        Map<String, Object> patchDataMap = MapHelper.convertObject(filing.getData(), PropertyNamingStrategies.LOWER_CAMEL_CASE);
+        // Merge the patch map with the existing map, if it exists
+        Map<String, Object> mergedDataMap = new HashMap<>();
+        Map<String, Object> originalDataMap = (Map<String, Object>) fieldMap.get("data");
+        if(originalDataMap != null){
+            mergedDataMap.putAll(originalDataMap);
+        }
+        mergedDataMap.putAll(patchDataMap);
+        fieldMap.putAll(patchMap);
+        fieldMap.put("data", mergedDataMap);
         // Remove some extra entries here to avoid extra string comparisons during the merge
         // These will be added to the record on load and cause issues when converting from JSON
         fieldMap.remove("class");

@@ -22,6 +22,7 @@ import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
@@ -134,10 +135,12 @@ class OfficerFilingControllerImplValidationIT {
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
-        final var filing = OfficerFiling.builder()
-                .referenceEtag("")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+        var offData = new OfficerFilingData(
+                "",
+                FILING_ID,
+                Instant.parse("2022-09-13T00:00:00Z"));
+        final var now = clock.instant();
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
 
         when(filingMapper.map(dto)).thenReturn(filing);
@@ -165,10 +168,12 @@ class OfficerFilingControllerImplValidationIT {
                 .referenceAppointmentId("")
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
-        final var filing = OfficerFiling.builder()
-                .referenceEtag("ETAG")
-                .referenceAppointmentId("")
-                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+        var offData = new OfficerFilingData(
+                "ETAG",
+                "",
+                Instant.parse("2022-09-13T00:00:00Z"));
+        final var now = clock.instant();
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
         when(filingMapper.map(dto)).thenReturn(filing);
         when(clock.instant()).thenReturn(FIRST_INSTANT);
@@ -199,10 +204,12 @@ class OfficerFilingControllerImplValidationIT {
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(null)
                 .build();
-        final var filing = OfficerFiling.builder()
-                .referenceEtag("ETAG")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(null)
+        var offData = new OfficerFilingData(
+                "ETAG",
+                FILING_ID,
+                null);
+        final var now = clock.instant();
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
         when(filingMapper.map(dto)).thenReturn(filing);
         when(clock.instant()).thenReturn(FIRST_INSTANT);

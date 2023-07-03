@@ -101,14 +101,14 @@ public class DirectorsControllerImpl implements DirectorsController {
             final var officerFiling = officerFilingService.get(filingId, transaction.getId());
             Instant resignedOn = null;
 
-            if(officerFiling.isPresent() && officerFiling.get().getResignedOn() != null){
-                resignedOn = officerFiling.get().getResignedOn();
+            if(officerFiling.isPresent() && officerFiling.get().getData().getResignedOn() != null){
+                resignedOn = officerFiling.get().getData().getResignedOn();
             }
             else{
                 throw new OfficerServiceException("Could not find resigned on date for " + filingId);
             }
             final var directorsDetails = companyAppointmentService.getCompanyAppointment(transaction.getId(),
-                    transaction.getCompanyNumber(), officerFiling.get().getReferenceAppointmentId(), passthroughHeader);
+                    transaction.getCompanyNumber(), officerFiling.get().getData().getReferenceAppointmentId(), passthroughHeader);
             directorsDetails.setResignedOn(LocalDate.ofInstant(resignedOn,
                     ZoneId.systemDefault()));
 

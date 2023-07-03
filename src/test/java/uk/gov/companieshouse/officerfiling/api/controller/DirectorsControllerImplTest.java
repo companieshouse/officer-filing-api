@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -29,6 +28,7 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.exception.OfficerServiceException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerService;
@@ -107,11 +107,16 @@ class DirectorsControllerImplTest {
   
   @Test
   void getRemoveCheckAnswersDirectorDetailsWhenFound() throws Exception {
+    var offData = new OfficerFilingData(
+            "etag",
+            null,
+            resignedOn);
+
     when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
     when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(officerFilingOptional);
     when(officerFilingOptional.isPresent()).thenReturn(true);
     when(officerFilingOptional.get()).thenReturn(officerFiling);
-    when(officerFiling.getResignedOn()).thenReturn(resignedOn);
+    when(officerFiling.getData()).thenReturn(offData);
     when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, null, PASSTHROUGH_HEADER)).thenReturn(appointmentFullRecordAPI);
     var response = testService.getRemoveCheckAnswersDirectorDetails(transaction, SUBMISSION_ID, request);
     assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -121,12 +126,20 @@ class DirectorsControllerImplTest {
 
   @Test
   void getRemoveCheckAnswersDirectorDetailsWhenNotFound() throws Exception {
+    var offData = new OfficerFilingData(
+            "etag",
+            null,
+            resignedOn);
+    var offData2 = new OfficerFilingData(
+            "etag",
+            null,
+            null);
     when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
     when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(officerFilingOptional);
     when(officerFilingOptional.isPresent()).thenReturn(true);
     when(officerFilingOptional.get()).thenReturn(officerFiling);
-    when(officerFiling.getResignedOn()).thenReturn(resignedOn);
-    when(officerFiling.getResignedOn()).thenReturn(null);
+    when(officerFiling.getData()).thenReturn(offData);
+    when(officerFiling.getData()).thenReturn(offData2);
     var response = testService.getRemoveCheckAnswersDirectorDetails(transaction, SUBMISSION_ID, request);
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 

@@ -22,6 +22,7 @@ import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledExcept
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.filing.FilingResponse;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentServiceImpl;
@@ -103,10 +104,11 @@ class OfficerFilingControllerImplTest {
         testController = new OfficerFilingControllerImpl(transactionService, officerFilingService, companyProfileService, companyAppointmentService,
                 filingMapper, clock, logger);
         ReflectionTestUtils.setField(testController, "isTm01Enabled", true);
-        filing = OfficerFiling.builder()
-                .referenceAppointmentId("off-id")
-                .referenceEtag("etag")
-                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+        var offData = new OfficerFilingData(
+                "etag",
+                "off-id",
+                Instant.parse("2022-09-13T00:00:00Z"));
+        filing = OfficerFiling.builder().createdAt(FIRST_INSTANT).updatedAt(FIRST_INSTANT).data(offData)
                 .build();
         final var builder = UriComponentsBuilder.fromUri(REQUEST_URI);
         links = new Links(builder.pathSegment(FILING_ID)
@@ -330,13 +332,13 @@ class OfficerFilingControllerImplTest {
         // Check a patch scenario
         OfficerFiling idFiling = OfficerFiling.builder().id("63f4afcf5cd8192a09d6a9e8").build();
         when(request.getRequestURI()).thenReturn("/transactions/027314-549816-769801/officers/63f4afcf5cd8192a09d6a9e8");
-        Links buildLinks = ReflectionTestUtils.invokeMethod(testController, "buildLinks", idFiling,
+        Links buildLinks = ReflectionTestUtils.invokeMethod(testController, "buildLinks", idFiling.getId(),
                 request);
         assertThat(buildLinks.getSelf(), is(new URI("/transactions/027314-549816-769801/officers/63f4afcf5cd8192a09d6a9e8")));
 
         // Check a post scenario
         when(request.getRequestURI()).thenReturn("/transactions/027314-549816-769801/officers/");
-        buildLinks = ReflectionTestUtils.invokeMethod(testController, "buildLinks", idFiling,
+        buildLinks = ReflectionTestUtils.invokeMethod(testController, "buildLinks", idFiling.getId(),
                 request);
         assertThat(buildLinks.getSelf(), is(new URI("/transactions/027314-549816-769801/officers/63f4afcf5cd8192a09d6a9e8")));
     }

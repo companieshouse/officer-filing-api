@@ -10,6 +10,7 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.officerfiling.api.utils.MapHelper;
@@ -75,19 +76,26 @@ public class FilingDataServiceImpl implements FilingDataService {
 
         final var transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
         String companyNumber = transaction.getCompanyNumber();
-        String appointmentId = officerFiling.getReferenceAppointmentId();
+        String appointmentId = officerFiling.getData().getReferenceAppointmentId();
 
         final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transactionId, companyNumber,
                 appointmentId, ericPassThroughHeader);
 
-        var enhancedOfficerFilingBuilder = OfficerFiling.builder(officerFiling)
+        var dataBuilder = OfficerFilingData.builder(officerFiling.getData())
                 .name(companyAppointment.getName())
                 .corporateDirector(mapCorporateDirector(transaction, companyAppointment));
-                // For non corporate Directors
-                if(companyAppointment.getDateOfBirth() != null){
-                    enhancedOfficerFilingBuilder = enhancedOfficerFilingBuilder.dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()));
-                }
+        // For non corporate Directors
+        if(companyAppointment.getDateOfBirth() != null){
+            dataBuilder = dataBuilder
+                    .dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()));
+        }
 
+        var enhancedOfficerFilingBuilder = OfficerFiling.builder(officerFiling)
+                .data(dataBuilder.build())
+                .createdAt(officerFiling.getCreatedAt())
+                .updatedAt(officerFiling.getUpdatedAt());
+
+      
         var enhancedOfficerFiling = enhancedOfficerFilingBuilder.build();
         var filingData = filingMapper.mapFiling(enhancedOfficerFiling);
         var dataMap = MapHelper.convertObject(filingData, PropertyNamingStrategies.SNAKE_CASE);

@@ -8,8 +8,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -19,31 +17,12 @@ public class OfficerFiling {
 
     @Id
     private String id;
-    private Address address;
-    private Boolean addressSameAsRegisteredOfficeAddress;
-    private Instant appointedOn;
-    private String countryOfResidence;
     private Instant createdAt;
-    private Date3Tuple dateOfBirth;
-    private List<FormerName> formerNames;
     private Identification identification;
     private String kind;
     private Links links;
-    private String name;
-    private String firstName;
-    private String lastName;
-    private String nationality;
-    private String occupation;
-    private String officerRole;
-    private String referenceEtag;
-    private String referenceAppointmentId;
-    private String referenceOfficerListEtag;
-    private Instant resignedOn;
-    private String status;
+    private OfficerFilingData data;
     private Instant updatedAt;
-    private Address residentialAddress;
-    private Boolean residentialAddressSameAsCorrespondenceAddress;
-    private Boolean corporateDirector;
 
     private OfficerFiling() {
     }
@@ -52,32 +31,8 @@ public class OfficerFiling {
         return id;
     }
 
-    public Address getAddress() {
-        return address;
-    }
-
-    public Boolean getAddressSameAsRegisteredOfficeAddress() {
-        return addressSameAsRegisteredOfficeAddress;
-    }
-
-    public Instant getAppointedOn() {
-        return appointedOn;
-    }
-
-    public String getCountryOfResidence() {
-        return countryOfResidence;
-    }
-
     public Instant getCreatedAt() {
         return createdAt;
-    }
-
-    public Date3Tuple getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public List<FormerName> getFormerNames() {
-        return formerNames;
     }
 
     public Identification getIdentification() {
@@ -91,65 +46,12 @@ public class OfficerFiling {
     public Links getLinks() {
         return links;
     }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getNationality() {
-        return nationality;
-    }
-
-    public String getOccupation() {
-        return occupation;
-    }
-
-    public String getOfficerRole() {
-        return officerRole;
-    }
-
-    public String getReferenceEtag() {
-        return referenceEtag;
-    }
-
-    public String getReferenceAppointmentId() {
-        return referenceAppointmentId;
-    }
-
-    public String getReferenceOfficerListEtag() {
-        return referenceOfficerListEtag;
-    }
-
-    public Instant getResignedOn() {
-        return resignedOn;
-    }
-
-    public String getStatus() {
-        return status;
+    public OfficerFilingData getData() {
+        return data;
     }
 
     public Instant getUpdatedAt() {
         return updatedAt;
-    }
-
-    public Address getResidentialAddress() {
-        return residentialAddress;
-    }
-
-    public Boolean getResidentialAddressSameAsCorrespondenceAddress() {
-        return residentialAddressSameAsCorrespondenceAddress;
-    }
-
-    public Boolean getCorporateDirector() {
-        return corporateDirector;
     }
 
     @Override
@@ -161,75 +63,30 @@ public class OfficerFiling {
             return false;
         }
         final OfficerFiling that = (OfficerFiling) o;
-        return Objects.equals(getAddress(), that.getAddress())
-                && Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
-                that.getAddressSameAsRegisteredOfficeAddress())
-                && Objects.equals(getAppointedOn(), that.getAppointedOn())
-                && Objects.equals(getCountryOfResidence(), that.getCountryOfResidence())
-                && Objects.equals(getCreatedAt(), that.getCreatedAt())
-                && Objects.equals(getDateOfBirth(), that.getDateOfBirth())
-                && Objects.equals(getFormerNames(), that.getFormerNames())
+        return Objects.equals(getCreatedAt(), that.getCreatedAt())
                 && Objects.equals(getIdentification(), that.getIdentification())
                 && Objects.equals(getKind(), that.getKind())
                 && Objects.equals(getLinks(), that.getLinks())
-                && Objects.equals(getName(), that.getName())
-                && Objects.equals(getFirstName(), that.getFirstName())
-                && Objects.equals(getLastName(), that.getLastName())
-                && Objects.equals(getNationality(), that.getNationality())
-                && Objects.equals(getOccupation(), that.getOccupation())
-                && Objects.equals(getOfficerRole(), that.getOfficerRole())
-                && Objects.equals(getReferenceEtag(), that.getReferenceEtag())
-                && Objects.equals(getReferenceAppointmentId(), that.getReferenceAppointmentId())
-                && Objects.equals(getReferenceOfficerListEtag(), that.getReferenceOfficerListEtag())
-                && Objects.equals(getResignedOn(), that.getResignedOn())
-                && Objects.equals(getStatus(), that.getStatus())
-                && Objects.equals(getUpdatedAt(), that.getUpdatedAt())
-                && Objects.equals(getResidentialAddress(), that.getResidentialAddress())
-                && Objects.equals(getResidentialAddressSameAsCorrespondenceAddress(),
-                that.getResidentialAddressSameAsCorrespondenceAddress());
+                && Objects.equals(getData(), that.getData())
+                && Objects.equals(getUpdatedAt(), that.getUpdatedAt());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
-                getAppointedOn(), getCountryOfResidence(), getCreatedAt(), getDateOfBirth(),
-                getFormerNames(), getIdentification(), getKind(), getLinks(), getName(),
-                getFirstName(), getLastName(), getNationality(), getOccupation(), getOfficerRole(),
-                getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
-                getResignedOn(), getStatus(), getUpdatedAt(), getResidentialAddress(),
-                getResidentialAddressSameAsCorrespondenceAddress());
+        return Objects.hash(getCreatedAt(), getIdentification(), getKind(), getLinks(), getData(),
+                 getUpdatedAt());
     }
 
     @Override
     public String toString() {
         return new StringJoiner(", ", OfficerFiling.class.getSimpleName() + "[", "]").add(
                         "id='" + id + "'")
-                .add("address=" + address)
-                .add("addressSameAsRegisteredOfficeAddress=" + addressSameAsRegisteredOfficeAddress)
-                .add("appointedOn=" + appointedOn)
-                .add("countryOfResidence='" + countryOfResidence + "'")
                 .add("createdAt=" + createdAt)
-                .add("dateOfBirth=" + dateOfBirth)
-                .add("formerNames=" + formerNames)
                 .add("identification=" + identification)
                 .add("kind='" + kind + "'")
                 .add("links=" + links)
-                .add("name='" + name + "'")
-                .add("firstName='" + firstName + "'")
-                .add("lastName='" + lastName + "'")
-                .add("nationality='" + nationality + "'")
-                .add("occupation='" + occupation + "'")
-                .add("officerRole='" + officerRole + "'")
-                .add("referenceEtag='" + referenceEtag + "'")
-                .add("referenceAppointmentId='" + referenceAppointmentId + "'")
-                .add("referenceOfficerListEtag='" + referenceOfficerListEtag + "'")
-                .add("resignedOn=" + resignedOn)
-                .add("status='" + status + "'")
+                .add("data='" + data + "'")
                 .add("updatedAt=" + updatedAt)
-                .add("residentialAddress=" + residentialAddress)
-                .add("residentialAddressSameAsCorrespondenceAddress="
-                        + residentialAddressSameAsCorrespondenceAddress)
-                .add("corporateDirector=" + corporateDirector)
                 .toString();
     }
 
@@ -252,94 +109,28 @@ public class OfficerFiling {
         public Builder(final OfficerFiling other) {
             this();
             this.id(other.getId())
-                    .address(other.getAddress())
-                    .addressSameAsRegisteredOfficeAddress(
-                            other.getAddressSameAsRegisteredOfficeAddress())
-                    .appointedOn(other.getAppointedOn())
-                    .corporateDirector(other.getCorporateDirector())
-                    .countryOfResidence(other.getCountryOfResidence())
                     .createdAt(other.getCreatedAt())
-                    .dateOfBirth(other.getDateOfBirth())
-                    .formerNames(other.getFormerNames())
                     .identification(other.getIdentification())
                     .kind(other.getKind())
                     .links(other.getLinks())
-                    .name(other.getName())
-                    .firstName(other.getFirstName())
-                    .lastName(other.getLastName())
-                    .nationality(other.getNationality())
-                    .occupation(other.getOccupation())
-                    .officerRole(other.getOfficerRole())
-                    .referenceEtag(other.getReferenceEtag())
-                    .referenceAppointmentId(other.getReferenceAppointmentId())
-                    .referenceOfficerListEtag(other.getReferenceOfficerListEtag())
-                    .residentialAddress(other.getResidentialAddress())
-                    .residentialAddressSameAsCorrespondenceAddress(
-                            other.getResidentialAddressSameAsCorrespondenceAddress())
-                    .resignedOn(other.getResignedOn())
-                    .status(other.getStatus())
+                    .data(other.getData())
                     .updatedAt(other.getUpdatedAt());
         }
 
         public Builder id(final String value) {
-            buildSteps.add(data -> data.id = value);
-            return this;
-        }
-
-        public Builder address(final Address value) {
-
-            buildSteps.add(data -> data.address = Optional.ofNullable(value)
-                    .map(v -> Address.builder(v)
-                            .build())
-                    .orElse(null));
-            return this;
-        }
-
-        public Builder addressSameAsRegisteredOfficeAddress(final Boolean value) {
-
-            buildSteps.add(data -> data.addressSameAsRegisteredOfficeAddress = value);
-            return this;
-        }
-
-        public Builder appointedOn(final Instant value) {
-
-            buildSteps.add(data -> data.appointedOn = value);
-            return this;
-        }
-
-        public Builder countryOfResidence(final String value) {
-
-            buildSteps.add(data -> data.countryOfResidence = value);
+            buildSteps.add(buildData -> buildData.id = value);
             return this;
         }
 
         public Builder createdAt(final Instant value) {
 
-            buildSteps.add(data -> data.createdAt = value);
-            return this;
-        }
-
-        public Builder dateOfBirth(final Date3Tuple value) {
-
-            buildSteps.add(data -> data.dateOfBirth = Optional.ofNullable(value)
-                    .map(v -> new Date3Tuple(v.getDay(), v.getMonth(), v.getYear()))
-                    .orElse(null));
-            return this;
-        }
-
-        public Builder formerNames(final List<FormerName> value) {
-            buildSteps.add(data -> data.formerNames = value == null
-                    ? null
-                    : value.stream()
-                            .flatMap(Stream::ofNullable)
-                            .map(v -> new FormerName(v.getForenames(), v.getSurname()))
-                            .collect(Collectors.toList()));
+            buildSteps.add(buildData -> buildData.createdAt = value);
             return this;
         }
 
         public Builder identification(final Identification value) {
 
-            buildSteps.add(data -> data.identification = Optional.ofNullable(value)
+            buildSteps.add(buildData -> buildData.identification = Optional.ofNullable(value)
                     .map(v -> new Identification(v.getIdentificationType(), v.getLegalAuthority(),
                             v.getLegalForm(), v.getPlaceRegistered(), v.getRegistrationNumber()))
                     .orElse(null));
@@ -348,107 +139,48 @@ public class OfficerFiling {
 
         public Builder kind(final String value) {
 
-            buildSteps.add(data -> data.kind = value);
+            buildSteps.add(buildData -> buildData.kind = value);
             return this;
         }
 
         public Builder links(final Links value) {
 
-            buildSteps.add(data -> data.links = Optional.ofNullable(value)
+            buildSteps.add(buildData -> buildData.links = Optional.ofNullable(value)
                     .map(v -> new Links(v.getSelf(), v.getValidationStatus()))
                     .orElse(null));
             return this;
         }
 
-        public Builder name(final String value) {
-
-            buildSteps.add(data -> data.name = value);
-            return this;
-        }
-
-        public Builder firstName(final String value) {
-
-            buildSteps.add(data -> data.firstName = value);
-            return this;
-        }
-
-        public Builder lastName(final String value) {
-
-            buildSteps.add(data -> data.lastName = value);
-            return this;
-        }
-
-        public Builder nationality(final String value) {
-
-            buildSteps.add(data -> data.nationality = value);
-            return this;
-        }
-
-        public Builder occupation(final String value) {
-
-            buildSteps.add(data -> data.occupation = value);
-            return this;
-        }
-
-        public Builder officerRole(final String value) {
-
-            buildSteps.add(data -> data.officerRole = value);
-            return this;
-        }
-
-        public Builder referenceEtag(final String value) {
-
-            buildSteps.add(data -> data.referenceEtag = value);
-            return this;
-        }
-
-        public Builder referenceAppointmentId(final String value) {
-
-            buildSteps.add(data -> data.referenceAppointmentId = value);
-            return this;
-        }
-
-        public Builder referenceOfficerListEtag(final String value) {
-
-            buildSteps.add(data -> data.referenceOfficerListEtag = value);
-            return this;
-        }
-
-        public Builder resignedOn(final Instant value) {
-
-            buildSteps.add(data -> data.resignedOn = value);
-            return this;
-        }
-
-        public Builder status(final String value) {
-
-            buildSteps.add(data -> data.status = value);
+        public Builder data(final OfficerFilingData value) {
+            buildSteps.add(buildData -> buildData.data = Optional.ofNullable(value)
+                    .map(v -> OfficerFilingData.builder()
+                                    .address(v.getAddress())
+                                    .addressSameAsRegisteredOfficeAddress(v.getAddressSameAsRegisteredOfficeAddress())
+                                    .appointedOn(v.getAppointedOn())
+                                    .countryOfResidence(v.getCountryOfResidence())
+                                    .dateOfBirth(v.getDateOfBirth())
+                                    .formerNames(v.getFormerNames())
+                                    .name(v.getName())
+                                    .firstName(v.getFirstName())
+                                    .lastName(v.getLastName())
+                                    .nationality(v.getNationality())
+                                    .occupation(v.getOccupation())
+                                    .officerRole(v.getOfficerRole())
+                                    .referenceEtag(v.getReferenceEtag())
+                                    .referenceAppointmentId(v.getReferenceAppointmentId())
+                                    .referenceOfficerListEtag(v.getReferenceOfficerListEtag())
+                                    .resignedOn(v.getResignedOn())
+                                    .status(v.getStatus())
+                                    .residentialAddress(v.getResidentialAddress())
+                                    .residentialAddressSameAsCorrespondenceAddress(v.getAddressSameAsRegisteredOfficeAddress())
+                                    .corporateDirector(v.getCorporateDirector()).build())
+                    .orElse(null));
             return this;
         }
 
         public Builder updatedAt(final Instant value) {
 
-            buildSteps.add(data -> data.updatedAt = value);
-            return this;
-        }
-
-        public Builder residentialAddress(final Address value) {
-
-            buildSteps.add(data -> data.residentialAddress = Optional.ofNullable(value)
-                    .map(v -> Address.builder(v)
-                            .build())
-                    .orElse(null));
-            return this;
-        }
-
-        public Builder residentialAddressSameAsCorrespondenceAddress(final Boolean value) {
-
-            buildSteps.add(data -> data.residentialAddressSameAsCorrespondenceAddress = value);
-            return this;
-        }
-
-        public Builder corporateDirector(final Boolean value) {
-            buildSteps.add(data -> data.corporateDirector = value);
+            buildSteps.add(buildData -> buildData.updatedAt = value);
             return this;
         }
 

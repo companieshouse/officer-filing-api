@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Map;
@@ -26,6 +27,7 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.filing.FilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 
@@ -64,6 +66,8 @@ class FilingDataServiceImplTest {
     private Supplier<LocalDate> dateNowSupplier;
 
     private FilingDataServiceImpl testService;
+    @Mock
+    private Clock clock;
 
     @BeforeEach
     void setUp() {
@@ -76,12 +80,15 @@ class FilingDataServiceImplTest {
     @Test
     void generateOfficerFilingWhenFound() {
         final var filingData = new FilingData(FIRSTNAME, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, true);
-        final var officerFiling = OfficerFiling.builder()
-                .referenceAppointmentId(REF_APPOINTMENT_ID)
+        var offData = OfficerFilingData.builder()
+                .dateOfBirth(DATE_OF_BIRTH_TUPLE)
                 .firstName(FIRSTNAME)
                 .lastName(LASTNAME)
+                .referenceAppointmentId(REF_APPOINTMENT_ID)
                 .resignedOn(RESIGNED_ON_INS)
-                .dateOfBirth(DATE_OF_BIRTH_TUPLE)
+                .build();
+        final var now = clock.instant();
+        final var officerFiling = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
 
         SensitiveDateOfBirthAPI dateOfBirthAPI = new SensitiveDateOfBirthAPI();
@@ -117,11 +124,14 @@ class FilingDataServiceImplTest {
     @Test
     void generateCorporateOfficerFilingWhenFound() {
         final var filingData = new FilingData(FIRSTNAME, LASTNAME, null, RESIGNED_ON_STR, true);
-        final var officerFiling = OfficerFiling.builder()
+        final var data = OfficerFilingData.builder()
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
                 .firstName(FIRSTNAME)
                 .lastName(LASTNAME)
                 .resignedOn(RESIGNED_ON_INS)
+                .build();
+        final var officerFiling = OfficerFiling.builder()
+                .data(data)
                 .build();
 
         when(companyAppointment.getOfficerRole()).thenReturn("corporate-director");
