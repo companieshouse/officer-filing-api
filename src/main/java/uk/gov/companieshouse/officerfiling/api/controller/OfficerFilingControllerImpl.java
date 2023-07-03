@@ -121,6 +121,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         }
         final var saveData = saveFilingWithLinks(entity, transaction, request, dto);
         final var links = saveData.getLeft();
+        final var officerFiling = saveData.getRight();
         final var resourceMap = buildResourceMap(links);
 
         transaction.setResources(resourceMap);
@@ -129,7 +130,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         }
 
         // Create response with filing
-        var filingJson = getFilingJson(entity);
+        var filingJson = getFilingJson(officerFiling);
         return ResponseEntity.created(links.getSelf()).body(filingJson);
     }
 
@@ -231,9 +232,8 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         return resourceMap;
     }
 
-    private ImmutablePair<Links,String> saveFilingWithLinks(final OfficerFiling entity, final Transaction transaction,
+    private ImmutablePair<Links,OfficerFiling> saveFilingWithLinks(final OfficerFiling entity, final Transaction transaction,
             final HttpServletRequest request, OfficerFilingDto dto) {
-
         final var now = clock.instant();
         var createNow = now;
         OfficerFiling entityWithCreatedUpdated;
@@ -246,7 +246,6 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         entityWithCreatedUpdated =
                 OfficerFiling.builder(entity).createdAt(create).updatedAt(now).data(offdata)
                         .build();
-
         final var finalEntityWithCreatedUpdated = entityWithCreatedUpdated;
         final var saved = officerFilingService.save(finalEntityWithCreatedUpdated, transaction.getId());
         final var links = buildLinks(saved.getId(), request);
@@ -258,7 +257,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
                         .withFilingId(resaved.getId())
                         .withRequest(request)
                         .build());
-        return new ImmutablePair<>(links, resaved.getId());
+        return new ImmutablePair<>(links, resaved);
     }
 
     private Links buildLinks(final String savedFilingId, final HttpServletRequest request) {
