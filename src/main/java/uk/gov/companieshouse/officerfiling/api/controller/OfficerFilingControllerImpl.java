@@ -2,6 +2,7 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 
 import java.time.Instant;
 import java.io.File;
+import java.time.ZoneOffset;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
@@ -294,7 +295,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             refAppointmentId = dto.getReferenceAppointmentId();
         }
         if(dto.getResignedOn()  != null) {
-            resignOn = dto.getResignedOn().atStartOfDay(ZoneId.systemDefault()).toInstant();
+            resignOn = dto.getResignedOn().atStartOfDay().toInstant(ZoneOffset.UTC);
         }
 
         final var referenceAppointmentId = refAppointmentId;
