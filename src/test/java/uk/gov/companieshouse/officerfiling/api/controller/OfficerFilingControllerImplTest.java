@@ -23,7 +23,6 @@ import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
-import uk.gov.companieshouse.officerfiling.api.model.filing.FilingResponse;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
@@ -141,6 +140,7 @@ class OfficerFilingControllerImplTest {
         verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
     }
+
     @Test
     void createFilingWithExistingSubmission() {
         final var resources = new HashMap<String,Resource>();
@@ -193,8 +193,8 @@ class OfficerFilingControllerImplTest {
         verify(transaction).setResources(refEq(resourceMap));
         verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
-        final FilingResponse filingResponse = (FilingResponse) response.getBody();
-        assertThat(filingResponse.getSubmissionId(), is(FILING_ID));
+        final OfficerFiling filingResponse = (OfficerFiling) response.getBody();
+        assertThat(filingResponse.getId(), is(FILING_ID));
     }
 
     @Test
@@ -217,8 +217,8 @@ class OfficerFilingControllerImplTest {
         verify(transaction).setResources(refEq(resourceMap));
         verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
-        final FilingResponse filingResponse = (FilingResponse) response.getBody();
-        assertThat(filingResponse.getSubmissionId(), is(FILING_ID));
+        final OfficerFiling filingResponse = (OfficerFiling) response.getBody();
+        assertThat(filingResponse.getId(), is(FILING_ID));
     }
 
     @ParameterizedTest(name = "[{index}] null binding result={0}")

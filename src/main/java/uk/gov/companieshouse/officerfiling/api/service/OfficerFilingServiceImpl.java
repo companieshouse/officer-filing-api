@@ -82,7 +82,6 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
         extractFields(patch, fieldMap);
         // JavaTimeModule handles Instant serialisation
         var mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
-        var updatedFiling = mapper.createObjectNode();
 
         try {
             var updatedFilingJson = new ObjectMapper().writeValueAsString(fieldMap);
