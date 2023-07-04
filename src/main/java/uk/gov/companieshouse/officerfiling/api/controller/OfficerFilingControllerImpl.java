@@ -185,7 +185,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         transaction.setResources(resourceMap);
         transactionService.updateTransaction(transaction, passthroughHeader);
 
-        return ResponseEntity.ok(officerFiling);
+        return ResponseEntity.ok(saveDetails.getRight());
 
     }
 
