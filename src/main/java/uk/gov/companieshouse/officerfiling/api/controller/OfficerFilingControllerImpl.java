@@ -1,11 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.time.Instant;
-import java.io.File;
-import java.time.ZoneOffset;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,11 +19,10 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.error.InvalidFilingException;
 import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
-import uk.gov.companieshouse.officerfiling.api.exception.JsonConversionException;
-import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
@@ -42,8 +35,11 @@ import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.io.File;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -117,7 +113,9 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         //***********************************************************************************************
         String preExistingFilingId = getExistingFilingId(transaction);
         if(preExistingFilingId != null){
-            entity = OfficerFiling.builder(entity).id(preExistingFilingId).build();
+            entity = OfficerFiling.builder(entity)
+                    .id(preExistingFilingId)
+                    .build();
         }
         final var saveData = saveFilingWithLinks(entity, transaction, request, dto);
         final var links = saveData.getLeft();
@@ -130,8 +128,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         }
 
         // Create response with filing
-        var filingJson = getFilingJson(officerFiling);
-        return ResponseEntity.created(links.getSelf()).body(filingJson);
+        return ResponseEntity.created(links.getSelf()).body(officerFiling);
     }
 
     /**
@@ -188,8 +185,8 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         transaction.setResources(resourceMap);
         transactionService.updateTransaction(transaction, passthroughHeader);
 
-        var filingJson = getFilingJson(officerFiling);
-        return ResponseEntity.ok(filingJson);
+        return ResponseEntity.ok(officerFiling);
+
     }
 
     /**
@@ -321,17 +318,5 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             filingId = resourcePath.getName();
         }
         return filingId;
-    }
-
-    private String getFilingJson(OfficerFiling entity){
-        // JavaTimeModule handles Instant serialisation
-        JavaTimeModule timeModule = new JavaTimeModule();
-        var objectMapper = new ObjectMapper();
-        objectMapper.registerModule(timeModule);
-        try {
-            return objectMapper.writeValueAsString(entity);
-        } catch (JsonProcessingException e) {
-            throw new JsonConversionException("Failed to convert filing to JSON \n " + entity.toString());
-        }
     }
 }

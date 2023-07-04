@@ -191,7 +191,7 @@ class OfficerFilingControllerImplIT {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", locationUri.toUriString()))
-                .andExpect(jsonPath("$.submission_id").value("632c8e65105b1b4a9f0d1f5e"));
+                .andExpect(jsonPath("$.id").value("632c8e65105b1b4a9f0d1f5e"));
         verify(filingMapper).map(dto);
     }
 
@@ -230,7 +230,9 @@ class OfficerFilingControllerImplIT {
                         .headers(httpHeaders))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").doesNotExist());
+                .andExpect(jsonPath("$.data.reference_etag", is("etag")))
+                .andExpect(jsonPath("$.data.reference_appointment_id", is("632c8e65105b1b4a9f0d1f5e")))
+                .andExpect(jsonPath("$.data.resigned_on", is("2022-09-13T00:00:00Z")));
         verify(filingMapper).map(dto);
     }
 
@@ -268,7 +270,9 @@ class OfficerFilingControllerImplIT {
                         .headers(httpHeaders))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").doesNotExist());
+                .andExpect(jsonPath("$.data.reference_etag", is("etag")))
+                .andExpect(jsonPath("$.data.reference_appointment_id", is("632c8e65105b1b4a9f0d1f5e")))
+                .andExpect(jsonPath("$.data.resigned_on").doesNotExist());
         verify(filingMapper).map(dto);
     }
 
@@ -306,7 +310,9 @@ class OfficerFilingControllerImplIT {
                         .headers(httpHeaders))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").doesNotExist());
+                .andExpect(jsonPath("$.data.reference_etag", is("")))
+                .andExpect(jsonPath("$.data.reference_appointment_id", is("632c8e65105b1b4a9f0d1f5e")))
+                .andExpect(jsonPath("$.data.resigned_on", is("2022-09-13T00:00:00Z")));
         verify(filingMapper).map(dto);
     }
 
@@ -503,7 +509,7 @@ class OfficerFilingControllerImplIT {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", locationUri.toUriString()))
-                .andExpect(jsonPath("$.submission_id").value("632c8e65105b1b4a9f0d1f5e"));
+                .andExpect(jsonPath("$.id").value("632c8e65105b1b4a9f0d1f5e"));
         verify(filingMapper).map(dto);
     }
 
