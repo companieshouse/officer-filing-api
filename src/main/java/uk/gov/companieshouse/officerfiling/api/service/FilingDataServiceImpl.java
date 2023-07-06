@@ -11,7 +11,7 @@ import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundExcepti
 import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
-import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
+import uk.gov.companieshouse.officerfiling.api.model.mapper.FilingAPIMapper;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.officerfiling.api.utils.MapHelper;
 
@@ -30,7 +30,7 @@ public class FilingDataServiceImpl implements FilingDataService {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy");
     private final OfficerFilingService officerFilingService;
-    private final OfficerFilingMapper filingMapper;
+    private final FilingAPIMapper filingAPIMapper;
     private final Logger logger;
     private final TransactionService transactionService;
     private final CompanyAppointmentService companyAppointmentService;
@@ -40,11 +40,11 @@ public class FilingDataServiceImpl implements FilingDataService {
     private final Supplier<LocalDate> dateNowSupplier;
 
     public FilingDataServiceImpl(OfficerFilingService officerFilingService,
-            OfficerFilingMapper filingMapper, Logger logger, TransactionService transactionService,
+            FilingAPIMapper filingAPIMapper, Logger logger, TransactionService transactionService,
                                  CompanyAppointmentService companyAppointmentService,
         Supplier<LocalDate> dateNowSupplier) {
         this.officerFilingService = officerFilingService;
-        this.filingMapper = filingMapper;
+        this.filingAPIMapper = filingAPIMapper;
         this.logger = logger;
         this.transactionService = transactionService;
         this.companyAppointmentService = companyAppointmentService;
@@ -70,44 +70,31 @@ public class FilingDataServiceImpl implements FilingDataService {
 
     private void setFilingApiData(FilingApi filing, String transactionId, String filingId,
                                   String ericPassThroughHeader) {
-        logger.debug("RJW -  inside setFilingAPIData");
         var officerFilingOpt = officerFilingService.get(filingId, transactionId);
         var officerFiling = officerFilingOpt.orElseThrow(() -> new ResourceNotFoundException(
                 String.format("Officer not found when generating filing for %s", filingId)));
-        logger.debug("RJW -  officerFiling == " + officerFiling);
         final var transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
         String companyNumber = transaction.getCompanyNumber();
-        logger.debug("RJW -  companyNumber == " + companyNumber);
         String appointmentId = officerFiling.getData().getReferenceAppointmentId();
-        logger.debug("RJW -  officerFiling.getData().getReferenceAppointmentId() == " + appointmentId);
         final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transactionId, companyNumber,
                 appointmentId, ericPassThroughHeader);
-        logger.debug("RJW -  companyAppointment == " + companyAppointment);
         var dataBuilder = OfficerFilingData.builder(officerFiling.getData())
                 .name(companyAppointment.getName())
                 .corporateDirector(mapCorporateDirector(transaction, companyAppointment));
-
-        logger.debug("RJW -  dataBuilder == " + dataBuilder);
-
         // For non corporate Directors
         if(companyAppointment.getDateOfBirth() != null){
             dataBuilder = dataBuilder
                     .dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()));
-            logger.debug("RJW -  dataBuilder with DOB == " + dataBuilder);
         }
 
         var enhancedOfficerFilingBuilder = OfficerFiling.builder(officerFiling)
                 .data(dataBuilder.build())
                 .createdAt(officerFiling.getCreatedAt())
                 .updatedAt(officerFiling.getUpdatedAt());
-        logger.debug("RJW -  enhancedOfficerFilingBuilder == " + enhancedOfficerFilingBuilder);
       
         var enhancedOfficerFiling = enhancedOfficerFilingBuilder.build();
-        logger.debug("RJW -  enhancedOfficerFiling == " + enhancedOfficerFiling);
-        var filingData = filingMapper.mapFiling(enhancedOfficerFiling);
-        logger.debug("RJW -  filingData == " + filingData);
+        var filingData = filingAPIMapper.map(enhancedOfficerFiling);
         var dataMap = MapHelper.convertObject(filingData, PropertyNamingStrategies.SNAKE_CASE);
-        logger.debug("RJW -  dataMap == " + dataMap);
         logger.debugContext(transactionId, "Created filing data for submission", new LogHelper.Builder(transaction)
                 .withFilingId(filingId)
                 .build());

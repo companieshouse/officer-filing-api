@@ -80,6 +80,7 @@ public interface OfficerFilingMapper {
     }
 
     @Mapping(target = "data.dateOfBirth", source = "dateOfBirth")
+    @Mapping(target = "dateOfBirth", source = "data.dateOfBirth")
     default String isoDateOfBirth(Date3Tuple tuple) {
         if (tuple == null) {
             return null;
