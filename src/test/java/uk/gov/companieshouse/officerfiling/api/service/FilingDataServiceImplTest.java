@@ -29,6 +29,7 @@ import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.filing.FilingData;
+import uk.gov.companieshouse.officerfiling.api.model.mapper.FilingAPIMapper;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,7 +52,7 @@ class FilingDataServiceImplTest {
     @Mock
     private OfficerFilingService officerFilingService;
     @Mock
-    private OfficerFilingMapper officerFilingMapper;
+    private FilingAPIMapper filingAPIMapper;
     @Mock
     private Logger logger;
     @Mock
@@ -71,7 +72,7 @@ class FilingDataServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        testService = new FilingDataServiceImpl(officerFilingService, officerFilingMapper, logger, transactionService,
+        testService = new FilingDataServiceImpl(officerFilingService, filingAPIMapper, logger, transactionService,
                 companyAppointmentService, dateNowSupplier);
         ReflectionTestUtils.setField(testService, "filingDescription",
             "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}");
@@ -101,7 +102,7 @@ class FilingDataServiceImplTest {
         when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
         when(companyAppointment.getSurname()).thenReturn(LASTNAME);
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
-        when(officerFilingMapper.mapFiling(officerFiling)).thenReturn(filingData);
+        when(filingAPIMapper.map(officerFiling)).thenReturn(filingData);
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER ))
                 .thenReturn(companyAppointment);
@@ -138,7 +139,7 @@ class FilingDataServiceImplTest {
         when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
         when(companyAppointment.getSurname()).thenReturn(LASTNAME);
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
-        when(officerFilingMapper.mapFiling(officerFiling)).thenReturn(filingData);
+        when(filingAPIMapper.map(officerFiling)).thenReturn(filingData);
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER ))
                 .thenReturn(companyAppointment);
