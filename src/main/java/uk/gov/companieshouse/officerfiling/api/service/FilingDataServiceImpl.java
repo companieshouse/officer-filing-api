@@ -129,13 +129,20 @@ public class FilingDataServiceImpl implements FilingDataService {
     private void setDescriptionFields(FilingApi filing, AppointmentFullRecordAPI companyAppointment) {
         String formattedTerminationDate = dateNowSupplier.get().format(formatter);
         filing.setDescriptionIdentifier(filingDescription);
-        var officerFilingName = companyAppointment.getForename() + " " + companyAppointment.getSurname().toUpperCase();
+        var surname = "";
+        var officerFilingName = "";
+        if(companyAppointment.getSurname()!= null) {
+            surname = companyAppointment.getSurname().toUpperCase();
+            officerFilingName = companyAppointment.getForename() + " " + surname;
+        } else {
+            // is a corporate director
+            officerFilingName = companyAppointment.getName();
+        }
         filing.setDescription(filingDescription.replace("{director name}", officerFilingName)
-            .replace("{termination date}", formattedTerminationDate));
+                .replace("{termination date}", formattedTerminationDate));
         Map<String, String> values = new HashMap<>();
         values.put("termination date", formattedTerminationDate);
         values.put("director name", officerFilingName);
         filing.setDescriptionValues(values);
     }
-
 }
