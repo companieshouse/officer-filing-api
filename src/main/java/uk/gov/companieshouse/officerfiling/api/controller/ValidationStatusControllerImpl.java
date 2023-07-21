@@ -24,7 +24,9 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
+import uk.gov.companieshouse.officerfiling.api.validation.OfficerAppointmentValidator;
 import uk.gov.companieshouse.officerfiling.api.validation.OfficerTerminationValidator;
+import uk.gov.companieshouse.officerfiling.api.validation.OfficerValidator;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 @RestController
@@ -39,6 +41,8 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
     private final ApiEnumerations apiEnumerations;
     @Value("${FEATURE_FLAG_ENABLE_TM01:true}")
     private boolean isTm01Enabled;
+    @Value("${FEATURE_FLAG_ENABLE_AP01:true}")
+    private boolean isAp01Enabled;
 
     public ValidationStatusControllerImpl(OfficerFilingService officerFilingService, Logger logger,
             CompanyProfileService companyProfileService,
@@ -83,18 +87,55 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
             request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
 
         Optional<OfficerFiling> maybeOfficerFiling = officerFilingService.get(filingResourceId, transaction.getId());
+        if(!isAp01Enabled){
+            return maybeOfficerFiling.map(officerFiling -> isValidTm01(request, officerFilingMapper.map(officerFiling),
+                            transaction, passthroughHeader))
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Filing resource not found: " + filingResourceId));
+        } else {
+            return maybeOfficerFiling.map(officerFiling -> isValid(request, officerFilingMapper.map(officerFiling),
+                            transaction, passthroughHeader))
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Filing resource not found: " + filingResourceId));
+        }
 
-        return maybeOfficerFiling.map(officerFiling -> isValid(request, officerFilingMapper.map(officerFiling),
-                transaction, passthroughHeader))
-            .orElseThrow(() -> new ResourceNotFoundException(
-                "Filing resource not found: " + filingResourceId));
+
+    }
+    //TODO once we remove the isAP01Enabled flag,  then remove this method and the reference to it above.
+    private ValidationStatusResponse isValidTm01(HttpServletRequest request, OfficerFilingDto officerFiling,
+            Transaction transaction, String passthroughHeader) {
+        var validationStatus = new ValidationStatusResponse();
+
+        final var validator = new OfficerTerminationValidator(logger, companyProfileService, companyAppointmentService, apiEnumerations);
+        final ApiErrors validationErrors  = validator.validate(request, officerFiling, transaction, passthroughHeader);
+
+        if(validationErrors.hasErrors()) {
+            validationStatus.setValidationStatusError(errorMapper.map(
+                    validationErrors.getErrors()));
+            return validationStatus;
+        }
+
+        validationStatus.setValid(true);
+        return validationStatus;
     }
 
     private ValidationStatusResponse isValid(HttpServletRequest request, OfficerFilingDto officerFiling,
         Transaction transaction, String passthroughHeader) {
         var validationStatus = new ValidationStatusResponse();
 
-        final var validator = new OfficerTerminationValidator(logger, companyProfileService, companyAppointmentService, apiEnumerations);
+        //  run the appropriate validation for the filing type(TM01,AP01 or CH01)
+        OfficerValidator validator;
+        if(officerFiling.getResignedOn() != null) {
+            //has a removal date so must be a TM01
+            validator = new OfficerTerminationValidator(logger, companyProfileService, companyAppointmentService, apiEnumerations);
+        } else if(officerFiling.getReferenceEtag() == null) {
+            validator = new OfficerAppointmentValidator(logger, companyProfileService, companyAppointmentService, apiEnumerations);
+        } else {
+            // cannot work out what filing type is so throw an exception.
+            throw new ResourceNotFoundException("Filing type cannot be calculated using given data for transaction " + transaction.getId() );
+        }
+
+
         final ApiErrors validationErrors  = validator.validate(request, officerFiling, transaction, passthroughHeader);
 
         if(validationErrors.hasErrors()) {

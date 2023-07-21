@@ -87,6 +87,7 @@ class ValidationStatusControllerImplTest {
              companyProfileService, companyAppointmentService, officerFilingMapper,
             errorMapper, apiEnumerations);
         ReflectionTestUtils.setField(testController, "isTm01Enabled", true);
+        ReflectionTestUtils.setField(testController, "isAp01Enabled", false);
         var offData = new OfficerFilingData(
                 "etag",
                 "off-id",
@@ -157,9 +158,36 @@ class ValidationStatusControllerImplTest {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
-        when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(companyAppointment.getOfficerRole()).thenReturn(OFFICER_ROLE);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
     }
 
+    @Test
+    void validateWhenFilingAP01FoundAndNoValidationErrors() {
+        ReflectionTestUtils.setField(testController, "isAp01Enabled", true);
+        validationStatusControllerMocks();
+        when(dto.getReferenceEtag()).thenReturn(null);
+        when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
+        when(dto.getResignedOn()).thenReturn(null);
+        when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
+
+        final var response = testController.validate(transaction, FILING_ID, request);
+        assertThat(response.getValidationStatusError(), is(nullValue()));
+        assertThat(response.isValid(), is(true));
+    }
+
+    @Test
+    void validateWhenFilingAP01FoundAndInvalidDataWithEtagAndNoRemoveDate() {
+        ReflectionTestUtils.setField(testController, "isAp01Enabled", true);
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
+        when(officerFilingMapper.map(filing)).thenReturn(dto);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getReferenceEtag()).thenReturn("ETAG");
+        when(dto.getResignedOn()).thenReturn(null);
+
+        assertThrows(ResourceNotFoundException.class, () -> testController.validate(transaction, FILING_ID, request));
+    }
 }
