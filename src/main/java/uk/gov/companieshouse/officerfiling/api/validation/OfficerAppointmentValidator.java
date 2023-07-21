@@ -70,16 +70,14 @@ public class OfficerAppointmentValidator implements OfficerValidator {
         }
 
         // Retrieve data objects required for the validation process
-        final Optional<AppointmentFullRecordAPI> companyAppointment = getOfficerAppointment(request, errorList, dto, transaction, passthroughHeader);
         final Optional<CompanyProfileApi> companyProfile = getCompanyProfile(request, errorList, transaction, passthroughHeader);
-        if (companyAppointment.isEmpty() || companyProfile.isEmpty()) {
+        if ( companyProfile.isEmpty()) {
             return new ApiErrors(errorList);
         }
 
         // Perform validation
         validateCompanyNotDissolved(request, errorList, companyProfile.get());
         validateAllowedCompanyType(request, errorList, companyProfile.get());
-        validateOfficerRole(request, errorList, companyAppointment.get());
 
         return new ApiErrors(errorList);
     }

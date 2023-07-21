@@ -10,6 +10,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -36,6 +39,7 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
+import uk.gov.companieshouse.officerfiling.api.validation.OfficerTerminationValidator;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 @ExtendWith(MockitoExtension.class)
@@ -81,6 +85,9 @@ class ValidationStatusControllerImplTest {
     @Mock
     private Clock clock;
 
+    @Mock
+    private OfficerTerminationValidator officerTerminationValidator;
+
     @BeforeEach
     void setUp() {
         testController = new ValidationStatusControllerImpl(officerFilingService, logger,
@@ -106,15 +113,15 @@ class ValidationStatusControllerImplTest {
     }
     @Test
     void validateWhenFilingFoundAndNoValidationErrors() {
-
+        ReflectionTestUtils.setField(testController, "isAp01Enabled", false);
         validationStatusControllerMocks();
-        when(companyAppointment.getEtag()).thenReturn(ETAG);
+//        when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(dto.getReferenceEtag()).thenReturn(ETAG);
         when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
         when(dto.getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
-        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2005, 10, 3));
-        when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
-        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2007, 10, 5));
+//        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2005, 10, 3));
+//        when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
+//        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2007, 10, 5));
 
         final var response = testController.validate(transaction, FILING_ID, request);
         assertThat(response.getValidationStatusError(), is(nullValue()));
@@ -123,9 +130,10 @@ class ValidationStatusControllerImplTest {
 
     @Test
     void validateWhenFilingFoundAndValidationErrors() {
-
+        ReflectionTestUtils.setField(testController, "isAp01Enabled", false);
         validationStatusControllerMocks();
-        when(companyAppointment.getEtag()).thenReturn(ETAG);
+        List<ApiError> errorList = new ArrayList<ApiError>();
+        when(companyAppointmentService.getCompanyAppointment( TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(dto.getReferenceEtag()).thenReturn("etag");
         when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
         when(dto.getResignedOn()).thenReturn(LocalDate.of(1022, 9, 13));
@@ -156,21 +164,21 @@ class ValidationStatusControllerImplTest {
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(officerFilingMapper.map(filing)).thenReturn(dto);
         when(transaction.getId()).thenReturn(TRANS_ID);
-        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(
+                PASSTHROUGH_HEADER);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
-        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
-        when(companyAppointment.getOfficerRole()).thenReturn(OFFICER_ROLE);
-        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER,
+                PASSTHROUGH_HEADER)).thenReturn(companyProfile);
     }
 
     @Test
     void validateWhenFilingAP01FoundAndNoValidationErrors() {
         ReflectionTestUtils.setField(testController, "isAp01Enabled", true);
         validationStatusControllerMocks();
-        when(dto.getReferenceEtag()).thenReturn(null);
-        when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
-        when(dto.getResignedOn()).thenReturn(null);
+//        when(dto.getReferenceEtag()).thenReturn(null);
+//        when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
+//        when(dto.getResignedOn()).thenReturn(null);
         when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
 
         final var response = testController.validate(transaction, FILING_ID, request);
