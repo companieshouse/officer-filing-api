@@ -108,6 +108,7 @@ class ValidationStatusControllerImplTest {
     void validateWhenFilingFoundAndNoValidationErrors() {
 
         validationStatusControllerMocks();
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(dto.getReferenceEtag()).thenReturn(ETAG);
         when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
         when(dto.getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
@@ -124,6 +125,7 @@ class ValidationStatusControllerImplTest {
     void validateWhenFilingFoundAndValidationErrors() {
 
         validationStatusControllerMocks();
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(dto.getReferenceEtag()).thenReturn("etag");
         when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
         when(dto.getResignedOn()).thenReturn(LocalDate.of(1022, 9, 13));
