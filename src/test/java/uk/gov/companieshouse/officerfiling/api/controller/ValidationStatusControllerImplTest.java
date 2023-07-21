@@ -115,13 +115,9 @@ class ValidationStatusControllerImplTest {
     void validateWhenFilingFoundAndNoValidationErrors() {
         ReflectionTestUtils.setField(testController, "isAp01Enabled", false);
         validationStatusControllerMocks();
-//        when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(dto.getReferenceEtag()).thenReturn(ETAG);
         when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
         when(dto.getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
-//        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2005, 10, 3));
-//        when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
-//        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2007, 10, 5));
 
         final var response = testController.validate(transaction, FILING_ID, request);
         assertThat(response.getValidationStatusError(), is(nullValue()));
@@ -176,9 +172,6 @@ class ValidationStatusControllerImplTest {
     void validateWhenFilingAP01FoundAndNoValidationErrors() {
         ReflectionTestUtils.setField(testController, "isAp01Enabled", true);
         validationStatusControllerMocks();
-//        when(dto.getReferenceEtag()).thenReturn(null);
-//        when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
-//        when(dto.getResignedOn()).thenReturn(null);
         when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
 
         final var response = testController.validate(transaction, FILING_ID, request);
