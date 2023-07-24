@@ -46,9 +46,6 @@ public interface OfficerValidator {
 
     public void validateRequiredTransactionFields(HttpServletRequest request, List<ApiError> errorList, Transaction transaction);
 
-    public Optional<AppointmentFullRecordAPI> getOfficerAppointment(HttpServletRequest request,
-        List<ApiError> errorList, OfficerFilingDto dto, Transaction transaction, String passthroughHeader);
-
     public Optional<CompanyProfileApi> getCompanyProfile(HttpServletRequest request,
         List<ApiError> errorList, Transaction transaction, String passthroughHeader);
 
@@ -57,8 +54,6 @@ public interface OfficerValidator {
     public void validateAllowedCompanyType(HttpServletRequest request, List<ApiError> errorList, CompanyProfileApi companyProfile);
 
     public void validateOfficerRole(HttpServletRequest request, List<ApiError> errorList, AppointmentFullRecordAPI companyAppointment);
-
-    String getDirectorName(AppointmentFullRecordAPI appointment);
 
     void createServiceError (HttpServletRequest request, List<ApiError> errorList);
 

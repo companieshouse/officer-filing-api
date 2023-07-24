@@ -93,21 +93,6 @@ public class OfficerAppointmentValidator implements OfficerValidator {
         }
     }
 
-    public Optional<AppointmentFullRecordAPI> getOfficerAppointment(HttpServletRequest request,
-        List<ApiError> errorList, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
-        try {
-            return Optional.ofNullable(
-                    companyAppointmentService.getCompanyAppointment(transaction.getId(), transaction.getCompanyNumber(),
-                            dto.getReferenceAppointmentId(), passthroughHeader));
-        } catch (ServiceUnavailableException e) {
-            createServiceError(request, errorList);
-        } catch (CompanyAppointmentServiceException e) {
-            // We do not have the directors name in this scenario for the error message
-            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DIRECTOR_NOT_FOUND, getDirectorName(null)));
-        }
-        return Optional.empty();
-    }
-
     public Optional<CompanyProfileApi> getCompanyProfile(HttpServletRequest request,
         List<ApiError> errorList, Transaction transaction, String passthroughHeader) {
         try {
@@ -150,13 +135,6 @@ public class OfficerAppointmentValidator implements OfficerValidator {
         if (!ALLOWED_OFFICER_ROLES.contains(companyAppointment.getOfficerRole())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.OFFICER_ROLE));
         }
-    }
-
-    public String getDirectorName(AppointmentFullRecordAPI appointment) {
-        if (appointment != null && appointment.getForename() != null && appointment.getSurname() != null) {
-            return appointment.getForename() + " " + appointment.getSurname();
-        }
-        return "Director";
     }
 
     public void createServiceError (HttpServletRequest request, List<ApiError> errorList) {
