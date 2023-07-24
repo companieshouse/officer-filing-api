@@ -23,11 +23,9 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
-import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
-import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionServiceImpl;
 
@@ -53,8 +51,6 @@ class OfficerAppointmnetValidatorTest {
     @Mock
     private CompanyProfileServiceImpl companyProfileService;
     @Mock
-    private CompanyAppointmentServiceImpl companyAppointmentService;
-    @Mock
     private Transaction transaction;
     @Mock
     private CompanyProfileApi companyProfile;
@@ -65,7 +61,7 @@ class OfficerAppointmnetValidatorTest {
 
     @BeforeEach
     void setUp() {
-        officerAppointmentValidator = new OfficerAppointmentValidator(logger, companyProfileService, companyAppointmentService, apiEnumerations);
+        officerAppointmentValidator = new OfficerAppointmentValidator(logger, companyProfileService, apiEnumerations);
         apiErrorsList = new ArrayList<>();
     }
 

@@ -129,7 +129,7 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
             //has a removal date so must be a TM01
             validator = new OfficerTerminationValidator(logger, companyProfileService, companyAppointmentService, apiEnumerations);
         } else if(officerFiling.getReferenceEtag() == null) {
-            validator = new OfficerAppointmentValidator(logger, companyProfileService, companyAppointmentService, apiEnumerations);
+            validator = new OfficerAppointmentValidator(logger, companyProfileService, apiEnumerations);
         } else {
             // cannot work out what filing type is so throw an exception.
             throw new ResourceNotFoundException("Filing type cannot be calculated using given data for transaction " + transaction.getId() );

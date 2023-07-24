@@ -8,11 +8,6 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
-import uk.gov.companieshouse.officerfiling.api.error.ErrorType;
-import uk.gov.companieshouse.officerfiling.api.error.LocationType;
-import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
-import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
-import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
@@ -29,26 +24,17 @@ import java.util.Optional;
  * Provides all validation that should be carried out when an officer is terminated. Fetches all data necessary to complete
  * the validation and generates a list of errors that can be sent back to the caller.
  */
-public class OfficerTerminationValidator implements OfficerValidator {
+public class OfficerTerminationValidator extends OfficerValidator {
 
-    private static final LocalDate MIN_RESIGNATION_DATE = LocalDate.of(2009, 10, 1);
-    private static final List<String> ALLOWED_COMPANY_TYPES = List.of("private-unlimited", "ltd", "plc", "private-limited-guarant-nsc-limited-exemption",
-            "private-limited-guarant-nsc", "private-unlimited-nsc", "private-limited-shares-section-30-exemption");
-    private static final List<String> ALLOWED_OFFICER_ROLES = List.of("director", "corporate-director", "nominee-director", "corporate-nominee-director");
-
-    private final CompanyProfileService companyProfileService;
-    private final CompanyAppointmentService companyAppointmentService;
-    private final Logger logger;
-    private final ApiEnumerations apiEnumerations;
-
+    private Logger logger;
+    private ApiEnumerations apiEnumerations;
     public OfficerTerminationValidator(final Logger logger,
                                        final CompanyProfileService companyProfileService,
                                        final CompanyAppointmentService companyAppointmentService,
                                        final ApiEnumerations apiEnumerations) {
+        super(logger, companyProfileService, companyAppointmentService, apiEnumerations);
         this.logger = logger;
-        this.companyProfileService = companyProfileService;
-        this.companyAppointmentService = companyAppointmentService;
-        this.apiEnumerations = apiEnumerations;
+        this.apiEnumerations = getApiEnumerations();
     }
 
     /**
@@ -59,6 +45,7 @@ public class OfficerTerminationValidator implements OfficerValidator {
      * @param passthroughHeader ERIC pass through header for authorisation
      * @return An object containing a list of any validation errors that have been raised
      */
+    @Override
     public ApiErrors validate(HttpServletRequest request, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
             logger.debugContext(transaction.getId(), "Beginning officer termination validation", new LogHelper.Builder(transaction)
                 .withRequest(request)
@@ -93,6 +80,7 @@ public class OfficerTerminationValidator implements OfficerValidator {
         return new ApiErrors(errorList);
     }
 
+    @Override
     public void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         // check for blank officer id, eTag and termination date
         if (dto.getReferenceAppointmentId() == null || dto.getReferenceAppointmentId().isBlank()) {
@@ -108,39 +96,11 @@ public class OfficerTerminationValidator implements OfficerValidator {
         }
     }
 
+    @Override
     public void validateRequiredTransactionFields(HttpServletRequest request, List<ApiError> errorList, Transaction transaction) {
         if (transaction.getCompanyNumber() == null || transaction.getCompanyNumber().isBlank()) {
             createValidationError(request, errorList, "The company number cannot be null or blank");
         }
-    }
-
-    public Optional<AppointmentFullRecordAPI> getOfficerAppointment(HttpServletRequest request,
-        List<ApiError> errorList, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
-        try {
-            return Optional.ofNullable(
-                    companyAppointmentService.getCompanyAppointment(transaction.getId(), transaction.getCompanyNumber(),
-                            dto.getReferenceAppointmentId(), passthroughHeader));
-        } catch (ServiceUnavailableException e) {
-            createServiceError(request, errorList);
-        } catch (CompanyAppointmentServiceException e) {
-            // We do not have the directors name in this scenario for the error message
-            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DIRECTOR_NOT_FOUND, getDirectorName(null)));
-        }
-        return Optional.empty();
-    }
-
-    public Optional<CompanyProfileApi> getCompanyProfile(HttpServletRequest request,
-        List<ApiError> errorList, Transaction transaction, String passthroughHeader) {
-        try {
-            return Optional.ofNullable(
-                companyProfileService.getCompanyProfile(transaction.getId(), transaction.getCompanyNumber(),
-                    passthroughHeader));
-        } catch (ServiceUnavailableException e) {
-            createServiceError(request, errorList);
-        } catch (CompanyProfileServiceException e) {
-            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CANNOT_FIND_COMPANY));
-        }
-        return Optional.empty();
     }
 
     public void validateSubmissionInformationInDate(HttpServletRequest request, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment, List<ApiError> errorList) {
@@ -187,6 +147,7 @@ public class OfficerTerminationValidator implements OfficerValidator {
         }
     }
 
+    @Override
     public void validateCompanyNotDissolved(HttpServletRequest request, List<ApiError> errorList, CompanyProfileApi companyProfile) {
         if (companyProfile.getCompanyStatus() == null) {
             logger.errorRequest(request, "null data was found in the Company Profile API within the Company Status field");
@@ -204,6 +165,7 @@ public class OfficerTerminationValidator implements OfficerValidator {
         }
     }
 
+    @Override
     public void validateAllowedCompanyType(HttpServletRequest request, List<ApiError> errorList, CompanyProfileApi companyProfile) {
         if (companyProfile.getType() == null) {
             logger.errorRequest(request, "null data was found in the Company Profile API within the Company Type field");
@@ -214,6 +176,7 @@ public class OfficerTerminationValidator implements OfficerValidator {
         }
     }
 
+    @Override
     public void validateOfficerRole(HttpServletRequest request, List<ApiError> errorList, AppointmentFullRecordAPI companyAppointment) {
         if (companyAppointment.getOfficerRole() == null) {
             logger.errorRequest(request, "null data was found in the Company Appointment API within the Officer Role field");
@@ -244,22 +207,5 @@ public class OfficerTerminationValidator implements OfficerValidator {
         });
     }
 
-    public String getDirectorName(AppointmentFullRecordAPI appointment) {
-        if (appointment != null && appointment.getForename() != null && appointment.getSurname() != null) {
-            return appointment.getForename() + " " + appointment.getSurname();
-        }
-        return "Director";
-    }
 
-    public void createServiceError(HttpServletRequest request, List<ApiError> errorList) {
-        final var apiError = new ApiError(apiEnumerations.getValidation(ValidationEnum.SERVICE_UNAVAILABLE), request.getRequestURI(),
-            LocationType.JSON_PATH.getValue(), ErrorType.SERVICE.getType());
-        errorList.add(apiError);
-    }
-
-    public void createValidationError(HttpServletRequest request, List<ApiError> errorList, String errorMessage) {
-        final var apiError = new ApiError(errorMessage, request.getRequestURI(),
-                LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
-        errorList.add(apiError);
-    }
 }
