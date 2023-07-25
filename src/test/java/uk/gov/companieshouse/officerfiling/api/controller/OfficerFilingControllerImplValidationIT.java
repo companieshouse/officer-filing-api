@@ -105,7 +105,7 @@ class OfficerFilingControllerImplValidationIT {
     void setUp() throws IOException, URIValidationException {
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
-        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete");
+        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete,create");
 
         transaction = new Transaction();
         transaction.setCompanyNumber(COMPANY_NUMBER);
