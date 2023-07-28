@@ -17,7 +17,7 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 /**
- * Provides all validation that should be carried out when an officer is terminated. Fetches all data necessary to complete
+ * Provides all validation that should be carried out when an officer is Appointed. Fetches all data necessary to complete
  * the validation and generates a list of errors that can be sent back to the caller.
  */
 public class OfficerAppointmentValidator extends OfficerValidator {
@@ -34,8 +34,8 @@ public class OfficerAppointmentValidator extends OfficerValidator {
     /**
      * Main validation method to fetch the required data and validate the request. This should be the point of call when terminating an officer.
      * @param request The servlet request used in logging
-     * @param dto Data Object containing details of the termination
-     * @param transaction the transaction for this termination
+     * @param dto Data Object containing details of the Appointment
+     * @param transaction the transaction for this Appointment
      * @param passthroughHeader ERIC pass through header for authorisation
      * @return An object containing a list of any validation errors that have been raised
      */
