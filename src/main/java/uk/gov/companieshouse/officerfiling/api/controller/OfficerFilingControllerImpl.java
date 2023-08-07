@@ -43,6 +43,7 @@ import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/transactions/{transactionId}/officers")
@@ -274,37 +275,38 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         return new Links(selfUri, validateUri);
     }
 
-    private OfficerFilingData buildOfficerFilingData(OfficerFiling officerFiling, OfficerFilingDto dto) {
-        OfficerFilingData data;
-        var refAppointmentId = "";
-        var refEtag = "";
-        Instant resignOn = null;
-        // if we have data already in the filing,  fill the fields with it.
-        if(officerFiling.getData() != null) {
-            data = officerFiling.getData();
-            refEtag = data.getReferenceEtag();
-            refAppointmentId = data.getReferenceAppointmentId();
-            resignOn = data.getResignedOn();
-        }
-        // if we have data coming in from the dto, replace existing data with the new data coming in.
-        if(dto.getReferenceEtag()  != null) {
-            refEtag = dto.getReferenceEtag();
-        }
-        if(dto.getReferenceAppointmentId()  != null) {
-            refAppointmentId = dto.getReferenceAppointmentId();
-        }
-        if(dto.getResignedOn()  != null) {
-            resignOn = dto.getResignedOn().atStartOfDay().toInstant(ZoneOffset.UTC);
-        }
+    /**
+     * Build a data object by combining the fields from the two arguments. If a field exists in the dto then that will be preferred,
+     * else the same field will be used from officerFiling.getData(), else it will be set to null.
+     * @param officerFiling Contains the data object which has the necessary fields
+     * @param dto Contains the preferential fields to use
+     * @return A new object where each field has been set according to the priority of the input data
+     */
+    public OfficerFilingData buildOfficerFilingData(OfficerFiling officerFiling, OfficerFilingDto dto) {
+        final OfficerFilingData data = Optional.ofNullable(officerFiling.getData())
+                .orElse(OfficerFilingData.builder().build());
 
-        final var referenceAppointmentId = refAppointmentId;
-        final var referenceEtag = refEtag;
-        final var resignedOn = resignOn;
+        return new OfficerFilingData.Builder()
+                .referenceEtag(Optional.ofNullable(dto.getReferenceEtag())
+                        .orElse(data.getReferenceEtag()))
+                .referenceAppointmentId(Optional.ofNullable(dto.getReferenceAppointmentId())
+                        .orElse(data.getReferenceAppointmentId()))
+                .resignedOn(getResignedOnFromDto(dto)
+                        .orElse(data.getResignedOn()))
+                .firstName(Optional.ofNullable(dto.getFirstName())
+                        .orElse(data.getFirstName()))
+                .middleNames(Optional.ofNullable(dto.getMiddleNames())
+                        .orElse(data.getMiddleNames()))
+                .lastName(Optional.ofNullable(dto.getLastName())
+                    .orElse(data.getLastName()))
+                .build();
+    }
 
-        return new OfficerFilingData(
-                referenceEtag,
-                referenceAppointmentId,
-                resignedOn);
+    private Optional<Instant> getResignedOnFromDto(OfficerFilingDto dto) {
+        if (dto.getResignedOn() != null) {
+            return Optional.of(dto.getResignedOn().atStartOfDay().toInstant(ZoneOffset.UTC));
+        }
+        return Optional.empty();
     }
 
     private String getExistingFilingId(Transaction transaction){

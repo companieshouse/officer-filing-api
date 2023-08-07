@@ -2,6 +2,8 @@ package uk.gov.companieshouse.officerfiling.api.model.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import org.springframework.validation.annotation.Validated;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +13,6 @@ import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.springframework.validation.annotation.Validated;
 
 @JsonDeserialize(builder = OfficerFilingDto.Builder.class)
 @Validated
@@ -25,6 +26,9 @@ public class OfficerFilingDto {
     private List<FormerNameDto> formerNames;
     private IdentificationDto identification;
     private String name;
+    private String firstName;
+    private String middleNames;
+    private String lastName;
     private String nationality;
     private String occupation;
     private String referenceEtag;
@@ -67,6 +71,18 @@ public class OfficerFilingDto {
 
     public String getName() {
         return name;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getMiddleNames() {
+        return middleNames;
+    }
+
+    public String getLastName() {
+        return lastName;
     }
 
     public String getNationality() {
@@ -119,6 +135,9 @@ public class OfficerFilingDto {
                 && Objects.equals(getFormerNames(), that.getFormerNames())
                 && Objects.equals(getIdentification(), that.getIdentification())
                 && Objects.equals(getName(), that.getName())
+                && Objects.equals(getFirstName(), that.getFirstName())
+                && Objects.equals(getMiddleNames(), that.getMiddleNames())
+                && Objects.equals(getLastName(), that.getLastName())
                 && Objects.equals(getNationality(), that.getNationality())
                 && Objects.equals(getOccupation(), that.getOccupation())
                 && Objects.equals(getReferenceEtag(), that.getReferenceEtag())
@@ -134,7 +153,8 @@ public class OfficerFilingDto {
     public int hashCode() {
         return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getDateOfBirth(), getFormerNames(),
-                getIdentification(), getName(), getNationality(), getOccupation(),
+                getIdentification(), getName(),
+                getFirstName(), getMiddleNames(), getLastName(), getNationality(), getOccupation(),
                 getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getResidentialAddress(),
                 getResidentialAddressSameAsCorrespondenceAddress());
@@ -151,6 +171,9 @@ public class OfficerFilingDto {
                 .add("formerNames=" + formerNames)
                 .add("identification=" + identification)
                 .add("name='" + name + "'")
+                .add("firstName='" + firstName + "'")
+                .add("middleNames='" + middleNames + "'")
+                .add("lastName='" + lastName + "'")
                 .add("nationality='" + nationality + "'")
                 .add("occupation='" + occupation + "'")
                 .add("referenceEtag='" + referenceEtag + "'")
@@ -235,6 +258,24 @@ public class OfficerFilingDto {
         public Builder name(final String value) {
 
             buildSteps.add(data -> data.name = value);
+            return this;
+        }
+
+        public Builder firstName(final String value) {
+
+            buildSteps.add(data -> data.firstName = value);
+            return this;
+        }
+
+        public Builder middleNames(final String value) {
+
+            buildSteps.add(data -> data.middleNames = value);
+            return this;
+        }
+
+        public Builder lastName(final String value) {
+
+            buildSteps.add(data -> data.lastName = value);
             return this;
         }
 

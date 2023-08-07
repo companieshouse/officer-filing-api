@@ -35,6 +35,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Month;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +46,7 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.never;
@@ -66,7 +69,7 @@ class OfficerFilingControllerImplTest {
     private static final String OFFICER_ROLE = "director";
     private static final String APPOINTMENT_ID = "12345678";
 
-    private OfficerFilingController testController;
+    private OfficerFilingControllerImpl testController;
     @Mock
     private OfficerFilingService officerFilingService;
     @Mock
@@ -341,6 +344,88 @@ class OfficerFilingControllerImplTest {
         buildLinks = ReflectionTestUtils.invokeMethod(testController, "buildLinks", idFiling.getId(),
                 request);
         assertThat(buildLinks.getSelf(), is(new URI("/transactions/027314-549816-769801/officers/63f4afcf5cd8192a09d6a9e8")));
+    }
+
+    @Test
+    void buildOfficerFilingDataWhenOnlyFilingPopulated() {
+        final OfficerFilingData data = OfficerFilingData.builder()
+                .resignedOn(Instant.ofEpochSecond(1690848000))
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(APPOINTMENT_ID)
+                .firstName("First")
+                .middleNames("Middle")
+                .lastName("Last")
+                .build();
+        final OfficerFiling filing = OfficerFiling.builder()
+                .createdAt(Instant.ofEpochSecond(1690934400))
+                .updatedAt(Instant.ofEpochSecond(1691020800))
+                .data(data)
+                .build();
+        final OfficerFilingDto dto = OfficerFilingDto.builder()
+                .build();
+
+        OfficerFilingData builtData = testController.buildOfficerFilingData(filing, dto);
+        assertThat(builtData, is(samePropertyValuesAs(data)));
+    }
+
+    @Test
+    void buildOfficerFilingDataWhenOnlyDtoPopulated() {
+        final OfficerFilingData data = OfficerFilingData.builder()
+                .build();
+        final OfficerFiling filing = OfficerFiling.builder()
+                .createdAt(Instant.ofEpochSecond(1690934400))
+                .updatedAt(Instant.ofEpochSecond(1691020800))
+                .data(data)
+                .build();
+        final OfficerFilingDto dto = OfficerFilingDto.builder()
+                .resignedOn(LocalDate.of(2023, Month.JULY, 31))
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(APPOINTMENT_ID)
+                .firstName("First")
+                .middleNames("Middle")
+                .lastName("Last")
+                .build();
+
+        OfficerFilingData builtData = testController.buildOfficerFilingData(filing, dto);
+        assertThat(LocalDate.ofInstant(builtData.getResignedOn(), ZoneId.of("UTC")), is(dto.getResignedOn()));
+        assertThat(builtData.getReferenceEtag(), is(dto.getReferenceEtag()));
+        assertThat(builtData.getReferenceAppointmentId(), is(dto.getReferenceAppointmentId()));
+        assertThat(builtData.getFirstName(), is(dto.getFirstName()));
+        assertThat(builtData.getMiddleNames(), is(dto.getMiddleNames()));
+        assertThat(builtData.getLastName(), is(dto.getLastName()));
+    }
+
+    @Test
+    void buildOfficerFilingDataWhenBothFilingAndDtoPopulated() {
+        final OfficerFilingData data = OfficerFilingData.builder()
+                .resignedOn(Instant.ofEpochSecond(100))
+                .referenceEtag("qw")
+                .referenceAppointmentId("er")
+                .firstName("ty")
+                .middleNames("ui")
+                .lastName("op")
+                .build();
+        final OfficerFiling filing = OfficerFiling.builder()
+                .createdAt(Instant.ofEpochSecond(1690934400))
+                .updatedAt(Instant.ofEpochSecond(1691020800))
+                .data(data)
+                .build();
+        final OfficerFilingDto dto = OfficerFilingDto.builder()
+                .resignedOn(LocalDate.of(2023, Month.JULY, 31))
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(APPOINTMENT_ID)
+                .firstName("First")
+                .middleNames("Middle")
+                .lastName("Last")
+                .build();
+
+        OfficerFilingData builtData = testController.buildOfficerFilingData(filing, dto);
+        assertThat(LocalDate.ofInstant(builtData.getResignedOn(), ZoneId.of("UTC")), is(dto.getResignedOn()));
+        assertThat(builtData.getReferenceEtag(), is(dto.getReferenceEtag()));
+        assertThat(builtData.getReferenceAppointmentId(), is(dto.getReferenceAppointmentId()));
+        assertThat(builtData.getFirstName(), is(dto.getFirstName()));
+        assertThat(builtData.getMiddleNames(), is(dto.getMiddleNames()));
+        assertThat(builtData.getLastName(), is(dto.getLastName()));
     }
 
 }
