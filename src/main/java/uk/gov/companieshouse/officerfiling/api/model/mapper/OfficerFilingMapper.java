@@ -1,16 +1,17 @@
 package uk.gov.companieshouse.officerfiling.api.model.mapper;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.filing.FilingData;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 @Mapper(componentModel = "spring")
 public interface OfficerFilingMapper {
@@ -29,6 +30,9 @@ public interface OfficerFilingMapper {
     @Mapping(target = "data.nationality", source = "nationality")
     @Mapping(target = "data.occupation", source = "occupation")
     @Mapping(target = "data.name", source = "name")
+    @Mapping(target = "data.firstName", source = "firstName")
+    @Mapping(target = "data.middleNames", source = "middleNames")
+    @Mapping(target = "data.lastName", source = "lastName")
     @Mapping(target = "data.referenceEtag", source = "referenceEtag")
     @Mapping(target = "data.referenceAppointmentId", source = "referenceAppointmentId")
     @Mapping(target = "data.referenceOfficerListEtag", source = "referenceOfficerListEtag")
@@ -47,6 +51,9 @@ public interface OfficerFilingMapper {
     @Mapping(target = "nationality", source = "data.nationality")
     @Mapping(target = "occupation", source = "data.occupation")
     @Mapping(target = "name", source = "data.name")
+    @Mapping(target = "firstName", source = "data.firstName")
+    @Mapping(target = "middleNames", source = "data.middleNames")
+    @Mapping(target = "lastName", source = "data.lastName")
     @Mapping(target = "referenceEtag", source = "data.referenceEtag")
     @Mapping(target = "referenceAppointmentId", source = "data.referenceAppointmentId")
     @Mapping(target = "referenceOfficerListEtag", source = "data.referenceOfficerListEtag")

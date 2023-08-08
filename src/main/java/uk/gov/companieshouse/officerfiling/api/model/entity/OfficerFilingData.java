@@ -22,6 +22,7 @@ public class OfficerFilingData {
     private List<FormerName> formerNames;
     private String name;
     private String firstName;
+    private String middleNames;
     private String lastName;
     private String nationality;
     private String occupation;
@@ -86,6 +87,10 @@ public class OfficerFilingData {
 
     public String getFirstName() {
         return firstName;
+    }
+
+    public String getMiddleNames() {
+        return middleNames;
     }
 
     public String getLastName() {
@@ -154,6 +159,7 @@ public class OfficerFilingData {
                 && Objects.equals(getFormerNames(), that.getFormerNames())
                 && Objects.equals(getName(), that.getName())
                 && Objects.equals(getFirstName(), that.getFirstName())
+                && Objects.equals(getMiddleNames(), that.getMiddleNames())
                 && Objects.equals(getLastName(), that.getLastName())
                 && Objects.equals(getNationality(), that.getNationality())
                 && Objects.equals(getOccupation(), that.getOccupation())
@@ -173,7 +179,7 @@ public class OfficerFilingData {
         return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getDateOfBirth(),
                 getFormerNames(), getName(),
-                getFirstName(), getLastName(), getNationality(), getOccupation(), getOfficerRole(),
+                getFirstName(), getMiddleNames(), getLastName(), getNationality(), getOccupation(), getOfficerRole(),
                 getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getStatus(), getResidentialAddress(),
                 getResidentialAddressSameAsCorrespondenceAddress());
@@ -190,6 +196,7 @@ public class OfficerFilingData {
                 .add("formerNames=" + formerNames)
                 .add("name='" + name + "'")
                 .add("firstName='" + firstName + "'")
+                .add("middleNames='" + middleNames + "'")
                 .add("lastName='" + lastName + "'")
                 .add("nationality='" + nationality + "'")
                 .add("occupation='" + occupation + "'")
@@ -220,7 +227,7 @@ public class OfficerFilingData {
 
         private final List<Consumer<OfficerFilingData>> buildSteps;
 
-        private Builder() {
+        public Builder() {
             buildSteps = new ArrayList<>();
         }
 
@@ -236,6 +243,7 @@ public class OfficerFilingData {
                     .formerNames(other.getFormerNames())
                     .name(other.getName())
                     .firstName(other.getFirstName())
+                    .middleNames(other.getMiddleNames())
                     .lastName(other.getLastName())
                     .nationality(other.getNationality())
                     .occupation(other.getOccupation())
@@ -304,6 +312,12 @@ public class OfficerFilingData {
         public Builder firstName(final String value) {
 
             buildSteps.add(data -> data.firstName = value);
+            return this;
+        }
+
+        public Builder middleNames(final String value) {
+
+            buildSteps.add(data -> data.middleNames = value);
             return this;
         }
 
