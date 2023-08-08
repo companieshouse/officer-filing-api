@@ -38,6 +38,7 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.HashMap;
@@ -303,10 +304,9 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     }
 
     private Optional<Instant> getResignedOnFromDto(OfficerFilingDto dto) {
-        if (dto.getResignedOn() != null) {
-            return Optional.of(dto.getResignedOn().atStartOfDay().toInstant(ZoneOffset.UTC));
-        }
-        return Optional.empty();
+        return Optional.ofNullable(dto.getResignedOn())
+                .map(LocalDate::atStartOfDay)
+                .map(d -> d.toInstant(ZoneOffset.UTC));
     }
 
     private String getExistingFilingId(Transaction transaction){
