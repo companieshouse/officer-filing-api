@@ -1,6 +1,8 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import java.util.Optional;
+import org.apache.commons.lang.NotImplementedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
@@ -62,7 +64,21 @@ public class FilingDataServiceImpl implements FilingDataService {
     @Override
     public FilingApi generateOfficerFiling(String transactionId, String filingId, String ericPassThroughHeader) {
         var filing = new FilingApi();
-        filing.setKind("officer-filing#termination"); // TODO: handling other kinds to come later
+        Optional<OfficerFiling> officerFiling = officerFilingService.get(filingId, transactionId);
+        if(officerFiling.isPresent()) {
+            OfficerFilingData presentOfficerFilingData = officerFiling.get().getData();
+            if (presentOfficerFilingData.getResignedOn() != null) {
+                //has a removal date so must be a TM01
+                filing.setKind("officer-filing#termination");
+            } else if (presentOfficerFilingData.getReferenceEtag() == null) {
+                //has no Etag (and has no removal date) so it must be an AP01
+                filing.setKind("officer-filing#appointment");
+            } else {
+                throw new NotImplementedException("Kind cannot be calculated using given data for transaction " + transactionId );
+            }
+        } else {
+            filing.setKind("officer-filing#termination");
+        }
 
         setFilingApiData(filing, transactionId, filingId, ericPassThroughHeader);
         return filing;
@@ -71,7 +87,7 @@ public class FilingDataServiceImpl implements FilingDataService {
     private void setFilingApiData(FilingApi filing, String transactionId, String filingId,
                                   String ericPassThroughHeader) {
         var officerFilingOpt = officerFilingService.get(filingId, transactionId);
-        var officerFiling = officerFilingOpt.orElseThrow(() -> new ResourceNotFoundException(
+        var officerFiling = officerFilingOpt.orElseThrow(() -> new NotImplementedException(
                 String.format("Officer not found when generating filing for %s", filingId)));
         final var transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
         String companyNumber = transaction.getCompanyNumber();
