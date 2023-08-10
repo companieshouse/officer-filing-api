@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang.NotImplementedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -191,6 +192,7 @@ class ValidationStatusControllerImplTest {
         when(dto.getReferenceEtag()).thenReturn("ETAG");
         when(dto.getResignedOn()).thenReturn(null);
 
-        assertThrows(ResourceNotFoundException.class, () -> testController.validate(transaction, FILING_ID, request));
+        assertThrows(
+                NotImplementedException.class, () -> testController.validate(transaction, FILING_ID, request));
     }
 }
