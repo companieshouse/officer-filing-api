@@ -32,7 +32,7 @@
   "paths": {
     "/officer-filing/company/{companyNumber}/eligibility-check/past-future-dissolved": {
       "get": {
-        "summary": "Check whether a company has been dissolved.",
+        "summary": "Check whether a company has been dissolved",
         "description": "Checks the Companies House Public Data API to determine whether a company has been dissolved.",
         "produces": [
           "application/json"
@@ -46,7 +46,8 @@
           "200": {
             "description": "OK",
             "schema": {
-              "type": "boolean"
+              "type": "boolean",
+              "title": "dissolved"
             }
           },
           "401": {
@@ -84,7 +85,8 @@
                   "type": "string",
                   "example": "UP"
                 }
-            }
+            },
+            "title": "health"
           }
         },
         "401": {
@@ -106,7 +108,7 @@
     },
     "/private/transactions/{transactionId}/officers/{filingResourceId}/filings": {
       "get": {
-        "summary": "Get officer filing data.",
+        "summary": "Get officer filing data",
         "description": "Get officer filing data. User input data is combined with data from Company Appointments for use by the CHIPS filing consumer.",
         "produces": [
           "application/json"
@@ -153,7 +155,7 @@
     },
     "/transactions/{transactionId}/officers": {
       "post": {
-        "summary": "Create an officer filing.",
+        "summary": "Create an officer filing",
         "description": "Create an officer filing. Data supplied in the request body determines filing type.",
         "consumes": [
           "application/json"
@@ -203,7 +205,7 @@
     },
     "/transactions/{transactionId}/officers/active-directors-details": {
       "get": {
-        "summary": "Return a list of active directors for a company.",
+        "summary": "Return a list of active directors for a company",
         "description": "Return a list of active directors for a company. The company is taken from the transaction.",
         "produces": [
           "application/json"
@@ -239,7 +241,7 @@
     },
     "/transactions/{transactionId}/officers/{filingId}/tm01-check-answers-directors-details": {
       "get": {
-        "summary": "Return information required for the TM01 check your answers page.",
+        "summary": "Return information required for the TM01 check your answers page",
         "description": "Return information required for the TM01 check your answers page. Data is taken from the officer filing and Company Appointments.",
         "produces": [
           "application/json"
@@ -278,7 +280,7 @@
     },
     "/transactions/{transactionId}/officers/{filingResourceId}": {
       "get": {
-        "summary": "Return the current state of the officer filing.",
+        "summary": "Return the current state of the officer filing",
         "description": "Return the current state of the officer filing.",
 
         "produces": [
@@ -316,7 +318,7 @@
         "x-operationName": "reviewFiling"
       },
       "patch": {
-        "summary": "Update an existing officer filing.",
+        "summary": "Update an existing officer filing",
         "description": "Update an existing officer filing. Data provided in the PATCH will overwrite existing input where it exists.",
         "consumes": [
           "application/json"
@@ -366,7 +368,7 @@
     },
     "/transactions/{transactionId}/officers/{filingResourceId}/validation_status": {
       "get": {
-        "summary": "Return validation for an officer filing.",
+        "summary": "Return validation for an officer filing",
         "description": "Return validation for an officer filing. Errors will be returned to allow a user to correct a filing.",
         "produces": [
           "application/json"
@@ -552,6 +554,7 @@
         }
       },
       "type": "object",
+      "title": "address",
       "description": "Officer address"
     },
     "ApiError": {
@@ -612,7 +615,8 @@
           "description": "Year"
         }
       },
-      "type": "object"
+      "type": "object",
+      "title": "date of birth"
     },
     "DateOfBirthShort": {
       "description": "Short date of birth, missing the day.",
@@ -628,7 +632,8 @@
           "description": "Year"
         }
       },
-      "type": "object"
+      "type": "object",
+      "title": "date of birth"
     },
     "ChipsFiling": {
       "properties": {
@@ -702,7 +707,8 @@
           "description": "Surname"
         }
       },
-      "type": "object"
+      "type": "object",
+      "title": "former name"
     },
     "Identification": {
       "description": "Details that identify an officer.",
@@ -728,7 +734,8 @@
           "description": "Registration number"
         }
       },
-      "type": "object"
+      "type": "object",
+      "title": "identification"
     },
     "OfficerFilingLinks": {
       "description": "Filing resource associated locations",
@@ -844,7 +851,8 @@
           "description": "Date the officer resigned"
         }
       },
-      "type": "object"
+      "type": "object",
+      "title": "officer filing"
     },
     "OfficerFilingResponse": {
       "properties": {
@@ -869,7 +877,8 @@
           "description": "Datetime the filing was last updated"
         }
         },
-      "type": "object"
+      "type": "object",
+      "title": "officer filing response"
     },
     "ActiveOfficers": {
       "properties": {
@@ -910,7 +919,8 @@
       },
       "type": "array",
       "uniqueItems": true,
-      "description": "All active officers for a company."
+      "description": "All active officers for a company.",
+      "title": "active officers"
     },
     "TM01CheckAnswers": {
       "properties": {
@@ -981,7 +991,8 @@
         }
       },
       "type": "object",
-      "description": "The data needed to populate the TM01 check your answers page."
+      "description": "The data needed to populate the TM01 check your answers page.",
+      "title": "tm01 check answers"
     },
     "ValidationStatusError": {
       "properties": {
@@ -1002,7 +1013,8 @@
           "description": "Type"
         }
       },
-      "type": "object"
+      "type": "object",
+      "title": "validation status error"
     },
     "ValidationStatusResponse": {
       "properties": {
@@ -1017,7 +1029,8 @@
           "description": "Whether the officer filing is free of errors."
         }
       },
-      "type": "object"
+      "type": "object",
+      "title": "validation status"
     }
   }
 }
