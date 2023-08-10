@@ -111,6 +111,11 @@
         "produces": [
           "application/json"
         ],
+        "security": [
+          {
+            "api_key": []
+          }
+        ],
         "parameters": [
           {
             "$ref": "#/parameters/transactionId"
