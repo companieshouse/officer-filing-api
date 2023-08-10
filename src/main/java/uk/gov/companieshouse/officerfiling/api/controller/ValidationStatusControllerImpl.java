@@ -2,6 +2,7 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang.NotImplementedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -132,7 +133,7 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
             validator = new OfficerAppointmentValidator(logger, companyProfileService, apiEnumerations);
         } else {
             // cannot work out what filing type is so throw an exception.
-            throw new ResourceNotFoundException("Filing type cannot be calculated using given data for transaction " + transaction.getId() );
+            throw new NotImplementedException("Filing type cannot be calculated using given data for transaction " + transaction.getId() );
         }
 
 
