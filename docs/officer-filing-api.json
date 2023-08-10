@@ -705,8 +705,8 @@
       "type": "object"
     },
     "Identification": {
+      "description": "Details that identify an officer.",
       "properties": {
-        "description": "Details that identify an officer.",
         "identification_type": {
           "type": "string",
           "description": "Identification type"
