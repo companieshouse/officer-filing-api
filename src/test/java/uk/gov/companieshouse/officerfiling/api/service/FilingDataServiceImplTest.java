@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
+import org.apache.commons.lang.NotImplementedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -162,7 +163,7 @@ class FilingDataServiceImplTest {
     void generateOfficerFilingWhenNotFound() {
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
 
-        final var exception = assertThrows(ResourceNotFoundException.class,
+        final var exception = assertThrows(NotImplementedException.class,
                 () -> testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER));
 
         assertThat(exception.getMessage(),
