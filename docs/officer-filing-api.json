@@ -1,0 +1,1018 @@
+{
+  "swagger": "2.0",
+  "x-sortMethodsBy": [
+    "operation",
+    "path"
+  ],
+  "info": {
+    "title": "Officer Filing API",
+    "version": "TBC",
+    "description": "An API that allows clients to submit officer filing. Currently for TM01 (Terminate an officer) only."
+  },
+  "host": "api.chs.local:4001",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "security": [
+    {
+      "oauth2": [
+        "https://api.company-information.service.gov.uk/company/*/officers.read-protected",
+        "https://api.company-information.service.gov.uk/company/*/officers.delete",
+        "https://account.companieshouse.gov.uk/user/profile.read"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "officerFiling",
+      "description": "Company officers"
+    }
+  ],
+  "paths": {
+    "/officer-filing/company/{companyNumber}/eligibility-check/past-future-dissolved": {
+      "get": {
+        "summary": "Check whether a company has been dissolved.",
+        "description": "Checks the Companies House Public Data API to determine whether a company has been dissolved.",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/companyNumber"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerError"
+          }
+        },
+        "tags": [
+          "officerFiling"
+        ],
+        "operationId": "getCurrentOrFutureDissolved",
+        "x-operationName": "getDissolved"
+      }
+    },
+    "/officer-filing/healthcheck": {
+      "get": {
+        "summary": "Check the health of the officer filing API",
+        "description": "Determines whether the officer filing API is avaiable for use",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "properties": {
+                "status": {
+                  "description": "The availability of the officer filing API",
+                  "type": "string",
+                  "example": "UP"
+                }
+            }
+          }
+        },
+        "401": {
+          "$ref": "#/responses/Unauthorized"
+        },
+        "404": {
+          "$ref": "#/responses/NotFound"
+        },
+          "500": {
+            "$ref": "#/responses/InternalServerError"
+          }
+        },
+        "tags": [
+          "officerFiling"
+        ],
+        "operationId": "healthCheck",
+        "x-operationName": "health"
+      }
+    },
+    "/private/transactions/{transactionId}/officers/{filingResourceId}/filings": {
+      "get": {
+        "summary": "Get officer filing data.",
+        "description": "Get officer filing data. User input data is combined with data from Company Appointments for use by the CHIPS filing consumer.",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/transactionId"
+          },
+          {
+            "$ref": "#/parameters/filingResourceId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/ChipsFiling"
+              },
+              "type": "array"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerError"
+          }
+        },
+        "tags": [
+          "officerFiling"
+        ],
+        "operationId": "getFilingsData",
+        "x-operationName": "getFiling"
+      }
+    },
+    "/transactions/{transactionId}/officers": {
+      "post": {
+        "summary": "Create an officer filing.",
+        "description": "Create an officer filing. Data supplied in the request body determines filing type.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OfficerFiling"
+            }
+          },
+          {
+            "$ref": "#/parameters/transactionId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/OfficerFilingResponse"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerError"
+          }
+        },
+        "tags": [
+          "officerFiling"
+        ],
+        "operationId": "createFiling",
+        "x-operationName": "create"
+      }
+    },
+    "/transactions/{transactionId}/officers/active-directors-details": {
+      "get": {
+        "summary": "Return a list of active directors for a company.",
+        "description": "Return a list of active directors for a company. The company is taken from the transaction.",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/transactionId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ActiveOfficers"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerError"
+          }
+        },
+        "tags": [
+          "officerFiling"
+        ],
+        "operationId": "listActiveDirectorsDetails",
+        "x-operationName": "activeDirectorsDetails"
+      }
+    },
+    "/transactions/{transactionId}/officers/{filingId}/tm01-check-answers-directors-details": {
+      "get": {
+        "summary": "Return information required for the TM01 check your answers page.",
+        "description": "Return information required for the TM01 check your answers page. Data is taken from the officer filing and Company Appointments.",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/transactionId"
+          },
+          {
+            "$ref": "#/parameters/filingResourceId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/TM01CheckAnswers"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerError"
+          }
+        },
+        "tags": [
+          "officerFiling"
+        ],
+        "operationId": "tm01CheckAnswersDirectorDetails",
+        "x-operationName": "tm01CheckAnswers"
+      }
+    },
+    "/transactions/{transactionId}/officers/{filingResourceId}": {
+      "get": {
+        "summary": "Return the current state of the officer filing.",
+        "description": "Return the current state of the officer filing.",
+
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/transactionId"
+          },
+          {
+            "$ref": "#/parameters/filingResourceId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/OfficerFiling"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerError"
+          }
+        },
+        "tags": [
+          "officerFiling"
+        ],
+        "operationId": "getFilingForReview",
+        "x-operationName": "reviewFiling"
+      },
+      "patch": {
+        "summary": "Update an existing officer filing.",
+        "description": "Update an existing officer filing. Data provided in the PATCH will overwrite existing input where it exists.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OfficerFiling"
+            }
+          },
+          {
+            "$ref": "#/parameters/transactionId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/OfficerFilingResponse"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerError"
+          }
+        },
+        "tags": [
+          "officerFiling"
+        ],
+        "operationId": "patchFiling",
+        "x-operationName": "patch"
+      }
+    },
+    "/transactions/{transactionId}/officers/{filingResourceId}/validation_status": {
+      "get": {
+        "summary": "Return validation for an officer filing.",
+        "description": "Return validation for an officer filing. Errors will be returned to allow a user to correct a filing.",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/filingResourceId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ValidationResponse"
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerError"
+          }
+        },
+        "tags": [
+          "officerFiling"
+        ],
+        "operationId": "validate",
+        "x-operationName": "validate"
+      }
+    }
+  },
+  "parameters": {
+    "companyNumber": {
+      "name": "companyNumber",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "description": "The 8-character reference issued by Companies House when the company was set up",
+      "x-example": "00006400"
+    },
+    "filingResourceId": {
+      "name": "filingResourceId",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "description": "The unique ID of the filing resource",
+      "x-example": "63a0776f339d254f9fc04a35"
+    },
+    "transactionId": {
+      "name": "transactionId",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "description": "The transaction that this officer filing is applied to",
+      "x-example": "142481-538116-714607"
+    }
+  },
+  "responses": {
+    "InternalServerError": {
+      "description": "The request could not be fulfilled because of an internal error.",
+      "schema": {
+        "$ref": "#/definitions/InternalErrors"
+      }
+    },
+    "BadRequest": {
+      "description": "There was an issue with the request.",
+      "schema": {
+        "$ref": "#/definitions/InternalErrors"
+      }
+    },
+    "NotFound": {
+      "description": "The requested resource was not found. This could be due to an incorrect parameter in the URI."
+    },
+    "Unauthorized": {
+      "description": "Request credentials/authorization are invalid or missing.",
+      "schema": {
+        "type": "object",
+        "readOnly": true,
+        "title": "unauthorized",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "type": {
+            "type": "string",
+            "description": "Error type"
+          }
+        },
+        "example": {
+          "error": "Invalid Authorization",
+          "type": "ch:service"
+        }
+      }
+    },
+    "ValidationResponse": {
+      "description": "The result of the validation.",
+      "schema": {
+        "$ref": "#/definitions/ValidationStatusResponse"
+      }
+    }
+  },
+  "securityDefinitions": {
+    "oauth2": {
+      "type": "oauth2",
+      "flow": "accessCode",
+      "authorizationUrl": "http://account.chs.local/oauth2/authorise",
+      "tokenUrl": "http://account.chs.local/oauth2/token",
+      "scopes": {
+        "https://api.company-information.service.gov.uk/company/*/officers.delete": "Grants permission to terminate an officer belonging to this company.",
+        "https://api.company-information.service.gov.uk/company/*/officers.read-protected": "Grants permissions to read protected data for officers in this company.",
+        "https://account.companieshouse.gov.uk/user/profile.read": "Grants permission to read the CHS User profile."
+      }
+    },
+    "api_key": {
+      "type": "apiKey",
+      "name": "api_key",
+      "in": "header"
+    }
+  },
+  "definitions": {
+    "InternalErrors": {
+      "properties": {
+        "errors": {
+          "items": {
+            "$ref": "#/definitions/ApiError"
+          },
+          "type": "array",
+          "uniqueItems": true,
+          "description": "Errors set"
+        }
+      },
+      "type": "object",
+      "title": "internal errors",
+      "example": {
+        "errors": [
+          {
+            "error": "Service Unavailable",
+            "location": "/transactions/207544-458216-854608/officers",
+            "location_type": "resource",
+            "type": "ch:service"
+          }
+        ]
+      }
+    },
+    "AddressDto": {
+      "properties": {
+        "address_line_1": {
+          "type": "string",
+          "description": "Address line one"
+        },
+        "address_line_2": {
+          "type": "string",
+          "description": "Address line two"
+        },
+        "care_of": {
+          "type": "string",
+          "description": "Care of"
+        },
+        "country": {
+          "type": "string",
+          "description": "Country"
+        },
+        "locality": {
+          "type": "string",
+          "description": "Locality"
+        },
+        "po_box": {
+          "type": "string",
+          "description": "PO Box"
+        },
+        "postal_code": {
+          "type": "string",
+          "description": "Post code"
+        },
+        "premises": {
+          "type": "string",
+          "description": "Premises"
+        },
+        "region": {
+          "type": "string",
+          "description": "Region"
+        }
+      },
+      "type": "object",
+      "description": "Officer address"
+    },
+    "ApiError": {
+      "properties": {
+        "error": {
+          "description": "Error message",
+          "type": "string"
+        },
+        "error_values": {
+          "additionalProperties": {
+            "type": "string",
+            "description": "Value name"
+          },
+          "type": "string",
+          "description": "Associated error values"
+        },
+        "location": {
+          "type": "string",
+          "description": "Error location"
+        },
+        "location_type": {
+          "type": "string",
+          "enum": [
+            "resource",
+            "request-body",
+            "json-path"
+          ],
+          "description": "Location type"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "ch:service",
+            "ch:validation"
+          ],
+          "description": "Error type"
+        }
+      },
+      "type": "object",
+      "title": "error"
+    },
+    "DateOfBirth": {
+      "description": "Full date of birth.",
+      "properties": {
+        "day": {
+          "format": "int32",
+          "type": "integer",
+          "description": "Day"
+        },
+        "month": {
+          "format": "int32",
+          "type": "integer",
+          "description": "Month"
+        },
+        "year": {
+          "format": "int32",
+          "type": "integer",
+          "description": "Year"
+        }
+      },
+      "type": "object"
+    },
+    "DateOfBirthShort": {
+      "description": "Short date of birth, missing the day.",
+      "properties": {
+        "month": {
+          "format": "int32",
+          "type": "integer",
+          "description": "Month"
+        },
+        "year": {
+          "format": "int32",
+          "type": "integer",
+          "description": "Year"
+        }
+      },
+      "type": "object"
+    },
+    "ChipsFiling": {
+      "properties": {
+        "cost": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Cost"
+        },
+        "data": {
+          "additionalProperties": {
+            "type": "object",
+            "readOnly": true,
+            "description": "Data name"
+          },
+          "type": "string",
+          "readOnly": true,
+          "description": "Filing data"
+        },
+        "description": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Description"
+        },
+        "description_identifier": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Description identifier"
+        },
+        "description_values": {
+          "additionalProperties": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Description name"
+          },
+          "type": "string",
+          "readOnly": true,
+          "description": "Filing descriptions"
+        },
+        "kind": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Filing kind"
+        }
+      },
+      "type": "object",
+      "title": "filing for chips",
+      "description": "CHIPS-compatible Officer filing details",
+      "example": [
+        {
+          "data": {
+            "name": "Random Person",
+            "corporate_director": "true",
+            "reference_etag": "a511e62329677947e03e161264c96b854cf2ba7d",
+            "resigned_on": "2022-08-29",
+            "reference_appointment_id": "62b78d9c-4dcf-49c7-935b-96d8f7d56b0b"
+          },
+          "description": "Notice of the removal (TM01), appointment (AP01) or update (UP01) of a director.",
+          "kind": "officer-filing"
+        }
+      ]
+    },
+    "FormerName": {
+      "description": "Former names of an officer.",
+      "properties": {
+        "forenames": {
+          "type": "string",
+          "description": "Forenames"
+        },
+        "surname": {
+          "type": "string",
+          "description": "Surname"
+        }
+      },
+      "type": "object"
+    },
+    "Identification": {
+      "properties": {
+        "description": "Details that ide3ntify an officer.",
+        "identification_type": {
+          "type": "string",
+          "description": "Identification type"
+        },
+        "legal_authority": {
+          "type": "string",
+          "description": "Legal authority"
+        },
+        "legal_form": {
+          "type": "string",
+          "description": "Legal form"
+        },
+        "place_registered": {
+          "type": "string",
+          "description": "Place registered"
+        },
+        "registration_number": {
+          "type": "string",
+          "description": "Registration number"
+        }
+      },
+      "type": "object"
+    },
+    "OfficerFilingLinks": {
+      "description": "Filing resource associated locations",
+      "properties": {
+        "self": {
+          "description": "Filing resource location",
+          "format": "uri",
+          "type": "string",
+          "readOnly": true,
+          "example": "/transactions/021576-444716-850996/officers/64d0bf45de69ad0bffe90f41"
+        },
+        "validation_status": {
+          "description": "Filing resource validation location",
+          "format": "uri",
+          "type": "string",
+          "readOnly": true,
+          "example": "/transactions/021576-444716-850996/officers/64d0bf45de69ad0bffe90f41/validation_status"
+        }
+      },
+      "readOnly": true,
+      "type": "object",
+      "title": "links"
+    },
+    "OfficerAppointmentLinks": {
+      "description": "Filing resource associated locations",
+      "properties": {
+        "self": {
+          "description": "Filing resource location",
+          "format": "uri",
+          "type": "string",
+          "readOnly": true,
+          "example": "/transactions/021576-444716-850996/officers/64d0bf45de69ad0bffe90f41"
+        },
+        "officer": {
+          "appointments": {
+            "description": "Path to the officer appointment",
+            "format": "uri",
+            "type": "string",
+            "readOnly": true,
+            "example": "/officers/WoEYQPTdghoZxhoaSYTQuXfluJg/appointments"
+          }
+        }
+      },
+      "readOnly": true,
+      "type": "object",
+      "title": "links"
+    },
+    "OfficerFiling": {
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/AddressDto"
+        },
+        "address_same_as_registered_office_address": {
+          "type": "boolean",
+          "description": "Address same as registered office address"
+        },
+        "appointed_on": {
+          "format": "date",
+          "type": "string",
+          "description": "Date the officer was appointed on"
+        },
+        "country_of_residence": {
+          "type": "string",
+          "description": "Country of residence"
+        },
+        "date_of_birth": {
+          "$ref": "#/definitions/DateOfBirth",
+          "description": "Date of birth"
+        },
+        "former_names": {
+          "items": {
+            "$ref": "#/definitions/FormerName"
+          },
+          "type": "array"
+        },
+        "identification": {
+          "$ref": "#/definitions/Identification"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name"
+        },
+        "nationality": {
+          "type": "string",
+          "description": "Nationality"
+        },
+        "occupation": {
+          "type": "string",
+          "description": "Occupation"
+        },
+        "reference_appointment_id": {
+          "type": "string",
+          "description": "The officers appointment ID"
+        },
+        "reference_etag": {
+          "type": "string",
+          "description": "ETAG for the officer data"
+        },
+        "reference_officer_list_etag": {
+          "type": "string",
+          "description": "Reference officer list etag"
+        },
+        "residential_address": {
+          "$ref": "#/definitions/AddressDto"
+        },
+        "residential_address_same_as_correspondence_address": {
+          "type": "boolean",
+          "description": "Residential address same as correspondence address"
+        },
+        "resigned_on": {
+          "format": "date",
+          "type": "string",
+          "description": "Date the officer resigned"
+        }
+      },
+      "type": "object"
+    },
+    "OfficerFilingResponse": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Filing ID for this filing"
+        },
+        "created_at": {
+          "format": "date",
+          "type": "string",
+          "description": "Datetime the filing was created"
+        },
+        "links": {
+          "$ref": "#/definitions/OfficerFilingLinks"
+        },
+        "data": {
+            "$ref": "#/definitions/OfficerFiling"
+          },
+        "updated_at": {
+          "format": "date",
+          "type": "string",
+          "description": "Datetime the filing was last updated"
+        }
+        },
+      "type": "object"
+    },
+    "ActiveOfficers": {
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/AddressDto"
+        },
+        "appointed_on": {
+          "format": "date",
+          "type": "string",
+          "description": "Date the officer was appointed"
+        },
+        "country_of_residence": {
+          "type": "string",
+          "description": "Country of residence"
+        },
+        "date_of_birth": {
+          "$ref": "#/definitions/DateOfBirthShort"
+        },
+        "links": {
+          "$ref": "#/definitions/OfficerAppointmentLinks"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the officer"
+        },
+        "nationality": {
+          "type": "string",
+          "description": "Nationality"
+        },
+        "occupation": {
+          "type": "string",
+          "description": "Occupation"
+        },
+        "officer_role": {
+          "type": "string",
+          "description": "Officer role"
+        }
+      },
+      "type": "array",
+      "uniqueItems": true,
+      "description": "All active officers for a company."
+    },
+    "TM01CheckAnswers": {
+      "properties": {
+        "officer_name": {
+          "type": "string",
+          "description": "Name of the officer"
+        },
+        "usual_residential_address": {
+          "$ref": "#/definitions/AddressDto"
+        },
+        "appointed_on": {
+          "format": "date",
+          "type": "string",
+          "description": "Date the officer was appointed"
+        },
+        "resigned_on": {
+          "format": "date",
+          "type": "string",
+          "description": "Date the officer resigned"
+        },
+        "country_of_residence": {
+          "type": "string",
+          "description": "Country of residence"
+        },
+        "date_of_birth": {
+          "$ref": "#/definitions/DateOfBirth"
+        },
+        "formerNames": {
+          "items": {
+            "$ref": "#/definitions/FormerName"
+          },
+          "type": "array"
+        },
+        "surname": {
+          "type": "string",
+          "description": "Surname"
+        },
+        "forename": {
+          "type": "string",
+          "description": "Forename"
+        },
+        "other_forenames": {
+          "type": "string",
+          "description": "Other forenames"
+        },
+        "links": {
+          "$ref": "#/definitions/OfficerAppointmentLinks"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the officer"
+        },
+        "nationality": {
+          "type": "string",
+          "description": "Nationality"
+        },
+        "occupation": {
+          "type": "string",
+          "description": "Occupation"
+        },
+        "officer_role": {
+          "type": "string",
+          "description": "Officer role"
+        },
+        "etag": {
+          "type": "string",
+          "description": "ETAG"
+        }
+      },
+      "type": "object",
+      "description": "The data needed to populate the TM01 check your answers page."
+    },
+    "ValidationStatusError": {
+      "properties": {
+        "error": {
+          "type": "string",
+          "description": "A list of errors associated with the filing."
+        },
+        "location": {
+          "type": "string",
+          "description": "Location"
+        },
+        "location_type": {
+          "type": "string",
+          "description": "Location type"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type"
+        }
+      },
+      "type": "object"
+    },
+    "ValidationStatusResponse": {
+      "properties": {
+        "errors": {
+          "items": {
+            "$ref": "#/definitions/ValidationStatusError"
+          },
+          "type": "array"
+        },
+        "is_valid": {
+          "type": "boolean",
+          "description": "Whether the officer filing is free of errors."
+        }
+      },
+      "type": "object"
+    }
+  }
+}
