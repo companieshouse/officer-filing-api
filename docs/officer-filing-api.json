@@ -5,7 +5,7 @@
     "path"
   ],
   "info": {
-    "title": "Officer Filing API",
+    "title": "Officer Filing API (Private)",
     "version": "TBC",
     "description": "An API that allows clients to submit officer filing. Currently for TM01 (Terminate an officer) only."
   },
@@ -368,7 +368,7 @@
     },
     "/transactions/{transactionId}/officers/{filingResourceId}/validation_status": {
       "get": {
-        "summary": "Return validation for an officer filing",
+        "summary": "Return validation for an officer filing.",
         "description": "Return validation for an officer filing. Errors will be returned to allow a user to correct a filing.",
         "produces": [
           "application/json"
