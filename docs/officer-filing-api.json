@@ -280,8 +280,8 @@
     },
     "/transactions/{transactionId}/officers/{filingResourceId}": {
       "get": {
-        "summary": "Return the current state of the officer filing",
-        "description": "Return the current state of the officer filing.",
+        "summary": "Return the current state of an officer filing",
+        "description": "Return the current state of an officer filing.",
 
         "produces": [
           "application/json"
