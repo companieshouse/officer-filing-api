@@ -70,7 +70,7 @@
     "/officer-filing/healthcheck": {
       "get": {
         "summary": "Check the health of the officer filing API",
-        "description": "Determines whether the officer filing API is avaiable for use",
+        "description": "Determines whether the officer filing API is available for use.",
         "produces": [
           "application/json"
         ],
@@ -155,8 +155,8 @@
     },
     "/transactions/{transactionId}/officers": {
       "post": {
-        "summary": "Remove an officer",
-        "description": "Remove an officer from a company.",
+        "summary": "POST an officer filing",
+        "description": "POST an officer filing for a company.",
         "consumes": [
           "application/json"
         ],
@@ -199,8 +199,8 @@
         "tags": [
           "officerFiling"
         ],
-        "operationId": "removeOfficer",
-        "x-operationName": "remove"
+        "operationId": "postFiling",
+        "x-operationName": "post"
       }
     },
     "/transactions/{transactionId}/officers/active-directors-details": {
@@ -318,8 +318,8 @@
         "x-operationName": "reviewFiling"
       },
       "patch": {
-        "summary": "Update an existing TM01 filing",
-        "description": "Update an TM01 filing. Data provided in the update will overwrite existing input where it exists.",
+        "summary": "PATCH an existing officer filing",
+        "description": "PATCH an existing officer filing. Data provided in the PATCH will overwrite existing input where it exists.",
         "consumes": [
           "application/json"
         ],
@@ -362,8 +362,8 @@
         "tags": [
           "officerFiling"
         ],
-        "operationId": "patchRemove",
-        "x-operationName": "patchRemove"
+        "operationId": "patchFiling",
+        "x-operationName": "patch"
       }
     },
     "/transactions/{transactionId}/officers/{filingResourceId}/validation_status": {
