@@ -155,8 +155,8 @@
     },
     "/transactions/{transactionId}/officers": {
       "post": {
-        "summary": "Create an officer filing",
-        "description": "Create an officer filing. Data supplied in the request body determines filing type.",
+        "summary": "Remove an officer",
+        "description": "Remove an officer from a company.",
         "consumes": [
           "application/json"
         ],
@@ -199,8 +199,8 @@
         "tags": [
           "officerFiling"
         ],
-        "operationId": "createFiling",
-        "x-operationName": "create"
+        "operationId": "removeOfficer",
+        "x-operationName": "remove"
       }
     },
     "/transactions/{transactionId}/officers/active-directors-details": {
@@ -318,8 +318,8 @@
         "x-operationName": "reviewFiling"
       },
       "patch": {
-        "summary": "Update an existing officer filing",
-        "description": "Update an existing officer filing. Data provided in the PATCH will overwrite existing input where it exists.",
+        "summary": "Update an existing TM01 filing",
+        "description": "Update an TM01 filing. Data provided in the update will overwrite existing input where it exists.",
         "consumes": [
           "application/json"
         ],
@@ -362,8 +362,8 @@
         "tags": [
           "officerFiling"
         ],
-        "operationId": "patchFiling",
-        "x-operationName": "patch"
+        "operationId": "patchRemove",
+        "x-operationName": "patchRemove"
       }
     },
     "/transactions/{transactionId}/officers/{filingResourceId}/validation_status": {
@@ -785,47 +785,6 @@
     },
     "OfficerFiling": {
       "properties": {
-        "address": {
-          "$ref": "#/definitions/AddressDto"
-        },
-        "address_same_as_registered_office_address": {
-          "type": "boolean",
-          "description": "Address same as registered office address"
-        },
-        "appointed_on": {
-          "format": "date",
-          "type": "string",
-          "description": "Date the officer was appointed on"
-        },
-        "country_of_residence": {
-          "type": "string",
-          "description": "Country of residence"
-        },
-        "date_of_birth": {
-          "$ref": "#/definitions/DateOfBirth",
-          "description": "Date of birth"
-        },
-        "former_names": {
-          "items": {
-            "$ref": "#/definitions/FormerName"
-          },
-          "type": "array"
-        },
-        "identification": {
-          "$ref": "#/definitions/Identification"
-        },
-        "name": {
-          "type": "string",
-          "description": "Name"
-        },
-        "nationality": {
-          "type": "string",
-          "description": "Nationality"
-        },
-        "occupation": {
-          "type": "string",
-          "description": "Occupation"
-        },
         "reference_appointment_id": {
           "type": "string",
           "description": "The officers appointment ID"
@@ -833,17 +792,6 @@
         "reference_etag": {
           "type": "string",
           "description": "ETAG for the officer data"
-        },
-        "reference_officer_list_etag": {
-          "type": "string",
-          "description": "Reference officer list etag"
-        },
-        "residential_address": {
-          "$ref": "#/definitions/AddressDto"
-        },
-        "residential_address_same_as_correspondence_address": {
-          "type": "boolean",
-          "description": "Residential address same as correspondence address"
         },
         "resigned_on": {
           "format": "date",
