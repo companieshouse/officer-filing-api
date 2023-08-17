@@ -119,7 +119,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
                     .id(preExistingFilingId)
                     .build();
         }
-        final var saveData = saveFilingWithLinks(entity, transaction, request, dto);
+        final var saveData = saveFilingWithLinks(entity, transaction, request);
         final var links = saveData.getLeft();
         final var officerFiling = saveData.getRight();
         final var resourceMap = buildResourceMap(links);
@@ -180,7 +180,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             officerFiling = filingMapper.map(dto);
         }
 
-        final var saveDetails = saveFilingWithLinks(officerFiling, transaction, request, dto);
+        final var saveDetails = saveFilingWithLinks(officerFiling, transaction, request);
         final var links = saveDetails.getLeft();
         final var resourceMap = buildResourceMap(links);
 
@@ -232,18 +232,17 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     }
 
     private ImmutablePair<Links,OfficerFiling> saveFilingWithLinks(final OfficerFiling entity, final Transaction transaction,
-            final HttpServletRequest request, OfficerFilingDto dto) {
+            final HttpServletRequest request) {
         final var now = clock.instant();
         var createNow = now;
         OfficerFiling entityWithCreatedUpdated;
-        var offdata = buildOfficerFilingData(entity, dto);
         if(entity.getCreatedAt() != null){
             createNow = entity.getCreatedAt();
         }
 
         final var create = createNow;
         entityWithCreatedUpdated =
-                OfficerFiling.builder(entity).createdAt(create).updatedAt(now).data(offdata)
+                OfficerFiling.builder(entity).createdAt(create).updatedAt(now).data(entity.getData())
                         .build();
         final var finalEntityWithCreatedUpdated = entityWithCreatedUpdated;
         final var saved = officerFilingService.save(finalEntityWithCreatedUpdated, transaction.getId());
@@ -274,33 +273,6 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             .build().toUri();
 
         return new Links(selfUri, validateUri);
-    }
-
-    /**
-     * Build a data object by combining the fields from the two arguments. If a field exists in the dto then that will be preferred,
-     * else the same field will be used from officerFiling.getData(), else it will be set to null.
-     * @param officerFiling Contains the data object which has the necessary fields
-     * @param dto Contains the preferential fields to use
-     * @return A new object where each field has been set according to the priority of the input data
-     */
-    public OfficerFilingData buildOfficerFilingData(OfficerFiling officerFiling, OfficerFilingDto dto) {
-        final OfficerFilingData data = Optional.ofNullable(officerFiling.getData())
-                .orElse(OfficerFilingData.builder().build());
-
-        return new OfficerFilingData.Builder()
-                .referenceEtag(Optional.ofNullable(dto.getReferenceEtag())
-                        .orElse(data.getReferenceEtag()))
-                .referenceAppointmentId(Optional.ofNullable(dto.getReferenceAppointmentId())
-                        .orElse(data.getReferenceAppointmentId()))
-                .resignedOn(getResignedOnFromDto(dto)
-                        .orElse(data.getResignedOn()))
-                .firstName(Optional.ofNullable(dto.getFirstName())
-                        .orElse(data.getFirstName()))
-                .middleNames(Optional.ofNullable(dto.getMiddleNames())
-                        .orElse(data.getMiddleNames()))
-                .lastName(Optional.ofNullable(dto.getLastName())
-                    .orElse(data.getLastName()))
-                .build();
     }
 
     private Optional<Instant> getResignedOnFromDto(OfficerFilingDto dto) {

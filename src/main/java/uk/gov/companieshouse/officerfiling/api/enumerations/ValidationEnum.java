@@ -20,7 +20,19 @@ public enum ValidationEnum {
     CANNOT_FIND_COMPANY("cannot-find-company"),
     ETAG_INVALID("etag-invalid"),
     ETAG_BLANK("etag-blank"),
-    OFFICER_ID_BLANK("officer-id-blank");
+    OFFICER_ID_BLANK("officer-id-blank"),
+    LAST_NAME_BLANK("last-name-blank"),
+    FIRST_NAME_BLANK("first-name-blank"),
+    FIRST_NAME_LENGTH("first-name-length"),
+    MIDDLE_NAME_LENGTH("middle-name-length"),
+    LAST_NAME_LENGTH("last-name-length"),
+    TITLE_LENGTH("title-length"),
+    FORMER_NAMES_LENGTH("former-names-length"),
+    FIRST_NAME_CHARACTERS("first-name-characters"),
+    MIDDLE_NAME_CHARACTERS("middle-name-characters"),
+    LAST_NAME_CHARACTERS("last-name-characters"),
+    TITLE_CHARACTERS("title-characters"),
+    FORMER_NAMES_CHARACTERS("former-names-characters");
 
     private final String key;
 

@@ -23,12 +23,14 @@ import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 public class OfficerAppointmentValidator extends OfficerValidator {
 
     private Logger logger;
+    private ApiEnumerations apiEnumerations;
 
     public OfficerAppointmentValidator(final Logger logger,
                                        final CompanyProfileService companyProfileService,
                                        final ApiEnumerations apiEnumerations) {
         super(logger, companyProfileService, apiEnumerations);
         this.logger = logger;
+        this.apiEnumerations = getApiEnumerations();
     }
 
     /**
@@ -49,6 +51,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         // Validate required dto and transaction fields and fail early
         validateRequiredDtoFields(request, errorList, dto);
         validateRequiredTransactionFields(request, errorList, transaction);
+        validateOptionalDtoFields(request, errorList, dto);
         if (!errorList.isEmpty()) {
             return new ApiErrors(errorList);
         }
@@ -68,8 +71,68 @@ public class OfficerAppointmentValidator extends OfficerValidator {
 
     @Override
     public void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
-        // check for blank ???????
+        if (dto.getFirstName() == null || dto.getFirstName().isBlank()) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_BLANK));
+        }
+        else{
+            if(!validateDtoFieldLength(dto.getFirstName(), 50)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_LENGTH));
+            }
+            if(!isValidCharacters(dto.getFirstName())){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_CHARACTERS));
+            }
+        }
 
+        if (dto.getLastName() == null || dto.getLastName().isBlank()) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LAST_NAME_BLANK));
+        }
+        else{
+            if(!validateDtoFieldLength(dto.getLastName(), 160)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LAST_NAME_LENGTH));
+            }
+            if(!isValidCharacters(dto.getLastName())){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LAST_NAME_CHARACTERS));
+            }
+        }
+    }
+
+    @Override
+    public void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        if(dto.getTitle() != null){
+            if (!validateDtoFieldLength(dto.getTitle(), 50)) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.TITLE_LENGTH));
+            }
+            if (!isValidCharacters(dto.getTitle())) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.TITLE_CHARACTERS));
+            }
+        }
+
+        if(dto.getMiddleNames() != null){
+            if (!validateDtoFieldLength(dto.getMiddleNames(), 50)) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_LENGTH));
+            }
+            if (!isValidCharacters(dto.getMiddleNames())) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_CHARACTERS));
+            }
+        }
+
+        if(dto.getFormerNames() != null){
+            if(!validateFormerNamesLength(dto.getFormerNames())) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_LENGTH));
+            }
+            for(var formerName : dto.getFormerNames()){
+                if(!isValidCharacters(formerName.getSurname()) || !isValidCharacters(formerName.getForenames())){
+                    createValidationError(request, errorList,
+                            apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_CHARACTERS));
+                    break;
+                }
+            }
+        }
     }
 
     @Override
@@ -89,4 +152,5 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             createValidationError(request, errorList, getApiEnumerations().getValidation(ValidationEnum.COMPANY_DISSOLVED));
         }
     }
+
 }
