@@ -25,6 +25,7 @@ import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.officerfiling.api.model.dto.FormerNameDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionServiceImpl;
@@ -251,6 +252,260 @@ class OfficerAppointmnetValidatorTest {
         assertThat(apiErrorsList)
                 .as("Validation should be skipped when officerRole is null")
                 .isEmpty();
+    }
+
+    @Test
+    void validateWhenMissingFirstName() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getLastName()).thenReturn("Smith");
+        when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_BLANK)).thenReturn(
+                "Enter the director’s full first name");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when first name is missing")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter the director’s full first name");
+    }
+
+    @Test
+    void validateWhenMissingLastName() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_BLANK)).thenReturn(
+                "Enter the director’s last name");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when last name is missing")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter the director’s last name");
+    }
+
+    @Test
+    void validateFirstNameLength() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("JohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohn");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_LENGTH)).thenReturn(
+                "First name can be no longer than 50 characters");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when first name is over 50 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("First name can be no longer than 50 characters");
+    }
+
+    @Test
+    void validateLastNameLength() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith");
+        when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_LENGTH)).thenReturn(
+                "Last name can be no longer than 160 characters");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when last name is over 160 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Last name can be no longer than 160 characters");
+    }
+
+    @Test
+    void validateMiddleNameLength() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getMiddleNames()).thenReturn("DoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoe");
+        when(apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_LENGTH)).thenReturn(
+                "Middle name or names can be no longer than 50 characters");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when middle name is over 50 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Middle name or names can be no longer than 50 characters");
+    }
+
+    @Test
+    void validateTitleLength() {
+        FormerNameDto formerNames = new FormerNameDto("James","Francis");
+        List<FormerNameDto> formerNameList = new ArrayList<>(1);
+        formerNameList.add(formerNames);
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getMiddleNames()).thenReturn("Doe");
+        when(dto.getTitle()).thenReturn("MrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMr");
+        when(dto.getFormerNames()).thenReturn(formerNameList);
+
+        when(apiEnumerations.getValidation(ValidationEnum.TITLE_LENGTH)).thenReturn(
+                "Title can be no longer than 50 characters");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when title is over 50 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Title can be no longer than 50 characters");
+    }
+
+    @Test
+    void validateFormerNameLength() {
+        FormerNameDto formerNames = new FormerNameDto("JamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJames","Francis");
+        List<FormerNameDto> formerNameList = new ArrayList<>(1);
+        formerNameList.add(formerNames);
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getMiddleNames()).thenReturn("Doe");
+        when(dto.getTitle()).thenReturn("Mr");
+        when(dto.getFormerNames()).thenReturn(formerNameList);
+        when(apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_LENGTH)).thenReturn(
+                "Previous names can be no longer than 160 characters");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when former names are over 160 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Previous names can be no longer than 160 characters");
+    }
+
+    @Test
+    void validateFirstNameCharacters() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("Johnゃ");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_CHARACTERS)).thenReturn(
+                "First name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when first name contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("First name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
+    void validateLastNameCharacters() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smithゃ");
+        when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_CHARACTERS)).thenReturn(
+                "Last name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when last name contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Last name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
+    void validateMiddleNameCharacters() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getMiddleNames()).thenReturn("Doeゃ");
+        when(apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_CHARACTERS)).thenReturn(
+                "Middle name or names must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when middle name contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Middle name or names must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
+    void validateTitleCharacters() {
+        FormerNameDto formerNames = new FormerNameDto("James","Francis");
+        List<FormerNameDto> formerNameList = new ArrayList<>(1);
+        formerNameList.add(formerNames);
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getMiddleNames()).thenReturn("Doe");
+        when(dto.getTitle()).thenReturn("Mrゃ");
+        when(dto.getFormerNames()).thenReturn(formerNameList);
+
+        when(apiEnumerations.getValidation(ValidationEnum.TITLE_CHARACTERS)).thenReturn(
+                "Title must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when title contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Title must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
+    void validateFormerNameCharacters() {
+        FormerNameDto formerNames = new FormerNameDto("Jamesゃ","Francis");
+        List<FormerNameDto> formerNameList = new ArrayList<>(1);
+        formerNameList.add(formerNames);
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getMiddleNames()).thenReturn("Doe");
+        when(dto.getTitle()).thenReturn("Mr");
+        when(dto.getFormerNames()).thenReturn(formerNameList);
+        when(apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_CHARACTERS)).thenReturn(
+                "Previous name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when former names forename contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Previous name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        formerNames = new FormerNameDto("James","Francisゃ");
+        formerNameList = new ArrayList<>(1);
+        formerNameList.add(formerNames);
+
+        apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when former names surname contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Previous name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
     }
 
 }

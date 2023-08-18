@@ -275,12 +275,6 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         return new Links(selfUri, validateUri);
     }
 
-    private Optional<Instant> getResignedOnFromDto(OfficerFilingDto dto) {
-        return Optional.ofNullable(dto.getResignedOn())
-                .map(LocalDate::atStartOfDay)
-                .map(d -> d.toInstant(ZoneOffset.UTC));
-    }
-
     private String getExistingFilingId(Transaction transaction){
         Map<String, Resource> resources = transaction.getResources();
         String filingId = null;
