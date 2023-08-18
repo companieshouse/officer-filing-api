@@ -175,10 +175,7 @@ public class OfficerValidator {
     }
 
     public boolean validateDtoFieldLength(String field, int maxLength){
-        if(field.length() > maxLength){
-            return false;
-        }
-        return true;
+        return field.length() <= maxLength;
     }
 
     public boolean validateFormerNamesLength(List<FormerNameDto> formerNames){
@@ -186,20 +183,14 @@ public class OfficerValidator {
         for(var formerName : formerNames){
             length = length + formerName.getForenames().length() + formerName.getSurname().length();
         }
-        if(length > 160){
-            return false;
-        }
-        return true;
+        return length <= 160;
     }
 
 
     public static boolean isValidCharacters(String field) {
         var pattern = Pattern.compile(REG_EXP_FOR_INVALID_CHARACTERS);
         var matcher = pattern.matcher(field);
-        if (!matcher.matches()) {
-            return false;
-        }
-        return true;
+        return matcher.matches();
     }
 
 

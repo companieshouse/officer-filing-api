@@ -262,7 +262,16 @@ class OfficerAppointmnetValidatorTest {
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_BLANK)).thenReturn(
                 "Enter the director’s full first name");
 
-        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+        var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when first name is missing")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter the director’s full first name");
+
+        when(dto.getFirstName()).thenReturn("");
+        apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
                 .as("An error should be produced when first name is missing")
@@ -279,7 +288,16 @@ class OfficerAppointmnetValidatorTest {
         when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_BLANK)).thenReturn(
                 "Enter the director’s last name");
 
-        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+        var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when last name is missing")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter the director’s last name");
+
+        when(dto.getLastName()).thenReturn("");
+        apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
                 .as("An error should be produced when last name is missing")
@@ -503,6 +521,18 @@ class OfficerAppointmnetValidatorTest {
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
                 .as("An error should be produced when former names surname contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Previous name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        formerNames = new FormerNameDto("Jamesゃ","Francisゃ");
+        formerNameList = new ArrayList<>(1);
+        formerNameList.add(formerNames);
+
+        apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when both forenames and surname contains illegal characters")
                 .hasSize(1)
                 .extracting(ApiError::getError)
                 .contains("Previous name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");

@@ -98,6 +98,12 @@ public class OfficerAppointmentValidator extends OfficerValidator {
 
     @Override
     public void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        validateTitle(request, errorList, dto);
+        validateMiddleNames(request, errorList, dto);
+        validateFormerNames(request, errorList, dto);
+    }
+
+    private void validateTitle(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
         if(dto.getTitle() != null){
             if (!validateDtoFieldLength(dto.getTitle(), 50)) {
                 createValidationError(request, errorList,
@@ -108,7 +114,9 @@ public class OfficerAppointmentValidator extends OfficerValidator {
                         apiEnumerations.getValidation(ValidationEnum.TITLE_CHARACTERS));
             }
         }
+    }
 
+    private void validateMiddleNames(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
         if(dto.getMiddleNames() != null){
             if (!validateDtoFieldLength(dto.getMiddleNames(), 50)) {
                 createValidationError(request, errorList,
@@ -119,7 +127,9 @@ public class OfficerAppointmentValidator extends OfficerValidator {
                         apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_CHARACTERS));
             }
         }
+    }
 
+    private void validateFormerNames(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         if(dto.getFormerNames() != null){
             if(!validateFormerNamesLength(dto.getFormerNames())) {
                 createValidationError(request, errorList,
@@ -134,7 +144,6 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             }
         }
     }
-
     @Override
     public void validateRequiredTransactionFields(HttpServletRequest request, List<ApiError> errorList, Transaction transaction) {
         if (transaction.getCompanyNumber() == null || transaction.getCompanyNumber().isBlank()) {
