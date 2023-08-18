@@ -58,6 +58,8 @@ class OfficerAppointmnetValidatorTest {
     private AppointmentFullRecordAPI companyAppointment;
     @Mock
     private ApiEnumerations apiEnumerations;
+    @Mock
+    private OfficerFilingDto dto;
 
     @BeforeEach
     void setUp() {
@@ -67,14 +69,14 @@ class OfficerAppointmnetValidatorTest {
 
     @Test
     void validationWhenValid() {
-        final var dto = OfficerFilingDto.builder()
-                .build();
 
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
 
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -84,12 +86,9 @@ class OfficerAppointmnetValidatorTest {
 
     @Test
     void validateWhenTransactionCompanyNumberNull() {
-        final var dto = OfficerFilingDto.builder()
-                .referenceEtag(ETAG)
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(LocalDate.of(2022, 9, 13))
-                .build();
         when(transaction.getCompanyNumber()).thenReturn(null);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -101,12 +100,9 @@ class OfficerAppointmnetValidatorTest {
 
     @Test
     void validateWhenTransactionCompanyNumberBlank() {
-        final var dto = OfficerFilingDto.builder()
-                .referenceEtag(ETAG)
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(LocalDate.of(2022, 9, 13))
-                .build();
         when(transaction.getCompanyNumber()).thenReturn(" ");
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -118,17 +114,14 @@ class OfficerAppointmnetValidatorTest {
 
     @Test
     void validationWhenCompanyProfileServiceUnavailable() {
-        final var dto = OfficerFilingDto.builder()
-            .referenceEtag(ETAG)
-            .referenceAppointmentId(FILING_ID)
-            .resignedOn(LocalDate.of(2022, 9, 13))
-            .build();
+
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(apiEnumerations.getValidation(ValidationEnum.SERVICE_UNAVAILABLE)).thenReturn("Sorry, this service is unavailable. You will be able to use the service later");
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenThrow(
             new ServiceUnavailableException());
-
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
             .as("An error should be produced when the Company Profile Service is unavailable")
@@ -139,16 +132,13 @@ class OfficerAppointmnetValidatorTest {
 
     @Test
     void validationWhenCompanyNotFound() {
-        final var dto = OfficerFilingDto.builder()
-            .referenceEtag(ETAG)
-            .referenceAppointmentId(FILING_ID)
-            .resignedOn(LocalDate.of(2022, 9, 13))
-            .build();
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenThrow(
             new CompanyProfileServiceException("Error Retrieving company"));
         when(apiEnumerations.getValidation(ValidationEnum.CANNOT_FIND_COMPANY)).thenReturn("We cannot find the company");
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())

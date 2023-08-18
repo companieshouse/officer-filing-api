@@ -174,6 +174,8 @@ class ValidationStatusControllerImplTest {
         ReflectionTestUtils.setField(testController, "isAp01Enabled", true);
         validationStatusControllerMocks();
         when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
 
         final var response = testController.validate(transaction, FILING_ID, request);
         assertThat(response.getValidationStatusError(), is(nullValue()));
