@@ -161,6 +161,7 @@ public class OfficerFiling {
                                     .countryOfResidence(v.getCountryOfResidence())
                                     .dateOfBirth(v.getDateOfBirth())
                                     .formerNames(v.getFormerNames())
+                                    .title(v.getTitle())
                                     .name(v.getName())
                                     .firstName(v.getFirstName())
                                     .middleNames(v.getMiddleNames())

@@ -250,7 +250,8 @@ class OfficerFilingMapperTest {
         final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
 
-        final var emptyDto = OfficerFilingDto.builder().formerNames(Collections.singletonList(null))
+        final var emptyDto = OfficerFilingDto.builder()
+                .formerNames(Collections.emptyList())
                 .build();
 
         final var dto = testMapper.map(filing);
@@ -264,7 +265,8 @@ class OfficerFilingMapperTest {
         final var now = clock.instant();
         final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
-        final var emptyDto = OfficerFilingDto.builder().formerNames(Collections.emptyList())
+        final var emptyDto = OfficerFilingDto.builder()
+                .formerNames(Collections.emptyList())
                 .build();
 
         final var dto = testMapper.map(filing);

@@ -21,6 +21,7 @@ public class OfficerFilingData {
     private Date3Tuple dateOfBirth;
     private List<FormerName> formerNames;
     private String name;
+    private String title;
     private String firstName;
     private String middleNames;
     private String lastName;
@@ -83,6 +84,9 @@ public class OfficerFilingData {
 
     public String getName() {
         return name;
+    }
+    public String getTitle() {
+        return title;
     }
 
     public String getFirstName() {
@@ -158,6 +162,7 @@ public class OfficerFilingData {
                 && Objects.equals(getDateOfBirth(), that.getDateOfBirth())
                 && Objects.equals(getFormerNames(), that.getFormerNames())
                 && Objects.equals(getName(), that.getName())
+                && Objects.equals(getTitle(), that.getTitle())
                 && Objects.equals(getFirstName(), that.getFirstName())
                 && Objects.equals(getMiddleNames(), that.getMiddleNames())
                 && Objects.equals(getLastName(), that.getLastName())
@@ -178,7 +183,7 @@ public class OfficerFilingData {
     public int hashCode() {
         return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getDateOfBirth(),
-                getFormerNames(), getName(),
+                getFormerNames(), getName(), getTitle(),
                 getFirstName(), getMiddleNames(), getLastName(), getNationality(), getOccupation(), getOfficerRole(),
                 getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getStatus(), getResidentialAddress(),
@@ -195,6 +200,7 @@ public class OfficerFilingData {
                 .add("dateOfBirth=" + dateOfBirth)
                 .add("formerNames=" + formerNames)
                 .add("name='" + name + "'")
+                .add("title='" + title + "'")
                 .add("firstName='" + firstName + "'")
                 .add("middleNames='" + middleNames + "'")
                 .add("lastName='" + lastName + "'")
@@ -242,6 +248,7 @@ public class OfficerFilingData {
                     .dateOfBirth(other.getDateOfBirth())
                     .formerNames(other.getFormerNames())
                     .name(other.getName())
+                    .title(other.getTitle())
                     .firstName(other.getFirstName())
                     .middleNames(other.getMiddleNames())
                     .lastName(other.getLastName())
@@ -306,6 +313,12 @@ public class OfficerFilingData {
         public Builder name(final String value) {
 
             buildSteps.add(data -> data.name = value);
+            return this;
+        }
+
+        public Builder title(final String value) {
+
+            buildSteps.add(data -> data.title = value);
             return this;
         }
 

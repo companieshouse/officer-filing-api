@@ -1,18 +1,24 @@
 package uk.gov.companieshouse.officerfiling.api.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.function.Consumer;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Identification {
 
-    private final String identificationType;
-    private final String legalAuthority;
-    private final String legalForm;
-    private final String placeRegistered;
-    private final String registrationNumber;
+    private String identificationType;
+    private String legalAuthority;
+    private String legalForm;
+    private String placeRegistered;
+    private String registrationNumber;
 
+    public Identification(){
+
+    }
     public Identification(final String identificationType, final String legalAuthority,
             final String legalForm, final String placeRegistered, final String registrationNumber) {
         this.identificationType = identificationType;
@@ -73,5 +79,62 @@ public class Identification {
                 .add("placeRegistered='" + placeRegistered + "'")
                 .add("registrationNumber='" + registrationNumber + "'")
                 .toString();
+    }
+
+    public static Builder builder() {
+        return new Identification.Builder();
+    }
+
+    public static Builder builder(final Identification other) {
+        return new Builder(other);
+    }
+
+    public static class Builder {
+
+        private final List<Consumer<Identification>> buildSteps;
+
+        public Builder() {
+            buildSteps = new ArrayList<>();
+        }
+
+        public Builder(final Identification other) {
+            this();
+            this.identificationType(other.getIdentificationType())
+                    .legalAuthority(other.getLegalAuthority())
+                    .legalForm(other.getLegalForm())
+                    .placeRegistered(other.getPlaceRegistered())
+                    .registrationNumber(other.getRegistrationNumber());
+        }
+
+        public Builder identificationType(final String value) {
+            buildSteps.add(data -> data.identificationType = value);
+            return this;
+        }
+
+        public Builder legalAuthority(final String value) {
+            buildSteps.add(data -> data.legalAuthority = value);
+            return this;
+        }
+
+        public Builder legalForm(final String value) {
+            buildSteps.add(data -> data.legalForm = value);
+            return this;
+        }
+
+        public Builder placeRegistered(final String value) {
+            buildSteps.add(data -> data.placeRegistered = value);
+            return this;
+        }
+
+        public Builder registrationNumber(final String value) {
+            buildSteps.add(data -> data.registrationNumber = value);
+            return this;
+        }
+
+        public Identification build() {
+            final var data = new Identification();
+            buildSteps.forEach(step -> step.accept(data));
+            return data;
+        }
     }
 }

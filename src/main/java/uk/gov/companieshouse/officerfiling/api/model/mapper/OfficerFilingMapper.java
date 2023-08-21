@@ -26,9 +26,10 @@ public interface OfficerFilingMapper {
     @Mapping(target = "data.appointedOn", source = "appointedOn")
     @Mapping(target = "data.countryOfResidence", source = "countryOfResidence")
     @Mapping(target = "data.dateOfBirth", source = "dateOfBirth")
-    @Mapping(target = "data.formerNames", source = "formerNames")
     @Mapping(target = "data.nationality", source = "nationality")
     @Mapping(target = "data.occupation", source = "occupation")
+    @Mapping(target = "data.title", source = "title")
+    @Mapping(target = "data.formerNames", source = "formerNames")
     @Mapping(target = "data.name", source = "name")
     @Mapping(target = "data.firstName", source = "firstName")
     @Mapping(target = "data.middleNames", source = "middleNames")
@@ -39,6 +40,11 @@ public interface OfficerFilingMapper {
     @Mapping(target = "data.resignedOn", source = "resignedOn")
     @Mapping(target = "data.residentialAddress", source = "residentialAddress")
     @Mapping(target = "data.residentialAddressSameAsCorrespondenceAddress", source = "residentialAddressSameAsCorrespondenceAddress")
+    @Mapping(target = "identification.identificationType", source = "identification.identificationType")
+    @Mapping(target = "identification.legalAuthority", source = "identification.legalAuthority")
+    @Mapping(target = "identification.legalForm", source = "identification.legalForm")
+    @Mapping(target = "identification.placeRegistered", source = "identification.placeRegistered")
+    @Mapping(target = "identification.registrationNumber", source = "identification.registrationNumber")
     OfficerFiling map(OfficerFilingDto officerFilingDto);
 
 
@@ -47,10 +53,11 @@ public interface OfficerFilingMapper {
     @Mapping(target = "appointedOn", source = "data.appointedOn")
     @Mapping(target = "countryOfResidence", source = "data.countryOfResidence")
     @Mapping(target = "dateOfBirth", source = "data.dateOfBirth")
-    @Mapping(target = "formerNames", source = "data.formerNames")
     @Mapping(target = "nationality", source = "data.nationality")
     @Mapping(target = "occupation", source = "data.occupation")
+    @Mapping(target = "title", source = "data.title")
     @Mapping(target = "name", source = "data.name")
+    @Mapping(target = "formerNames", source = "data.formerNames")
     @Mapping(target = "firstName", source = "data.firstName")
     @Mapping(target = "middleNames", source = "data.middleNames")
     @Mapping(target = "lastName", source = "data.lastName")
@@ -60,6 +67,11 @@ public interface OfficerFilingMapper {
     @Mapping(target = "resignedOn", source = "data.resignedOn")
     @Mapping(target = "residentialAddress", source = "data.residentialAddress")
     @Mapping(target = "residentialAddressSameAsCorrespondenceAddress", source = "data.residentialAddressSameAsCorrespondenceAddress")
+    @Mapping(target = "identification.identificationType", source = "identification.identificationType")
+    @Mapping(target = "identification.legalAuthority", source = "identification.legalAuthority")
+    @Mapping(target = "identification.legalForm", source = "identification.legalForm")
+    @Mapping(target = "identification.placeRegistered", source = "identification.placeRegistered")
+    @Mapping(target = "identification.registrationNumber", source = "identification.registrationNumber")
     OfficerFilingDto map(OfficerFiling officerFiling);
 
     default Instant map(final LocalDate date) {

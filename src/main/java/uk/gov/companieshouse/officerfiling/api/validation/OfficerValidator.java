@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
@@ -19,6 +20,7 @@ import uk.gov.companieshouse.officerfiling.api.error.LocationType;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.officerfiling.api.model.dto.FormerNameDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
@@ -33,7 +35,7 @@ public class OfficerValidator {
     public static final List<String> ALLOWED_COMPANY_TYPES = List.of("private-unlimited", "ltd", "plc", "private-limited-guarant-nsc-limited-exemption",
             "private-limited-guarant-nsc", "private-unlimited-nsc", "private-limited-shares-section-30-exemption");
     public static final List<String> ALLOWED_OFFICER_ROLES = List.of("director", "corporate-director", "nominee-director", "corporate-nominee-director");
-
+    private static final String REG_EXP_FOR_VALID_CHARACTERS = "^[-,.:; 0-9A-Z&@$£¥€'\"«»?!/\\\\()\\[\\]{}<>*=#%+ÀÁÂÃÄÅĀĂĄÆǼÇĆĈĊČÞĎÐÈÉÊËĒĔĖĘĚĜĞĠĢĤĦÌÍÎÏĨĪĬĮİĴĶĹĻĽĿŁÑŃŅŇŊÒÓÔÕÖØŌŎŐǾŒŔŖŘŚŜŞŠŢŤŦÙÚÛÜŨŪŬŮŰŲŴẀẂẄỲÝŶŸŹŻŽa-zſƒǺàáâãäåāăąæǽçćĉċčþďðèéêëēĕėęěĝģğġĥħìíîïĩīĭįĵķĺļľŀłñńņňŋòóôõöøōŏőǿœŕŗřśŝşšţťŧùúûüũūŭůűųŵẁẃẅỳýŷÿźżž]*$";
     private Logger logger;
 
     public ApiEnumerations getApiEnumerations() {
@@ -84,6 +86,10 @@ public class OfficerValidator {
 
     public void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
     // specific to the sub-classes so no need for code in the super class.
+    }
+
+    public void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        // specific to the sub-classes so no need for code in the super class.
     }
 
     public void validateRequiredTransactionFields(HttpServletRequest request, List<ApiError> errorList, Transaction transaction){
@@ -167,4 +173,25 @@ public class OfficerValidator {
                 LocationType.JSON_PATH.getValue(), ErrorType.VALIDATION.getType());
         errorList.add(apiError);
     }
+
+    public boolean validateDtoFieldLength(String field, int maxLength){
+        return field.length() <= maxLength;
+    }
+
+    public boolean validateFormerNamesLength(List<FormerNameDto> formerNames){
+        var length = 0;
+        for(var formerName : formerNames){
+            length = length + formerName.getForenames().length() + formerName.getSurname().length();
+        }
+        return length <= 160;
+    }
+
+
+    public static boolean isValidCharacters(String field) {
+        var pattern = Pattern.compile(REG_EXP_FOR_VALID_CHARACTERS);
+        var matcher = pattern.matcher(field);
+        return matcher.matches();
+    }
+
+
 }

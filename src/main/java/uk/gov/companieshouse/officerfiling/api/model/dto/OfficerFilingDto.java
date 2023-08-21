@@ -26,6 +26,7 @@ public class OfficerFilingDto {
     private List<FormerNameDto> formerNames;
     private IdentificationDto identification;
     private String name;
+    private String title;
     private String firstName;
     private String middleNames;
     private String lastName;
@@ -71,6 +72,9 @@ public class OfficerFilingDto {
 
     public String getName() {
         return name;
+    }
+    public String getTitle() {
+        return title;
     }
 
     public String getFirstName() {
@@ -134,6 +138,7 @@ public class OfficerFilingDto {
                 && Objects.equals(getDateOfBirth(), that.getDateOfBirth())
                 && Objects.equals(getFormerNames(), that.getFormerNames())
                 && Objects.equals(getIdentification(), that.getIdentification())
+                && Objects.equals(getTitle(), that.getTitle())
                 && Objects.equals(getName(), that.getName())
                 && Objects.equals(getFirstName(), that.getFirstName())
                 && Objects.equals(getMiddleNames(), that.getMiddleNames())
@@ -153,7 +158,7 @@ public class OfficerFilingDto {
     public int hashCode() {
         return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getDateOfBirth(), getFormerNames(),
-                getIdentification(), getName(),
+                getIdentification(), getTitle(), getName(),
                 getFirstName(), getMiddleNames(), getLastName(), getNationality(), getOccupation(),
                 getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getResidentialAddress(),
@@ -170,6 +175,7 @@ public class OfficerFilingDto {
                 .add("dateOfBirth=" + dateOfBirth)
                 .add("formerNames=" + formerNames)
                 .add("identification=" + identification)
+                .add("title='" + title + "'")
                 .add("name='" + name + "'")
                 .add("firstName='" + firstName + "'")
                 .add("middleNames='" + middleNames + "'")
@@ -252,6 +258,12 @@ public class OfficerFilingDto {
                             v.getLegalAuthority(), v.getLegalForm(), v.getPlaceRegistered(),
                             v.getRegistrationNumber()))
                     .orElse(null));
+            return this;
+        }
+
+        public Builder title(final String value) {
+
+            buildSteps.add(data -> data.title = value);
             return this;
         }
 
