@@ -2,10 +2,8 @@ package uk.gov.companieshouse.officerfiling.api.model.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import uk.gov.companieshouse.officerfiling.api.model.dto.FormerNameDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
-import uk.gov.companieshouse.officerfiling.api.model.entity.FormerName;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.filing.FilingData;
 
