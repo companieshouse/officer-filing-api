@@ -1,5 +1,8 @@
 package uk.gov.companieshouse.officerfiling.api.model.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 import uk.gov.companieshouse.api.model.delta.officers.SensitiveDateOfBirthAPI;
 import uk.gov.companieshouse.officerfiling.api.annotations.Default;
 
@@ -25,9 +28,9 @@ import java.util.StringJoiner;
  *
  */
 public class Date3Tuple {
-    private final int day;
-    private final int month;
-    private final int year;
+    private int day;
+    private int month;
+    private int year;
 
     /** Construct a Full/Partial Date Tuple.
      *
@@ -47,6 +50,10 @@ public class Date3Tuple {
         this.day = dateTime.getDay();
         this.month = dateTime.getMonth();
         this.year = dateTime.getYear();
+    }
+
+    public Date3Tuple() {
+
     }
 
     public int getDay() {
@@ -84,4 +91,6 @@ public class Date3Tuple {
         return new StringJoiner(", ", Date3Tuple.class.getSimpleName() + "[", "]").add(
                 "day=" + day).add("month=" + month).add("year=" + year).toString();
     }
+
+
 }

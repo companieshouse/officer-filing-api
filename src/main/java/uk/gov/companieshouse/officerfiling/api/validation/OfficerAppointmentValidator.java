@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.validation;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -71,6 +73,19 @@ public class OfficerAppointmentValidator extends OfficerValidator {
 
     @Override
     public void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
+        validateFirstName(request, errorList, dto);
+        validateLastName(request, errorList, dto);
+        validateDateOfBirth(request, errorList, dto);
+    }
+
+    @Override
+    public void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        validateTitle(request, errorList, dto);
+        validateMiddleNames(request, errorList, dto);
+        validateFormerNames(request, errorList, dto);
+    }
+
+    private void validateFirstName(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
         if (dto.getFirstName() == null || dto.getFirstName().isBlank()) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_BLANK));
         }
@@ -82,7 +97,9 @@ public class OfficerAppointmentValidator extends OfficerValidator {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_CHARACTERS));
             }
         }
+    }
 
+    private void validateLastName(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
         if (dto.getLastName() == null || dto.getLastName().isBlank()) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LAST_NAME_BLANK));
         }
@@ -96,12 +113,24 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         }
     }
 
-    @Override
-    public void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
-        validateTitle(request, errorList, dto);
-        validateMiddleNames(request, errorList, dto);
-        validateFormerNames(request, errorList, dto);
-    }
+        private void validateDateOfBirth(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        if (dto.getDateOfBirth() == null ) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_BLANK));
+        }
+        else{
+            var officerDateOfBirth = LocalDate.of(dto.getDateOfBirth().getYear(), dto.getDateOfBirth()
+                    .getMonth(), dto.getDateOfBirth().getDay());
+            var currentDate = LocalDate.now();
+            var age = Period.between(officerDateOfBirth, currentDate).getYears();
+            if(age >= 110){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_OVERAGE));
+            }
+            else if(age < 16){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_UNDERAGE));
+            }
+        }
+        }
+
 
     private void validateTitle(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
         if(dto.getTitle() != null){
