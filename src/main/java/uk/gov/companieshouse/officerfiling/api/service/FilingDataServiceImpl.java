@@ -9,7 +9,6 @@ import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
@@ -37,14 +36,14 @@ public class FilingDataServiceImpl implements FilingDataService {
     private final TransactionService transactionService;
     private final CompanyAppointmentService companyAppointmentService;
     @Value("${OFFICER_FILING_DESCRIPTION:"
-        + "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}}")
+            + "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}}")
     private String filingDescription;
     private final Supplier<LocalDate> dateNowSupplier;
 
     public FilingDataServiceImpl(OfficerFilingService officerFilingService,
             FilingAPIMapper filingAPIMapper, Logger logger, TransactionService transactionService,
-                                 CompanyAppointmentService companyAppointmentService,
-        Supplier<LocalDate> dateNowSupplier) {
+            CompanyAppointmentService companyAppointmentService,
+            Supplier<LocalDate> dateNowSupplier) {
         this.officerFilingService = officerFilingService;
         this.filingAPIMapper = filingAPIMapper;
         this.logger = logger;
@@ -70,22 +69,25 @@ public class FilingDataServiceImpl implements FilingDataService {
             if (presentOfficerFilingData.getResignedOn() != null) {
                 //has a removal date so must be a TM01
                 filing.setKind("officer-filing#termination");
+                setTerminationFilingApiData(filing, transactionId, filingId, ericPassThroughHeader);
             } else if (presentOfficerFilingData.getReferenceEtag() == null) {
                 //has no Etag (and has no removal date) so it must be an AP01
                 filing.setKind("officer-filing#appointment");
+                setAppointmentFilingApiData(transactionId, filingId, ericPassThroughHeader);
             } else {
                 throw new NotImplementedException("Kind cannot be calculated using given data for transaction " + transactionId );
             }
         } else {
             filing.setKind("officer-filing#termination");
+            setTerminationFilingApiData(filing, transactionId, filingId, ericPassThroughHeader);
         }
 
-        setFilingApiData(filing, transactionId, filingId, ericPassThroughHeader);
+
         return filing;
     }
 
-    private void setFilingApiData(FilingApi filing, String transactionId, String filingId,
-                                  String ericPassThroughHeader) {
+    private void setTerminationFilingApiData(FilingApi filing, String transactionId, String filingId,
+            String ericPassThroughHeader) {
         var officerFilingOpt = officerFilingService.get(filingId, transactionId);
         var officerFiling = officerFilingOpt.orElseThrow(() -> new NotImplementedException(
                 String.format("Officer not found when generating filing for %s", filingId)));
@@ -107,7 +109,7 @@ public class FilingDataServiceImpl implements FilingDataService {
                 .data(dataBuilder.build())
                 .createdAt(officerFiling.getCreatedAt())
                 .updatedAt(officerFiling.getUpdatedAt());
-      
+
         var enhancedOfficerFiling = enhancedOfficerFilingBuilder.build();
         var filingData = filingAPIMapper.map(enhancedOfficerFiling);
         var dataMap = MapHelper.convertObject(filingData, PropertyNamingStrategies.SNAKE_CASE);
@@ -117,6 +119,16 @@ public class FilingDataServiceImpl implements FilingDataService {
 
         filing.setData(dataMap);
         setDescriptionFields(filing, companyAppointment);
+    }
+
+    private void setAppointmentFilingApiData(String transactionId, String filingId,
+            String ericPassThroughHeader) {
+        //TODO - just creating a blank one of these for the moment,  need to add filing data into here as we add it in.
+        final var transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
+
+        logger.debugContext(transactionId, "Created filing data for submission", new LogHelper.Builder(transaction)
+                .withFilingId(filingId)
+                .build());
     }
 
     /**
@@ -148,7 +160,7 @@ public class FilingDataServiceImpl implements FilingDataService {
             officerFilingName = companyAppointment.getName();
         }
         filing.setDescription(filingDescription.replace("{director name}", officerFilingName)
-            .replace("{termination date}", formattedTerminationDate));
+                .replace("{termination date}", formattedTerminationDate));
         Map<String, String> values = new HashMap<>();
         values.put("termination date", formattedTerminationDate);
         values.put("director name", officerFilingName);
