@@ -9,7 +9,6 @@ import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
@@ -74,7 +73,7 @@ public class FilingDataServiceImpl implements FilingDataService {
             } else if (presentOfficerFilingData.getReferenceEtag() == null) {
                 //has no Etag (and has no removal date) so it must be an AP01
                 filing.setKind("officer-filing#appointment");
-                setAppointmentFilingApiData(filing, transactionId, filingId, ericPassThroughHeader);
+                setAppointmentFilingApiData(transactionId, filingId, ericPassThroughHeader);
             } else {
                 throw new NotImplementedException("Kind cannot be calculated using given data for transaction " + transactionId );
             }
@@ -122,12 +121,10 @@ public class FilingDataServiceImpl implements FilingDataService {
         setDescriptionFields(filing, companyAppointment);
     }
 
-    private void setAppointmentFilingApiData(FilingApi filing, String transactionId, String filingId,
+    private void setAppointmentFilingApiData(String transactionId, String filingId,
             String ericPassThroughHeader) {
         //TODO - just creating a blank one of these for the moment,  need to add filing data into here as we add it in.
         final var transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
-        // String companyNumber = transaction.getCompanyNumber();
-
 
         logger.debugContext(transactionId, "Created filing data for submission", new LogHelper.Builder(transaction)
                 .withFilingId(filingId)
