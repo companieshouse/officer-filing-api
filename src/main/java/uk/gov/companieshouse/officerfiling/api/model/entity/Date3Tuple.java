@@ -1,11 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.model.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 import uk.gov.companieshouse.api.model.delta.officers.SensitiveDateOfBirthAPI;
 import uk.gov.companieshouse.officerfiling.api.annotations.Default;
-
 import java.util.Objects;
 import java.util.StringJoiner;
 
