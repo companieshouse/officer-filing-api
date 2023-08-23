@@ -76,12 +76,13 @@ class FilingDataServiceImplTest {
     void setUp() {
         testService = new FilingDataServiceImpl(officerFilingService, filingAPIMapper, logger, transactionService,
                 companyAppointmentService, dateNowSupplier);
-        ReflectionTestUtils.setField(testService, "filingDescription",
-            "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}");
+
     }
 
     @Test
-    void generateOfficerFilingWhenFound() {
+    void generateTerminationOfficerFilingWhenFound() {
+        ReflectionTestUtils.setField(testService, "filingDescription",
+                "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}");
         final var filingData = new FilingData(FIRSTNAME, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, true);
         var offData = OfficerFilingData.builder()
                 .dateOfBirth(DATE_OF_BIRTH_TUPLE)
@@ -126,6 +127,8 @@ class FilingDataServiceImplTest {
 
     @Test
     void generateCorporateOfficerFilingWhenFound() {
+        ReflectionTestUtils.setField(testService, "filingDescription",
+                "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}");
         final var filingData = new FilingData(null, COMPANY_NAME, null, RESIGNED_ON_STR, true);
         final var data = OfficerFilingData.builder()
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
@@ -161,6 +164,8 @@ class FilingDataServiceImplTest {
 
     @Test
     void generateOfficerFilingWhenNotFound() {
+        ReflectionTestUtils.setField(testService, "filingDescription",
+                "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}");
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
 
         final var exception = assertThrows(NotImplementedException.class,
@@ -168,6 +173,33 @@ class FilingDataServiceImplTest {
 
         assertThat(exception.getMessage(),
                 is("Officer not found when generating filing for " + FILING_ID));
+    }
+
+    @Test
+    void generateAppointmentOfficerFilingWhenFound() {
+        //TODO  will need to update this test once we add ion the filing data generation bits for AP01,
+        // at the moment its just checking everything is null.
+        ReflectionTestUtils.setField(testService, "filingDescription",
+                "(AP01) Appointment of director. Appointment of {director name}");
+        final var filingData = new FilingData(FIRSTNAME, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, true);
+        var offData = OfficerFilingData.builder()
+                .firstName(FIRSTNAME)
+                .lastName(LASTNAME)
+                .build();
+        final var now = clock.instant();
+        final var officerFiling = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+                .build();
+
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+
+        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        final Map<String, Object> expectedMap = null;
+
+        assertThat(filingApi.getData(), is(equalTo(expectedMap)));
+        assertThat(filingApi.getKind(), is("officer-filing#appointment"));
+        assertThat(filingApi.getDescription(), is(equalTo(null)));
     }
 
     @ParameterizedTest
