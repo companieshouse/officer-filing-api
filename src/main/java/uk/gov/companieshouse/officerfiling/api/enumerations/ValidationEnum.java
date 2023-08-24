@@ -32,7 +32,11 @@ public enum ValidationEnum {
     MIDDLE_NAME_CHARACTERS("middle-name-characters"),
     LAST_NAME_CHARACTERS("last-name-characters"),
     TITLE_CHARACTERS("title-characters"),
-    FORMER_NAMES_CHARACTERS("former-names-characters");
+    FORMER_NAMES_CHARACTERS("former-names-characters"),
+    DATE_OF_BIRTH_BLANK("date-of-birth-blank"),
+    DATE_OF_BIRTH_OVERAGE("date-of-birth-overage"),
+    DATE_OF_BIRTH_UNDERAGE("date-of-birth-underage");
+
 
     private final String key;
 
