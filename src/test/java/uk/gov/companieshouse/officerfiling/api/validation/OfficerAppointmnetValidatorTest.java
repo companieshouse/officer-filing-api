@@ -372,7 +372,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getMiddleNames()).thenReturn("Doe");
         when(dto.getTitle()).thenReturn("MrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMr");
-        when(dto.getFormerNames()).thenReturn(formerNameList);
+        when(dto.getFormerNames()).thenReturn("Anton,Doe");
 
         when(apiEnumerations.getValidation(ValidationEnum.TITLE_LENGTH)).thenReturn(
                 "Title can be no longer than 50 characters");
@@ -388,16 +388,14 @@ class OfficerAppointmnetValidatorTest {
 
     @Test
     void validateFormerNameLength() {
-        FormerNameDto formerNames = new FormerNameDto("JamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJames","Francis");
-        List<FormerNameDto> formerNameList = new ArrayList<>(1);
-        formerNameList.add(formerNames);
+        String formerNames = "JamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJamesJames,Francis";
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getMiddleNames()).thenReturn("Doe");
         when(dto.getTitle()).thenReturn("Mr");
-        when(dto.getFormerNames()).thenReturn(formerNameList);
+        when(dto.getFormerNames()).thenReturn(formerNames);
         when(apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_LENGTH)).thenReturn(
                 "Previous names can be no longer than 160 characters");
 
@@ -476,7 +474,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getMiddleNames()).thenReturn("Doe");
         when(dto.getTitle()).thenReturn("Mrゃ");
-        when(dto.getFormerNames()).thenReturn(formerNameList);
+        when(dto.getFormerNames()).thenReturn("Anton,Doe");
 
         when(apiEnumerations.getValidation(ValidationEnum.TITLE_CHARACTERS)).thenReturn(
                 "Title must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
@@ -492,16 +490,13 @@ class OfficerAppointmnetValidatorTest {
 
     @Test
     void validateFormerNameCharacters() {
-        FormerNameDto formerNames = new FormerNameDto("Jamesゃ","Francis");
-        List<FormerNameDto> formerNameList = new ArrayList<>(1);
-        formerNameList.add(formerNames);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getMiddleNames()).thenReturn("Doe");
         when(dto.getTitle()).thenReturn("Mr");
-        when(dto.getFormerNames()).thenReturn(formerNameList);
+        when(dto.getFormerNames()).thenReturn("Anton,Doeゃ");
         when(apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_CHARACTERS)).thenReturn(
                 "Previous name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
@@ -512,30 +507,5 @@ class OfficerAppointmnetValidatorTest {
                 .hasSize(1)
                 .extracting(ApiError::getError)
                 .contains("Previous name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
-
-        formerNames = new FormerNameDto("James","Francisゃ");
-        formerNameList = new ArrayList<>(1);
-        formerNameList.add(formerNames);
-
-        apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
-                PASSTHROUGH_HEADER);
-        assertThat(apiErrors.getErrors())
-                .as("An error should be produced when former names surname contains illegal characters")
-                .hasSize(1)
-                .extracting(ApiError::getError)
-                .contains("Previous name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
-
-        formerNames = new FormerNameDto("Jamesゃ","Francisゃ");
-        formerNameList = new ArrayList<>(1);
-        formerNameList.add(formerNames);
-
-        apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
-                PASSTHROUGH_HEADER);
-        assertThat(apiErrors.getErrors())
-                .as("An error should be produced when both forenames and surname contains illegal characters")
-                .hasSize(1)
-                .extracting(ApiError::getError)
-                .contains("Previous name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
     }
-
 }

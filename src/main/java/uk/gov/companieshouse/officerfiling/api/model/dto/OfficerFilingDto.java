@@ -11,8 +11,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @JsonDeserialize(builder = OfficerFilingDto.Builder.class)
 @Validated
@@ -23,7 +21,7 @@ public class OfficerFilingDto {
     private LocalDate appointedOn;
     private String countryOfResidence;
     private Date3TupleDto dateOfBirth;
-    private List<FormerNameDto> formerNames;
+    private String formerNames;
     private IdentificationDto identification;
     private String name;
     private String title;
@@ -62,7 +60,7 @@ public class OfficerFilingDto {
         return dateOfBirth;
     }
 
-    public List<FormerNameDto> getFormerNames() {
+    public String getFormerNames() {
         return formerNames;
     }
 
@@ -240,14 +238,9 @@ public class OfficerFilingDto {
             return this;
         }
 
-        public Builder formerNames(final List<FormerNameDto> value) {
+        public Builder formerNames(final String value) {
 
-            buildSteps.add(data -> data.formerNames = value == null
-                    ? null
-                    : value.stream()
-                            .flatMap(Stream::ofNullable)
-                            .map(v -> new FormerNameDto(v.getForenames(), v.getSurname()))
-                            .collect(Collectors.toList()));
+            buildSteps.add(data -> data.formerNames = value);
             return this;
         }
 

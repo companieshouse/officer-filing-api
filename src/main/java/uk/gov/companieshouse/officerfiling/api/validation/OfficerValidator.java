@@ -179,12 +179,8 @@ public class OfficerValidator {
         return field.length() <= maxLength;
     }
 
-    public boolean validateFormerNamesLength(List<FormerNameDto> formerNames){
-        var length = 0;
-        for(var formerName : formerNames){
-            length = length + formerName.getForenames().length() + formerName.getSurname().length();
-        }
-        return length <= 160;
+    public boolean validateFormerNamesLength(String formerNames){
+        return formerNames.length() <= 160;
     }
 
 

@@ -97,16 +97,13 @@ class OfficerFilingDataServiceImplTest {
 
     @Test
     void testMergeFull(){
-        List<FormerName> formerNames = new ArrayList<>(1);
-        FormerName formerName = new FormerName("John", "Doe");
-        formerNames.add(formerName);
         var address = Address.builder().locality("Margate").country("UK").build();
         var identification = new Identification("type", "authority",
                 "form", "registered", "number");
         OfficerFilingData originalData = OfficerFilingData.builder()
                 .referenceEtag("ETAG")
                 .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
-                .formerNames(formerNames)
+                .formerNames("John,Doe")
                 .address(address)
                 .build();
         OfficerFiling original = OfficerFiling.builder()
@@ -123,8 +120,7 @@ class OfficerFilingDataServiceImplTest {
         assertThat(updatedFiling.getData().getReferenceEtag(), is("ETAG"));
         assertThat(updatedFiling.getData().getReferenceAppointmentId(), is("Appoint"));
         assertThat(updatedFiling.getData().getResignedOn(), is(Instant.parse("2022-09-13T00:00:00Z")));
-        assertThat(updatedFiling.getData().getFormerNames().get(0).getForenames(), is("John"));
-        assertThat(updatedFiling.getData().getFormerNames().get(0).getSurname(), is("Doe"));
+        assertThat(updatedFiling.getData().getFormerNames(), is("John,Doe"));
         assertThat(updatedFiling.getData().getAddress().getLocality(), is("Margate"));
         assertThat(updatedFiling.getData().getAddress().getCountry(), is("UK"));
         assertThat(updatedFiling.getIdentification().getIdentificationType(), is("type"));
