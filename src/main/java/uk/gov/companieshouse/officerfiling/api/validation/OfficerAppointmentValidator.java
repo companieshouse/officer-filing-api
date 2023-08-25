@@ -164,15 +164,13 @@ public class OfficerAppointmentValidator extends OfficerValidator {
                 createValidationError(request, errorList,
                         apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_LENGTH));
             }
-            for(var formerName : dto.getFormerNames()){
-                if(!isValidCharacters(formerName.getSurname()) || !isValidCharacters(formerName.getForenames())){
-                    createValidationError(request, errorList,
-                            apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_CHARACTERS));
-                    break;
-                }
+            if(!isValidCharacters(dto.getFormerNames())) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_CHARACTERS));
             }
         }
     }
+
     @Override
     public void validateRequiredTransactionFields(HttpServletRequest request, List<ApiError> errorList, Transaction transaction) {
         if (transaction.getCompanyNumber() == null || transaction.getCompanyNumber().isBlank()) {
