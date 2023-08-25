@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.validation;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -26,7 +25,6 @@ import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.Date3TupleDto;
-import uk.gov.companieshouse.officerfiling.api.model.dto.FormerNameDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionServiceImpl;
@@ -374,9 +372,6 @@ class OfficerAppointmnetValidatorTest {
 
     @Test
     void validateTitleLength() {
-        FormerNameDto formerNames = new FormerNameDto("James","Francis");
-        List<FormerNameDto> formerNameList = new ArrayList<>(1);
-        formerNameList.add(formerNames);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
@@ -481,9 +476,6 @@ class OfficerAppointmnetValidatorTest {
 
     @Test
     void validateTitleCharacters() {
-        FormerNameDto formerNames = new FormerNameDto("James","Francis");
-        List<FormerNameDto> formerNameList = new ArrayList<>(1);
-        formerNameList.add(formerNames);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
