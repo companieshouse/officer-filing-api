@@ -83,6 +83,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateTitle(request, errorList, dto);
         validateMiddleNames(request, errorList, dto);
         validateFormerNames(request, errorList, dto);
+        validateOccupation(request, errorList, dto);
     }
 
     private void validateFirstName(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
@@ -186,6 +187,19 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         }
         if (Objects.equals(companyProfile.getCompanyStatus(), "dissolved") || companyProfile.getDateOfCessation() != null) {
             createValidationError(request, errorList, getApiEnumerations().getValidation(ValidationEnum.COMPANY_DISSOLVED));
+        }
+    }
+
+    private void validateOccupation(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        if(dto.getOccupation() != null){
+            if (!validateDtoFieldLength(dto.getOccupation(), 100)) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.OCCUPATION_LENGTH));
+            }
+            if (!isValidCharacters(dto.getOccupation())) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.OCCUPATION_CHARACTERS));
+            }
         }
     }
 

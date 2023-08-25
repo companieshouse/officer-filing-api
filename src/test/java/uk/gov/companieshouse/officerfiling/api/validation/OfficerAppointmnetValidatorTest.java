@@ -561,6 +561,7 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getOccupation()).thenReturn("Engineer");
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_BLANK)).thenReturn(
                 "Enter the director’s date of birth");
 
@@ -570,6 +571,48 @@ class OfficerAppointmnetValidatorTest {
                 .hasSize(1)
                 .extracting(ApiError::getError)
                 .contains("Enter the director’s date of birth");
+    }
+
+    @Test
+    void validateOccupationCharacters() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getOccupation()).thenReturn("Engineerゃ");
+
+        when(apiEnumerations.getValidation(ValidationEnum.OCCUPATION_CHARACTERS)).thenReturn(
+                "Occupation must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when occupation contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Occupation must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
+    void validateOccupationLength() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getOccupation()).thenReturn("EngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineer");
+
+        when(apiEnumerations.getValidation(ValidationEnum.OCCUPATION_LENGTH)).thenReturn(
+                "Occupation must be 100 characters or less");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when occupation contains more than 100 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Occupation must be 100 characters or less");
     }
 
 }
