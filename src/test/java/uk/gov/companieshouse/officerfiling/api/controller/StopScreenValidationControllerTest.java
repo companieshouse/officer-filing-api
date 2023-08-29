@@ -7,7 +7,7 @@ import uk.gov.companieshouse.officerfiling.api.exception.NotImplementedException
 import javax.servlet.http.HttpServletRequest;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class StopScreenValidationControllerTest {
+class StopScreenValidationControllerTest {
 
     @Mock
     private HttpServletRequest request;

@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import java.time.Clock;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -9,14 +10,18 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang.NotImplementedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -26,14 +31,17 @@ import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.officerfiling.api.model.dto.Date3TupleDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.ErrorMapper;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
+import uk.gov.companieshouse.officerfiling.api.validation.OfficerTerminationValidator;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 @ExtendWith(MockitoExtension.class)
@@ -76,19 +84,26 @@ class ValidationStatusControllerImplTest {
 
     private OfficerFiling filing;
     private ValidationStatusControllerImpl testController;
+    @Mock
+    private Clock clock;
+
+    @Mock
+    private OfficerTerminationValidator officerTerminationValidator;
 
     @BeforeEach
     void setUp() {
         testController = new ValidationStatusControllerImpl(officerFilingService, logger,
-            transactionService, companyProfileService, companyAppointmentService, officerFilingMapper,
+             companyProfileService, companyAppointmentService, officerFilingMapper,
             errorMapper, apiEnumerations);
         ReflectionTestUtils.setField(testController, "isTm01Enabled", true);
-        filing = OfficerFiling.builder()
-            .referenceAppointmentId("off-id")
-            .referenceEtag("etag")
-            .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
-            .build();
-
+        ReflectionTestUtils.setField(testController, "isAp01Enabled", false);
+        var offData = new OfficerFilingData(
+                "etag",
+                "off-id",
+                Instant.parse("2022-09-13T00:00:00Z"));
+        final var now = clock.instant();
+        filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+                .build();
     }
 
     @Test
@@ -100,14 +115,11 @@ class ValidationStatusControllerImplTest {
     }
     @Test
     void validateWhenFilingFoundAndNoValidationErrors() {
-
+        ReflectionTestUtils.setField(testController, "isAp01Enabled", false);
         validationStatusControllerMocks();
         when(dto.getReferenceEtag()).thenReturn(ETAG);
         when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
         when(dto.getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
-        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2005, 10, 3));
-        when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
-        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2007, 10, 5));
 
         final var response = testController.validate(transaction, FILING_ID, request);
         assertThat(response.getValidationStatusError(), is(nullValue()));
@@ -116,8 +128,10 @@ class ValidationStatusControllerImplTest {
 
     @Test
     void validateWhenFilingFoundAndValidationErrors() {
-
+        ReflectionTestUtils.setField(testController, "isAp01Enabled", false);
         validationStatusControllerMocks();
+        List<ApiError> errorList = new ArrayList<ApiError>();
+        when(companyAppointmentService.getCompanyAppointment( TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(dto.getReferenceEtag()).thenReturn("etag");
         when(dto.getReferenceAppointmentId()).thenReturn(FILING_ID);
         when(dto.getResignedOn()).thenReturn(LocalDate.of(1022, 9, 13));
@@ -148,13 +162,41 @@ class ValidationStatusControllerImplTest {
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(officerFilingMapper.map(filing)).thenReturn(dto);
         when(transaction.getId()).thenReturn(TRANS_ID);
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(
+                PASSTHROUGH_HEADER);
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER,
+                PASSTHROUGH_HEADER)).thenReturn(companyProfile);
+    }
+
+    @Test
+    void validateWhenFilingAP01FoundAndNoValidationErrors() {
+        ReflectionTestUtils.setField(testController, "isAp01Enabled", true);
+        validationStatusControllerMocks();
+        when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+
+        final var response = testController.validate(transaction, FILING_ID, request);
+        assertThat(response.getValidationStatusError(), is(nullValue()));
+        assertThat(response.isValid(), is(true));
+    }
+
+    @Test
+    void validateWhenFilingAP01FoundAndInvalidDataWithEtagAndNoRemoveDate() {
+        ReflectionTestUtils.setField(testController, "isAp01Enabled", true);
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
+        when(officerFilingMapper.map(filing)).thenReturn(dto);
+        when(transaction.getId()).thenReturn(TRANS_ID);
         when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
-        when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
-        when(companyAppointment.getEtag()).thenReturn(ETAG);
-        when(companyAppointment.getOfficerRole()).thenReturn(OFFICER_ROLE);
-        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
-    }
+        when(dto.getReferenceEtag()).thenReturn("ETAG");
+        when(dto.getResignedOn()).thenReturn(null);
 
+        assertThrows(
+                NotImplementedException.class, () -> testController.validate(transaction, FILING_ID, request));
+    }
 }

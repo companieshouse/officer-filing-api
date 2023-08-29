@@ -14,16 +14,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
-import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.error.InvalidFilingException;
 import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
-import uk.gov.companieshouse.officerfiling.api.model.filing.FilingResponse;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
@@ -36,11 +35,16 @@ import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.io.File;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/transactions/{transactionId}/officers")
@@ -99,24 +103,34 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
         final var passthroughHeader =
                     request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
-        final var entity = filingMapper.map(dto);
+
+        var entity = filingMapper.map(dto);
+
+        // Reuse this filing ID if it exists as we can only have one per transaction
+        //***********************************************************************************************
+        // NB for the moment to get around an issue where a web user could go back and select a different
+        // director, which would cause multiple resources in the transaction when only ONE is wanted.
+        // More thought is required for later when we will do this within Confirmation statemnet
+        // as that will need multiple resources in the same transaction.
+        //***********************************************************************************************
+        String preExistingFilingId = getExistingFilingId(transaction);
+        if(preExistingFilingId != null){
+            entity = OfficerFiling.builder(entity)
+                    .id(preExistingFilingId)
+                    .build();
+        }
         final var saveData = saveFilingWithLinks(entity, transaction, request);
         final var links = saveData.getLeft();
-        String filingId = saveData.getRight();
+        final var officerFiling = saveData.getRight();
         final var resourceMap = buildResourceMap(links);
 
         transaction.setResources(resourceMap);
-        transactionService.updateTransaction(transaction, passthroughHeader);
-
-        // Create response with filing ID
-        if (dto.getReferenceAppointmentId() == null || dto.getReferenceAppointmentId().isBlank()) {
-            return ResponseEntity.created(links.getSelf()).body(new FilingResponse(filingId));
+        if(preExistingFilingId == null) {
+            transactionService.updateTransaction(transaction, passthroughHeader);
         }
-        // Create response with filing ID and name
-        final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transaction.getId(),
-                transaction.getCompanyNumber(), dto.getReferenceAppointmentId(), passthroughHeader);
-        final var filingResponse = new FilingResponse(filingId, companyAppointment.getName());
-        return ResponseEntity.created(links.getSelf()).body(filingResponse);
+
+        // Create response with filing
+        return ResponseEntity.created(links.getSelf()).body(officerFiling);
     }
 
     /**
@@ -173,7 +187,8 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         transaction.setResources(resourceMap);
         transactionService.updateTransaction(transaction, passthroughHeader);
 
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(saveDetails.getRight());
+
     }
 
     /**
@@ -216,25 +231,37 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         return resourceMap;
     }
 
-    private ImmutablePair<Links,String> saveFilingWithLinks(final OfficerFiling entity, final Transaction transaction,
+    private ImmutablePair<Links,OfficerFiling> saveFilingWithLinks(final OfficerFiling entity, final Transaction transaction,
             final HttpServletRequest request) {
-        final var saved = officerFilingService.save(entity, transaction.getId());
-        final var links = buildLinks(saved, request);
+        final var now = clock.instant();
+        var createNow = now;
+        OfficerFiling entityWithCreatedUpdated;
+        if(entity.getCreatedAt() != null){
+            createNow = entity.getCreatedAt();
+        }
+
+        final var create = createNow;
+        entityWithCreatedUpdated =
+                OfficerFiling.builder(entity).createdAt(create).updatedAt(now).data(entity.getData())
+                        .build();
+        final var finalEntityWithCreatedUpdated = entityWithCreatedUpdated;
+        final var saved = officerFilingService.save(finalEntityWithCreatedUpdated, transaction.getId());
+        final var links = buildLinks(saved.getId(), request);
+
         final var updated = OfficerFiling.builder(saved).links(links)
                 .build();
         final var resaved = officerFilingService.save(updated, transaction.getId());
-
         logger.infoContext(transaction.getId(), "Filing saved", new LogHelper.Builder(transaction)
                         .withFilingId(resaved.getId())
                         .withRequest(request)
                         .build());
-        return new ImmutablePair<>(links, resaved.getId());
+        return new ImmutablePair<>(links, resaved);
     }
 
-    private Links buildLinks(final OfficerFiling savedFiling, final HttpServletRequest request) {
+    private Links buildLinks(final String savedFilingId, final HttpServletRequest request) {
         final var requestUri = request.getRequestURI();
         final var uriBuilder = UriComponentsBuilder.fromUriString(requestUri);
-        final var objectId = new ObjectId(Objects.requireNonNull(savedFiling.getId()));
+        final var objectId = new ObjectId(Objects.requireNonNull(savedFilingId));
         final var objectIdString = objectId.toHexString();
         // A patch URI already ends with the filingId
         if(!requestUri.endsWith(objectIdString)){
@@ -246,5 +273,18 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             .build().toUri();
 
         return new Links(selfUri, validateUri);
+    }
+
+    private String getExistingFilingId(Transaction transaction){
+        Map<String, Resource> resources = transaction.getResources();
+        String filingId = null;
+        if(resources != null && !resources.isEmpty()){
+            // There should only be one resource.
+            Resource entry = (Resource) resources.values().toArray()[0];
+            var resource = entry.getLinks().get("resource");
+            var resourcePath = new File(resource);
+            filingId = resourcePath.getName();
+        }
+        return filingId;
     }
 }

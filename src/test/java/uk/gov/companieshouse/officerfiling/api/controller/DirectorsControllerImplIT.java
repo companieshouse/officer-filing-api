@@ -36,6 +36,7 @@ import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.OfficerServiceException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerService;
@@ -76,6 +77,8 @@ class DirectorsControllerImplIT {
     AppointmentFullRecordAPI appointmentFullRecordAPI;
     @Mock
     OfficerFiling officerFiling;
+    @Mock
+    OfficerServiceException serviceException;
     private HttpHeaders httpHeaders;
     @Autowired
     private MockMvc mockMvc;
@@ -87,7 +90,11 @@ class DirectorsControllerImplIT {
         httpHeaders.add("ERIC-Identity", USER);
         httpHeaders.add("ERIC-Identity-Type", KEY);
         httpHeaders.add("ERIC-Authorised-Key-Roles", KEY_ROLE);
-        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete");
+        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete,create");
+        var offData = new OfficerFilingData(
+                "etag",
+                null,
+                resignedOn);
         when(transactionInterceptor.preHandle(any(), any(), any())).thenReturn(true);
         when(openTransactionInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
@@ -97,7 +104,8 @@ class DirectorsControllerImplIT {
         when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(officerFilingOptional);
         when(officerFilingOptional.isPresent()).thenReturn(true);
         when(officerFilingOptional.get()).thenReturn(officerFiling);
-        when(officerFiling.getResignedOn()).thenReturn(resignedOn);
+        when(officerFiling.getData()).thenReturn(offData);
+
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, null, PASSTHROUGH_HEADER)).thenReturn(appointmentFullRecordAPI);
     }
 
@@ -122,7 +130,9 @@ class DirectorsControllerImplIT {
     void getListOfActiveDirectorsDetailsDetailsWhenNotFoundThen500() throws Exception {
 
         when(officerService.getListOfActiveDirectorsDetails(any(HttpServletRequest.class), eq(TRANS_ID), eq(COMPANY_NUMBER), eq(PASSTHROUGH_HEADER)))
-            .thenThrow(new OfficerServiceException("Error retrieving Officers"));
+            .thenThrow(serviceException);
+        when(serviceException.getCause()).thenReturn(serviceException);
+        when(serviceException.getMessage()).thenReturn("Internal error");
 
         mockMvc.perform(get("/transactions/{transactionId}/officers/active-directors-details", TRANS_ID)
                 .headers(httpHeaders).requestAttr("transaction", transaction))
@@ -143,7 +153,7 @@ class DirectorsControllerImplIT {
 
     @Test
     void getRemoveCheckAnswersDirectorDetailsWhenNotFoundThen500() throws Exception {
-        when(officerFiling.getResignedOn()).thenReturn(null);
+        when(officerFiling.getData().getResignedOn()).thenReturn(null);
         mockMvc.perform(get("/transactions/{transactionId}/officers/{filingId}/tm01-check-answers-directors-details", TRANS_ID, SUBMISSION_ID)
                         .headers(httpHeaders).requestAttr("transaction", transaction))
                 .andDo(print())

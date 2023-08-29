@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class StopScreenValidationControllerImplTest {
+class StopScreenValidationControllerImplTest {
 
     private static final String PASSTHROUGH_HEADER = "passthrough";
     private static final String COMPANY_NUMBER = "123456";

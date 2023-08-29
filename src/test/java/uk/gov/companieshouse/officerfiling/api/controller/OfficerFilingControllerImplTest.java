@@ -22,7 +22,7 @@ import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledExcept
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
-import uk.gov.companieshouse.officerfiling.api.model.filing.FilingResponse;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
@@ -35,6 +35,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Month;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
@@ -44,8 +46,10 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.refEq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.officerfiling.api.controller.OfficerFilingControllerImpl.VALIDATION_STATUS;
@@ -65,7 +69,7 @@ class OfficerFilingControllerImplTest {
     private static final String OFFICER_ROLE = "director";
     private static final String APPOINTMENT_ID = "12345678";
 
-    private OfficerFilingController testController;
+    private OfficerFilingControllerImpl testController;
     @Mock
     private OfficerFilingService officerFilingService;
     @Mock
@@ -102,10 +106,11 @@ class OfficerFilingControllerImplTest {
         testController = new OfficerFilingControllerImpl(transactionService, officerFilingService, companyProfileService, companyAppointmentService,
                 filingMapper, clock, logger);
         ReflectionTestUtils.setField(testController, "isTm01Enabled", true);
-        filing = OfficerFiling.builder()
-                .referenceAppointmentId("off-id")
-                .referenceEtag("etag")
-                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+        var offData = new OfficerFilingData(
+                "etag",
+                "off-id",
+                Instant.parse("2022-09-13T00:00:00Z"));
+        filing = OfficerFiling.builder().createdAt(FIRST_INSTANT).updatedAt(FIRST_INSTANT).data(offData)
                 .build();
         final var builder = UriComponentsBuilder.fromUri(REQUEST_URI);
         links = new Links(builder.pathSegment(FILING_ID)
@@ -140,13 +145,44 @@ class OfficerFilingControllerImplTest {
     }
 
     @Test
+    void createFilingWithExistingSubmission() {
+        final var resources = new HashMap<String,Resource>();
+        final var resource = new Resource();
+        final Map <String,String> resourcesMap = new HashMap<>();
+        resourcesMap.put("resource","/transactions/115025-478816-868338/officers/648b0b3a246067277f8dcb70");
+        resource.setLinks(resourcesMap);
+        resources.put("/transactions/115025-478816-868338/officers/648b0b3a246067277f8dcb70", resource);
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(transaction.getResources()).thenReturn(resources);
+        when(filingMapper.map(dto)).thenReturn(filing);
+        final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
+                .build();
+        final var withLinks = OfficerFiling.builder(withFilingId).links(links)
+                .build();
+        when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
+        when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
+
+        final var response =
+                testController.createFiling(transaction, dto, result,
+                        request);
+
+        // refEq needed to compare Map value objects; Resource does not override equals()
+        verify(transaction).setResources(refEq(resourceMap));
+        verify(transactionService, never()).updateTransaction(transaction, PASSTHROUGH_HEADER);
+        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
+
+    }
+
+    @Test
     void createFilingWhenReferenceAppointmentIdNull() {
         when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
         when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
         when(clock.instant()).thenReturn(FIRST_INSTANT);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(filingMapper.map(dto)).thenReturn(filing);
-        when(dto.getReferenceAppointmentId()).thenReturn(null);
         final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
                 .build();
         final var withLinks = OfficerFiling.builder(withFilingId).links(links)
@@ -160,8 +196,8 @@ class OfficerFilingControllerImplTest {
         verify(transaction).setResources(refEq(resourceMap));
         verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
-        final FilingResponse filingResponse = (FilingResponse) response.getBody();
-        assertThat(filingResponse.getSubmissionId(), is(FILING_ID));
+        final OfficerFiling filingResponse = (OfficerFiling) response.getBody();
+        assertThat(filingResponse.getId(), is(FILING_ID));
     }
 
     @Test
@@ -171,7 +207,6 @@ class OfficerFilingControllerImplTest {
         when(clock.instant()).thenReturn(FIRST_INSTANT);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(filingMapper.map(dto)).thenReturn(filing);
-        when(dto.getReferenceAppointmentId()).thenReturn("");
         final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
                 .build();
         final var withLinks = OfficerFiling.builder(withFilingId).links(links)
@@ -185,37 +220,8 @@ class OfficerFilingControllerImplTest {
         verify(transaction).setResources(refEq(resourceMap));
         verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
-        final FilingResponse filingResponse = (FilingResponse) response.getBody();
-        assertThat(filingResponse.getSubmissionId(), is(FILING_ID));
-    }
-
-    @Test
-    void createFilingWhenReferenceAppointmentIdSet() {
-        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
-        when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
-        when(clock.instant()).thenReturn(FIRST_INSTANT);
-        when(transaction.getId()).thenReturn(TRANS_ID);
-        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
-        when(filingMapper.map(dto)).thenReturn(filing);
-        when(dto.getReferenceAppointmentId()).thenReturn(APPOINTMENT_ID);
-        final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
-                .build();
-        final var withLinks = OfficerFiling.builder(withFilingId).links(links)
-                .build();
-        when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
-        when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
-        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, APPOINTMENT_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
-        when(companyAppointment.getName()).thenReturn(DIRECTOR_NAME);
-
-        final var response = testController.createFiling(transaction, dto, result, request);
-
-        // refEq needed to compare Map value objects; Resource does not override equals()
-        verify(transaction).setResources(refEq(resourceMap));
-        verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
-        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
-        final FilingResponse filingResponse = (FilingResponse) response.getBody();
-        assertThat(filingResponse.getSubmissionId(), is(FILING_ID));
-        assertThat(filingResponse.getName(), is(DIRECTOR_NAME));
+        final OfficerFiling filingResponse = (OfficerFiling) response.getBody();
+        assertThat(filingResponse.getId(), is(FILING_ID));
     }
 
     @ParameterizedTest(name = "[{index}] null binding result={0}")
@@ -329,15 +335,14 @@ class OfficerFilingControllerImplTest {
         // Check a patch scenario
         OfficerFiling idFiling = OfficerFiling.builder().id("63f4afcf5cd8192a09d6a9e8").build();
         when(request.getRequestURI()).thenReturn("/transactions/027314-549816-769801/officers/63f4afcf5cd8192a09d6a9e8");
-        Links buildLinks = ReflectionTestUtils.invokeMethod(testController, "buildLinks", idFiling,
+        Links buildLinks = ReflectionTestUtils.invokeMethod(testController, "buildLinks", idFiling.getId(),
                 request);
         assertThat(buildLinks.getSelf(), is(new URI("/transactions/027314-549816-769801/officers/63f4afcf5cd8192a09d6a9e8")));
 
         // Check a post scenario
         when(request.getRequestURI()).thenReturn("/transactions/027314-549816-769801/officers/");
-        buildLinks = ReflectionTestUtils.invokeMethod(testController, "buildLinks", idFiling,
+        buildLinks = ReflectionTestUtils.invokeMethod(testController, "buildLinks", idFiling.getId(),
                 request);
         assertThat(buildLinks.getSelf(), is(new URI("/transactions/027314-549816-769801/officers/63f4afcf5cd8192a09d6a9e8")));
     }
-
 }

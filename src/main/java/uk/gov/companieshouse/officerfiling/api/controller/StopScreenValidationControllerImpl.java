@@ -7,10 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
-import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
@@ -47,11 +45,10 @@ public class StopScreenValidationControllerImpl implements StopScreenValidationC
 
             final var companyProfile = companyProfileService.getCompanyProfile(transactionId, companyNumber, passthroughHeader);
 
-            if (companyProfile.getDateOfCessation() != null || Objects.equals(companyProfile.getCompanyStatus(), "dissolved")) {
-                return ResponseEntity.status(HttpStatus.OK).body(true);
-            } else {
-                return ResponseEntity.status(HttpStatus.OK).body(false);
-            }
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(companyProfile.getDateOfCessation() != null || Objects.equals(companyProfile.getCompanyStatus(), "dissolved"));
+
         } catch (CompanyProfileServiceException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

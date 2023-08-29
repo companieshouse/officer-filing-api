@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import java.time.Clock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
@@ -36,6 +38,7 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -84,6 +87,9 @@ class ValidationStatusControllerImplIT {
     private CompanyProfileApi companyProfileApi;
     private AppointmentFullRecordAPI companyAppointment;
 
+    @Mock
+    private Clock clock;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -91,7 +97,7 @@ class ValidationStatusControllerImplIT {
     void setUp() throws IOException, URIValidationException {
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
-        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete");
+        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete,create");
 
         transaction = new Transaction();
         transaction.setCompanyNumber(COMPANY_NUMBER);
@@ -113,6 +119,7 @@ class ValidationStatusControllerImplIT {
         when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
         when(transactionGetMock.execute()).thenReturn(apiResponse);
         when(apiResponse.getData()).thenReturn(transaction);
+        when(officerFilingService.requestUriContainsFilingSelfLink(any(), any())).thenReturn(true);
     }
 
     @Test
@@ -128,11 +135,13 @@ class ValidationStatusControllerImplIT {
 
     @Test
     void validationStatusWhenFoundAndNoValidationErrors() throws Exception {
-        final var filing = OfficerFiling.builder()
-            .referenceEtag("etag")
-            .referenceAppointmentId(FILING_ID)
-            .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
-            .build();
+        var offData = new OfficerFilingData(
+                "etag",
+                FILING_ID,
+                Instant.parse("2022-09-13T00:00:00Z"));
+        final var now = clock.instant();
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+                .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
@@ -147,11 +156,13 @@ class ValidationStatusControllerImplIT {
 
     @Test
     void validationStatusWhenFoundAndEtagValidationError() throws Exception {
-        final var filing = OfficerFiling.builder()
-            .referenceEtag("invalid_etag")
-            .referenceAppointmentId(FILING_ID)
-            .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
-            .build();
+        var offData = new OfficerFilingData(
+                "invalid_etag",
+                FILING_ID,
+                Instant.parse("2022-09-13T00:00:00Z"));
+        final var now = clock.instant();
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+                .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
@@ -168,11 +179,13 @@ class ValidationStatusControllerImplIT {
 
     @Test
     void validationStatusWhenTransactionNotFound() throws Exception {
-        final var filing = OfficerFiling.builder()
-            .referenceEtag("invalid_etag")
-            .referenceAppointmentId(FILING_ID)
-            .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
-            .build();
+        var offData = new OfficerFilingData(
+                "invalid_etag",
+                FILING_ID,
+                Instant.parse("2022-09-13T00:00:00Z"));
+        final var now = clock.instant();
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+                .build();
 
         when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
         when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);
@@ -192,10 +205,12 @@ class ValidationStatusControllerImplIT {
 
     @Test
     void validationStatusWhenDate300yearsAgo() throws Exception {
-        final var filing = OfficerFiling.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(Instant.parse("1722-09-13T00:00:00Z"))
+        var offData = new OfficerFilingData(
+                "etag",
+                FILING_ID,
+                Instant.parse("1722-09-13T00:00:00Z"));
+        final var now = clock.instant();
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).id("12345")
                 .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
@@ -219,10 +234,12 @@ class ValidationStatusControllerImplIT {
 
     @Test
     void validationStatusWhenResignedOnPriorTo01092009() throws Exception {
-        final var filing = OfficerFiling.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(Instant.parse("2008-09-13T00:00:00Z"))
+        var offData = new OfficerFilingData(
+                "etag",
+                FILING_ID,
+                Instant.parse("2008-09-13T00:00:00Z"));
+        final var now = clock.instant();
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
         companyProfileApi.setDateOfCreation(LocalDate.of(2000, 1, 1));
         companyAppointment.setAppointedOn(LocalDate.of(2008, 1, 2));
@@ -247,10 +264,12 @@ class ValidationStatusControllerImplIT {
 
     @Test
     void validationStatusWhenResignedOnBeforeIncorporationDate() throws Exception {
-        final var filing = OfficerFiling.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(Instant.parse("2018-10-05T00:00:00Z"))
+        var offData = new OfficerFilingData(
+                "etag",
+                FILING_ID,
+                Instant.parse("2018-10-05T00:00:00Z"));
+        final var now = clock.instant();
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
         companyProfileApi.setDateOfCreation(LocalDate.of(2020, 1, 1));
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
@@ -275,10 +294,12 @@ class ValidationStatusControllerImplIT {
     @Test
     void validationStatusWhenDissolvedDateExists() throws Exception {
         companyProfileApi.setDateOfCessation(LocalDate.of(2022, Month.JANUARY, 1));
-        final var filing = OfficerFiling.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+        var offData = new OfficerFilingData(
+                "etag",
+                FILING_ID,
+                Instant.parse("2022-09-13T00:00:00Z"));
+        final var now = clock.instant();
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID,
@@ -301,10 +322,12 @@ class ValidationStatusControllerImplIT {
 
     @Test
     void validationStatusWhenResignedOnInFuture() throws Exception {
-        final var filing = OfficerFiling.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(Instant.parse("3022-09-13T00:00:00Z"))
+        var offData = new OfficerFilingData(
+                "etag",
+                FILING_ID,
+                Instant.parse("3022-09-13T00:00:00Z"));
+        final var now = clock.instant();
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).id(FILING_ID)
                 .build();
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID,

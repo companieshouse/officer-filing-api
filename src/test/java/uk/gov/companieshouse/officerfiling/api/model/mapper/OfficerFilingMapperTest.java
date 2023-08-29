@@ -6,26 +6,28 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.net.URI;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.Date3TupleDto;
-import uk.gov.companieshouse.officerfiling.api.model.dto.FormerNameDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.IdentificationDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Address;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
-import uk.gov.companieshouse.officerfiling.api.model.entity.FormerName;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Identification;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
+import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 
+@ExtendWith(MockitoExtension.class)
 class OfficerFilingMapperTest {
 
     public static final String SELF_URI =
@@ -35,12 +37,12 @@ class OfficerFilingMapperTest {
     private LocalDate localDate1;
     private Date3Tuple dob1;
     private Instant instant1;
-    private List<FormerNameDto> nameDtoList;
-    private List<FormerName> nameList;
     private IdentificationDto identificationDto;
     private Identification identification;
     private OfficerFilingMapper testMapper;
     private Links links;
+    @Mock
+    private Clock clock;
 
     @BeforeEach
     void setUp() {
@@ -70,10 +72,6 @@ class OfficerFilingMapperTest {
         localDate1 = LocalDate.of(2019, 11, 5);
         dob1 = new Date3Tuple(12, 9, 1970);
         instant1 = Instant.parse("2019-11-05T00:00:00Z");
-        nameDtoList = List.of(new FormerNameDto("f1", "n1"), new FormerNameDto("f2", "n2"),
-                new FormerNameDto("f3", "n3"));
-        nameList = List.of(new FormerName("f1", "n1"), new FormerName("f2", "n2"),
-                new FormerName("f3", "n3"));
         identification = new Identification("type", "auth", "legal", "place", "number");
         identificationDto = new IdentificationDto("type", "auth", "legal", "place", "number");
         links = new Links(URI.create(SELF_URI), URI.create(SELF_URI + "validation_status"));
@@ -82,13 +80,13 @@ class OfficerFilingMapperTest {
     @Test
     void appointmentDtoToOfficerFiling() {
         final var dto = OfficerFilingDto.builder()
+                .identification(identificationDto)
                 .address(addressDto)
                 .addressSameAsRegisteredOfficeAddress(true)
                 .appointedOn(localDate1)
                 .countryOfResidence("countryOfResidence")
                 .dateOfBirth(new Date3TupleDto(dob1.getDay(), dob1.getMonth(), dob1.getYear()))
-                .formerNames(nameDtoList)
-                .identification(identificationDto)
+                .formerNames("Karim,Anton")
                 .name("name")
                 .referenceEtag("referenceEtag")
                 .referenceAppointmentId("referenceAppointmentId")
@@ -102,30 +100,30 @@ class OfficerFilingMapperTest {
 
         final var filing = testMapper.map(dto);
 
-        assertThat(filing.getAddress(), is(equalTo(address)));
-        assertThat(filing.getAddressSameAsRegisteredOfficeAddress(), is(true));
-        assertThat(filing.getAppointedOn(),
+        assertThat(filing.getData().getAddress(), is(equalTo(address)));
+        assertThat(filing.getData().getAddressSameAsRegisteredOfficeAddress(), is(true));
+        assertThat(filing.getData().getAppointedOn(),
                 is(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC)));
-        assertThat(filing.getCountryOfResidence(), is("countryOfResidence"));
+        assertThat(filing.getData().getCountryOfResidence(), is("countryOfResidence"));
         assertThat(filing.getCreatedAt(), is(nullValue()));
-        assertThat(filing.getDateOfBirth(), is(dob1));
-        assertThat(filing.getFormerNames(), is(equalTo(nameList)));
+        assertThat(filing.getData().getDateOfBirth(), is(dob1));
+        assertThat(filing.getData().getFormerNames(), is("Karim,Anton"));
         assertThat(filing.getIdentification(), is(equalTo(identification)));
         assertThat(filing.getKind(), is(nullValue()));
         assertThat(filing.getLinks(), is(nullValue()));
-        assertThat(filing.getName(), is("name"));
-        assertThat(filing.getOfficerRole(), is(nullValue()));
-        assertThat(filing.getReferenceEtag(), is("referenceEtag"));
-        assertThat(filing.getReferenceAppointmentId(), is("referenceAppointmentId"));
-        assertThat(filing.getNationality(), is("nation"));
-        assertThat(filing.getOccupation(), is("work"));
-        assertThat(filing.getReferenceEtag(), is("referenceEtag"));
-        assertThat(filing.getReferenceAppointmentId(), is("referenceAppointmentId"));
-        assertThat(filing.getReferenceOfficerListEtag(), is("list"));
-        assertThat(filing.getResignedOn(), is(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC)));
-        assertThat(filing.getResidentialAddress(), is(equalTo(address)));
-        assertThat(filing.getResidentialAddressSameAsCorrespondenceAddress(), is(true));
-        assertThat(filing.getStatus(), is(nullValue()));
+        assertThat(filing.getData().getName(), is("name"));
+        assertThat(filing.getData().getOfficerRole(), is(nullValue()));
+        assertThat(filing.getData().getReferenceEtag(), is("referenceEtag"));
+        assertThat(filing.getData().getReferenceAppointmentId(), is("referenceAppointmentId"));
+        assertThat(filing.getData().getNationality(), is("nation"));
+        assertThat(filing.getData().getOccupation(), is("work"));
+        assertThat(filing.getData().getReferenceEtag(), is("referenceEtag"));
+        assertThat(filing.getData().getReferenceAppointmentId(), is("referenceAppointmentId"));
+        assertThat(filing.getData().getReferenceOfficerListEtag(), is("list"));
+        assertThat(filing.getData().getResignedOn(), is(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC)));
+        assertThat(filing.getData().getResidentialAddress(), is(equalTo(address)));
+        assertThat(filing.getData().getResidentialAddressSameAsCorrespondenceAddress(), is(true));
+        assertThat(filing.getData().getStatus(), is(nullValue()));
         assertThat(filing.getUpdatedAt(), is(nullValue()));
     }
 
@@ -138,58 +136,47 @@ class OfficerFilingMapperTest {
 
     @Test
     void emptyAppointmentDtoToOfficerFiling() {
-        final var dto = OfficerFilingDto.builder().formerNames(Collections.singletonList(null))
-                .build();
-        final var emptyFiling = OfficerFiling.builder().formerNames(Collections.singletonList(null))
-                .build();
-
-        final var filing = testMapper.map(dto);
-
-        assertThat(filing, is(equalTo(emptyFiling)));
-        assertThat(filing.getAddressSameAsRegisteredOfficeAddress(), is(nullValue()));
-        assertThat(filing.getResidentialAddressSameAsCorrespondenceAddress(), is(nullValue()));
-
-    }
-
-    @Test
-    void emptyAppointmentNullFormerNameDtoToOfficerFiling() {
-        final var dto = OfficerFilingDto.builder().formerNames(Collections.singletonList(null))
-                .build();
-        final var emptyFiling = OfficerFiling.builder().formerNames(Collections.singletonList(null))
+        final var dto = OfficerFilingDto.builder().build();
+        var offData = OfficerFilingData.builder().build();
+        final var now = clock.instant();
+        final var emptyFiling = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
 
         final var filing = testMapper.map(dto);
 
         assertThat(filing, is(equalTo(emptyFiling)));
+        assertThat(filing.getData().getAddressSameAsRegisteredOfficeAddress(), is(nullValue()));
+        assertThat(filing.getData().getResidentialAddressSameAsCorrespondenceAddress(), is(nullValue()));
 
     }
 
     @Test
     void officerFilingToOfficerFilingDto() {
-        final var filing = OfficerFiling.builder()
+        var offData = OfficerFilingData.builder()
                 .address(address)
                 .addressSameAsRegisteredOfficeAddress(true)
                 .appointedOn(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC))
                 .countryOfResidence("countryOfResidence")
-                .createdAt(instant1)
                 .dateOfBirth(dob1)
-                .formerNames(nameList)
-                .identification(identification)
-                .kind("kind")
-                .links(links)
+                .formerNames("Karim,Anton")
                 .name("name")
-                .officerRole("role")
+                .firstName("firstName")
+                .lastName("lastName")
                 .nationality("nation")
                 .occupation("work")
+                .officerRole("role")
                 .referenceEtag("referenceEtag")
                 .referenceAppointmentId("referenceAppointmentId")
                 .referenceOfficerListEtag("list")
-                .residentialAddress(address)
-                .residentialAddressSameAsCorrespondenceAddress(true)
                 .resignedOn(instant1)
                 .status("status")
-                .updatedAt(instant1)
+                .residentialAddress(address)
+                .addressSameAsRegisteredOfficeAddress(true)
+                .corporateDirector(false)
                 .build();
+        final var now = clock.instant();
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+                .identification(identification).build();
 
         final var dto = testMapper.map(filing);
 
@@ -199,7 +186,7 @@ class OfficerFilingMapperTest {
         assertThat(dto.getCountryOfResidence(), is("countryOfResidence"));
         assertThat(dto.getDateOfBirth(),
                 is(new Date3TupleDto(dob1.getDay(), dob1.getMonth(), dob1.getYear())));
-        assertThat(dto.getFormerNames(), is(equalTo(nameDtoList)));
+        assertThat(dto.getFormerNames(), is("Karim,Anton"));
         assertThat(dto.getIdentification(), is(equalTo(identificationDto)));
         assertThat(dto.getName(), is("name"));
         assertThat(dto.getReferenceEtag(), is("referenceEtag"));
@@ -213,41 +200,12 @@ class OfficerFilingMapperTest {
     }
 
     @Test
-    void nullOfficerFilingFormerNamesToAppointmentDto() {
-        final var dto = testMapper.map((OfficerFiling) null);
-
-        assertThat(dto, is(nullValue()));
-    }
-
-    @Test
-    void emptyOfficerFilingNullFormerNamesToAppointmentDto() {
-        final var filing = OfficerFiling.builder()
+    void emptyOfficerFilingToAppointmentDto() {
+        var offData = OfficerFilingData.builder().build();
+        final var now = clock.instant();
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
         final var emptyDto = OfficerFilingDto.builder()
-                .build();
-
-        final var dto = testMapper.map(filing);
-
-        assertThat(dto, is(equalTo(emptyDto)));
-    }
-
-    @Test
-    void emptyOfficerFilingNullFormerNameToAppointmentDto() {
-        final var filing = OfficerFiling.builder().formerNames(Collections.singletonList(null))
-                .build();
-        final var emptyDto = OfficerFilingDto.builder().formerNames(Collections.singletonList(null))
-                .build();
-
-        final var dto = testMapper.map(filing);
-
-        assertThat(dto, is(equalTo(emptyDto)));
-    }
-
-    @Test
-    void emptyOfficerFilingToAppointmentDto() {
-        final var filing = OfficerFiling.builder().formerNames(Collections.emptyList())
-                .build();
-        final var emptyDto = OfficerFilingDto.builder().formerNames(Collections.emptyList())
                 .build();
 
         final var dto = testMapper.map(filing);

@@ -13,6 +13,7 @@ import uk.gov.companieshouse.officerfiling.api.interceptor.OfficersCRUDAuthentic
 import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.officerfiling.api.interceptor.RequestLoggingInterceptor;
+import uk.gov.companieshouse.officerfiling.api.interceptor.ValidTransactionInterceptor;
 
 @Configuration
 @ComponentScan(basePackages = {"uk.gov.companieshouse.api", "uk.gov.companieshouse.officerfiling.api"})
@@ -21,6 +22,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
     private static final String TRANSACTIONS = "/transactions/**";
     private static final String PRIVATE = "/private/**";
     private static final String[] TRANSACTIONS_LIST = {TRANSACTIONS, PRIVATE};
+
+    private static final String GET_VALIDATION = "/**/validation_status";
 
     /**
      * Setup the interceptors to run against endpoints when the endpoints are called
@@ -35,10 +38,16 @@ public class InterceptorConfig implements WebMvcConfigurer {
         addTokenPermissionInterceptor(registry);
         addInternalUserInterceptor(registry);
         addClosedTransactionInterceptor(registry);
+        addValidTransactionInterceptor(registry);
     }
 
     private void addRequestLoggingInterceptor(InterceptorRegistry registry) {
         registry.addInterceptor(requestLoggingInterceptor());
+    }
+
+    private void addValidTransactionInterceptor(InterceptorRegistry registry){
+        registry.addInterceptor(validTransactionInterceptor())
+                .addPathPatterns(GET_VALIDATION);
     }
 
     /**
@@ -101,5 +110,10 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     public ClosedTransactionInterceptor closedTransactionInterceptor(){
         return new ClosedTransactionInterceptor();
+    }
+
+    @Bean
+    public ValidTransactionInterceptor validTransactionInterceptor() {
+        return new ValidTransactionInterceptor();
     }
 }
