@@ -20,7 +20,6 @@ import uk.gov.companieshouse.officerfiling.api.error.LocationType;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyAppointmentServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
-import uk.gov.companieshouse.officerfiling.api.model.dto.FormerNameDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
@@ -179,12 +178,8 @@ public class OfficerValidator {
         return field.length() <= maxLength;
     }
 
-    public boolean validateFormerNamesLength(List<FormerNameDto> formerNames){
-        var length = 0;
-        for(var formerName : formerNames){
-            length = length + formerName.getForenames().length() + formerName.getSurname().length();
-        }
-        return length <= 160;
+    public boolean validateFormerNamesLength(String formerNames){
+        return formerNames.length() <= 160;
     }
 
 

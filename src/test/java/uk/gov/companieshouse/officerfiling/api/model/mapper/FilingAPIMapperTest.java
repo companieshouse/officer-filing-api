@@ -1,33 +1,20 @@
 package uk.gov.companieshouse.officerfiling.api.model.mapper;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
-import uk.gov.companieshouse.officerfiling.api.model.dto.Date3TupleDto;
-import uk.gov.companieshouse.officerfiling.api.model.dto.FormerNameDto;
-import uk.gov.companieshouse.officerfiling.api.model.dto.IdentificationDto;
-import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
-import uk.gov.companieshouse.officerfiling.api.model.entity.Address;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
-import uk.gov.companieshouse.officerfiling.api.model.entity.FormerName;
-import uk.gov.companieshouse.officerfiling.api.model.entity.Identification;
-import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 

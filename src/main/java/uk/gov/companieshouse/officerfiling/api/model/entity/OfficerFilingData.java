@@ -8,8 +8,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OfficerFilingData {
@@ -19,7 +17,7 @@ public class OfficerFilingData {
     private Instant appointedOn;
     private String countryOfResidence;
     private Date3Tuple dateOfBirth;
-    private List<FormerName> formerNames;
+    private String formerNames;
     private String name;
     private String title;
     private String firstName;
@@ -78,7 +76,7 @@ public class OfficerFilingData {
         return dateOfBirth;
     }
 
-    public List<FormerName> getFormerNames() {
+    public String getFormerNames() {
         return formerNames;
     }
 
@@ -300,13 +298,9 @@ public class OfficerFilingData {
             return this;
         }
 
-        public Builder formerNames(final List<FormerName> value) {
-            buildSteps.add(data -> data.formerNames = value == null
-                    ? null
-                    : value.stream()
-                            .flatMap(Stream::ofNullable)
-                            .map(v -> new FormerName(v.getForenames(), v.getSurname()))
-                            .collect(Collectors.toList()));
+        public Builder formerNames(final String value) {
+
+            buildSteps.add(data -> data.formerNames = value);
             return this;
         }
 
