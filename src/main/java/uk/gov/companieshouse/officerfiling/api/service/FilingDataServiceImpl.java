@@ -99,7 +99,7 @@ public class FilingDataServiceImpl implements FilingDataService {
         String surname = "";
         // if it is a corporate Director then we must pass the name field into the lastName field
         // as that is where chips expects the corporate director name to be
-        if (companyAppointment.getOfficerRole().equalsIgnoreCase("CorporateDirector")) {
+        if (companyAppointment.getOfficerRole().equalsIgnoreCase("corporate-director")) {
             surname = companyAppointment.getName();
         } else {
             surname = companyAppointment.getSurname();
