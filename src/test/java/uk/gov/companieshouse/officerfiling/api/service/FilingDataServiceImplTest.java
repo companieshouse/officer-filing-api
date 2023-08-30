@@ -133,6 +133,7 @@ class FilingDataServiceImplTest {
         final var data = OfficerFilingData.builder()
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
                 .name(COMPANY_NAME)
+                .lastName(COMPANY_NAME)
                 .resignedOn(RESIGNED_ON_INS)
                 .build();
         final var officerFiling = OfficerFiling.builder()
