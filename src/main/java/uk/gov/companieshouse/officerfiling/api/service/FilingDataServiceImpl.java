@@ -96,7 +96,7 @@ public class FilingDataServiceImpl implements FilingDataService {
         String appointmentId = officerFiling.getData().getReferenceAppointmentId();
         final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transactionId, companyNumber,
                 appointmentId, ericPassThroughHeader);
-        var dataBuilder = OfficerFilingData.builder(officerFiling.getData())
+        var dataBuilder = OfficerFilingData.builder(officerFiling.getData());
 
         String surname = "";
         // if it is a corporate Director then we must pass the name field into the lastName field
@@ -111,7 +111,6 @@ public class FilingDataServiceImpl implements FilingDataService {
         logger.debug("companyAppointment.getName() == " + companyAppointment.getName());
         logger.debug("companyAppointment.getSurname() == " + companyAppointment.getSurname());
         var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
-                .dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()))
                 .name(companyAppointment.getName())
                 .corporateDirector(mapCorporateDirector(transaction, companyAppointment));
         // For non corporate Directors
