@@ -96,8 +96,6 @@ public class FilingDataServiceImpl implements FilingDataService {
         String appointmentId = officerFiling.getData().getReferenceAppointmentId();
         final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transactionId, companyNumber,
                 appointmentId, ericPassThroughHeader);
-        var dataBuilder = OfficerFilingData.builder(officerFiling.getData());
-
         String surname = "";
         // if it is a corporate Director then we must pass the name field into the lastName field
         // as that is where chips expects the corporate director name to be
@@ -107,13 +105,18 @@ public class FilingDataServiceImpl implements FilingDataService {
             surname = companyAppointment.getSurname();
         }
 
+        var dataBuilder = OfficerFilingData.builder(officerFiling.getData())
+                .lastName(surname)
+                .name(companyAppointment.getName())
+                .corporateDirector(mapCorporateDirector(transaction, companyAppointment));
+
+
+
         logger.debug("surname == " + surname);
         logger.debug("companyAppointment.getName() == " + companyAppointment.getName());
         logger.debug("companyAppointment.getSurname() == " + companyAppointment.getSurname());
-        var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
-                .name(companyAppointment.getName())
-                .corporateDirector(mapCorporateDirector(transaction, companyAppointment));
-        // For non corporate Directors
+
+        // For non-corporate Directors
         if(companyAppointment.getDateOfBirth() != null){
             dataBuilder = dataBuilder
                     .dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()));
