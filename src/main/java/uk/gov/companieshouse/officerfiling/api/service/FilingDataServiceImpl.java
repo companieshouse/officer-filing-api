@@ -110,12 +110,6 @@ public class FilingDataServiceImpl implements FilingDataService {
                 .name(companyAppointment.getName())
                 .corporateDirector(mapCorporateDirector(transaction, companyAppointment));
 
-
-
-        logger.debug("surname == " + surname);
-        logger.debug("companyAppointment.getName() == " + companyAppointment.getName());
-        logger.debug("companyAppointment.getSurname() == " + companyAppointment.getSurname());
-
         // For non-corporate Directors
         if(companyAppointment.getDateOfBirth() != null){
             dataBuilder = dataBuilder
