@@ -10,7 +10,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <artifactId>officer-filing-api</artifactId>
-    <version>poc-30-08-2023</version>
+    <version>unversioned</version>
     <name>officer-filing-api</name>
     <description>Public API for Officer Filings</description>
     <properties>
