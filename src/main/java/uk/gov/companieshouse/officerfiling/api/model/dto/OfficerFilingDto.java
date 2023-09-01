@@ -20,7 +20,7 @@ public class OfficerFilingDto {
     private Boolean addressSameAsRegisteredOfficeAddress;
     private LocalDate appointedOn;
     private String countryOfResidence;
-    private Date3TupleDto dateOfBirth;
+    private LocalDate dateOfBirth;
     private String formerNames;
     private IdentificationDto identification;
     private String name;
@@ -56,7 +56,7 @@ public class OfficerFilingDto {
         return countryOfResidence;
     }
 
-    public Date3TupleDto getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
@@ -230,11 +230,9 @@ public class OfficerFilingDto {
             return this;
         }
 
-        public Builder dateOfBirth(final Date3TupleDto value) {
+        public Builder dateOfBirth(final LocalDate value) {
 
-            buildSteps.add(data -> data.dateOfBirth = Optional.ofNullable(value)
-                    .map(v -> new Date3TupleDto(v.getDay(), v.getMonth(), v.getYear()))
-                    .orElse(null));
+            buildSteps.add(data -> data.dateOfBirth = value);
             return this;
         }
 
