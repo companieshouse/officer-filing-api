@@ -48,7 +48,7 @@ class FilingAPIMapperTest {
                 .name("name")
                 .firstName("firstName")
                 .lastName("lastName")
-                .nationality("nation")
+                .nationality1("nation")
                 .occupation("work")
                 .officerRole("role")
                 .referenceEtag("referenceEtag")

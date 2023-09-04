@@ -28,7 +28,9 @@ public class OfficerFilingDto {
     private String firstName;
     private String middleNames;
     private String lastName;
-    private String nationality;
+    private String nationality1;
+    private String nationality2;
+    private String nationality3;
     private String occupation;
     private String referenceEtag;
     private String referenceAppointmentId;
@@ -87,10 +89,15 @@ public class OfficerFilingDto {
         return lastName;
     }
 
-    public String getNationality() {
-        return nationality;
+    public String getNationality1() {
+        return nationality1;
     }
-
+    public String getNationality2() {
+        return nationality2;
+    }
+    public String getNationality3() {
+        return nationality3;
+    }
     public String getOccupation() {
         return occupation;
     }
@@ -141,7 +148,9 @@ public class OfficerFilingDto {
                 && Objects.equals(getFirstName(), that.getFirstName())
                 && Objects.equals(getMiddleNames(), that.getMiddleNames())
                 && Objects.equals(getLastName(), that.getLastName())
-                && Objects.equals(getNationality(), that.getNationality())
+                && Objects.equals(getNationality1(), that.getNationality1())
+                && Objects.equals(getNationality2(), that.getNationality2())
+                && Objects.equals(getNationality3(), that.getNationality3())
                 && Objects.equals(getOccupation(), that.getOccupation())
                 && Objects.equals(getReferenceEtag(), that.getReferenceEtag())
                 && Objects.equals(getReferenceAppointmentId(), that.getReferenceAppointmentId())
@@ -157,7 +166,7 @@ public class OfficerFilingDto {
         return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getDateOfBirth(), getFormerNames(),
                 getIdentification(), getTitle(), getName(),
-                getFirstName(), getMiddleNames(), getLastName(), getNationality(), getOccupation(),
+                getFirstName(), getMiddleNames(), getLastName(), getNationality1(), getNationality2(), getNationality3(), getOccupation(),
                 getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getResidentialAddress(),
                 getResidentialAddressSameAsCorrespondenceAddress());
@@ -178,7 +187,9 @@ public class OfficerFilingDto {
                 .add("firstName='" + firstName + "'")
                 .add("middleNames='" + middleNames + "'")
                 .add("lastName='" + lastName + "'")
-                .add("nationality='" + nationality + "'")
+                .add("nationality1='" + nationality1 + "'")
+                .add("nationality2='" + nationality2 + "'")
+                .add("nationality3='" + nationality3 + "'")
                 .add("occupation='" + occupation + "'")
                 .add("referenceEtag='" + referenceEtag + "'")
                 .add("referenceAppointmentId='" + referenceAppointmentId + "'")
@@ -284,12 +295,21 @@ public class OfficerFilingDto {
             return this;
         }
 
-        public Builder nationality(final String value) {
+        public Builder nationality1(final String value) {
 
-            buildSteps.add(data -> data.nationality = value);
+            buildSteps.add(data -> data.nationality1 = value);
             return this;
         }
+        public Builder nationality2(final String value) {
 
+            buildSteps.add(data -> data.nationality2 = value);
+            return this;
+        }
+        public Builder nationality3(final String value) {
+
+            buildSteps.add(data -> data.nationality3 = value);
+            return this;
+        }
         public Builder occupation(final String value) {
 
             buildSteps.add(data -> data.occupation = value);

@@ -203,4 +203,52 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         }
     }
 
+    private void validateNationality(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        if (dto.getNationality1() == null ) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.NATIONALITY_BLANK));
+        }
+        else {
+            if (!validateDtoFieldLength(dto.getNationality1(), 50)) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH));
+            }
+            if (!isValidCharacters(dto.getNationality1())) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.NATIONALITY_CHARACTERS));
+            }
+            if (dto.getNationality2() != null) {
+                if (!validateDtoFieldLength(dto.getNationality1() + "," + dto.getNationality2(), 50)) {
+                    createValidationError(request, errorList,
+                            apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH));
+                }
+                if (!isValidCharacters(dto.getNationality2())) {
+                    createValidationError(request, errorList,
+                            apiEnumerations.getValidation(ValidationEnum.NATIONALITY_CHARACTERS));
+                }
+                if (dto.getNationality2().equalsIgnoreCase(dto.getNationality1())) {
+                    createValidationError(request, errorList,
+                            apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY));
+                }
+            }
+            if (dto.getNationality3() != null) {
+                if (!validateDtoFieldLength(dto.getNationality1() + "," + dto.getNationality2()+ "," + dto.getNationality3(), 50)) {
+                    createValidationError(request, errorList,
+                            apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH));
+                }
+                if (!isValidCharacters(dto.getNationality3())) {
+                    createValidationError(request, errorList,
+                            apiEnumerations.getValidation(ValidationEnum.NATIONALITY_CHARACTERS));
+                }
+                if (dto.getNationality3().equalsIgnoreCase(dto.getNationality1())) {
+                    createValidationError(request, errorList,
+                            apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY));
+                }
+                if (dto.getNationality3().equalsIgnoreCase(dto.getNationality2())) {
+                    createValidationError(request, errorList,
+                            apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY));
+                }
+            }
+        }
+    }
+
 }

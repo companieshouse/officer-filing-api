@@ -90,7 +90,7 @@ class OfficerFilingMapperTest {
                 .name("name")
                 .referenceEtag("referenceEtag")
                 .referenceAppointmentId("referenceAppointmentId")
-                .nationality("nation")
+                .nationality1("nation")
                 .occupation("work")
                 .referenceOfficerListEtag("list")
                 .residentialAddress(addressDto)
@@ -115,7 +115,7 @@ class OfficerFilingMapperTest {
         assertThat(filing.getData().getOfficerRole(), is(nullValue()));
         assertThat(filing.getData().getReferenceEtag(), is("referenceEtag"));
         assertThat(filing.getData().getReferenceAppointmentId(), is("referenceAppointmentId"));
-        assertThat(filing.getData().getNationality(), is("nation"));
+        assertThat(filing.getData().getNationality1(), is("nation"));
         assertThat(filing.getData().getOccupation(), is("work"));
         assertThat(filing.getData().getReferenceEtag(), is("referenceEtag"));
         assertThat(filing.getData().getReferenceAppointmentId(), is("referenceAppointmentId"));
@@ -162,7 +162,7 @@ class OfficerFilingMapperTest {
                 .name("name")
                 .firstName("firstName")
                 .lastName("lastName")
-                .nationality("nation")
+                .nationality1("nation")
                 .occupation("work")
                 .officerRole("role")
                 .referenceEtag("referenceEtag")
@@ -191,7 +191,7 @@ class OfficerFilingMapperTest {
         assertThat(dto.getName(), is("name"));
         assertThat(dto.getReferenceEtag(), is("referenceEtag"));
         assertThat(dto.getReferenceAppointmentId(), is("referenceAppointmentId"));
-        assertThat(dto.getNationality(), is("nation"));
+        assertThat(dto.getNationality1(), is("nation"));
         assertThat(dto.getOccupation(), is("work"));
         assertThat(dto.getReferenceOfficerListEtag(), is("list"));
         assertThat(dto.getResidentialAddress(), is(equalTo(addressDto)));

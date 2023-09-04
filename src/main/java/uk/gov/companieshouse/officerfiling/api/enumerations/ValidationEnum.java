@@ -37,7 +37,11 @@ public enum ValidationEnum {
     DATE_OF_BIRTH_OVERAGE("date-of-birth-overage"),
     DATE_OF_BIRTH_UNDERAGE("date-of-birth-underage"),
     OCCUPATION_LENGTH("occupation-length"),
-    OCCUPATION_CHARACTERS("occupation-characters");
+    OCCUPATION_CHARACTERS("occupation-characters"),
+    NATIONALITY_BLANK("nationality-blank"),
+    NATIONALITY_CHARACTERS("nationality-characters"),
+    NATIONALITY_LENGTH("nationality-length"),
+    DUPLICATE_NATIONALITY("duplicate-nationality");
 
 
     private final String key;
