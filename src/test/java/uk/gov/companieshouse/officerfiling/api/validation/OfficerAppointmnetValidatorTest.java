@@ -615,4 +615,184 @@ class OfficerAppointmnetValidatorTest {
                 .contains("Occupation must be 100 characters or less");
     }
 
+    @Test
+    void validateNationality1Characters() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("Britshゃ");
+
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_CHARACTERS)).thenReturn(
+                "Nationality must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when occupation contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Nationality must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+    @Test
+    void validateNationality2Characters() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("Britsh");
+        when(dto.getNationality1()).thenReturn("frenchゃ");
+
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_CHARACTERS)).thenReturn(
+                "Nationality must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when occupation contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Nationality must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+    @Test
+    void validateNationality3Characters() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("Britsh");
+        when(dto.getNationality1()).thenReturn("French");
+        when(dto.getNationality1()).thenReturn("Germanゃ");
+
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_CHARACTERS)).thenReturn(
+                "Nationality must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when occupation contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Nationality must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
+    void validateNationality1Length() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("A very long nationality indeed so long in fact that it breaks the legal length for nationalities");
+
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH)).thenReturn(
+                "Nationality must be 50 characters or less");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when nationality contains more than 50 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Nationality must be 50 characters or less");
+    }
+
+    @Test
+    void validateNationality1PlusNationality2Length() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("British");
+        when(dto.getNationality2()).thenReturn("A very long nationality indeed so long in fact that it breaks the legal length for nationalities");
+
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH)).thenReturn(
+                "Nationality must be 50 characters or less");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when nationality contains more than 50 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Nationality must be 50 characters or less");
+    }
+    @Test
+    void validateNationality1PlusNationality2Equals50ButhasCommaToMakeIt51Length() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("thisIs25Characterslongggg");
+        when(dto.getNationality2()).thenReturn("thisIs25Characterslongggh");
+
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH)).thenReturn(
+                "Nationality must be 50 characters or less");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when nationality contains more than 50 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Nationality must be 50 characters or less");
+    }
+
+    @Test
+    void validateNationality1PlusNationality2PlusNationality3Equals49ButhasCommasToMakeIt51Length() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("thisIs16Characte");
+        when(dto.getNationality2()).thenReturn("thisIs17Character");
+        when(dto.getNationality3()).thenReturn("thisIs16Charactz");
+
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH)).thenReturn(
+                "Nationality must be 50 characters or less");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when nationality contains more than 50 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Nationality must be 50 characters or less");
+    }
+    @Test
+    void validateNationality1PlusNationality2PlusNationality3GreaterThan50Length() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("British");
+        when(dto.getNationality2()).thenReturn("French");
+        when(dto.getNationality3()).thenReturn("thisIsAVeryLongNationalityWhichWilltakeUsOver50Characterslong");
+
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH)).thenReturn(
+                "Nationality must be 50 characters or less");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when nationality contains more than 50 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Nationality must be 50 characters or less");
+    }
 }

@@ -76,6 +76,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateFirstName(request, errorList, dto);
         validateLastName(request, errorList, dto);
         validateDateOfBirth(request, errorList, dto);
+        validateNationality(request, errorList, dto);
     }
 
     @Override
