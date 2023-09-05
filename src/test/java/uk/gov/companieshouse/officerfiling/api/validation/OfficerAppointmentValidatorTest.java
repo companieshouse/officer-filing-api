@@ -644,7 +644,7 @@ class OfficerAppointmentValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
         when(apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_MISSING)).thenReturn(
                 "Enter the day the director was appointed");
 
