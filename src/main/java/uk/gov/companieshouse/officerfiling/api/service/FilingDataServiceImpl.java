@@ -1,6 +1,8 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import org.apache.commons.lang.NotImplementedException;
 import org.springframework.beans.factory.annotation.Value;
@@ -112,8 +114,10 @@ public class FilingDataServiceImpl implements FilingDataService {
 
         // For non-corporate Directors
         if(companyAppointment.getDateOfBirth() != null){
+            LocalDate date =  LocalDate.parse(companyAppointment.getDateOfBirth().getYear() + "-" + companyAppointment.getDateOfBirth().getMonth() + "-" + companyAppointment.getDateOfBirth().getDay());
+            Instant dobInstant = date.atStartOfDay().toInstant(ZoneOffset.UTC);
             dataBuilder = dataBuilder
-                    .dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()));
+                    .dateOfBirth(dobInstant);
         }
 
         var enhancedOfficerFilingBuilder = OfficerFiling.builder(officerFiling)
