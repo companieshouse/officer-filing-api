@@ -153,10 +153,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_BLANK));
         }
         else{
-            var officerDateOfBirth = LocalDate.of(dto.getDateOfBirth().getYear(), dto.getDateOfBirth()
-                    .getMonth(), dto.getDateOfBirth().getDay());
-
-            var age = Period.between(officerDateOfBirth, dto.getAppointedOn()).getYears();
+            var age = Period.between(dto.getDateOfBirth(), dto.getAppointedOn()).getYears();
             if(age >= 110){
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_OVERAGE));
             }

@@ -644,7 +644,7 @@ class OfficerAppointmentValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
         when(apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_MISSING)).thenReturn(
                 "Enter the day the director was appointed");
 
@@ -764,7 +764,7 @@ class OfficerAppointmentValidatorTest {
                 .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
-                .dateOfBirth(new Date3TupleDto(25,1,1995))
+                .dateOfBirth(LocalDate.of(1995, 1, 25))
                 .build();
 
         officerAppointmentValidator.validateDirectorAgeAtAppointment(request, apiErrorsList, dto);
@@ -779,7 +779,7 @@ class OfficerAppointmentValidatorTest {
                 .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
-                .dateOfBirth(new Date3TupleDto(25,1,2020))
+                .dateOfBirth(LocalDate.of(2020, 1, 25))
                 .build();
 
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_UNDERAGE)).thenReturn("You can only appoint a person as a director if they are at least 16 years old");
@@ -797,7 +797,7 @@ class OfficerAppointmentValidatorTest {
                 .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
-                .dateOfBirth(new Date3TupleDto(25,1,1900))
+                .dateOfBirth(LocalDate.of(1900, 1, 25))
                 .build();
 
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_OVERAGE)).thenReturn("You can only appoint a person as a director if they are under 110 years old");
