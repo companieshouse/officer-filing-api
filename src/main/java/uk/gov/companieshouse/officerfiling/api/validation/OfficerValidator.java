@@ -2,11 +2,13 @@ package uk.gov.companieshouse.officerfiling.api.validation;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
@@ -36,6 +38,8 @@ public class OfficerValidator {
     public static final List<String> ALLOWED_OFFICER_ROLES = List.of("director", "corporate-director", "nominee-director", "corporate-nominee-director");
     private static final String REG_EXP_FOR_VALID_CHARACTERS = "^[-,.:; 0-9A-Z&@$£¥€'\"«»?!/\\\\()\\[\\]{}<>*=#%+ÀÁÂÃÄÅĀĂĄÆǼÇĆĈĊČÞĎÐÈÉÊËĒĔĖĘĚĜĞĠĢĤĦÌÍÎÏĨĪĬĮİĴĶĹĻĽĿŁÑŃŅŇŊÒÓÔÕÖØŌŎŐǾŒŔŖŘŚŜŞŠŢŤŦÙÚÛÜŨŪŬŮŰŲŴẀẂẄỲÝŶŸŹŻŽa-zſƒǺàáâãäåāăąæǽçćĉċčþďðèéêëēĕėęěĝģğġĥħìíîïĩīĭįĵķĺļľŀłñńņňŋòóôõöøōŏőǿœŕŗřśŝşšţťŧùúûüũūŭůűųŵẁẃẅỳýŷÿźżž]*$";
 
+    @Value("${NATIONALITY_LIST}")
+    private static String ALLOWED_NATIONALITIES;
     private Logger logger;
 
     public ApiEnumerations getApiEnumerations() {
@@ -189,5 +193,15 @@ public class OfficerValidator {
         return matcher.matches();
     }
 
+    public static List<String> getAllowedNationalities() {
+        String[] nationalityArray = ALLOWED_NATIONALITIES.split(",");
+        List<String> allowedNationalities = Arrays.asList(nationalityArray);
+
+        return allowedNationalities;
+    }
+
+    public static boolean isValidNationalityFromAllowedList(String nationality) {
+        return getAllowedNationalities().contains(nationality);
+    }
 
 }
