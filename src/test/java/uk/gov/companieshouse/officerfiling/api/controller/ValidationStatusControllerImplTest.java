@@ -179,6 +179,7 @@ class ValidationStatusControllerImplTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(localDateDob1);
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         final var response = testController.validate(transaction, FILING_ID, request);
         assertThat(response.getValidationStatusError(), is(nullValue()));
