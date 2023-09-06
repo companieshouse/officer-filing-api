@@ -24,7 +24,6 @@ import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
-import uk.gov.companieshouse.officerfiling.api.model.dto.Date3TupleDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionServiceImpl;
@@ -756,6 +755,57 @@ class OfficerAppointmentValidatorTest {
         assertThat(apiErrorsList)
                 .as("Validation should be skipped when incorporation date is null")
                 .isEmpty();
+    }
+
+    @Test
+    void validateDirectorAgeAtAppointmentWhenValidAge() {
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .dateOfBirth(LocalDate.of(1995, 1, 25))
+                .build();
+
+        officerAppointmentValidator.validateDirectorAgeAtAppointment(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when directer is a valid age on appointment date")
+                .isEmpty();
+    }
+
+    @Test
+    void validateDirectorAgeAtAppointmentWhenUnderage() {
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .dateOfBirth(LocalDate.of(2020, 1, 25))
+                .build();
+
+        when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_UNDERAGE)).thenReturn("You can only appoint a person as a director if they are at least 16 years old");
+        officerAppointmentValidator.validateDirectorAgeAtAppointment(request, apiErrorsList, officerFilingDto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when directer is underage on appointment date")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("You can only appoint a person as a director if they are at least 16 years old");
+    }
+
+    @Test
+    void validateDirectorAgeAtAppointmentWhenOverage() {
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .dateOfBirth(LocalDate.of(1900, 1, 25))
+                .build();
+
+        when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_OVERAGE)).thenReturn("You can only appoint a person as a director if they are under 110 years old");
+        officerAppointmentValidator.validateDirectorAgeAtAppointment(request, apiErrorsList, officerFilingDto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when directer is underage on appointment date")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("You can only appoint a person as a director if they are under 110 years old");
     }
 
 }
