@@ -11,7 +11,6 @@ import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.FilingAPIMapper;
@@ -98,8 +97,8 @@ public class FilingDataServiceImpl implements FilingDataService {
         String appointmentId = officerFiling.getData().getReferenceAppointmentId();
         final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transactionId, companyNumber,
                 appointmentId, ericPassThroughHeader);
-        String surname = "";
-        String firstname = "";
+        String surname;
+        var firstname = "";
         // if it is a corporate Director then we must pass the name field into the lastName field
         // as that is where chips expects the corporate director name to be
         if (companyAppointment.getOfficerRole().equalsIgnoreCase("corporate-director")) {
