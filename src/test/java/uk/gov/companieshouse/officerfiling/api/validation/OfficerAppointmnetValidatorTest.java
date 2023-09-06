@@ -16,6 +16,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
@@ -36,7 +37,7 @@ class OfficerAppointmnetValidatorTest {
     private static final String TRANS_ID = "12345-54321-76666";
     private static final String PASSTHROUGH_HEADER = "passthrough";
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
-    private static final String NATIONALITY_LIST = "Afghan,Albanian,Algerian,American,Andorran,Angolan,Anguillan,Citizen of Antigua and Barbuda,Argentine,Armenian,Australian,Austrian,Azerbaijani,Bahamian,Bahraini,Bangladeshi,Barbadian,Belarusian,Belgian,Belizean,Beninese,Bermudian,Bhutanese,Bolivian,Citizen of Bosnia and Herzegovina,Botswanan,Brazilian,British,British Virgin Islander,Bruneian,Bulgarian,Burkinan,Burmese,Burundian,Cambodian,Cameroonian,Canadian,Cape Verdean,Cayman Islander,Central African,Chadian,Chilean,Chinese,Colombian,Comoran,Congolese (Congo),Congolese (DRC),Cook Islander,Costa Rican,Croatian,Cuban,Cymraes,Cymro,Cypriot,Czech,Danish,Djiboutian,Dominican,Citizen of the Dominican Republic,Dutch,East Timorese\tEcuadorean\tEgyptian\tEmirati,English,Equatorial Guinean,Eritrean,Estonian,Ethiopian,Faroese,Fijian,Filipino,Finnish,French,Gabonese,Gambian,Georgian,German,Ghanaian,Gibraltarian,Greek,Greenlandic,Grenadian,Guamanian,Guatemalan,Citizen of Guinea-Bissau,Guinean,Guyanese,Haitian,Honduran,Hong Konger,Hungarian,Icelandic,Indian,Indonesian,Iranian,Iraqi,Irish,Israeli,Italian,Ivorian,Jamaican,Japanese,Jordanian,Kazakh,Kenyan,Kittitian,Citizen of Kiribati,Kosovan,Kuwaiti,Kyrgyz,Lao,Latvian,Lebanese,Liberian,Libyan,Liechtenstein citizen,Lithuanian,Luxembourger,Macanese,Macedonian,Malagasy,Malawian,Malaysian,Maldivian,Malian,Maltese,Marshallese,Martiniquais,Mauritanian,Mauritian,Mexican,Micronesian,Moldovan,Monegasque,Mongolian,Montenegrin,Montserratian,Moroccan,Mosotho,Mozambican,Namibian,Nauruan,Nepalese,New Zealander,Nicaraguan,Nigerian,Nigerien,Niuean,North Korean,Northern Irish,Norwegian,Omani,Pakistani,Palauan,Palestinian,Panamanian,Papua New Guinean,Paraguayan,Peruvian,Pitcairn Islander,Polish,Portuguese,Prydeinig,Puerto Rican,Qatari,Romanian,Russian,Rwandan,Salvadorean,Sammarinese,Samoan,Sao Tomean,Saudi Arabian,Scottish,Senegalese,Serbian,Citizen of Seychelles,Sierra Leonean,Singaporean,Slovak,Slovenian,Solomon Islander,Somali,South African,South Korean,South Sudanese,Spanish,Sri Lankan,St Helenian,St Lucian,Stateless,Sudanese,Surinamese,Swazi,Swedish,Swiss,Syrian,Taiwanese,Tajik,Tanzanian,Thai,Togolese,Tongan,Trinidadian,Tristanian,Tunisian,Turkish,Turkmen,Turks and Caicos Islander,Tuvaluan,Ugandan,Ukrainian,Uruguayan,Uzbek,Vatican citizen,Citizen of Vanuatu,Venezuelan,Vietnamese,Vincentian,Wallisian,Welsh,Yemeni,Zambian,Zimbabwean";
+
     private static final String ETAG = "etag";
     private static final String COMPANY_TYPE = "ltd";
     private static final String OFFICER_ROLE = "director";
@@ -66,6 +67,8 @@ class OfficerAppointmnetValidatorTest {
     @BeforeEach
     void setUp() {
         officerAppointmentValidator = new OfficerAppointmentValidator(logger, companyProfileService, apiEnumerations);
+        //added in some fake nationalities to be used in test length validation.
+        ReflectionTestUtils.setField(officerAppointmentValidator, "allowedNationalities", "A very long nationality indeed so long in fact that it breaks the legal length for nationalities,thisIs25Characterslongggh,thisIs25Characterslongggg,thisIs16Charactz,thisIs17Character,thisIs16Characte,thisIsAVeryLongNationalityWhichWilltakeUsOver50Characterslong,Afghan,Albanian,Algerian,American,Andorran,Angolan,Anguillan,Citizen of Antigua and Barbuda,Argentine,Armenian,Australian,Austrian,Azerbaijani,Bahamian,Bahraini,Bangladeshi,Barbadian,Belarusian,Belgian,Belizean,Beninese,Bermudian,Bhutanese,Bolivian,Citizen of Bosnia and Herzegovina,Botswanan,Brazilian,British,British Virgin Islander,Bruneian,Bulgarian,Burkinan,Burmese,Burundian,Cambodian,Cameroonian,Canadian,Cape Verdean,Cayman Islander,Central African,Chadian,Chilean,Chinese,Colombian,Comoran,Congolese (Congo),Congolese (DRC),Cook Islander,Costa Rican,Croatian,Cuban,Cymraes,Cymro,Cypriot,Czech,Danish,Djiboutian,Dominican,Citizen of the Dominican Republic,Dutch,East Timorese\tEcuadorean\tEgyptian\tEmirati,English,Equatorial Guinean,Eritrean,Estonian,Ethiopian,Faroese,Fijian,Filipino,Finnish,French,Gabonese,Gambian,Georgian,German,Ghanaian,Gibraltarian,Greek,Greenlandic,Grenadian,Guamanian,Guatemalan,Citizen of Guinea-Bissau,Guinean,Guyanese,Haitian,Honduran,Hong Konger,Hungarian,Icelandic,Indian,Indonesian,Iranian,Iraqi,Irish,Israeli,Italian,Ivorian,Jamaican,Japanese,Jordanian,Kazakh,Kenyan,Kittitian,Citizen of Kiribati,Kosovan,Kuwaiti,Kyrgyz,Lao,Latvian,Lebanese,Liberian,Libyan,Liechtenstein citizen,Lithuanian,Luxembourger,Macanese,Macedonian,Malagasy,Malawian,Malaysian,Maldivian,Malian,Maltese,Marshallese,Martiniquais,Mauritanian,Mauritian,Mexican,Micronesian,Moldovan,Monegasque,Mongolian,Montenegrin,Montserratian,Moroccan,Mosotho,Mozambican,Namibian,Nauruan,Nepalese,New Zealander,Nicaraguan,Nigerian,Nigerien,Niuean,North Korean,Northern Irish,Norwegian,Omani,Pakistani,Palauan,Palestinian,Panamanian,Papua New Guinean,Paraguayan,Peruvian,Pitcairn Islander,Polish,Portuguese,Prydeinig,Puerto Rican,Qatari,Romanian,Russian,Rwandan,Salvadorean,Sammarinese,Samoan,Sao Tomean,Saudi Arabian,Scottish,Senegalese,Serbian,Citizen of Seychelles,Sierra Leonean,Singaporean,Slovak,Slovenian,Solomon Islander,Somali,South African,South Korean,South Sudanese,Spanish,Sri Lankan,St Helenian,St Lucian,Stateless,Sudanese,Surinamese,Swazi,Swedish,Swiss,Syrian,Taiwanese,Tajik,Tanzanian,Thai,Togolese,Tongan,Trinidadian,Tristanian,Tunisian,Turkish,Turkmen,Turks and Caicos Islander,Tuvaluan,Ugandan,Ukrainian,Uruguayan,Uzbek,Vatican citizen,Citizen of Vanuatu,Venezuelan,Vietnamese,Vincentian,Wallisian,Welsh,Yemeni,Zambian,Zimbabwean");
         apiErrorsList = new ArrayList<>();
     }
 
@@ -509,6 +512,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getTitle()).thenReturn("Mr");
         when(dto.getFormerNames()).thenReturn("Anton,Doeゃ");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("Britsh");
         when(apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_CHARACTERS)).thenReturn(
                 "Previous name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
@@ -530,6 +534,7 @@ class OfficerAppointmnetValidatorTest {
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_UNDERAGE)).thenReturn(
                 "You can only appoint a person as a director if they are at least 16 years old");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(1,1,LocalDate.now().getYear()-15));
+        when(dto.getNationality1()).thenReturn("Britsh");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -806,18 +811,17 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getOccupation()).thenReturn("Engineer");
-        when(dto.getNationality1()).thenReturn("British");
-        when(OfficerValidator.getAllowedNationalities()).thenReturn(Arrays.asList(NATIONALITY_LIST.split(",")));
+        when(dto.getNationality1()).thenReturn("Britishhhh");
 
-        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH)).thenReturn(
-                "Nationality must be 50 characters or less");
+        when(apiEnumerations.getValidation(ValidationEnum.INVALID_NATIONALITY)).thenReturn(
+                "Select a nationality from the list");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-                .as("An error should be produced when nationality contains more than 50 characters")
+                .as("Select a nationality from the list")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("Nationality must be 50 characters or less");
+                .contains("Select a nationality from the list");
     }
 }

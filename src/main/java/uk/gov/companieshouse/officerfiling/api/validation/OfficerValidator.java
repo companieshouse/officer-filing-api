@@ -39,7 +39,7 @@ public class OfficerValidator {
     private static final String REG_EXP_FOR_VALID_CHARACTERS = "^[-,.:; 0-9A-Z&@$£¥€'\"«»?!/\\\\()\\[\\]{}<>*=#%+ÀÁÂÃÄÅĀĂĄÆǼÇĆĈĊČÞĎÐÈÉÊËĒĔĖĘĚĜĞĠĢĤĦÌÍÎÏĨĪĬĮİĴĶĹĻĽĿŁÑŃŅŇŊÒÓÔÕÖØŌŎŐǾŒŔŖŘŚŜŞŠŢŤŦÙÚÛÜŨŪŬŮŰŲŴẀẂẄỲÝŶŸŹŻŽa-zſƒǺàáâãäåāăąæǽçćĉċčþďðèéêëēĕėęěĝģğġĥħìíîïĩīĭįĵķĺļľŀłñńņňŋòóôõöøōŏőǿœŕŗřśŝşšţťŧùúûüũūŭůűųŵẁẃẅỳýŷÿźżž]*$";
 
     @Value("${NATIONALITY_LIST}")
-    private static String ALLOWED_NATIONALITIES;
+    public static String allowedNationalities;
     private Logger logger;
 
     public ApiEnumerations getApiEnumerations() {
@@ -194,7 +194,7 @@ public class OfficerValidator {
     }
 
     public static List<String> getAllowedNationalities() {
-        String[] nationalityArray = ALLOWED_NATIONALITIES.split(",");
+        String[] nationalityArray = allowedNationalities.split(",");
         List<String> allowedNationalities = Arrays.asList(nationalityArray);
 
         return allowedNationalities;
