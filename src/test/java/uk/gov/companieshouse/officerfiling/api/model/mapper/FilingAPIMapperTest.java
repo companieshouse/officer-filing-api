@@ -22,7 +22,7 @@ import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 class FilingAPIMapperTest {
 
     private LocalDate localDate1;
-    private Date3Tuple dob1;
+    private Instant dob1;
     private String dob1String;
     private Instant instant1;
     private FilingAPIMapper testMapper;
@@ -33,7 +33,7 @@ class FilingAPIMapperTest {
     void setUp() {
         testMapper = Mappers.getMapper(FilingAPIMapper.class);
         localDate1 = LocalDate.of(2019, 11, 5);
-        dob1 = new Date3Tuple(12, 9, 1970);
+        dob1 = Instant.parse("1970-09-12T00:00:00Z");
         dob1String = "1970-09-12";
         instant1 = Instant.parse("2019-11-05T00:00:00Z");
     }
@@ -65,7 +65,7 @@ class FilingAPIMapperTest {
 
         final var filingApi = testMapper.map(filing);
 
-        assertThat(filingApi.getDateOfBirth(), is(dob1String));
+        assertThat(filingApi.getDateOfBirth(), is("1970-09-12T00:00:00Z"));
         assertThat(filing.getData().getCorporateDirector(), is(false));
         assertThat(filing.getData().getResignedOn(), is(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC)));
     }

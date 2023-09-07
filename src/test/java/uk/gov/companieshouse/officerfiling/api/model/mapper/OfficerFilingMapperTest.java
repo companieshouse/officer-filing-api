@@ -35,7 +35,8 @@ class OfficerFilingMapperTest {
     private Address address;
     private AddressDto addressDto;
     private LocalDate localDate1;
-    private Date3Tuple dob1;
+    private LocalDate localDateDob1;
+    private Instant dob1;
     private Instant instant1;
     private IdentificationDto identificationDto;
     private Identification identification;
@@ -70,7 +71,8 @@ class OfficerFilingMapperTest {
                 .region("region")
                 .build();
         localDate1 = LocalDate.of(2019, 11, 5);
-        dob1 = new Date3Tuple(12, 9, 1970);
+        localDateDob1 = LocalDate.of(1970, 9, 12);
+        dob1 = Instant.parse("1970-09-12T00:00:00Z");
         instant1 = Instant.parse("2019-11-05T00:00:00Z");
         identification = new Identification("type", "auth", "legal", "place", "number");
         identificationDto = new IdentificationDto("type", "auth", "legal", "place", "number");
@@ -85,7 +87,7 @@ class OfficerFilingMapperTest {
                 .addressSameAsRegisteredOfficeAddress(true)
                 .appointedOn(localDate1)
                 .countryOfResidence("countryOfResidence")
-                .dateOfBirth(new Date3TupleDto(dob1.getDay(), dob1.getMonth(), dob1.getYear()))
+                .dateOfBirth(localDateDob1)
                 .formerNames("Karim,Anton")
                 .name("name")
                 .referenceEtag("referenceEtag")
@@ -184,8 +186,7 @@ class OfficerFilingMapperTest {
         assertThat(dto.getAddressSameAsRegisteredOfficeAddress(), is(true));
         assertThat(dto.getAppointedOn(), is(localDate1));
         assertThat(dto.getCountryOfResidence(), is("countryOfResidence"));
-        assertThat(dto.getDateOfBirth(),
-                is(new Date3TupleDto(dob1.getDay(), dob1.getMonth(), dob1.getYear())));
+        assertThat(dto.getDateOfBirth(), is(localDateDob1));
         assertThat(dto.getFormerNames(), is("Karim,Anton"));
         assertThat(dto.getIdentification(), is(equalTo(identificationDto)));
         assertThat(dto.getName(), is("name"));

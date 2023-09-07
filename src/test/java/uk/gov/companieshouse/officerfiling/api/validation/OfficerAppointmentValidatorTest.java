@@ -32,12 +32,11 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl
 import uk.gov.companieshouse.officerfiling.api.service.TransactionServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
-class OfficerAppointmnetValidatorTest {
+class OfficerAppointmentValidatorTest {
     private static final String FILING_ID = "6332aa6ed28ad2333c3a520a";
     private static final String TRANS_ID = "12345-54321-76666";
     private static final String PASSTHROUGH_HEADER = "passthrough";
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
-
     private static final String ETAG = "etag";
     private static final String COMPANY_TYPE = "ltd";
     private static final String OFFICER_ROLE = "director";
@@ -84,6 +83,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -98,6 +98,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -114,6 +115,8 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -135,6 +138,9 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
             .as("An error should be produced when the Company Profile Service is unavailable")
@@ -154,6 +160,8 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -274,7 +282,6 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
-        when(dto.getNationality1()).thenReturn("British");
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_BLANK)).thenReturn(
                 "Enter the director’s full first name");
 
@@ -303,6 +310,8 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_BLANK)).thenReturn(
                 "Enter the director’s last name");
 
@@ -332,6 +341,8 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_LENGTH)).thenReturn(
                 "First name can be no longer than 50 characters");
 
@@ -354,6 +365,9 @@ class OfficerAppointmnetValidatorTest {
                 "Last name can be no longer than 160 characters");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -373,6 +387,8 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getMiddleNames()).thenReturn("DoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoe");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+       when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_LENGTH)).thenReturn(
                 "Middle name or names can be no longer than 50 characters");
 
@@ -392,7 +408,8 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getMiddleNames()).thenReturn("Doe");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getTitle()).thenReturn("MrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMr");
         when(dto.getFormerNames()).thenReturn("Anton,Doe");
         when(dto.getNationality1()).thenReturn("British");
@@ -421,6 +438,8 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFormerNames()).thenReturn(formerNames);
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_LENGTH)).thenReturn(
                 "Previous names can be no longer than 160 characters");
 
@@ -441,6 +460,8 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_CHARACTERS)).thenReturn(
                 "First name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
@@ -461,6 +482,8 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smithゃ");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_CHARACTERS)).thenReturn(
                 "Last name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
@@ -482,6 +505,8 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getMiddleNames()).thenReturn("Doeゃ");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_CHARACTERS)).thenReturn(
                 "Middle name or names must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
@@ -505,6 +530,8 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFormerNames()).thenReturn("Anton,Doe");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         when(apiEnumerations.getValidation(ValidationEnum.TITLE_CHARACTERS)).thenReturn(
                 "Title must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
@@ -529,6 +556,8 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFormerNames()).thenReturn("Anton,Doeゃ");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_CHARACTERS)).thenReturn(
                 "Previous name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
@@ -551,6 +580,8 @@ class OfficerAppointmnetValidatorTest {
                 "You can only appoint a person as a director if they are at least 16 years old");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(1,1,LocalDate.now().getYear()-15));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(LocalDate.now().getYear()-15, 1, 1));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -570,6 +601,8 @@ class OfficerAppointmnetValidatorTest {
                 "You can only appoint a person as a director if they are under 110 years old");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(1,1,LocalDate.now().getYear()-110));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(LocalDate.now().getYear()-110, 1, 1));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -587,6 +620,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getOccupation()).thenReturn("Engineer");
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_BLANK)).thenReturn(
                 "Enter the director’s date of birth");
 
@@ -604,7 +638,8 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getOccupation()).thenReturn("Engineerゃ");
         when(dto.getNationality1()).thenReturn("British");
 
@@ -628,6 +663,8 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getNationality1()).thenReturn("British");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getOccupation()).thenReturn("EngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineer");
 
         when(apiEnumerations.getValidation(ValidationEnum.OCCUPATION_LENGTH)).thenReturn(
@@ -916,4 +953,124 @@ class OfficerAppointmnetValidatorTest {
                 .extracting(ApiError::getError)
                 .contains("Enter a different third nationality");
     }
+    @Test
+    void validateWhenMissingAppointmentDate() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_MISSING)).thenReturn(
+                "Enter the day the director was appointed");
+
+        var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when appointment date is missing")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter the day the director was appointed");
+    }
+
+    @Test
+    void validateAppointmentDatePastOrPresentWhenFuture() {
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.now().plusDays(1))
+                .build();
+        when(apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_IN_PAST)).thenReturn("Enter a date that is today or in the past");
+        officerAppointmentValidator.validateAppointmentPastOrPresent(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when appointment date is in the future")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a date that is today or in the past");
+    }
+
+    @Test
+    void validateAppointmentDatePastOrPresentWhenPresent() {
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.now())
+                .build();
+        officerAppointmentValidator.validateAppointmentPastOrPresent(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when appointment date is in the present")
+                .isEmpty();
+    }
+
+    @Test
+    void validateAppointmentDatePastOrPresentWhenPast() {
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.now().minusDays(1))
+                .build();
+        officerAppointmentValidator.validateAppointmentPastOrPresent(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when appointment date is in the past")
+                .isEmpty();
+    }
+
+    @Test
+    void validateAppointmentDateAfterIncorporationDateWhenValid() {
+        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerAppointmentValidator.validateAppointmentDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when appointment date is after incorporation date")
+                .isEmpty();
+    }
+
+    @Test
+    void validateAppointmentDateAfterIncorporationDateWhenInvalid() {
+        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 6));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        when(apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_AFTER_INCORPORATION_DATE)).thenReturn("The date you enter must be after the company's incorporation date");
+        officerAppointmentValidator.validateAppointmentDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when appointment date is before incorporation date")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The date you enter must be after the company's incorporation date");
+    }
+
+    @Test
+    void validateAppointmentDateAfterIncorporationDateWhenSameDay() {
+        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 5));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerAppointmentValidator.validateAppointmentDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when appointment date is the incorporation date")
+                .isEmpty();
+    }
+
+    @Test
+    void validateAppointmentDateAfterIncorporationDateWhenCreationDateNull() {
+        when(companyProfile.getDateOfCreation()).thenReturn(null);
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerAppointmentValidator.validateAppointmentDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        assertThat(apiErrorsList)
+                .as("Validation should be skipped when incorporation date is null")
+                .isEmpty();
+    }
+
 }
