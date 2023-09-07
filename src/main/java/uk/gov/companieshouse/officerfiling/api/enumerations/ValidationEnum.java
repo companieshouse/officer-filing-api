@@ -42,8 +42,9 @@ public enum ValidationEnum {
     OCCUPATION_LENGTH("occupation-length"),
     OCCUPATION_CHARACTERS("occupation-characters"),
     NATIONALITY_BLANK("nationality-blank"),
-    NATIONALITY_CHARACTERS("nationality-characters"),
     NATIONALITY_LENGTH("nationality-length"),
+    NATIONALITY_LENGTH48("nationality-length48"),
+    NATIONALITY_LENGTH49("nationality-length49"),
     DUPLICATE_NATIONALITY2("duplicate-nationality2"),
     DUPLICATE_NATIONALITY3("duplicate-nationality3"),
     INVALID_NATIONALITY("invalid-nationality");

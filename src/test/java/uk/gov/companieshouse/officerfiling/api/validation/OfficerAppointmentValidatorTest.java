@@ -698,7 +698,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getNationality2()).thenReturn("A very long nationality indeed so long in fact that it breaks the legal length for nationalities");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
-        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH49)).thenReturn(
                 "For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters including commas");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -721,7 +721,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getNationality2()).thenReturn("thisIs25Characterslongggh");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
-        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH49)).thenReturn(
                 "For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 49 characters including commas");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -746,7 +746,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getNationality3()).thenReturn("thisIs16Charactz");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
-        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH48)).thenReturn(
                 "For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters including commas");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
