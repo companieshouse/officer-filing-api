@@ -227,7 +227,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             if (dto.getNationality2() != null) {
                 if (!validateDtoFieldLength(dto.getNationality1() + "," + dto.getNationality2(), 50)) {
                     createValidationError(request, errorList,
-                            apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH));
+                            apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH49));
                 }
                 if (dto.getNationality2().equalsIgnoreCase(dto.getNationality1())) {
                     createValidationError(request, errorList,
@@ -241,7 +241,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             if (dto.getNationality3() != null) {
                 if (!validateDtoFieldLength(dto.getNationality1() + "," + dto.getNationality2()+ "," + dto.getNationality3(), 50)) {
                     createValidationError(request, errorList,
-                            apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH));
+                            apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH48));
                 }
                 if (dto.getNationality3().equalsIgnoreCase(dto.getNationality1())) {
                     createValidationError(request, errorList,

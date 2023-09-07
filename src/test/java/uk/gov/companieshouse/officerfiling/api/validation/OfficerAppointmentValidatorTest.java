@@ -770,7 +770,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getNationality3()).thenReturn("thisIsAVeryLongNationalityWhichWilltakeUsOver50Characterslong");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
-        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH48)).thenReturn(
                 "For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters including commas");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
