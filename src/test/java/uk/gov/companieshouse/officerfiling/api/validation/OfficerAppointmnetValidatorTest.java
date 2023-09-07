@@ -83,6 +83,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("British");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -96,6 +97,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("British");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -111,6 +113,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("British");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -131,6 +134,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("British");
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
             .as("An error should be produced when the Company Profile Service is unavailable")
@@ -149,6 +153,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("British");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -269,6 +274,7 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("British");
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_BLANK)).thenReturn(
                 "Enter the director’s full first name");
 
@@ -296,6 +302,7 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("British");
         when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_BLANK)).thenReturn(
                 "Enter the director’s last name");
 
@@ -324,6 +331,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("JohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohn");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("British");
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_LENGTH)).thenReturn(
                 "First name can be no longer than 50 characters");
 
@@ -345,6 +353,7 @@ class OfficerAppointmnetValidatorTest {
         when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_LENGTH)).thenReturn(
                 "Last name can be no longer than 160 characters");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("British");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -363,6 +372,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getMiddleNames()).thenReturn("DoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoe");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("British");
         when(apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_LENGTH)).thenReturn(
                 "Middle name or names can be no longer than 50 characters");
 
@@ -385,6 +395,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getTitle()).thenReturn("MrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMr");
         when(dto.getFormerNames()).thenReturn("Anton,Doe");
+        when(dto.getNationality1()).thenReturn("British");
 
         when(apiEnumerations.getValidation(ValidationEnum.TITLE_LENGTH)).thenReturn(
                 "Title can be no longer than 50 characters");
@@ -409,6 +420,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getTitle()).thenReturn("Mr");
         when(dto.getFormerNames()).thenReturn(formerNames);
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("British");
         when(apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_LENGTH)).thenReturn(
                 "Previous names can be no longer than 160 characters");
 
@@ -428,6 +440,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("Johnゃ");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("British");
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_CHARACTERS)).thenReturn(
                 "First name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
@@ -447,6 +460,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smithゃ");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("British");
         when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_CHARACTERS)).thenReturn(
                 "Last name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
@@ -467,6 +481,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getMiddleNames()).thenReturn("Doeゃ");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("British");
         when(apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_CHARACTERS)).thenReturn(
                 "Middle name or names must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
@@ -489,6 +504,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getTitle()).thenReturn("Mrゃ");
         when(dto.getFormerNames()).thenReturn("Anton,Doe");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("British");
 
         when(apiEnumerations.getValidation(ValidationEnum.TITLE_CHARACTERS)).thenReturn(
                 "Title must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
@@ -512,7 +528,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getTitle()).thenReturn("Mr");
         when(dto.getFormerNames()).thenReturn("Anton,Doeゃ");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
-        when(dto.getNationality1()).thenReturn("Britsh");
+        when(dto.getNationality1()).thenReturn("British");
         when(apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_CHARACTERS)).thenReturn(
                 "Previous name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
@@ -534,7 +550,7 @@ class OfficerAppointmnetValidatorTest {
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_UNDERAGE)).thenReturn(
                 "You can only appoint a person as a director if they are at least 16 years old");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(1,1,LocalDate.now().getYear()-15));
-        when(dto.getNationality1()).thenReturn("Britsh");
+        when(dto.getNationality1()).thenReturn("British");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -553,6 +569,7 @@ class OfficerAppointmnetValidatorTest {
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_OVERAGE)).thenReturn(
                 "You can only appoint a person as a director if they are under 110 years old");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(1,1,LocalDate.now().getYear()-110));
+        when(dto.getNationality1()).thenReturn("British");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -569,6 +586,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("British");
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_BLANK)).thenReturn(
                 "Enter the director’s date of birth");
 
@@ -588,6 +606,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getOccupation()).thenReturn("Engineerゃ");
+        when(dto.getNationality1()).thenReturn("British");
 
         when(apiEnumerations.getValidation(ValidationEnum.OCCUPATION_CHARACTERS)).thenReturn(
                 "Occupation must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
@@ -608,6 +627,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getOccupation()).thenReturn("EngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineer");
 
         when(apiEnumerations.getValidation(ValidationEnum.OCCUPATION_LENGTH)).thenReturn(
@@ -620,73 +640,6 @@ class OfficerAppointmnetValidatorTest {
                 .hasSize(1)
                 .extracting(ApiError::getError)
                 .contains("Occupation must be 100 characters or less");
-    }
-
-    @Test
-    void validateNationality1Characters() {
-        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
-        when(transaction.getId()).thenReturn(TRANS_ID);
-        when(dto.getFirstName()).thenReturn("John");
-        when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
-        when(dto.getOccupation()).thenReturn("Engineer");
-        when(dto.getNationality1()).thenReturn("Britshゃ");
-
-        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_CHARACTERS)).thenReturn(
-                "Nationality must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
-
-        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
-                PASSTHROUGH_HEADER);
-        assertThat(apiErrors.getErrors())
-                .as("An error should be produced when occupation contains illegal characters")
-                .hasSize(1)
-                .extracting(ApiError::getError)
-                .contains("Nationality must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
-    }
-    @Test
-    void validateNationality2Characters() {
-        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
-        when(transaction.getId()).thenReturn(TRANS_ID);
-        when(dto.getFirstName()).thenReturn("John");
-        when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
-        when(dto.getOccupation()).thenReturn("Engineer");
-        when(dto.getNationality1()).thenReturn("Britsh");
-        when(dto.getNationality1()).thenReturn("frenchゃ");
-
-        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_CHARACTERS)).thenReturn(
-                "Nationality must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
-
-        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
-                PASSTHROUGH_HEADER);
-        assertThat(apiErrors.getErrors())
-                .as("An error should be produced when occupation contains illegal characters")
-                .hasSize(1)
-                .extracting(ApiError::getError)
-                .contains("Nationality must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
-    }
-    @Test
-    void validateNationality3Characters() {
-        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
-        when(transaction.getId()).thenReturn(TRANS_ID);
-        when(dto.getFirstName()).thenReturn("John");
-        when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
-        when(dto.getOccupation()).thenReturn("Engineer");
-        when(dto.getNationality1()).thenReturn("Britsh");
-        when(dto.getNationality1()).thenReturn("French");
-        when(dto.getNationality1()).thenReturn("Germanゃ");
-
-        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_CHARACTERS)).thenReturn(
-                "Nationality must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
-
-        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
-                PASSTHROUGH_HEADER);
-        assertThat(apiErrors.getErrors())
-                .as("An error should be produced when occupation contains illegal characters")
-                .hasSize(1)
-                .extracting(ApiError::getError)
-                .contains("Nationality must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
     }
 
     @Test
@@ -723,15 +676,15 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getNationality2()).thenReturn("A very long nationality indeed so long in fact that it breaks the legal length for nationalities");
 
         when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH)).thenReturn(
-                "Nationality must be 50 characters or less");
+                "For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters including commas");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-                .as("An error should be produced when nationality contains more than 50 characters")
+                .as("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters including commas")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("Nationality must be 50 characters or less");
+                .contains("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters including commas");
     }
     @Test
     void validateNationality1PlusNationality2Equals50ButhasCommaToMakeIt51Length() {
@@ -745,7 +698,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getNationality2()).thenReturn("thisIs25Characterslongggh");
 
         when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH)).thenReturn(
-                "Nationality must be 50 characters or less");
+                "For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 49 characters including commas");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -769,15 +722,15 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getNationality3()).thenReturn("thisIs16Charactz");
 
         when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH)).thenReturn(
-                "Nationality must be 50 characters or less");
+                "For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters including commas");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-                .as("An error should be produced when nationality contains more than 50 characters")
+                .as("For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters including commas")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("Nationality must be 50 characters or less");
+                .contains("For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters including commas");
     }
     @Test
     void validateNationality1PlusNationality2PlusNationality3GreaterThan50Length() {
@@ -792,15 +745,15 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getNationality3()).thenReturn("thisIsAVeryLongNationalityWhichWilltakeUsOver50Characterslong");
 
         when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH)).thenReturn(
-                "Nationality must be 50 characters or less");
+                "For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters including commas");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-                .as("An error should be produced when nationality contains more than 50 characters")
+                .as("For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters including commas")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("Nationality must be 50 characters or less");
+                .contains("For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters including commas");
     }
 
     @Test
@@ -823,5 +776,144 @@ class OfficerAppointmnetValidatorTest {
                 .hasSize(1)
                 .extracting(ApiError::getError)
                 .contains("Select a nationality from the list");
+    }
+    @Test
+    void validateNationality2FromAllowedList() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("French");
+        when(dto.getNationality2()).thenReturn("Britishhhh");
+
+        when(apiEnumerations.getValidation(ValidationEnum.INVALID_NATIONALITY)).thenReturn(
+                "Select a nationality from the list");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Select a nationality from the list")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Select a nationality from the list");
+    }
+    @Test
+    void validateNationality3FromAllowedList() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("French");
+        when(dto.getNationality2()).thenReturn("German");
+        when(dto.getNationality3()).thenReturn("Britishhhh");
+
+        when(apiEnumerations.getValidation(ValidationEnum.INVALID_NATIONALITY)).thenReturn(
+                "Select a nationality from the list");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Select a nationality from the list")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Select a nationality from the list");
+    }
+
+    @Test
+    void validateNationality1NotBlank() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("");
+
+
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_BLANK)).thenReturn(
+                "Enter the director’s nationality");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Enter the director’s nationality")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter the director’s nationality");
+    }
+    @Test
+    void validateNationality1And2NotDuplicates() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("British");
+        when(dto.getNationality2()).thenReturn("British");
+
+
+        when(apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY2)).thenReturn(
+                "Enter a different second nationality");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Enter a different second nationality")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a different second nationality");
+    }
+    @Test
+    void validateNationality1And3NotDuplicates() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("British");
+        when(dto.getNationality2()).thenReturn("French");
+        when(dto.getNationality3()).thenReturn("British");
+
+
+        when(apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY3)).thenReturn(
+                "Enter a different third nationality");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Enter a different third nationality")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a different third nationality");
+    }
+    @Test
+    void validateNationality2And3NotDuplicates() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("French");
+        when(dto.getNationality2()).thenReturn("British");
+        when(dto.getNationality3()).thenReturn("British");
+
+
+        when(apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY3)).thenReturn(
+                "Enter a different third nationality");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Enter a different third nationality")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a different third nationality");
     }
 }
