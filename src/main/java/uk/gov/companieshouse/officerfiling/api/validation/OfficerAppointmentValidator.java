@@ -1,7 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.validation;
 
-import static uk.gov.companieshouse.officerfiling.api.utils.Constants.ukCountryList;
-
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
@@ -9,6 +7,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -24,10 +24,15 @@ import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
  * Provides all validation that should be carried out when an officer is terminated. Fetches all data necessary to complete
  * the validation and generates a list of errors that can be sent back to the caller.
  */
+@Configuration
 public class OfficerAppointmentValidator extends OfficerValidator {
 
     private Logger logger;
     private ApiEnumerations apiEnumerations;
+    @Value("${country.list}")
+    private List<String> countryList;
+    @Value("${country.list.uk}")
+    private List<String> ukCountryList;
 
     public OfficerAppointmentValidator(final Logger logger,
                                        final CompanyProfileService companyProfileService,
@@ -300,8 +305,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK));
         }
         else{
-            // Check country list
-            if(true){
+            if(!countryList.contains(country)){
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.COUNTRY_INVALID));
             }
             if(!validateDtoFieldLength(country, 50)){

@@ -14,7 +14,4 @@ public class Constants {
 
     // URI path attributes
     public static final String TRANSACTION_ID_KEY = "transaction_id";
-
-    public static final List<String> ukCountryList = new ArrayList<>(Arrays.asList("England", "Scotland", "Wales", "Northern Ireland"));
-
 }
