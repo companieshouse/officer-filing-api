@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.validation;
 
+import static uk.gov.companieshouse.officerfiling.api.utils.Constants.ukCountryList;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
@@ -76,6 +78,8 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateFirstName(request, errorList, dto);
         validateLastName(request, errorList, dto);
         validateDateOfBirth(request, errorList, dto);
+        validateRequiredResidentialAddressFields(request, errorList, dto);
+
     }
 
     @Override
@@ -84,6 +88,9 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateMiddleNames(request, errorList, dto);
         validateFormerNames(request, errorList, dto);
         validateOccupation(request, errorList, dto);
+        if(dto.getResidentialAddress() != null){
+            validateOptionalResidentialAddressFields(request, errorList, dto);
+        }
     }
 
     private void validateFirstName(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
@@ -202,5 +209,130 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             }
         }
     }
+
+    private void validateRequiredResidentialAddressFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        if(dto.getResidentialAddress() != null){
+            validatePremises(request, errorList, dto.getResidentialAddress().getPremises());
+            validateAddressLine1(request, errorList, dto.getAddress().getAddressLine1());
+            validateLocality(request, errorList, dto.getAddress().getLocality());
+            validateCountry(request, errorList, dto.getResidentialAddress().getCountry());
+            validatePostalCode(request, errorList, dto.getResidentialAddress().getPostalCode(), dto.getResidentialAddress().getCountry());
+        }
+        else{
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK));
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_BLANK));
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LOCALITY_BLANK));
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK));
+        }
+    }
+
+    private void validateOptionalResidentialAddressFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        validateAddressLine2(request, errorList, dto.getAddress().getAddressLine2());
+        validateRegion(request, errorList, dto.getAddress().getRegion());
+    }
+
+    private void validatePremises(HttpServletRequest request, List<ApiError> errorList, String premises){
+        if (premises == null || premises.isBlank()) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK));
+        }
+        else{
+            if(!validateDtoFieldLength(premises, 200)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.PREMISES_LENGTH));
+            }
+            if(!isValidCharacters(premises)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.PREMISES_CHARACTERS));
+            }
+        }
+    }
+
+    private void validateAddressLine1(HttpServletRequest request, List<ApiError> errorList, String addressLineOne){
+        if (addressLineOne == null ||addressLineOne.isBlank()) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_BLANK));
+        }
+        else{
+            if(!validateDtoFieldLength(addressLineOne, 50)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_LENGTH));
+            }
+            if(!isValidCharacters(addressLineOne)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_CHARACTERS));
+            }
+        }
+    }
+
+    private void validateAddressLine2(HttpServletRequest request, List<ApiError> errorList, String addressLineTwo){
+        if (addressLineTwo != null && !addressLineTwo.isBlank()) {
+            if(!validateDtoFieldLength(addressLineTwo, 50)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_TWO_LENGTH));
+            }
+            if(!isValidCharacters(addressLineTwo)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_TWO_CHARACTERS));
+            }
+        }
+    }
+
+    private void validateRegion(HttpServletRequest request, List<ApiError> errorList, String region){
+        if (region != null && !region.isBlank()) {
+            if(!validateDtoFieldLength(region, 50)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.REGION_LENGTH));
+            }
+            if(!isValidCharacters(region)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.REGION_CHARACTERS));
+            }
+        }
+    }
+
+    private void validateLocality(HttpServletRequest request, List<ApiError> errorList, String locality){
+        if (locality == null || locality.isBlank()) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LOCALITY_BLANK));
+        }
+        else{
+            if(!validateDtoFieldLength(locality, 50)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LOCALITY_LENGTH));
+            }
+            if(!isValidCharacters(locality)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LOCALITY_CHARACTERS));
+            }
+        }
+    }
+
+    private void validateCountry(HttpServletRequest request, List<ApiError> errorList, String country){
+        if (country == null || country.isBlank()) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK));
+        }
+        else{
+            // Check country list
+            if(true){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.COUNTRY_INVALID));
+            }
+            if(!validateDtoFieldLength(country, 50)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.COUNTRY_LENGTH));
+            }
+            if(!isValidCharacters(country)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.COUNTRY_CHARACTERS));
+            }
+        }
+    }
+
+    private void validatePostalCode(HttpServletRequest request, List<ApiError> errorList,String postalCode, String country) {
+        if((country == null || country.isBlank()) && !(postalCode == null || postalCode.isBlank())){
+            createValidationError(request, errorList,apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_WITHOUT_COUNTRY));
+            return;
+        }
+        if(ukCountryList.contains(country)){
+            if (postalCode == null || postalCode.isBlank()) {
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK));
+                return;
+            }
+        }
+        if(postalCode != null && !postalCode.isBlank()){
+            if (!validateDtoFieldLength(postalCode, 20)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_LENGTH));
+            }
+            if (!isValidCharacters(postalCode)) {
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_CHARACTERS));
+            }
+        }
+    }
+
 
 }

@@ -189,5 +189,9 @@ public class OfficerValidator {
         return matcher.matches();
     }
 
+    public static boolean isValidPostCode(String postcode, boolean UkPostcode){
+        return false;
+    }
+
 
 }

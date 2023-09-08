@@ -1,5 +1,9 @@
 package uk.gov.companieshouse.officerfiling.api.utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class Constants {
 
     private Constants() {
@@ -10,5 +14,7 @@ public class Constants {
 
     // URI path attributes
     public static final String TRANSACTION_ID_KEY = "transaction_id";
+
+    public static final List<String> ukCountryList = new ArrayList<>(Arrays.asList("England", "Scotland", "Wales", "Northern Ireland"));
 
 }

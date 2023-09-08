@@ -37,9 +37,28 @@ public enum ValidationEnum {
     DATE_OF_BIRTH_OVERAGE("date-of-birth-overage"),
     DATE_OF_BIRTH_UNDERAGE("date-of-birth-underage"),
     OCCUPATION_LENGTH("occupation-length"),
-    OCCUPATION_CHARACTERS("occupation-characters");
-
-
+    OCCUPATION_CHARACTERS("occupation-characters"),
+    PREMISES_BLANK("premises-blank"),
+    PREMISES_CHARACTERS("premises-characters"),
+    PREMISES_LENGTH("premises-length"),
+    ADDRESS_LINE_ONE_BLANK("address-line-one-blank"),
+    ADDRESS_LINE_ONE_CHARACTERS("address-line-one-characters"),
+    ADDRESS_LINE_ONE_LENGTH("address-line-one-length"),
+    LOCALITY_BLANK("locality-blank"),
+    LOCALITY_CHARACTERS("locality-characters"),
+    LOCALITY_LENGTH("locality-length"),
+    COUNTRY_BLANK("country-blank"),
+    COUNTRY_CHARACTERS("country-characters"),
+    COUNTRY_LENGTH("country-length"),
+    COUNTRY_INVALID("country-invalid"),
+    POSTAL_CODE_BLANK("postal-code-blank"),
+    POSTAL_CODE_CHARACTERS("postal-code-characters"),
+    POSTAL_CODE_LENGTH("postal-code-length"),
+    POSTAL_CODE_WITHOUT_COUNTRY("postal-code-without-country"),
+    ADDRESS_LINE_TWO_CHARACTERS("address-line-two-characters"),
+    ADDRESS_LINE_TWO_LENGTH("address-line-two-length"),
+    REGION_CHARACTERS("region-characters"),
+    REGION_LENGTH("region-length");
     private final String key;
 
     ValidationEnum(String key) {
