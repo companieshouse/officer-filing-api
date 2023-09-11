@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Value;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
@@ -30,6 +29,8 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
  * Provides all validation that should be carried out when an officer is terminated. Fetches all data necessary to complete
  * the validation and generates a list of errors that can be sent back to the caller.
  */
+
+
 public class OfficerValidator {
 
     public static final LocalDate MIN_RESIGNATION_DATE = LocalDate.of(2009, 10, 1);
@@ -38,8 +39,7 @@ public class OfficerValidator {
     public static final List<String> ALLOWED_OFFICER_ROLES = List.of("director", "corporate-director", "nominee-director", "corporate-nominee-director");
     private static final String REG_EXP_FOR_VALID_CHARACTERS = "^[-,.:; 0-9A-Z&@$£¥€'\"«»?!/\\\\()\\[\\]{}<>*=#%+ÀÁÂÃÄÅĀĂĄÆǼÇĆĈĊČÞĎÐÈÉÊËĒĔĖĘĚĜĞĠĢĤĦÌÍÎÏĨĪĬĮİĴĶĹĻĽĿŁÑŃŅŇŊÒÓÔÕÖØŌŎŐǾŒŔŖŘŚŜŞŠŢŤŦÙÚÛÜŨŪŬŮŰŲŴẀẂẄỲÝŶŸŹŻŽa-zſƒǺàáâãäåāăąæǽçćĉċčþďðèéêëēĕėęěĝģğġĥħìíîïĩīĭįĵķĺļľŀłñńņňŋòóôõöøōŏőǿœŕŗřśŝşšţťŧùúûüũūŭůűųŵẁẃẅỳýŷÿźżž]*$";
 
-    @Value("${NATIONALITY_LIST}")
-    public static String allowedNationalities;
+
     private Logger logger;
 
     public ApiEnumerations getApiEnumerations() {
@@ -57,6 +57,7 @@ public class OfficerValidator {
 
     private CompanyAppointmentService companyAppointmentService;
 
+
     public OfficerValidator(final Logger logger, final CompanyProfileService companyProfileService,
         final CompanyAppointmentService companyAppointmentService,
         final ApiEnumerations apiEnumerations) {
@@ -64,6 +65,7 @@ public class OfficerValidator {
             this.companyProfileService = companyProfileService;
             this.companyAppointmentService = companyAppointmentService;
             this.apiEnumerations = apiEnumerations;
+
         }
 
     public OfficerValidator(final Logger logger,
@@ -193,15 +195,16 @@ public class OfficerValidator {
         return matcher.matches();
     }
 
-    public static List<String> getAllowedNationalities() {
-        String[] nationalityArray = allowedNationalities.split(",");
-        List<String> allowedNationalities = Arrays.asList(nationalityArray);
+    public List<String> getAllowedNationalities(String inputAllowedNationalities) {
 
-        return allowedNationalities;
+        String[] nationalityArray = inputAllowedNationalities.split(",");
+
+        return  Arrays.asList(nationalityArray);
+    }
+    public boolean isValidNationalityFromAllowedList(String nationality, String inputAllowedNationalities) {
+        return getAllowedNationalities(inputAllowedNationalities).contains(nationality);
     }
 
-    public static boolean isValidNationalityFromAllowedList(String nationality) {
-        return getAllowedNationalities().contains(nationality);
-    }
+
 
 }

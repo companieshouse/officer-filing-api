@@ -1,11 +1,11 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import uk.gov.companieshouse.officerfiling.api.exception.NotImplementedException;
-
-import javax.servlet.http.HttpServletRequest;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class StopScreenValidationControllerTest {
 

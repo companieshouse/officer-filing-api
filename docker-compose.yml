@@ -3,5 +3,23 @@ version: "3.8"
 services:
   officer-filing-api:
     image: '169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/officer-filing-api:latest'
+    environment:
+      - API_URL=http://api.chs.local:4001
+      - AWS_ACCESS_KEY_ID=AKIAIG4ONMEUYMTR7GOAd
+      - AWS_SECRET_ACCESS_KEY=1ekKIM9opB7gPIX5fj6Mz3x8Cd2H6cTnOrJ016yl
+      - AWS_REGION=eu-west-2
+      - CHS_API_KEY=g9yZIA81Zo9J46Kzp3JPbfld6kOqxR47EAYqXbRV
+      - ENV_NAME=local
+      - HUMAN_LOG=1
+      - JAVA_TOOL_OPTIONS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:48081
+      - LOGGING_LEVEL=TRACE
+      - MANAGEMENT_ENDPOINT_HEALTH_ENABLED=true
+      - MANAGEMENT_ENDPOINTS_ENABLED_BY_DEFAULT=false
+      - MANAGEMENT_ENDPOINTS_WEB_BASE_PATH=/officer-filing
+      - MANAGEMENT_ENDPOINTS_WEB_PATH_MAPPING_HEALTH=healthcheck
+      - MONGO_OFFICER_API_DB_NAME=transactions_officers
+      - MONGODB_URL=mongodb://mongo/transactions_officers
+      - NATIONALITY_LIST="Afghan,Albanian,Algerian,American,Andorran,Angolan,Anguillan,Citizen of Antigua and Barbuda,Argentine,Armenian,Australian,Austrian,Azerbaijani,Bahamian,Bahraini,Bangladeshi,Barbadian,Belarusian,Belgian,Belizean,Beninese,Bermudian,Bhutanese,Bolivian,Citizen of Bosnia and Herzegovina,Botswanan,Brazilian,British,British Virgin Islander,Bruneian,Bulgarian,Burkinan,Burmese,Burundian,Cambodian,Cameroonian,Canadian,Cape Verdean,Cayman Islander,Central African,Chadian,Chilean,Chinese,Colombian,Comoran,Congolese (Congo),Congolese (DRC),Cook Islander,Costa Rican,Croatian,Cuban,Cymraes,Cymro,Cypriot,Czech,Danish,Djiboutian,Dominican,Citizen of the Dominican Republic,Dutch,East Timorese	Ecuadorean	Egyptian	Emirati,English,Equatorial Guinean,Eritrean,Estonian,Ethiopian,Faroese,Fijian,Filipino,Finnish,French,Gabonese,Gambian,Georgian,German,Ghanaian,Gibraltarian,Greek,Greenlandic,Grenadian,Guamanian,Guatemalan,Citizen of Guinea-Bissau,Guinean,Guyanese,Haitian,Honduran,Hong Konger,Hungarian,Icelandic,Indian,Indonesian,Iranian,Iraqi,Irish,Israeli,Italian,Ivorian,Jamaican,Japanese,Jordanian,Kazakh,Kenyan,Kittitian,Citizen of Kiribati,Kosovan,Kuwaiti,Kyrgyz,Lao,Latvian,Lebanese,Liberian,Libyan,Liechtenstein citizen,Lithuanian,Luxembourger,Macanese,Macedonian,Malagasy,Malawian,Malaysian,Maldivian,Malian,Maltese,Marshallese,Martiniquais,Mauritanian,Mauritian,Mexican,Micronesian,Moldovan,Monegasque,Mongolian,Montenegrin,Montserratian,Moroccan,Mosotho,Mozambican,Namibian,Nauruan,Nepalese,New Zealander,Nicaraguan,Nigerian,Nigerien,Niuean,North Korean,Northern Irish,Norwegian,Omani,Pakistani,Palauan,Palestinian,Panamanian,Papua New Guinean,Paraguayan,Peruvian,Pitcairn Islander,Polish,Portuguese,Prydeinig,Puerto Rican,Qatari,Romanian,Russian,Rwandan,Salvadorean,Sammarinese,Samoan,Sao Tomean,Saudi Arabian,Scottish,Senegalese,Serbian,Citizen of Seychelles,Sierra Leonean,Singaporean,Slovak,Slovenian,Solomon Islander,Somali,South African,South Korean,South Sudanese,Spanish,Sri Lankan,St Helenian,St Lucian,Stateless,Sudanese,Surinamese,Swazi,Swedish,Swiss,Syrian,Taiwanese,Tajik,Tanzanian,Thai,Togolese,Tongan,Trinidadian,Tristanian,Tunisian,Turkish,Turkmen,Turks and Caicos Islander,Tuvaluan,Ugandan,Ukrainian,Uruguayan,Uzbek,Vatican citizen,Citizen of Vanuatu,Venezuelan,Vietnamese,Vincentian,Wallisian,Welsh,Yemeni,Zambian,Zimbabwean"
+
     expose:
       - 8080

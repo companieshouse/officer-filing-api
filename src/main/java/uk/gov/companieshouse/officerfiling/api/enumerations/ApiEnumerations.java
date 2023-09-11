@@ -1,9 +1,8 @@
 package uk.gov.companieshouse.officerfiling.api.enumerations;
 
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 /**
  * Used as an interface with the api-enumerations submodule. A map is populated for each yml file within api-enumerations.

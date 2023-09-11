@@ -26,13 +26,16 @@ public class OfficerAppointmentValidator extends OfficerValidator {
 
     private Logger logger;
     private ApiEnumerations apiEnumerations;
+    private String inputAllowedNationalities;
 
     public OfficerAppointmentValidator(final Logger logger,
                                        final CompanyProfileService companyProfileService,
-                                       final ApiEnumerations apiEnumerations) {
+                                       final ApiEnumerations apiEnumerations,
+                                       final String inputAllowedNationalities) {
         super(logger, companyProfileService, apiEnumerations);
         this.logger = logger;
         this.apiEnumerations = getApiEnumerations();
+        this.inputAllowedNationalities = inputAllowedNationalities;
     }
 
     /**
@@ -78,7 +81,9 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateFirstName(request, errorList, dto);
         validateLastName(request, errorList, dto);
         validateDateOfBirth(request, errorList, dto);
-        validateNationality(request, errorList, dto);
+        validateNationality1(request, errorList, dto);
+        validateNationality2(request, errorList, dto);
+        validateNationality3(request, errorList, dto);
         validateAppointmentDate(request, errorList, dto);
     }
 
@@ -211,7 +216,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         }
     }
 
-    private void validateNationality(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+    private void validateNationality1(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
         if (dto.getNationality1() == null || dto.getNationality1().isBlank()) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.NATIONALITY_BLANK));
         }
@@ -220,12 +225,19 @@ public class OfficerAppointmentValidator extends OfficerValidator {
                 createValidationError(request, errorList,
                         apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH));
             }
-            if(!isValidNationalityFromAllowedList(dto.getNationality1())) {
+            if (!isValidNationalityFromAllowedList(dto.getNationality1(),
+                    inputAllowedNationalities)) {
                 createValidationError(request, errorList,
                         apiEnumerations.getValidation(ValidationEnum.INVALID_NATIONALITY));
             }
+
+        }
+        }
+
+        private void validateNationality2(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
             if (dto.getNationality2() != null) {
-                if (!validateDtoFieldLength(dto.getNationality1() + "," + dto.getNationality2(), 50)) {
+                if (!validateDtoFieldLength(dto.getNationality1() + "," + dto.getNationality2(),
+                        50)) {
                     createValidationError(request, errorList,
                             apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH49));
                 }
@@ -233,28 +245,30 @@ public class OfficerAppointmentValidator extends OfficerValidator {
                     createValidationError(request, errorList,
                             apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY2));
                 }
-                if(!isValidNationalityFromAllowedList(dto.getNationality2())) {
+                if (!isValidNationalityFromAllowedList(dto.getNationality2(),
+                        inputAllowedNationalities)) {
                     createValidationError(request, errorList,
                             apiEnumerations.getValidation(ValidationEnum.INVALID_NATIONALITY));
                 }
             }
-            if (dto.getNationality3() != null) {
-                if (!validateDtoFieldLength(dto.getNationality1() + "," + dto.getNationality2()+ "," + dto.getNationality3(), 50)) {
-                    createValidationError(request, errorList,
-                            apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH48));
-                }
-                if (dto.getNationality3().equalsIgnoreCase(dto.getNationality1())) {
-                    createValidationError(request, errorList,
-                            apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY3));
-                }
-                if (dto.getNationality3().equalsIgnoreCase(dto.getNationality2())) {
-                    createValidationError(request, errorList,
-                            apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY3));
-                }
-                if(!isValidNationalityFromAllowedList(dto.getNationality3())) {
-                    createValidationError(request, errorList,
-                            apiEnumerations.getValidation(ValidationEnum.INVALID_NATIONALITY));
-                }
+        }
+    private void validateNationality3(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        if (dto.getNationality3() != null) {
+            if (!validateDtoFieldLength(dto.getNationality1() + "," + dto.getNationality2()+ "," + dto.getNationality3(), 50)) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH48));
+            }
+            if (dto.getNationality3().equalsIgnoreCase(dto.getNationality1())) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY3));
+            }
+            if (dto.getNationality3().equalsIgnoreCase(dto.getNationality2())) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY3));
+            }
+            if(!isValidNationalityFromAllowedList(dto.getNationality3(), inputAllowedNationalities)) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.INVALID_NATIONALITY));
             }
         }
     }

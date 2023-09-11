@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
+import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
@@ -10,8 +11,6 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
-
-import java.io.IOException;
 
 @Service
 public class CompanyProfileServiceImpl implements CompanyProfileService {

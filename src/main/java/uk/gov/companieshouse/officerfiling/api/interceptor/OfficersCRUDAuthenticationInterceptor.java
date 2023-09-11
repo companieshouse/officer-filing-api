@@ -6,14 +6,11 @@ import static uk.gov.companieshouse.officerfiling.api.utils.Constants.TRANSACTIO
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-
 import org.springframework.web.servlet.HandlerMapping;
 import uk.gov.companieshouse.api.util.security.AuthorisationUtil;
 import uk.gov.companieshouse.api.util.security.Permission.Key;
