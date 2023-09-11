@@ -296,12 +296,6 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         }
     }
 
-    public void validateAppointmentPastOrPresent(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
-        if (dto.getAppointedOn().isAfter(LocalDate.now())) {
-            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_IN_PAST));
-        }
-    }
-
     public void validateAppointmentDateAfterIncorporationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, CompanyProfileApi companyProfile) {
         if (companyProfile.getDateOfCreation() == null) {
             logger.errorRequest(request, "null data was found in the Company Profile API within the Date Of Creation field");
