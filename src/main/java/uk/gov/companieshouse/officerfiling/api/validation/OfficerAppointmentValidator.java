@@ -70,7 +70,6 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         // Perform validation
         validateCompanyNotDissolved(request, errorList, companyProfile.get());
         validateAllowedCompanyType(request, errorList, companyProfile.get());
-        validateAppointmentPastOrPresent(request, errorList, dto);
         validateAppointmentDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
 
         return new ApiErrors(errorList);
@@ -143,6 +142,30 @@ public class OfficerAppointmentValidator extends OfficerValidator {
     public void validateAppointmentDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         if (dto.getAppointedOn() == null) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_MISSING));
+        } else {
+            validateAppointmentPastOrPresent(request, errorList, dto);
+            validateDirectorAgeAtAppointment(request, errorList, dto);
+        }
+    }
+
+    public void validateAppointmentPastOrPresent(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
+        if (dto.getAppointedOn().isAfter(LocalDate.now())) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_IN_PAST));
+        }
+    }
+
+    public void validateDirectorAgeAtAppointment(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        if (dto.getDateOfBirth() == null ) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_BLANK));
+        }
+        else{
+            var age = Period.between(dto.getDateOfBirth(), dto.getAppointedOn()).getYears();
+            if(age >= 110){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_OVERAGE));
+            }
+            else if(age < 16){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_UNDERAGE));
+            }
         }
     }
 
