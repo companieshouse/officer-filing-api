@@ -1,9 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public class Constants {
 
     private Constants() {

@@ -665,6 +665,38 @@ class OfficerAppointmentValidatorTest {
     }
 
     @Test
+    void validationWhenMissingResidentialAddress() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(null);
+        when(apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK)).thenReturn(
+                "Enter a property name or number");
+        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_BLANK)).thenReturn(
+                "Enter an address");
+        when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_BLANK)).thenReturn(
+                "Enter a city or town");
+        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
+                "Enter a country");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Errors for mandatory fields should be produced when residential address is missing")
+                .hasSize(4)
+                .extracting(ApiError::getError)
+                .contains("Enter a property name or number")
+                .contains("Enter an address")
+                .contains("Enter a city or town")
+                .contains("Enter a country");
+    }
+
+    @Test
     void validationWhenMissingResidentialPremises() {
 
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);

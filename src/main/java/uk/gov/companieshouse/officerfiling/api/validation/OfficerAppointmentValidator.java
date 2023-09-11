@@ -349,11 +349,9 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             createValidationError(request, errorList,apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_WITHOUT_COUNTRY));
             return;
         }
-        if(country != null && ukCountryList.contains(country)){
-            if (postalCode == null || postalCode.isBlank()) {
-                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK));
-                return;
-            }
+        if((country != null && ukCountryList.contains(country)) && (postalCode == null || postalCode.isBlank())){
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK));
+            return;
         }
         if(postalCode != null && !postalCode.isBlank()){
             if (!validateDtoFieldLength(postalCode, 20)){
