@@ -176,13 +176,15 @@ class ValidationStatusControllerImplTest {
         ReflectionTestUtils.setField(testController, "isAp01Enabled", true);
         ReflectionTestUtils.setField(testController, "ukCountryList", List.of(""));
         ReflectionTestUtils.setField(testController, "countryList", List.of("France"));
+        LocalDate localDateDob1 = LocalDate.of(1970, 9, 12);
         validationStatusControllerMocks();
         when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder().premises("9")
                 .addressLine1("Road").locality("Margate").country("France").build());
+        when(dto.getDateOfBirth()).thenReturn(localDateDob1);
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         final var response = testController.validate(transaction, FILING_ID, request);
         assertThat(response.getValidationStatusError(), is(nullValue()));
         assertThat(response.isValid(), is(true));

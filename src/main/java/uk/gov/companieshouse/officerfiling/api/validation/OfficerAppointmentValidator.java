@@ -50,7 +50,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
      */
     @Override
     public ApiErrors validate(HttpServletRequest request, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
-            logger.debugContext(transaction.getId(), "Beginning officer appointmnet validation", new LogHelper.Builder(transaction)
+            logger.debugContext(transaction.getId(), "Beginning officer appointment validation", new LogHelper.Builder(transaction)
                 .withRequest(request)
                 .build());
         final List<ApiError> errorList = new ArrayList<>();
@@ -72,6 +72,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         // Perform validation
         validateCompanyNotDissolved(request, errorList, companyProfile.get());
         validateAllowedCompanyType(request, errorList, companyProfile.get());
+        validateAppointmentDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
 
         return new ApiErrors(errorList);
     }
@@ -82,7 +83,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateLastName(request, errorList, dto);
         validateDateOfBirth(request, errorList, dto);
         validateRequiredResidentialAddressFields(request, errorList, dto);
-
+        validateAppointmentDate(request, errorList, dto);
     }
 
     @Override
@@ -124,13 +125,12 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         }
     }
 
-        private void validateDateOfBirth(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+    private void validateDateOfBirth(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
         if (dto.getDateOfBirth() == null ) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_BLANK));
         }
         else{
-            var officerDateOfBirth = LocalDate.of(dto.getDateOfBirth().getYear(), dto.getDateOfBirth()
-                    .getMonth(), dto.getDateOfBirth().getDay());
+            var officerDateOfBirth = dto.getDateOfBirth();
             var currentDate = LocalDate.now();
             var age = Period.between(officerDateOfBirth, currentDate).getYears();
             if(age >= 110){
@@ -140,8 +140,37 @@ public class OfficerAppointmentValidator extends OfficerValidator {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_UNDERAGE));
             }
         }
-        }
+    }
 
+    public void validateAppointmentDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
+        if (dto.getAppointedOn() == null) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_MISSING));
+        } else {
+            validateAppointmentPastOrPresent(request, errorList, dto);
+            validateDirectorAgeAtAppointment(request, errorList, dto);
+        }
+    }
+
+    public void validateAppointmentPastOrPresent(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
+        if (dto.getAppointedOn().isAfter(LocalDate.now())) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_IN_PAST));
+        }
+    }
+
+    public void validateDirectorAgeAtAppointment(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        if (dto.getDateOfBirth() == null ) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_BLANK));
+        }
+        else{
+            var age = Period.between(dto.getDateOfBirth(), dto.getAppointedOn()).getYears();
+            if(age >= 110){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_OVERAGE));
+            }
+            else if(age < 16){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_UNDERAGE));
+            }
+        }
+    }
 
     private void validateTitle(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
         if(dto.getTitle() != null){
@@ -336,5 +365,14 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         }
     }
 
+    public void validateAppointmentDateAfterIncorporationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, CompanyProfileApi companyProfile) {
+        if (companyProfile.getDateOfCreation() == null) {
+            logger.errorRequest(request, "null data was found in the Company Profile API within the Date Of Creation field");
+            return;
+        }
+        if (dto.getAppointedOn().isBefore(companyProfile.getDateOfCreation())) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_AFTER_INCORPORATION_DATE));
+        }
+    }
 
 }

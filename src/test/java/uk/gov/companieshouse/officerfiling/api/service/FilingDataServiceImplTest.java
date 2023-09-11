@@ -49,7 +49,8 @@ class FilingDataServiceImplTest {
     public static final String DATE_OF_BIRTH_STR = "2000-10-20";
     private static final String PASSTHROUGH_HEADER = "passthrough";
     private static final String COMPANY_NUMBER = null;
-    public static final Date3Tuple DATE_OF_BIRTH_TUPLE = new Date3Tuple(20, 10, 2000);
+
+    private static final Instant DATE_OF_BIRTH_INS = Instant.parse("2000-10-20T00:00:00Z");
     private static final LocalDate DUMMY_DATE = LocalDate.of(2023, 3, 16);
     @Mock
     private OfficerFilingService officerFilingService;
@@ -85,7 +86,7 @@ class FilingDataServiceImplTest {
                 "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}");
         final var filingData = new FilingData(FIRSTNAME, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, true);
         var offData = OfficerFilingData.builder()
-                .dateOfBirth(DATE_OF_BIRTH_TUPLE)
+                .dateOfBirth(DATE_OF_BIRTH_INS)
                 .firstName(FIRSTNAME)
                 .lastName(LASTNAME)
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
@@ -133,6 +134,7 @@ class FilingDataServiceImplTest {
         final var data = OfficerFilingData.builder()
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
                 .name(COMPANY_NAME)
+                .firstName("")
                 .lastName(COMPANY_NAME)
                 .resignedOn(RESIGNED_ON_INS)
                 .build();

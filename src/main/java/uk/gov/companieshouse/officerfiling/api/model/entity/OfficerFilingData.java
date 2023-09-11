@@ -16,7 +16,7 @@ public class OfficerFilingData {
     private Boolean addressSameAsRegisteredOfficeAddress;
     private Instant appointedOn;
     private String countryOfResidence;
-    private Date3Tuple dateOfBirth;
+    private Instant dateOfBirth;
     private String formerNames;
     private String name;
     private String title;
@@ -72,7 +72,7 @@ public class OfficerFilingData {
         return countryOfResidence;
     }
 
-    public Date3Tuple getDateOfBirth() {
+    public Instant getDateOfBirth() {
         return dateOfBirth;
     }
 
@@ -290,11 +290,10 @@ public class OfficerFilingData {
             return this;
         }
 
-        public Builder dateOfBirth(final Date3Tuple value) {
+        public Builder dateOfBirth(final Instant value) {
 
-            buildSteps.add(data -> data.dateOfBirth = Optional.ofNullable(value)
-                    .map(v -> new Date3Tuple(v.getDay(), v.getMonth(), v.getYear()))
-                    .orElse(null));
+            buildSteps.add(data -> data.dateOfBirth = value);
+
             return this;
         }
 

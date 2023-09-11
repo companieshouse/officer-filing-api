@@ -25,13 +25,12 @@ import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
-import uk.gov.companieshouse.officerfiling.api.model.dto.Date3TupleDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
-class OfficerAppointmnetValidatorTest {
+class OfficerAppointmentValidatorTest {
     private static final String FILING_ID = "6332aa6ed28ad2333c3a520a";
     private static final String TRANS_ID = "12345-54321-76666";
     private static final String PASSTHROUGH_HEADER = "passthrough";
@@ -81,8 +80,9 @@ class OfficerAppointmnetValidatorTest {
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -95,8 +95,9 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getCompanyNumber()).thenReturn(null);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -111,8 +112,9 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getCompanyNumber()).thenReturn(" ");
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -124,7 +126,6 @@ class OfficerAppointmnetValidatorTest {
 
     @Test
     void validationWhenCompanyProfileServiceUnavailable() {
-
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(apiEnumerations.getValidation(ValidationEnum.SERVICE_UNAVAILABLE)).thenReturn("Sorry, this service is unavailable. You will be able to use the service later");
@@ -132,8 +133,10 @@ class OfficerAppointmnetValidatorTest {
             new ServiceUnavailableException());
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
             .as("An error should be produced when the Company Profile Service is unavailable")
@@ -151,8 +154,9 @@ class OfficerAppointmnetValidatorTest {
         when(apiEnumerations.getValidation(ValidationEnum.CANNOT_FIND_COMPANY)).thenReturn("We cannot find the company");
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -272,7 +276,8 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_BLANK)).thenReturn(
                 "Enter the director’s full first name");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
@@ -300,8 +305,9 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_BLANK)).thenReturn(
                 "Enter the director’s last name");
 
@@ -329,8 +335,9 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("JohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohn");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_LENGTH)).thenReturn(
                 "First name can be no longer than 50 characters");
 
@@ -351,8 +358,10 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith");
         when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_LENGTH)).thenReturn(
                 "Last name can be no longer than 160 characters");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -370,8 +379,9 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getMiddleNames()).thenReturn("DoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoe");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+       when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_LENGTH)).thenReturn(
                 "Middle name or names can be no longer than 50 characters");
 
@@ -391,7 +401,8 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getMiddleNames()).thenReturn("Doe");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getTitle()).thenReturn("MrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMr");
         when(dto.getFormerNames()).thenReturn("Anton,Doe");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
@@ -418,7 +429,8 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getMiddleNames()).thenReturn("Doe");
         when(dto.getTitle()).thenReturn("Mr");
         when(dto.getFormerNames()).thenReturn(formerNames);
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_LENGTH)).thenReturn(
                 "Previous names can be no longer than 160 characters");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
@@ -438,7 +450,8 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("Johnゃ");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_CHARACTERS)).thenReturn(
                 "First name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
@@ -458,7 +471,8 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smithゃ");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_CHARACTERS)).thenReturn(
                 "Last name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
@@ -479,7 +493,8 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getMiddleNames()).thenReturn("Doeゃ");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_CHARACTERS)).thenReturn(
                 "Middle name or names must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
@@ -502,8 +517,9 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getMiddleNames()).thenReturn("Doe");
         when(dto.getTitle()).thenReturn("Mrゃ");
         when(dto.getFormerNames()).thenReturn("Anton,Doe");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         when(apiEnumerations.getValidation(ValidationEnum.TITLE_CHARACTERS)).thenReturn(
                 "Title must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
@@ -526,8 +542,9 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getMiddleNames()).thenReturn("Doe");
         when(dto.getTitle()).thenReturn("Mr");
         when(dto.getFormerNames()).thenReturn("Anton,Doeゃ");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_CHARACTERS)).thenReturn(
                 "Previous name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
@@ -548,8 +565,9 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_UNDERAGE)).thenReturn(
                 "You can only appoint a person as a director if they are at least 16 years old");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(1,1,LocalDate.now().getYear()-15));
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(LocalDate.now().getYear()-15, 1, 1));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -567,8 +585,9 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_OVERAGE)).thenReturn(
                 "You can only appoint a person as a director if they are under 110 years old");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(1,1,LocalDate.now().getYear()-110));
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(LocalDate.now().getYear()-110, 1, 1));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -586,6 +605,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getOccupation()).thenReturn("Engineer");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_BLANK)).thenReturn(
                 "Enter the director’s date of birth");
 
@@ -603,7 +623,8 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getOccupation()).thenReturn("Engineerゃ");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
@@ -625,7 +646,8 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getOccupation()).thenReturn("EngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineer");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
@@ -650,7 +672,8 @@ class OfficerAppointmnetValidatorTest {
 
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).premises(null).build());
         when(apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK)).thenReturn(
                 "Enter a property name or number");
@@ -672,7 +695,8 @@ class OfficerAppointmnetValidatorTest {
 
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).premises("ゃ").build());
         when(apiEnumerations.getValidation(ValidationEnum.PREMISES_CHARACTERS)).thenReturn(
                 "Property name or number must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
@@ -694,7 +718,8 @@ class OfficerAppointmnetValidatorTest {
 
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).premises("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(apiEnumerations.getValidation(ValidationEnum.PREMISES_LENGTH)).thenReturn(
                 "Property name or number must be 200 characters or less");
@@ -717,7 +742,8 @@ class OfficerAppointmnetValidatorTest {
 
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine1(null).build());
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_BLANK)).thenReturn(
                 "Enter an address");
@@ -739,7 +765,8 @@ class OfficerAppointmnetValidatorTest {
 
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine1("ゃ").build());
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_CHARACTERS)).thenReturn(
                 "Address line 1 must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
@@ -760,7 +787,8 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine1("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_LENGTH)).thenReturn(
                 "Address line 1 must be 50 characters or less");
@@ -782,7 +810,8 @@ class OfficerAppointmnetValidatorTest {
 
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine2("ゃ").build());
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_TWO_CHARACTERS)).thenReturn(
                 "Address line 2 must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
@@ -803,7 +832,8 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine2("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_TWO_LENGTH)).thenReturn(
                 "Address line 2 must be 50 characters or less");
@@ -825,7 +855,8 @@ class OfficerAppointmnetValidatorTest {
 
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).locality(null).build());
         when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_BLANK)).thenReturn(
                 "Enter a city or town");
@@ -847,7 +878,8 @@ class OfficerAppointmnetValidatorTest {
 
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).locality("ゃ").build());
         when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_CHARACTERS)).thenReturn(
                 "City or town must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
@@ -868,7 +900,8 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).locality("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_LENGTH)).thenReturn(
                 "City or town must be 50 characters or less");
@@ -890,7 +923,8 @@ class OfficerAppointmnetValidatorTest {
 
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).region("ゃ").build());
         when(apiEnumerations.getValidation(ValidationEnum.REGION_CHARACTERS)).thenReturn(
                 "County, state, province or region must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
@@ -911,7 +945,8 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).region("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(apiEnumerations.getValidation(ValidationEnum.REGION_LENGTH)).thenReturn(
                 "County, state, province or region must be 50 characters or less");
@@ -933,7 +968,8 @@ class OfficerAppointmnetValidatorTest {
 
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country(null).postalCode(null).build());
         when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
                 "Enter a country");
@@ -955,7 +991,8 @@ class OfficerAppointmnetValidatorTest {
 
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country("ゃ").build());
         when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_CHARACTERS)).thenReturn(
                 "Country must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
@@ -978,7 +1015,8 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_INVALID)).thenReturn(
                 "Select a country from the list");
@@ -1003,7 +1041,8 @@ class OfficerAppointmnetValidatorTest {
 
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country("England").postalCode(null).build());
         when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK)).thenReturn(
                 "Enter a postcode or ZIP");
@@ -1025,7 +1064,8 @@ class OfficerAppointmnetValidatorTest {
 
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).postalCode("ゃ").build());
         when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_CHARACTERS)).thenReturn(
                 "Postal code must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
@@ -1045,7 +1085,8 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).postalCode("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_LENGTH)).thenReturn(
                 "Postal code must be 20 characters or less");
@@ -1065,7 +1106,8 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country(null).postalCode("11111").build());
         when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_WITHOUT_COUNTRY)).thenReturn(
                 "Select a country from the list before entering a postcode");
@@ -1082,7 +1124,173 @@ class OfficerAppointmnetValidatorTest {
                 .contains("Select a country from the list");;
     }
 
+    void validateWhenMissingAppointmentDate() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_MISSING)).thenReturn(
+                "Enter the date the director was appointed");
 
+        var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when appointment date is missing")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter the date the director was appointed");
+    }
 
+    @Test
+    void validateAppointmentDatePastOrPresentWhenFuture() {
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.now().plusDays(1))
+                .build();
+        when(apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_IN_PAST)).thenReturn("Enter a date that is today or in the past");
+        officerAppointmentValidator.validateAppointmentPastOrPresent(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when appointment date is in the future")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a date that is today or in the past");
+    }
 
+    @Test
+    void validateAppointmentDatePastOrPresentWhenPresent() {
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.now())
+                .build();
+        officerAppointmentValidator.validateAppointmentPastOrPresent(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when appointment date is in the present")
+                .isEmpty();
+    }
+
+    @Test
+    void validateAppointmentDatePastOrPresentWhenPast() {
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.now().minusDays(1))
+                .build();
+        officerAppointmentValidator.validateAppointmentPastOrPresent(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when appointment date is in the past")
+                .isEmpty();
+    }
+
+    @Test
+    void validateAppointmentDateAfterIncorporationDateWhenValid() {
+        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerAppointmentValidator.validateAppointmentDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when appointment date is after incorporation date")
+                .isEmpty();
+    }
+
+    @Test
+    void validateAppointmentDateAfterIncorporationDateWhenInvalid() {
+        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 6));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        when(apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_AFTER_INCORPORATION_DATE)).thenReturn("The date you enter must be after the company's incorporation date");
+        officerAppointmentValidator.validateAppointmentDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when appointment date is before incorporation date")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The date you enter must be after the company's incorporation date");
+    }
+
+    @Test
+    void validateAppointmentDateAfterIncorporationDateWhenSameDay() {
+        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 5));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerAppointmentValidator.validateAppointmentDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when appointment date is the incorporation date")
+                .isEmpty();
+    }
+
+    @Test
+    void validateAppointmentDateAfterIncorporationDateWhenCreationDateNull() {
+        when(companyProfile.getDateOfCreation()).thenReturn(null);
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerAppointmentValidator.validateAppointmentDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        assertThat(apiErrorsList)
+                .as("Validation should be skipped when incorporation date is null")
+                .isEmpty();
+    }
+
+    @Test
+    void validateDirectorAgeAtAppointmentWhenValidAge() {
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .dateOfBirth(LocalDate.of(1995, 1, 25))
+                .build();
+
+        officerAppointmentValidator.validateDirectorAgeAtAppointment(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when directer is a valid age on appointment date")
+                .isEmpty();
+    }
+
+    @Test
+    void validateDirectorAgeAtAppointmentWhenUnderage() {
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .dateOfBirth(LocalDate.of(2020, 1, 25))
+                .build();
+
+        when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_UNDERAGE)).thenReturn("You can only appoint a person as a director if they are at least 16 years old");
+        officerAppointmentValidator.validateDirectorAgeAtAppointment(request, apiErrorsList, officerFilingDto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when directer is underage on appointment date")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("You can only appoint a person as a director if they are at least 16 years old");
+    }
+
+    @Test
+    void validateDirectorAgeAtAppointmentWhenOverage() {
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .dateOfBirth(LocalDate.of(1900, 1, 25))
+                .build();
+
+        when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_OVERAGE)).thenReturn("You can only appoint a person as a director if they are under 110 years old");
+        officerAppointmentValidator.validateDirectorAgeAtAppointment(request, apiErrorsList, officerFilingDto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when directer is underage on appointment date")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("You can only appoint a person as a director if they are under 110 years old");
+    }
 }

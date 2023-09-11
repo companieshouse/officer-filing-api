@@ -1,6 +1,8 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import org.apache.commons.lang.NotImplementedException;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +11,6 @@ import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.FilingAPIMapper;
@@ -96,24 +97,30 @@ public class FilingDataServiceImpl implements FilingDataService {
         String appointmentId = officerFiling.getData().getReferenceAppointmentId();
         final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transactionId, companyNumber,
                 appointmentId, ericPassThroughHeader);
-        String surname = "";
+        String surname;
+        var firstname = "";
         // if it is a corporate Director then we must pass the name field into the lastName field
         // as that is where chips expects the corporate director name to be
         if (companyAppointment.getOfficerRole().equalsIgnoreCase("corporate-director")) {
             surname = companyAppointment.getName();
+            firstname = "";
         } else {
             surname = companyAppointment.getSurname();
+            firstname = companyAppointment.getForename();
         }
 
         var dataBuilder = OfficerFilingData.builder(officerFiling.getData())
+                .firstName(firstname)
                 .lastName(surname)
                 .name(companyAppointment.getName())
                 .corporateDirector(mapCorporateDirector(transaction, companyAppointment));
 
         // For non-corporate Directors
         if(companyAppointment.getDateOfBirth() != null){
+            LocalDate date =  LocalDate.parse(companyAppointment.getDateOfBirth().getYear() + "-" + companyAppointment.getDateOfBirth().getMonth() + "-" + companyAppointment.getDateOfBirth().getDay());
+            Instant dobInstant = date.atStartOfDay().toInstant(ZoneOffset.UTC);
             dataBuilder = dataBuilder
-                    .dateOfBirth(new Date3Tuple(companyAppointment.getDateOfBirth()));
+                    .dateOfBirth(dobInstant);
         }
 
         var enhancedOfficerFilingBuilder = OfficerFiling.builder(officerFiling)
