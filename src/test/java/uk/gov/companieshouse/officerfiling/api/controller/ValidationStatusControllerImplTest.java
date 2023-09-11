@@ -31,6 +31,7 @@ import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.Date3TupleDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
@@ -173,12 +174,15 @@ class ValidationStatusControllerImplTest {
     @Test
     void validateWhenFilingAP01FoundAndNoValidationErrors() {
         ReflectionTestUtils.setField(testController, "isAp01Enabled", true);
+        ReflectionTestUtils.setField(testController, "ukCountryList", List.of(""));
+        ReflectionTestUtils.setField(testController, "countryList", List.of("France"));
         validationStatusControllerMocks();
         when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
-
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder().premises("9")
+                .addressLine1("Road").locality("Margate").country("France").build());
         final var response = testController.validate(transaction, FILING_ID, request);
         assertThat(response.getValidationStatusError(), is(nullValue()));
         assertThat(response.isValid(), is(true));

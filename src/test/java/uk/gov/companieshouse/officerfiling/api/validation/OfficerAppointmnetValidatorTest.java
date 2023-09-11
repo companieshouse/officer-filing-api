@@ -24,6 +24,7 @@ import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.Date3TupleDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
@@ -38,6 +39,8 @@ class OfficerAppointmnetValidatorTest {
     private static final String ETAG = "etag";
     private static final String COMPANY_TYPE = "ltd";
     private static final String OFFICER_ROLE = "director";
+    private static final AddressDto validResidentialAddress = AddressDto.builder().premises("9")
+            .addressLine1("Road").locality("Margate").country("France").build();
 
     private OfficerAppointmentValidator officerAppointmentValidator;
     private List<ApiError> apiErrorsList;
@@ -63,7 +66,8 @@ class OfficerAppointmnetValidatorTest {
 
     @BeforeEach
     void setUp() {
-        officerAppointmentValidator = new OfficerAppointmentValidator(logger, companyProfileService, apiEnumerations);
+        officerAppointmentValidator = new OfficerAppointmentValidator(logger, companyProfileService,
+                apiEnumerations,List.of ("England", "Wales", "Scotland", "Northern Ireland", "France"), List.of ("England", "Wales", "Scotland", "Northern Ireland"));
         apiErrorsList = new ArrayList<>();
     }
 
@@ -78,6 +82,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -91,6 +96,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -106,6 +112,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -126,6 +133,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
             .as("An error should be produced when the Company Profile Service is unavailable")
@@ -144,6 +152,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -266,6 +275,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_BLANK)).thenReturn(
                 "Enter the director’s full first name");
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -291,6 +301,7 @@ class OfficerAppointmnetValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_BLANK)).thenReturn(
                 "Enter the director’s last name");
 
@@ -319,6 +330,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("JohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohn");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_LENGTH)).thenReturn(
                 "First name can be no longer than 50 characters");
 
@@ -340,6 +352,7 @@ class OfficerAppointmnetValidatorTest {
         when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_LENGTH)).thenReturn(
                 "Last name can be no longer than 160 characters");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -358,6 +371,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getMiddleNames()).thenReturn("DoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoe");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         when(apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_LENGTH)).thenReturn(
                 "Middle name or names can be no longer than 50 characters");
 
@@ -380,6 +394,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getTitle()).thenReturn("MrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMrMr");
         when(dto.getFormerNames()).thenReturn("Anton,Doe");
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         when(apiEnumerations.getValidation(ValidationEnum.TITLE_LENGTH)).thenReturn(
                 "Title can be no longer than 50 characters");
@@ -406,6 +421,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_LENGTH)).thenReturn(
                 "Previous names can be no longer than 160 characters");
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -425,6 +441,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_CHARACTERS)).thenReturn(
                 "First name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -444,6 +461,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_CHARACTERS)).thenReturn(
                 "Last name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -464,6 +482,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_CHARACTERS)).thenReturn(
                 "Middle name or names must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -484,6 +503,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getTitle()).thenReturn("Mrゃ");
         when(dto.getFormerNames()).thenReturn("Anton,Doe");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         when(apiEnumerations.getValidation(ValidationEnum.TITLE_CHARACTERS)).thenReturn(
                 "Title must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
@@ -507,6 +527,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getTitle()).thenReturn("Mr");
         when(dto.getFormerNames()).thenReturn("Anton,Doeゃ");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         when(apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_CHARACTERS)).thenReturn(
                 "Previous name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
@@ -528,6 +549,7 @@ class OfficerAppointmnetValidatorTest {
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_UNDERAGE)).thenReturn(
                 "You can only appoint a person as a director if they are at least 16 years old");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(1,1,LocalDate.now().getYear()-15));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -546,6 +568,7 @@ class OfficerAppointmnetValidatorTest {
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_OVERAGE)).thenReturn(
                 "You can only appoint a person as a director if they are under 110 years old");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(1,1,LocalDate.now().getYear()-110));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -562,6 +585,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_BLANK)).thenReturn(
                 "Enter the director’s date of birth");
 
@@ -581,6 +605,7 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getOccupation()).thenReturn("Engineerゃ");
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         when(apiEnumerations.getValidation(ValidationEnum.OCCUPATION_CHARACTERS)).thenReturn(
                 "Occupation must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
@@ -602,9 +627,11 @@ class OfficerAppointmnetValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
         when(dto.getOccupation()).thenReturn("EngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineerEngineer");
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         when(apiEnumerations.getValidation(ValidationEnum.OCCUPATION_LENGTH)).thenReturn(
                 "Occupation must be 100 characters or less");
+
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -614,5 +641,448 @@ class OfficerAppointmnetValidatorTest {
                 .extracting(ApiError::getError)
                 .contains("Occupation must be 100 characters or less");
     }
+
+    @Test
+    void validationWhenMissingResidentialPremises() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).premises(null).build());
+        when(apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK)).thenReturn(
+                "Enter a property name or number");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when premsies is blank")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a property name or number");
+    }
+
+    @Test
+    void validateResidentialPremisesCharacters() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).premises("ゃ").build());
+        when(apiEnumerations.getValidation(ValidationEnum.PREMISES_CHARACTERS)).thenReturn(
+                "Property name or number must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when premises contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Property name or number must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
+    void validateResidentialPremisesLength() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).premises("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
+        when(apiEnumerations.getValidation(ValidationEnum.PREMISES_LENGTH)).thenReturn(
+                "Property name or number must be 200 characters or less");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when premises is over 200 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Property name or number must be 200 characters or less");
+    }
+
+
+    @Test
+    void validationWhenMissingResidentialAddressLineOne() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine1(null).build());
+        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_BLANK)).thenReturn(
+                "Enter an address");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when address line one is blank")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter an address");
+    }
+
+    @Test
+    void validateResidentialAddressLineOneCharacters() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine1("ゃ").build());
+        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_CHARACTERS)).thenReturn(
+                "Address line 1 must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when address line 1 contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Address line 1 must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
+    void validateResidentialAddressLineOneLength() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine1("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
+        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_LENGTH)).thenReturn(
+                "Address line 1 must be 50 characters or less");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when address line 1 is over 50 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Address line 1 must be 50 characters or less");
+    }
+
+    @Test
+    void validateResidentialAddressLineTwoCharacters() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine2("ゃ").build());
+        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_TWO_CHARACTERS)).thenReturn(
+                "Address line 2 must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when address line 2 contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Address line 2 must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
+    void validateResidentialAddressLineTwoLength() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine2("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
+        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_TWO_LENGTH)).thenReturn(
+                "Address line 2 must be 50 characters or less");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when address line 2 is over 50 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Address line 2 must be 50 characters or less");
+    }
+
+    @Test
+    void validationWhenMissingResidentialLocality() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).locality(null).build());
+        when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_BLANK)).thenReturn(
+                "Enter a city or town");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when locality is blank")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a city or town");
+    }
+
+    @Test
+    void validateResidentialLocalityCharacters() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).locality("ゃ").build());
+        when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_CHARACTERS)).thenReturn(
+                "City or town must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when locality contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("City or town must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
+    void validateResidentialLocalityLength() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).locality("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
+        when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_LENGTH)).thenReturn(
+                "City or town must be 50 characters or less");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when locality is over 50 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("City or town must be 50 characters or less");
+    }
+
+    @Test
+    void validateResidentialRegionCharacters() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).region("ゃ").build());
+        when(apiEnumerations.getValidation(ValidationEnum.REGION_CHARACTERS)).thenReturn(
+                "County, state, province or region must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when region contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("County, state, province or region must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
+    void validateResidentialRegionLength() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).region("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
+        when(apiEnumerations.getValidation(ValidationEnum.REGION_LENGTH)).thenReturn(
+                "County, state, province or region must be 50 characters or less");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when region is over 50 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("County, state, province or region must be 50 characters or less");
+    }
+
+    @Test
+    void validationWhenMissingResidentialCountry() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country(null).postalCode(null).build());
+        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
+                "Enter a country");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when country is blank")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a country");
+    }
+
+    @Test
+    void validateResidentialCountryCharacters() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country("ゃ").build());
+        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_CHARACTERS)).thenReturn(
+                "Country must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_INVALID)).thenReturn(
+                "Select a country from the list");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when country contains illegal characters, and it should be noted as an invalid country")
+                .hasSize(2)
+                .extracting(ApiError::getError)
+                .contains("Country must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
+    void validateResidentialCountryLength() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
+        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_INVALID)).thenReturn(
+                "Select a country from the list");
+        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_LENGTH)).thenReturn(
+                "Country must be 50 characters or less");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when country is over 50 characters, and it should be noted as an invalid country")
+                .hasSize(2)
+                .extracting(ApiError::getError)
+                .contains("Country must be 50 characters or less")
+                .contains("Select a country from the list");
+    }
+
+    @Test
+    void validationWhenUKMissingResidentialPostalCode() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country("England").postalCode(null).build());
+        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK)).thenReturn(
+                "Enter a postcode or ZIP");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when postal code is blank for a UK country")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a postcode or ZIP");
+    }
+
+    @Test
+    void validateResidentialPostalCodeCharacters() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).postalCode("ゃ").build());
+        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_CHARACTERS)).thenReturn(
+                "Postal code must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when Postal code contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Postal code must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
+    void validateResidentialPostalCodeLength() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).postalCode("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
+        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_LENGTH)).thenReturn(
+                "Postal code must be 20 characters or less");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when country is over 50 characters, and it should be noted as an invalid country")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Postal code must be 20 characters or less");
+    }
+
+    @Test
+    void validateResidentialPostalCodeNoCountry() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(new Date3TupleDto(25,1,1993));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country(null).postalCode("11111").build());
+        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_WITHOUT_COUNTRY)).thenReturn(
+                "Select a country from the list before entering a postcode");
+        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
+                "Select a country from the list");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when a postcode is submitted without a country")
+                .hasSize(2)
+                .extracting(ApiError::getError)
+                .contains("Select a country from the list before entering a postcode")
+                .contains("Select a country from the list");;
+    }
+
+
+
 
 }

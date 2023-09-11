@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -24,22 +22,22 @@ import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
  * Provides all validation that should be carried out when an officer is terminated. Fetches all data necessary to complete
  * the validation and generates a list of errors that can be sent back to the caller.
  */
-@Configuration
 public class OfficerAppointmentValidator extends OfficerValidator {
 
     private Logger logger;
     private ApiEnumerations apiEnumerations;
-    @Value("${country.list}")
-    private List<String> countryList;
-    @Value("${country.list.uk}")
-    private List<String> ukCountryList;
+    private final List<String> countryList;
+    private final List<String> ukCountryList;
 
     public OfficerAppointmentValidator(final Logger logger,
                                        final CompanyProfileService companyProfileService,
-                                       final ApiEnumerations apiEnumerations) {
+                                       final ApiEnumerations apiEnumerations,
+            List<String> countryList, List<String> ukCountryList) {
         super(logger, companyProfileService, apiEnumerations);
         this.logger = logger;
         this.apiEnumerations = getApiEnumerations();
+        this.ukCountryList = ukCountryList;
+        this.countryList = countryList;
     }
 
     /**
@@ -218,8 +216,8 @@ public class OfficerAppointmentValidator extends OfficerValidator {
     private void validateRequiredResidentialAddressFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
         if(dto.getResidentialAddress() != null){
             validatePremises(request, errorList, dto.getResidentialAddress().getPremises());
-            validateAddressLine1(request, errorList, dto.getAddress().getAddressLine1());
-            validateLocality(request, errorList, dto.getAddress().getLocality());
+            validateAddressLine1(request, errorList, dto.getResidentialAddress().getAddressLine1());
+            validateLocality(request, errorList, dto.getResidentialAddress().getLocality());
             validateCountry(request, errorList, dto.getResidentialAddress().getCountry());
             validatePostalCode(request, errorList, dto.getResidentialAddress().getPostalCode(), dto.getResidentialAddress().getCountry());
         }
@@ -232,8 +230,8 @@ public class OfficerAppointmentValidator extends OfficerValidator {
     }
 
     private void validateOptionalResidentialAddressFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
-        validateAddressLine2(request, errorList, dto.getAddress().getAddressLine2());
-        validateRegion(request, errorList, dto.getAddress().getRegion());
+        validateAddressLine2(request, errorList, dto.getResidentialAddress().getAddressLine2());
+        validateRegion(request, errorList, dto.getResidentialAddress().getRegion());
     }
 
     private void validatePremises(HttpServletRequest request, List<ApiError> errorList, String premises){
@@ -322,7 +320,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             createValidationError(request, errorList,apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_WITHOUT_COUNTRY));
             return;
         }
-        if(ukCountryList.contains(country)){
+        if(country != null && ukCountryList.contains(country)){
             if (postalCode == null || postalCode.isBlank()) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK));
                 return;

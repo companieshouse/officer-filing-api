@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.NotImplementedException;
@@ -44,6 +45,10 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
     private boolean isTm01Enabled;
     @Value("${FEATURE_FLAG_ENABLE_AP01:true}")
     private boolean isAp01Enabled;
+    @Value("#{'${COUNTRY_LIST}'.split(';')}")
+    private List<String> countryList;
+    @Value("#{'${UK_COUNTRY_LIST}'.split(';')}")
+    private List<String> ukCountryList;
 
     public ValidationStatusControllerImpl(OfficerFilingService officerFilingService, Logger logger,
             CompanyProfileService companyProfileService,
@@ -130,7 +135,7 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
             //has a removal date so must be a TM01
             validator = new OfficerTerminationValidator(logger, companyProfileService, companyAppointmentService, apiEnumerations);
         } else if(officerFiling.getReferenceEtag() == null) {
-            validator = new OfficerAppointmentValidator(logger, companyProfileService, apiEnumerations);
+            validator = new OfficerAppointmentValidator(logger, companyProfileService, apiEnumerations, countryList, ukCountryList);
         } else {
             // cannot work out what filing type is so throw an exception.
             throw new NotImplementedException("Filing type cannot be calculated using given data for transaction " + transaction.getId() );
