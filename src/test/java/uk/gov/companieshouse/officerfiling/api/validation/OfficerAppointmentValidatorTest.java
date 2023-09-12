@@ -66,11 +66,8 @@ class OfficerAppointmentValidatorTest {
     @BeforeEach
     void setUp() {
         String allowedNationalities = "A very long nationality indeed so long in fact that it breaks the legal length for nationalities,thisIs25Characterslongggh,thisIs25Characterslongggg,thisIs16Charactz,thisIs17Character,thisIs16Characte,thisIsAVeryLongNationalityWhichWilltakeUsOver50Characterslong,Afghan,Albanian,Algerian,American,Andorran,Angolan,Anguillan,Citizen of Antigua and Barbuda,Argentine,Armenian,Australian,Austrian,Azerbaijani,Bahamian,Bahraini,Bangladeshi,Barbadian,Belarusian,Belgian,Belizean,Beninese,Bermudian,Bhutanese,Bolivian,Citizen of Bosnia and Herzegovina,Botswanan,Brazilian,British,British Virgin Islander,Bruneian,Bulgarian,Burkinan,Burmese,Burundian,Cambodian,Cameroonian,Canadian,Cape Verdean,Cayman Islander,Central African,Chadian,Chilean,Chinese,Colombian,Comoran,Congolese (Congo),Congolese (DRC),Cook Islander,Costa Rican,Croatian,Cuban,Cymraes,Cymro,Cypriot,Czech,Danish,Djiboutian,Dominican,Citizen of the Dominican Republic,Dutch,East Timorese\tEcuadorean\tEgyptian\tEmirati,English,Equatorial Guinean,Eritrean,Estonian,Ethiopian,Faroese,Fijian,Filipino,Finnish,French,Gabonese,Gambian,Georgian,German,Ghanaian,Gibraltarian,Greek,Greenlandic,Grenadian,Guamanian,Guatemalan,Citizen of Guinea-Bissau,Guinean,Guyanese,Haitian,Honduran,Hong Konger,Hungarian,Icelandic,Indian,Indonesian,Iranian,Iraqi,Irish,Israeli,Italian,Ivorian,Jamaican,Japanese,Jordanian,Kazakh,Kenyan,Kittitian,Citizen of Kiribati,Kosovan,Kuwaiti,Kyrgyz,Lao,Latvian,Lebanese,Liberian,Libyan,Liechtenstein citizen,Lithuanian,Luxembourger,Macanese,Macedonian,Malagasy,Malawian,Malaysian,Maldivian,Malian,Maltese,Marshallese,Martiniquais,Mauritanian,Mauritian,Mexican,Micronesian,Moldovan,Monegasque,Mongolian,Montenegrin,Montserratian,Moroccan,Mosotho,Mozambican,Namibian,Nauruan,Nepalese,New Zealander,Nicaraguan,Nigerian,Nigerien,Niuean,North Korean,Northern Irish,Norwegian,Omani,Pakistani,Palauan,Palestinian,Panamanian,Papua New Guinean,Paraguayan,Peruvian,Pitcairn Islander,Polish,Portuguese,Prydeinig,Puerto Rican,Qatari,Romanian,Russian,Rwandan,Salvadorean,Sammarinese,Samoan,Sao Tomean,Saudi Arabian,Scottish,Senegalese,Serbian,Citizen of Seychelles,Sierra Leonean,Singaporean,Slovak,Slovenian,Solomon Islander,Somali,South African,South Korean,South Sudanese,Spanish,Sri Lankan,St Helenian,St Lucian,Stateless,Sudanese,Surinamese,Swazi,Swedish,Swiss,Syrian,Taiwanese,Tajik,Tanzanian,Thai,Togolese,Tongan,Trinidadian,Tristanian,Tunisian,Turkish,Turkmen,Turks and Caicos Islander,Tuvaluan,Ugandan,Ukrainian,Uruguayan,Uzbek,Vatican citizen,Citizen of Vanuatu,Venezuelan,Vietnamese,Vincentian,Wallisian,Welsh,Yemeni,Zambian,Zimbabwean";
-        officerAppointmentValidator = new OfficerAppointmentValidator(logger, companyProfileService, apiEnumerations, allowedNationalities);
+        officerAppointmentValidator = new OfficerAppointmentValidator(logger, companyProfileService, apiEnumerations, allowedNationalities,List.of ("England", "Wales", "Scotland", "Northern Ireland", "France"), List.of ("England", "Wales", "Scotland", "Northern Ireland"));
          apiErrorsList = new ArrayList<>();
-        officerAppointmentValidator = new OfficerAppointmentValidator(logger, companyProfileService,
-                apiEnumerations,List.of ("England", "Wales", "Scotland", "Northern Ireland", "France"), List.of ("England", "Wales", "Scotland", "Northern Ireland"));
-        apiErrorsList = new ArrayList<>();
     }
 
     @Test
@@ -286,6 +283,7 @@ class OfficerAppointmentValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
          when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_BLANK)).thenReturn(
                 "Enter the director’s full first name");
@@ -393,6 +391,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getMiddleNames()).thenReturn("DoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoe");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_LENGTH)).thenReturn(
                 "Middle name or names can be no longer than 50 characters");
@@ -698,6 +697,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getOccupation()).thenReturn("Engineer");
         when(dto.getNationality1()).thenReturn("A very long nationality indeed so long in fact that it breaks the legal length for nationalities");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH)).thenReturn(
                 "Nationality must be 50 characters or less");
@@ -722,6 +722,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getNationality1()).thenReturn("British");
         when(dto.getNationality2()).thenReturn("A very long nationality indeed so long in fact that it breaks the legal length for nationalities");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH49)).thenReturn(
                 "For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters including commas");
@@ -745,6 +746,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getNationality1()).thenReturn("thisIs25Characterslongggg");
         when(dto.getNationality2()).thenReturn("thisIs25Characterslongggh");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH49)).thenReturn(
                 "For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 49 characters including commas");
@@ -770,6 +772,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getNationality2()).thenReturn("thisIs17Character");
         when(dto.getNationality3()).thenReturn("thisIs16Charactz");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH48)).thenReturn(
                 "For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters including commas");
@@ -794,6 +797,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getNationality2()).thenReturn("French");
         when(dto.getNationality3()).thenReturn("thisIsAVeryLongNationalityWhichWilltakeUsOver50Characterslong");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH48)).thenReturn(
                 "For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters including commas");
@@ -817,6 +821,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getOccupation()).thenReturn("Engineer");
         when(dto.getNationality1()).thenReturn("Britishhhh");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         when(apiEnumerations.getValidation(ValidationEnum.INVALID_NATIONALITY)).thenReturn(
                 "Select a nationality from the list");
@@ -840,6 +845,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getNationality1()).thenReturn("French");
         when(dto.getNationality2()).thenReturn("Britishhhh");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         when(apiEnumerations.getValidation(ValidationEnum.INVALID_NATIONALITY)).thenReturn(
                 "Select a nationality from the list");
@@ -864,6 +870,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getNationality2()).thenReturn("German");
         when(dto.getNationality3()).thenReturn("Britishhhh");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         when(apiEnumerations.getValidation(ValidationEnum.INVALID_NATIONALITY)).thenReturn(
                 "Select a nationality from the list");
@@ -887,6 +894,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getOccupation()).thenReturn("Engineer");
         when(dto.getNationality1()).thenReturn("");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
 
         when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_BLANK)).thenReturn(
@@ -911,6 +919,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getNationality1()).thenReturn("British");
         when(dto.getNationality2()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
 
         when(apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY2)).thenReturn(
@@ -936,6 +945,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getNationality2()).thenReturn("French");
         when(dto.getNationality3()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
 
         when(apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY3)).thenReturn(
@@ -961,6 +971,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getNationality2()).thenReturn("British");
         when(dto.getNationality3()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
 
         when(apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY3)).thenReturn(
@@ -983,6 +994,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(null);
         when(apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK)).thenReturn(
@@ -1015,6 +1027,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).premises(null).build());
         when(apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK)).thenReturn(
@@ -1038,6 +1051,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).premises("ゃ").build());
         when(apiEnumerations.getValidation(ValidationEnum.PREMISES_CHARACTERS)).thenReturn(
@@ -1061,6 +1075,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).premises("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(apiEnumerations.getValidation(ValidationEnum.PREMISES_LENGTH)).thenReturn(
@@ -1085,6 +1100,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine1(null).build());
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_BLANK)).thenReturn(
@@ -1109,6 +1125,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine1("ゃ").build());
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_CHARACTERS)).thenReturn(
                 "Address line 1 must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
@@ -1130,6 +1147,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine1("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_LENGTH)).thenReturn(
@@ -1153,6 +1171,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine2("ゃ").build());
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_TWO_CHARACTERS)).thenReturn(
@@ -1175,6 +1194,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine2("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_TWO_LENGTH)).thenReturn(
@@ -1198,6 +1218,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).locality(null).build());
         when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_BLANK)).thenReturn(
@@ -1221,6 +1242,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).locality("ゃ").build());
         when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_CHARACTERS)).thenReturn(
@@ -1243,6 +1265,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).locality("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_LENGTH)).thenReturn(
@@ -1266,6 +1289,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).region("ゃ").build());
         when(apiEnumerations.getValidation(ValidationEnum.REGION_CHARACTERS)).thenReturn(
@@ -1288,6 +1312,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).region("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(apiEnumerations.getValidation(ValidationEnum.REGION_LENGTH)).thenReturn(
@@ -1311,6 +1336,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country(null).postalCode(null).build());
         when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
@@ -1334,6 +1360,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country("ゃ").build());
         when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_CHARACTERS)).thenReturn(
@@ -1358,6 +1385,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_INVALID)).thenReturn(
@@ -1385,6 +1413,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country("England").postalCode(null).build());
         when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK)).thenReturn(
                 "Enter a postcode or ZIP");
@@ -1407,6 +1436,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).postalCode("ゃ").build());
         when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_CHARACTERS)).thenReturn(
@@ -1428,6 +1458,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).postalCode("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_LENGTH)).thenReturn(
@@ -1449,6 +1480,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country(null).postalCode("11111").build());
         when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_WITHOUT_COUNTRY)).thenReturn(

@@ -33,8 +33,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
     public OfficerAppointmentValidator(final Logger logger,
                                        final CompanyProfileService companyProfileService,
                                        final ApiEnumerations apiEnumerations,
-                                       final String inputAllowedNationalities) {
-                                       final ApiEnumerations apiEnumerations,
+                                       final String inputAllowedNationalities,
             List<String> countryList, List<String> ukCountryList) {
         super(logger, companyProfileService, apiEnumerations);
         this.logger = logger;
