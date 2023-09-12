@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.model.mapper;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.time.Clock;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 
@@ -48,7 +46,7 @@ class FilingAPIMapperTest {
                 .name("name")
                 .firstName("firstName")
                 .lastName("lastName")
-                .nationality("nation")
+                .nationality1("nation")
                 .occupation("work")
                 .officerRole("role")
                 .referenceEtag("referenceEtag")

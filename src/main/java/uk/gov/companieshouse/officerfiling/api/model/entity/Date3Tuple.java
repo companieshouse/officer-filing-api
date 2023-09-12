@@ -1,9 +1,9 @@
 package uk.gov.companieshouse.officerfiling.api.model.entity;
 
-import uk.gov.companieshouse.api.model.delta.officers.SensitiveDateOfBirthAPI;
-import uk.gov.companieshouse.officerfiling.api.annotations.Default;
 import java.util.Objects;
 import java.util.StringJoiner;
+import uk.gov.companieshouse.api.model.delta.officers.SensitiveDateOfBirthAPI;
+import uk.gov.companieshouse.officerfiling.api.annotations.Default;
 
 /**
  * Representation of Full and Partial Dates of Birth.

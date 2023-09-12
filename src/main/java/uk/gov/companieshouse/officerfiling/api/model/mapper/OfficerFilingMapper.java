@@ -1,17 +1,16 @@
 package uk.gov.companieshouse.officerfiling.api.model.mapper;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Date3Tuple;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.filing.FilingData;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 
 @Mapper(componentModel = "spring")
 public interface OfficerFilingMapper {
@@ -26,7 +25,9 @@ public interface OfficerFilingMapper {
     @Mapping(target = "data.appointedOn", source = "appointedOn")
     @Mapping(target = "data.countryOfResidence", source = "countryOfResidence")
     @Mapping(target = "data.dateOfBirth", source = "dateOfBirth")
-    @Mapping(target = "data.nationality", source = "nationality")
+    @Mapping(target = "data.nationality1", source = "nationality1")
+    @Mapping(target = "data.nationality2", source = "nationality2")
+    @Mapping(target = "data.nationality3", source = "nationality3")
     @Mapping(target = "data.occupation", source = "occupation")
     @Mapping(target = "data.title", source = "title")
     @Mapping(target = "data.formerNames", source = "formerNames")
@@ -53,7 +54,9 @@ public interface OfficerFilingMapper {
     @Mapping(target = "appointedOn", source = "data.appointedOn")
     @Mapping(target = "countryOfResidence", source = "data.countryOfResidence")
     @Mapping(target = "dateOfBirth", source = "data.dateOfBirth")
-    @Mapping(target = "nationality", source = "data.nationality")
+    @Mapping(target = "nationality1", source = "data.nationality1")
+    @Mapping(target = "nationality2", source = "data.nationality2")
+    @Mapping(target = "nationality3", source = "data.nationality3")
     @Mapping(target = "occupation", source = "data.occupation")
     @Mapping(target = "title", source = "data.title")
     @Mapping(target = "name", source = "data.name")

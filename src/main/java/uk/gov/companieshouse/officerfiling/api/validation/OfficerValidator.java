@@ -2,6 +2,7 @@ package uk.gov.companieshouse.officerfiling.api.validation;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -28,6 +29,8 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
  * Provides all validation that should be carried out when an officer is terminated. Fetches all data necessary to complete
  * the validation and generates a list of errors that can be sent back to the caller.
  */
+
+
 public class OfficerValidator {
 
     public static final LocalDate MIN_RESIGNATION_DATE = LocalDate.of(2009, 10, 1);
@@ -188,5 +191,17 @@ public class OfficerValidator {
         var matcher = pattern.matcher(field);
         return matcher.matches();
     }
+
+    public List<String> getAllowedNationalities(String inputAllowedNationalities) {
+
+        String[] nationalityArray = inputAllowedNationalities.split(",");
+
+        return  Arrays.asList(nationalityArray);
+    }
+    public boolean isValidNationalityFromAllowedList(String nationality, String inputAllowedNationalities) {
+        return getAllowedNationalities(inputAllowedNationalities).contains(nationality);
+    }
+
+
 
 }

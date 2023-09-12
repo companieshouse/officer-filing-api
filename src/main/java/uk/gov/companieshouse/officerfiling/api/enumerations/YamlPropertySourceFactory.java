@@ -1,12 +1,11 @@
 package uk.gov.companieshouse.officerfiling.api.enumerations;
 
+import java.util.Objects;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
-
-import java.util.Objects;
 
 public class YamlPropertySourceFactory implements PropertySourceFactory {
 

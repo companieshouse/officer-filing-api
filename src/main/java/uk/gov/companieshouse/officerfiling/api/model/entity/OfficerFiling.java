@@ -1,9 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +8,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "officer_filing")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -166,7 +165,9 @@ public class OfficerFiling {
                                     .firstName(v.getFirstName())
                                     .middleNames(v.getMiddleNames())
                                     .lastName(v.getLastName())
-                                    .nationality(v.getNationality())
+                                    .nationality1(v.getNationality1())
+                                    .nationality2(v.getNationality2())
+                                    .nationality3(v.getNationality3())
                                     .occupation(v.getOccupation())
                                     .officerRole(v.getOfficerRole())
                                     .referenceEtag(v.getReferenceEtag())

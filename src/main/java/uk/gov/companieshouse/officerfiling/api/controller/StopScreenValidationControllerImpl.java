@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import java.util.Objects;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,9 +13,6 @@ import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceEx
 import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Objects;
 
 @RestController
 public class StopScreenValidationControllerImpl implements StopScreenValidationController {
