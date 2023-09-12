@@ -624,7 +624,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getOccupation()).thenReturn("Engineer");
-        when(dto.getNationality1()).thenReturn("British");
+        when(dto.getNationality1()).thenReturn("BRITISH");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_BLANK)).thenReturn(
