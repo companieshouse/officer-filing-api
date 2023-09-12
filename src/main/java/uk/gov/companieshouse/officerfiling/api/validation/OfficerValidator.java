@@ -189,5 +189,4 @@ public class OfficerValidator {
         return matcher.matches();
     }
 
-
 }

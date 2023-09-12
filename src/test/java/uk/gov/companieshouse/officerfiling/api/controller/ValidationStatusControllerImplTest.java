@@ -31,6 +31,7 @@ import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.Date3TupleDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
@@ -173,14 +174,17 @@ class ValidationStatusControllerImplTest {
     @Test
     void validateWhenFilingAP01FoundAndNoValidationErrors() {
         ReflectionTestUtils.setField(testController, "isAp01Enabled", true);
+        ReflectionTestUtils.setField(testController, "ukCountryList", List.of(""));
+        ReflectionTestUtils.setField(testController, "countryList", List.of("France"));
         LocalDate localDateDob1 = LocalDate.of(1970, 9, 12);
         validationStatusControllerMocks();
         when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder().premises("9")
+                .addressLine1("Road").locality("Margate").country("France").build());
         when(dto.getDateOfBirth()).thenReturn(localDateDob1);
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
-
         final var response = testController.validate(transaction, FILING_ID, request);
         assertThat(response.getValidationStatusError(), is(nullValue()));
         assertThat(response.isValid(), is(true));

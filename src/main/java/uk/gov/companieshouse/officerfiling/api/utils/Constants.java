@@ -10,5 +10,4 @@ public class Constants {
 
     // URI path attributes
     public static final String TRANSACTION_ID_KEY = "transaction_id";
-
 }
