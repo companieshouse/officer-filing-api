@@ -956,7 +956,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
         when(dto.getNationality1()).thenReturn("French");
         when(apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_MISSING)).thenReturn(
-                "Enter the day the director was appointed");
+                "Enter the date the director was appointed");
 
         var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -964,7 +964,7 @@ class OfficerAppointmentValidatorTest {
                 .as("An error should be produced when appointment date is missing")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("Enter the day the director was appointed");
+                .contains("Enter the date the director was appointed");
     }
 
     @Test
