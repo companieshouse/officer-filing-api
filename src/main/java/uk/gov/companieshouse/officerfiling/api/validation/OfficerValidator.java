@@ -39,7 +39,6 @@ public class OfficerValidator {
     public static final List<String> ALLOWED_OFFICER_ROLES = List.of("director", "corporate-director", "nominee-director", "corporate-nominee-director");
     private static final String REG_EXP_FOR_VALID_CHARACTERS = "^[-,.:; 0-9A-Z&@$£¥€'\"«»?!/\\\\()\\[\\]{}<>*=#%+ÀÁÂÃÄÅĀĂĄÆǼÇĆĈĊČÞĎÐÈÉÊËĒĔĖĘĚĜĞĠĢĤĦÌÍÎÏĨĪĬĮİĴĶĹĻĽĿŁÑŃŅŇŊÒÓÔÕÖØŌŎŐǾŒŔŖŘŚŜŞŠŢŤŦÙÚÛÜŨŪŬŮŰŲŴẀẂẄỲÝŶŸŹŻŽa-zſƒǺàáâãäåāăąæǽçćĉċčþďðèéêëēĕėęěĝģğġĥħìíîïĩīĭįĵķĺļľŀłñńņňŋòóôõöøōŏőǿœŕŗřśŝşšţťŧùúûüũūŭůűųŵẁẃẅỳýŷÿźżž]*$";
 
-
     private Logger logger;
 
     public ApiEnumerations getApiEnumerations() {
@@ -57,7 +56,6 @@ public class OfficerValidator {
 
     private CompanyAppointmentService companyAppointmentService;
 
-
     public OfficerValidator(final Logger logger, final CompanyProfileService companyProfileService,
         final CompanyAppointmentService companyAppointmentService,
         final ApiEnumerations apiEnumerations) {
@@ -65,7 +63,6 @@ public class OfficerValidator {
             this.companyProfileService = companyProfileService;
             this.companyAppointmentService = companyAppointmentService;
             this.apiEnumerations = apiEnumerations;
-
         }
 
     public OfficerValidator(final Logger logger,
