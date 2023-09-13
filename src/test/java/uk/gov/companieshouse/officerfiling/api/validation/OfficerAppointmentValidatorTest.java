@@ -624,7 +624,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getOccupation()).thenReturn("Engineer");
-        when(dto.getNationality1()).thenReturn("British");
+        when(dto.getNationality1()).thenReturn("BRITISH");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_BLANK)).thenReturn(
@@ -749,15 +749,15 @@ class OfficerAppointmentValidatorTest {
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
 
         when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH49)).thenReturn(
-                "For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 49 characters including commas");
+                "For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters including commas");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-                .as("For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 49 characters including commas")
+                .as("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters including commas")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 49 characters including commas");
+                .contains("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters including commas");
     }
 
     @Test

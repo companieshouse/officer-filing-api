@@ -199,7 +199,7 @@ public class OfficerValidator {
         return  Arrays.asList(nationalityArray);
     }
     public boolean isValidNationalityFromAllowedList(String nationality, String inputAllowedNationalities) {
-        return getAllowedNationalities(inputAllowedNationalities).contains(nationality);
+        return getAllowedNationalities(inputAllowedNationalities).stream().anyMatch(x -> x.equalsIgnoreCase(nationality));
     }
 
 
