@@ -100,7 +100,7 @@ class OfficerFilingDataServiceImplTest {
                 .referenceEtag("ETAG")
                 .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
                 .formerNames("John,Doe")
-                .address(address)
+                .serviceAddress(address)
                 .build();
         OfficerFiling original = OfficerFiling.builder()
                 .data(originalData)
@@ -117,8 +117,8 @@ class OfficerFilingDataServiceImplTest {
         assertThat(updatedFiling.getData().getReferenceAppointmentId(), is("Appoint"));
         assertThat(updatedFiling.getData().getResignedOn(), is(Instant.parse("2022-09-13T00:00:00Z")));
         assertThat(updatedFiling.getData().getFormerNames(), is("John,Doe"));
-        assertThat(updatedFiling.getData().getAddress().getLocality(), is("Margate"));
-        assertThat(updatedFiling.getData().getAddress().getCountry(), is("UK"));
+        assertThat(updatedFiling.getData().getServiceAddress().getLocality(), is("Margate"));
+        assertThat(updatedFiling.getData().getServiceAddress().getCountry(), is("UK"));
         assertThat(updatedFiling.getIdentification().getIdentificationType(), is("type"));
     }
 

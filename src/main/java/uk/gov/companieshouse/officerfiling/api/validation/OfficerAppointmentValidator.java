@@ -90,6 +90,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateNationality3(request, errorList, dto);
         validateNationalityLength(request, errorList, dto);
         validateRequiredResidentialAddressFields(request, errorList, dto);
+        validateCorrespondenceAddressFields(request, errorList, dto);
         validateAppointmentDate(request, errorList, dto);
     }
 
@@ -332,6 +333,24 @@ public class OfficerAppointmentValidator extends OfficerValidator {
     private void validateOptionalResidentialAddressFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
         validateAddressLine2(request, errorList, dto.getResidentialAddress().getAddressLine2());
         validateRegion(request, errorList, dto.getResidentialAddress().getRegion());
+    }
+
+    private void validateCorrespondenceAddressFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        if(dto.getServiceAddress() != null){
+            validatePremises(request, errorList, dto.getServiceAddress().getPremises());
+            validateAddressLine1(request, errorList, dto.getServiceAddress().getAddressLine1());
+            validateAddressLine2(request, errorList, dto.getServiceAddress().getAddressLine2());
+            validateRegion(request, errorList, dto.getServiceAddress().getRegion());
+            validateLocality(request, errorList, dto.getServiceAddress().getLocality());
+            validateCountry(request, errorList, dto.getServiceAddress().getCountry());
+            validatePostalCode(request, errorList, dto.getServiceAddress().getPostalCode(), dto.getServiceAddress().getCountry());
+        }
+        else{
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK));
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_BLANK));
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LOCALITY_BLANK));
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK));
+        }
     }
 
     private void validatePremises(HttpServletRequest request, List<ApiError> errorList, String premises){

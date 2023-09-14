@@ -20,7 +20,7 @@ public interface OfficerFilingMapper {
     @Mapping(target = "kind", ignore = true)
     @Mapping(target = "links", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "data.address", source = "address")
+    @Mapping(target = "data.serviceAddress", source = "serviceAddress")
     @Mapping(target = "data.addressSameAsRegisteredOfficeAddress", source = "addressSameAsRegisteredOfficeAddress")
     @Mapping(target = "data.appointedOn", source = "appointedOn")
     @Mapping(target = "data.countryOfResidence", source = "countryOfResidence")
@@ -49,7 +49,7 @@ public interface OfficerFilingMapper {
     OfficerFiling map(OfficerFilingDto officerFilingDto);
 
 
-    @Mapping(target = "address", source = "data.address")
+    @Mapping(target = "serviceAddress", source = "data.serviceAddress")
     @Mapping(target = "addressSameAsRegisteredOfficeAddress", source = "data.addressSameAsRegisteredOfficeAddress")
     @Mapping(target = "appointedOn", source = "data.appointedOn")
     @Mapping(target = "countryOfResidence", source = "data.countryOfResidence")

@@ -15,7 +15,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class OfficerFilingDto {
 
-    private AddressDto address;
+    private AddressDto serviceAddress;
     private Boolean addressSameAsRegisteredOfficeAddress;
     private LocalDate appointedOn;
     private String countryOfResidence;
@@ -41,8 +41,8 @@ public class OfficerFilingDto {
     private OfficerFilingDto() {
     }
 
-    public AddressDto getAddress() {
-        return address;
+    public AddressDto getServiceAddress() {
+        return serviceAddress;
     }
 
     public Boolean getAddressSameAsRegisteredOfficeAddress() {
@@ -134,7 +134,7 @@ public class OfficerFilingDto {
             return false;
         }
         final var that = (OfficerFilingDto) o;
-        return Objects.equals(getAddress(), that.getAddress())
+        return Objects.equals(getServiceAddress(), that.getServiceAddress())
                 && Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
                 that.getAddressSameAsRegisteredOfficeAddress())
                 && Objects.equals(getAppointedOn(), that.getAppointedOn())
@@ -162,7 +162,7 @@ public class OfficerFilingDto {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
+        return Objects.hash(getServiceAddress(), getAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getDateOfBirth(), getFormerNames(),
                 getIdentification(), getTitle(), getName(),
                 getFirstName(), getMiddleNames(), getLastName(), getNationality1(), getNationality2(), getNationality3(), getOccupation(),
@@ -174,7 +174,7 @@ public class OfficerFilingDto {
     @Override
     public String toString() {
         return new StringJoiner(", ", OfficerFilingDto.class.getSimpleName() + "[", "]").add(
-                        "address=" + address)
+                        "serviceAddress=" + serviceAddress)
                 .add("addressSameAsRegisteredOfficeAddress=" + addressSameAsRegisteredOfficeAddress)
                 .add("appointedOn=" + appointedOn)
                 .add("countryOfResidence='" + countryOfResidence + "'")
@@ -213,9 +213,9 @@ public class OfficerFilingDto {
             this.buildSteps = new ArrayList<>();
         }
 
-        public Builder address(final AddressDto value) {
+        public Builder serviceAddress(final AddressDto value) {
 
-            buildSteps.add(data -> data.address = Optional.ofNullable(value)
+            buildSteps.add(data -> data.serviceAddress = Optional.ofNullable(value)
                     .map(v -> AddressDto.builder(v)
                             .build())
                     .orElse(null));
