@@ -192,6 +192,8 @@ class ValidationStatusControllerImplTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder().premises("9")
                 .addressLine1("Road").locality("Margate").country("France").build());
+        when(dto.getServiceAddress()).thenReturn(AddressDto.builder().premises("9")
+                .addressLine1("Road").locality("Margate").country("France").build());
         when(dto.getDateOfBirth()).thenReturn(localDateDob1);
         when(dto.getNationality1()).thenReturn("British");
 
