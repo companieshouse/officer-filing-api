@@ -194,4 +194,29 @@ class OfficerFilingDataServiceImplTest {
         Boolean result = testService.requestUriContainsFilingSelfLink(request, filing);
         assertThat(result, is(false));
     }
+
+    @Test
+    void testWhenPatchedVersionContainsMandatoryFieldsThatAreMadeEmptyString() throws URISyntaxException {
+        OfficerFilingData originalData = OfficerFilingData.builder()
+                .title("Mr")
+                .firstName("first name")
+                .lastName("last name")
+                .referenceEtag("ETAG")
+                .resignedOn(Instant.parse("2022-09-13T00:00:00Z"))
+                .build();
+        OfficerFiling original = OfficerFiling.builder().data(originalData).build();
+        OfficerFilingData patchData = OfficerFilingData.builder()
+                .title("")
+                .firstName("")
+                .lastName("")
+                .referenceAppointmentId("Appoint")
+                .referenceEtag("NewETAG")
+                .build();
+        OfficerFiling patch = OfficerFiling.builder().data(patchData).build();
+        OfficerFiling updatedFiling = testService.mergeFilings(original, patch, transaction);
+        assertThat(updatedFiling.getData().getReferenceEtag(), is("NewETAG"));
+        assertThat(updatedFiling.getData().getTitle(), is(""));
+        assertThat(updatedFiling.getData().getFirstName(), is(""));
+        assertThat(updatedFiling.getData().getLastName(), is(""));
+    }
 }
