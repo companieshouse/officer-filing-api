@@ -1812,6 +1812,40 @@ class OfficerAppointmentValidatorTest {
     }
 
     @Test
+    void validationWhenCorrespondenceAddressMandatoryFieldsAreBlank() {
+        setupDefaultParamaters();
+        when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressOutOfUK)
+                .premises("")
+                .addressLine1("")
+                .locality("")
+                .country("")
+                .postalCode("")
+                .build());
+        when(apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK)).thenReturn(
+                "Enter a property name or number");
+        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_BLANK)).thenReturn(
+                "Enter an address");
+        when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_BLANK)).thenReturn(
+                "Enter a city or town");
+        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK)).thenReturn(
+                "Enter a postcode or ZIP");
+        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
+                "Enter a country");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Errors for mandatory fields should be produced when correspondence address is missing")
+                .hasSize(5)
+                .extracting(ApiError::getError)
+                .contains("Enter a property name or number")
+                .contains("Enter an address")
+                .contains("Enter a city or town")
+                .contains("Enter a postcode or ZIP")
+                .contains("Enter a country");
+    }
+
+    @Test
     void validationWhenCorrespondenceAddressInUKWithNullPostcode() {
         setupDefaultParamaters();
         when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressInUK).postalCode(null).build());
