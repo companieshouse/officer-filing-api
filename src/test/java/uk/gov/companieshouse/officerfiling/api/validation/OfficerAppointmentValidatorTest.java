@@ -1734,7 +1734,7 @@ class OfficerAppointmentValidatorTest {
         //there should NOT be a validation error
         assertThat(apiErrors.getErrors())
                 .as("An error should not be produced when postal code is blank for a non UK country")
-                .hasSize(0);
+                .isEmpty();
     }
 
     //unit tests validating the corresponding address for the Officer Filing DTO.
@@ -1836,7 +1836,7 @@ class OfficerAppointmentValidatorTest {
         //there should NOT be a validation error
         assertThat(apiErrors.getErrors())
                 .as("An error should not be produced when postal code is blank for a non UK country")
-                .hasSize(0);
+                .isEmpty();
     }
 
     @Test
@@ -1939,6 +1939,67 @@ class OfficerAppointmentValidatorTest {
                 .contains("Select a country from the list")
                 .contains("Country must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes")
                 .contains("Postal code must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
+    void validationWhenCorrespondenceWithNullPostCodeAndCountry() {
+        setupDefaultParamaters();
+        when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressInUK)
+                .country(null)
+                .postalCode(null)
+                .build());
+
+        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
+                "Enter a country");
+        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK)).thenReturn(
+                "Enter a postcode or ZIP");
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Errors for mandatory fields should be produced when correspondence address is missing")
+                .hasSize(2)
+                .extracting(ApiError::getError)
+                .contains("Enter a postcode or ZIP")
+                .contains("Enter a country");
+    }
+
+    @Test
+    void validationWhenCorrespondenceWithUKCountryAndNoPostCode() {
+        setupDefaultParamaters();
+        when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressInUK)
+                .postalCode(null)
+                .build());
+
+        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK)).thenReturn(
+                "Enter a postcode or ZIP");
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Errors for mandatory fields should be produced when correspondence address is missing")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a postcode or ZIP");
+    }
+
+    @Test
+    void validationWhenCorrespondenceNoCountryValidPostcode() {
+        setupDefaultParamaters();
+        when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressInUK)
+                .country(null)
+                .build());
+
+        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_WITHOUT_COUNTRY)).thenReturn(
+                "Select a country from the list before entering a postcode");
+        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
+                "Select a country from the list");
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Errors for mandatory fields should be produced when correspondence address is missing")
+                .hasSize(2)
+                .extracting(ApiError::getError)
+                .contains("Select a country from the list before entering a postcode")
+                .contains("Select a country from the list");;
     }
 
 }
