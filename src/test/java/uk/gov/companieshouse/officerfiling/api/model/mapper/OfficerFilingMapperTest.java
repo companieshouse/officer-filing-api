@@ -81,7 +81,7 @@ class OfficerFilingMapperTest {
     void appointmentDtoToOfficerFiling() {
         final var dto = OfficerFilingDto.builder()
                 .identification(identificationDto)
-                .address(addressDto)
+                .serviceAddress(addressDto)
                 .addressSameAsRegisteredOfficeAddress(true)
                 .appointedOn(localDate1)
                 .countryOfResidence("countryOfResidence")
@@ -100,7 +100,7 @@ class OfficerFilingMapperTest {
 
         final var filing = testMapper.map(dto);
 
-        assertThat(filing.getData().getAddress(), is(equalTo(address)));
+        assertThat(filing.getData().getServiceAddress(), is(equalTo(address)));
         assertThat(filing.getData().getAddressSameAsRegisteredOfficeAddress(), is(true));
         assertThat(filing.getData().getAppointedOn(),
                 is(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC)));
@@ -153,7 +153,7 @@ class OfficerFilingMapperTest {
     @Test
     void officerFilingToOfficerFilingDto() {
         var offData = OfficerFilingData.builder()
-                .address(address)
+                .serviceAddress(address)
                 .addressSameAsRegisteredOfficeAddress(true)
                 .appointedOn(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC))
                 .countryOfResidence("countryOfResidence")
@@ -180,7 +180,7 @@ class OfficerFilingMapperTest {
 
         final var dto = testMapper.map(filing);
 
-        assertThat(dto.getAddress(), is(equalTo(addressDto)));
+        assertThat(dto.getServiceAddress(), is(equalTo(addressDto)));
         assertThat(dto.getAddressSameAsRegisteredOfficeAddress(), is(true));
         assertThat(dto.getAppointedOn(), is(localDate1));
         assertThat(dto.getCountryOfResidence(), is("countryOfResidence"));

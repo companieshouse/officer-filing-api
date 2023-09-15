@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OfficerFilingData {
 
-    private Address address;
+    private Address serviceAddress;
     private Boolean addressSameAsRegisteredOfficeAddress;
     private Instant appointedOn;
     private String countryOfResidence;
@@ -58,8 +58,8 @@ public class OfficerFilingData {
     public OfficerFilingData() {
 
     }
-    public Address getAddress() {
-        return address;
+    public Address getServiceAddress() {
+        return serviceAddress;
     }
 
     public Boolean getAddressSameAsRegisteredOfficeAddress() {
@@ -157,7 +157,7 @@ public class OfficerFilingData {
             return false;
         }
         final OfficerFilingData that = (OfficerFilingData) o;
-        return Objects.equals(getAddress(), that.getAddress())
+        return Objects.equals(getServiceAddress(), that.getServiceAddress())
                 && Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
                 that.getAddressSameAsRegisteredOfficeAddress())
                 && Objects.equals(getAppointedOn(), that.getAppointedOn())
@@ -186,7 +186,7 @@ public class OfficerFilingData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAddress(), getAddressSameAsRegisteredOfficeAddress(),
+        return Objects.hash(getServiceAddress(), getAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getDateOfBirth(),
                 getFormerNames(), getName(), getTitle(),
                 getFirstName(), getMiddleNames(), getLastName(), getNationality1(), getNationality2(), getNationality3(), getOccupation(), getOfficerRole(),
@@ -198,7 +198,7 @@ public class OfficerFilingData {
     @Override
     public String toString() {
         return new StringJoiner(", ", OfficerFilingData.class.getSimpleName() + "[", "]")
-                .add("address=" + address)
+                .add("serviceAddress=" + serviceAddress)
                 .add("addressSameAsRegisteredOfficeAddress=" + addressSameAsRegisteredOfficeAddress)
                 .add("appointedOn=" + appointedOn)
                 .add("countryOfResidence='" + countryOfResidence + "'")
@@ -246,7 +246,7 @@ public class OfficerFilingData {
 
         public Builder(final OfficerFilingData other) {
             this();
-            this.address(other.getAddress())
+            this.serviceAddress(other.getServiceAddress())
                     .addressSameAsRegisteredOfficeAddress(
                             other.getAddressSameAsRegisteredOfficeAddress())
                     .appointedOn(other.getAppointedOn())
@@ -274,9 +274,9 @@ public class OfficerFilingData {
                     .status(other.getStatus());
         }
 
-        public Builder address(final Address value) {
+        public Builder serviceAddress(final Address value) {
 
-            buildSteps.add(data -> data.address = Optional.ofNullable(value)
+            buildSteps.add(data -> data.serviceAddress = Optional.ofNullable(value)
                     .map(v -> Address.builder(v)
                             .build())
                     .orElse(null));

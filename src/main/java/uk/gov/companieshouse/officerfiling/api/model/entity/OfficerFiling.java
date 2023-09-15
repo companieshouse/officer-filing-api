@@ -154,7 +154,7 @@ public class OfficerFiling {
         public Builder data(final OfficerFilingData value) {
             buildSteps.add(buildData -> buildData.data = Optional.ofNullable(value)
                     .map(v -> OfficerFilingData.builder()
-                                    .address(v.getAddress())
+                                    .serviceAddress(v.getServiceAddress())
                                     .addressSameAsRegisteredOfficeAddress(v.getAddressSameAsRegisteredOfficeAddress())
                                     .appointedOn(v.getAppointedOn())
                                     .countryOfResidence(v.getCountryOfResidence())

@@ -384,7 +384,7 @@
     "OfficerFilingDto": {
       "title": "Officer Filing DTO",
       "properties": {
-        "address": {
+        "serviceAddress": {
           "allOf": [
             {
               "title": "Correspondance Address"
