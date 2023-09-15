@@ -1759,14 +1759,6 @@ class OfficerAppointmentValidatorTest {
     @Test
     void validationWhenCorrespondenceAddressMandatoryFieldsAreNull() {
         setupDefaultParamaters();
-        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
-        when(transaction.getId()).thenReturn(TRANS_ID);
-        when(dto.getFirstName()).thenReturn("John");
-        when(dto.getLastName()).thenReturn("Smith");
-        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
-        when(dto.getNationality1()).thenReturn("French");
-        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
-        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressOutOfUK)
                 .premises(null)
                 .addressLine1(null)
@@ -1856,7 +1848,7 @@ class OfficerAppointmentValidatorTest {
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-                .as("An error should be produced when locality is over 50 characters")
+                .as("An error should be produced when fields are over 50 characters")
                 .hasSize(6)
                 .extracting(ApiError::getError)
                 .contains("Property name or number must be 200 characters or less")
@@ -1899,7 +1891,7 @@ class OfficerAppointmentValidatorTest {
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-                .as("An error should be produced when premises contains illegal characters")
+                .as("An error should be produced when fields contains illegal characters")
                 .hasSize(8)
                 .extracting(ApiError::getError)
                 .contains("Property name or number must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes")
