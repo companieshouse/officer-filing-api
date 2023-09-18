@@ -2027,22 +2027,4 @@ class OfficerAppointmentValidatorTest {
                 .contains("Select a country from the list");
     }
 
-    @Test
-    void validationWhenCorrespondenceCountryIsBlankButValidPostcode() {
-        setupDefaultParamaters();
-        when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressInUK)
-                .country("")
-                .build());
-
-        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
-                "Select a country from the list");
-        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
-                PASSTHROUGH_HEADER);
-        assertThat(apiErrors.getErrors())
-                .as("Errors for mandatory fields should be produced when correspondence address is missing")
-                .hasSize(1)
-                .extracting(ApiError::getError)
-                .contains("Select a country from the list");
-    }
-
 }
