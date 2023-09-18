@@ -2031,7 +2031,7 @@ class OfficerAppointmentValidatorTest {
     void validationWhenCorrespondenceCountryIsBlankButValidPostcode() {
         setupDefaultParamaters();
         when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressInUK)
-                .country(null)
+                .country("")
                 .build());
 
         when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
