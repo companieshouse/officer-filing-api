@@ -1538,8 +1538,6 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country(null).postalCode("11111").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_WITHOUT_COUNTRY)).thenReturn(
-                "Select a country from the list before entering a postcode");
         when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
                 "Select a country from the list");
 
@@ -1547,10 +1545,9 @@ class OfficerAppointmentValidatorTest {
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
                 .as("An error should be produced when a postcode is submitted without a country")
-                .hasSize(2)
+                .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("Select a country from the list before entering a postcode")
-                .contains("Select a country from the list");;
+                .contains("Select a country from the list");
     }
 
     void validateWhenMissingAppointmentDate() {
@@ -1877,8 +1874,6 @@ class OfficerAppointmentValidatorTest {
     void validateWhenCorrespondencePostalCodeNoCountry() {
         setupDefaultParamaters();
         when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressOutOfUK).country(null).postalCode("123456").build());
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_WITHOUT_COUNTRY)).thenReturn(
-                "Select a country from the list before entering a postcode");
         when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
                 "Select a country from the list");
 
@@ -1886,10 +1881,9 @@ class OfficerAppointmentValidatorTest {
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
                 .as("An error should be produced when a postcode is submitted without a country")
-                .hasSize(2)
+                .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("Select a country from the list before entering a postcode")
-                .contains("Select a country from the list");;
+                .contains("Select a country from the list");
     }
 
     @Test
@@ -2022,18 +2016,15 @@ class OfficerAppointmentValidatorTest {
                 .country(null)
                 .build());
 
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_WITHOUT_COUNTRY)).thenReturn(
-                "Select a country from the list before entering a postcode");
         when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
                 "Select a country from the list");
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
                 .as("Errors for mandatory fields should be produced when correspondence address is missing")
-                .hasSize(2)
+                .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("Select a country from the list before entering a postcode")
-                .contains("Select a country from the list");;
+                .contains("Select a country from the list");
     }
 
     @Test
@@ -2043,18 +2034,15 @@ class OfficerAppointmentValidatorTest {
                 .country(null)
                 .build());
 
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_WITHOUT_COUNTRY)).thenReturn(
-                "Select a country from the list before entering a postcode");
         when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
                 "Select a country from the list");
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
                 .as("Errors for mandatory fields should be produced when correspondence address is missing")
-                .hasSize(2)
+                .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("Select a country from the list before entering a postcode")
-                .contains("Select a country from the list");;
+                .contains("Select a country from the list");
     }
 
 }
