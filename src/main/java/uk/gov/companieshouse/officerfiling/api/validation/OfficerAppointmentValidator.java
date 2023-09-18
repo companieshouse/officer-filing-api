@@ -326,6 +326,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK));
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_BLANK));
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LOCALITY_BLANK));
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK));
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK));
         }
     }
@@ -349,6 +350,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK));
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_BLANK));
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LOCALITY_BLANK));
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK));
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK));
         }
     }
@@ -435,11 +437,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
     }
 
     private void validatePostalCode(HttpServletRequest request, List<ApiError> errorList,String postalCode, String country) {
-        if((country == null || country.isBlank()) && !(postalCode == null || postalCode.isBlank())){
-            createValidationError(request, errorList,apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_WITHOUT_COUNTRY));
-            return;
-        }
-        if((country != null && ukCountryList.contains(country)) && (postalCode == null || postalCode.isBlank())){
+        if((country == null || country.isBlank() || ukCountryList.contains(country)) && (postalCode == null || postalCode.isBlank())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK));
             return;
         }
