@@ -116,7 +116,7 @@ public class FilingDataServiceImpl implements FilingDataService {
 
         // For non-corporate Directors
         if(companyAppointment.getDateOfBirth() != null){
-            LocalDate date =  LocalDate.parse(companyAppointment.getDateOfBirth().getYear() + "-" + companyAppointment.getDateOfBirth().getMonth() + "-" + companyAppointment.getDateOfBirth().getDay());
+            LocalDate date = LocalDate.of(companyAppointment.getDateOfBirth().getYear(), companyAppointment.getDateOfBirth().getMonth(), companyAppointment.getDateOfBirth().getDay());
             Instant dobInstant = date.atStartOfDay().toInstant(ZoneOffset.UTC);
             dataBuilder = dataBuilder
                     .dateOfBirth(dobInstant);
