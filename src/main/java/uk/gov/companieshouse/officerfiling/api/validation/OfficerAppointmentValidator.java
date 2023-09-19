@@ -58,13 +58,10 @@ public class OfficerAppointmentValidator extends OfficerValidator {
                 .build());
         final List<ApiError> errorList = new ArrayList<>();
 
-        // Validate required dto and transaction fields and fail early
+        // Validate required dto and transaction fields
         validateRequiredDtoFields(request, errorList, dto);
         validateRequiredTransactionFields(request, errorList, transaction);
         validateOptionalDtoFields(request, errorList, dto);
-        if (!errorList.isEmpty()) {
-            return new ApiErrors(errorList);
-        }
 
         // Retrieve data objects required for the validation process
         final Optional<CompanyProfileApi> companyProfile = getCompanyProfile(request, errorList, transaction, passthroughHeader);
@@ -456,7 +453,10 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             logger.errorRequest(request, "null data was found in the Company Profile API within the Date Of Creation field");
             return;
         }
-        if (dto.getAppointedOn().isBefore(companyProfile.getDateOfCreation())) {
+
+        if (dto.getAppointedOn() == null) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_MISSING));
+        } else if (dto.getAppointedOn().isBefore(companyProfile.getDateOfCreation())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_AFTER_INCORPORATION_DATE));
         }
     }
