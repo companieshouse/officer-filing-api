@@ -37,6 +37,8 @@ public class OfficerFilingDto {
     private LocalDate resignedOn;
     private AddressDto residentialAddress;
     private Boolean residentialAddressSameAsCorrespondenceAddress;
+    private Boolean nationality2Link;
+    private Boolean nationality3Link;
 
     private OfficerFilingDto() {
     }
@@ -125,6 +127,14 @@ public class OfficerFilingDto {
         return residentialAddressSameAsCorrespondenceAddress;
     }
 
+    public Boolean getNationality2Link(){
+        return nationality2Link;
+    }
+
+    public Boolean getNationality3Link(){
+        return nationality3Link;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -150,6 +160,8 @@ public class OfficerFilingDto {
                 && Objects.equals(getNationality1(), that.getNationality1())
                 && Objects.equals(getNationality2(), that.getNationality2())
                 && Objects.equals(getNationality3(), that.getNationality3())
+                && Objects.equals(getNationality2Link(), that.getNationality2Link())
+                && Objects.equals(getNationality3Link(), that.getNationality3Link())
                 && Objects.equals(getOccupation(), that.getOccupation())
                 && Objects.equals(getReferenceEtag(), that.getReferenceEtag())
                 && Objects.equals(getReferenceAppointmentId(), that.getReferenceAppointmentId())
@@ -165,7 +177,8 @@ public class OfficerFilingDto {
         return Objects.hash(getServiceAddress(), getAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getDateOfBirth(), getFormerNames(),
                 getIdentification(), getTitle(), getName(),
-                getFirstName(), getMiddleNames(), getLastName(), getNationality1(), getNationality2(), getNationality3(), getOccupation(),
+                getFirstName(), getMiddleNames(), getLastName(), getNationality1(), getNationality2(),
+                getNationality2Link(), getNationality3Link(),getNationality3(), getOccupation(),
                 getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getResidentialAddress(),
                 getResidentialAddressSameAsCorrespondenceAddress());
@@ -189,6 +202,8 @@ public class OfficerFilingDto {
                 .add("nationality1='" + nationality1 + "'")
                 .add("nationality2='" + nationality2 + "'")
                 .add("nationality3='" + nationality3 + "'")
+                .add("nationality2Link='" + nationality2Link + "'")
+                .add("nationality3Link='" + nationality3Link + "'")
                 .add("occupation='" + occupation + "'")
                 .add("referenceEtag='" + referenceEtag + "'")
                 .add("referenceAppointmentId='" + referenceAppointmentId + "'")
@@ -349,6 +364,16 @@ public class OfficerFilingDto {
         public Builder residentialAddressSameAsCorrespondenceAddress(final Boolean value) {
 
             buildSteps.add(data -> data.residentialAddressSameAsCorrespondenceAddress = value);
+            return this;
+        }
+
+        public Builder nationality2Link(final Boolean value) {
+            buildSteps.add(data -> data.nationality2Link = value);
+            return this;
+        }
+
+        public Builder nationality3Link(final Boolean value) {
+            buildSteps.add(data -> data.nationality3Link = value);
             return this;
         }
 
