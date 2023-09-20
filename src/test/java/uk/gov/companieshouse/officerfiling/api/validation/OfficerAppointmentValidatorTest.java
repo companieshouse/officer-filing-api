@@ -1671,6 +1671,24 @@ class OfficerAppointmentValidatorTest {
     }
 
     @Test
+    void validateAppointmentDateAfterIncorporationDateWhenAppointedOnNull() {
+        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2001, Month.JANUARY, 5));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .appointedOn(null)
+                .build();
+        when(apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_MISSING)).thenReturn(
+                "Enter the date the director was appointed");
+        officerAppointmentValidator.validateAppointmentDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when appointment date is missing")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter the date the director was appointed");
+    }
+
+    @Test
     void validateDirectorAgeAtAppointmentWhenValidAge() {
         final var dto = OfficerFilingDto.builder()
                 .referenceEtag(ETAG)
