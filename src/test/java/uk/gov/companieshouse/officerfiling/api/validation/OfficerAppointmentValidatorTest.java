@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -710,8 +711,10 @@ class OfficerAppointmentValidatorTest {
                 .contains("Occupation must be 100 characters or less");
     }
 
-    @Test
-    void validateNationality1Length() {
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {""})
+    void validateNationality1Length(String nationality) {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
@@ -719,6 +722,8 @@ class OfficerAppointmentValidatorTest {
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
         when(dto.getOccupation()).thenReturn("Engineer");
         when(dto.getNationality1()).thenReturn("A very long nationality indeed so long in fact that it breaks the legal length for nationalities");
+        when(dto.getNationality2()).thenReturn(nationality);
+        when(dto.getNationality3()).thenReturn(nationality);
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
@@ -735,8 +740,10 @@ class OfficerAppointmentValidatorTest {
                 .contains("Nationality must be 50 characters or less");
     }
 
-    @Test
-    void validateNationality1PlusNationality2Length() {
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {""})
+    void validateNationality1PlusNationality2Length(String nationality3) {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
@@ -745,6 +752,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getOccupation()).thenReturn("Engineer");
         when(dto.getNationality1()).thenReturn("British");
         when(dto.getNationality2()).thenReturn("A very long nationality indeed so long in fact that it breaks the legal length for nationalities");
+        when(dto.getNationality3()).thenReturn(nationality3);
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
@@ -760,8 +768,10 @@ class OfficerAppointmentValidatorTest {
                 .extracting(ApiError::getError)
                 .contains("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters including commas");
     }
-    @Test
-    void validateNationality1PlusNationality2Equals50ButhasCommaToMakeIt51Length() {
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {""})
+    void validateNationality1PlusNationality2Equals50ButhasCommaToMakeIt51Length(String nationality3) {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getFirstName()).thenReturn("John");
@@ -770,6 +780,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getOccupation()).thenReturn("Engineer");
         when(dto.getNationality1()).thenReturn("thisIs25Characterslongggg");
         when(dto.getNationality2()).thenReturn("thisIs25Characterslongggh");
+        when(dto.getNationality3()).thenReturn(nationality3);
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
@@ -1014,6 +1025,30 @@ class OfficerAppointmentValidatorTest {
                 .hasSize(1)
                 .extracting(ApiError::getError)
                 .contains("Enter a different third nationality");
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {""})
+    void validateMissingNationalityNotDuplicates(String nationality) {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("French");
+        when(dto.getNationality2()).thenReturn(nationality);
+        when(dto.getNationality3()).thenReturn(nationality);
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
+
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("No validation errors should have been raised")
+                .isEmpty();
     }
     @Test
     void validationWhenMissingResidentialAddress() {
@@ -1903,5 +1938,4 @@ class OfficerAppointmentValidatorTest {
                 .contains("Country must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes")
                 .contains("Postal code must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
     }
-
 }
