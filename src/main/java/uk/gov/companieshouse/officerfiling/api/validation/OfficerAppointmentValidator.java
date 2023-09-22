@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang.StringUtils;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -247,23 +248,25 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         }
     }
 
-    private void validateNationalityLength(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
-        if (dto.getNationality3() != null && dto.getNationality2() != null && dto.getNationality1() != null) {
-            if (!validateDtoFieldLength(dto.getNationality1() + "," + dto.getNationality2()+ "," + dto.getNationality3(), 50)) {
+    private void validateNationalityLength(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
+        if (!StringUtils.isEmpty(dto.getNationality3()) && !StringUtils.isEmpty(
+                dto.getNationality2()) && !StringUtils.isEmpty(dto.getNationality1())) {
+            if (!validateDtoFieldLength(dto.getNationality1() + "," + dto.getNationality2() + ","
+                    + dto.getNationality3(), 50)) {
                 createValidationError(request, errorList,
                         apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH48));
             }
-        } else if(dto.getNationality2() != null && dto.getNationality1() != null) {
+        } else if (!StringUtils.isEmpty(dto.getNationality2()) && !StringUtils.isEmpty(
+                dto.getNationality1())) {
             if (!validateDtoFieldLength(dto.getNationality1() + "," + dto.getNationality2(),
                     50)) {
                 createValidationError(request, errorList,
                         apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH49));
             }
-        } else if(dto.getNationality1() != null)
-            if (!validateDtoFieldLength(dto.getNationality1(), 50)) {
+        } else if (!StringUtils.isEmpty(dto.getNationality1()) && !validateDtoFieldLength(dto.getNationality1(), 50)) {
                 createValidationError(request, errorList,
                         apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH));
-            }
+        }
     }
 
     private void validateNationality1(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
@@ -280,8 +283,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         }
 
         private void validateNationality2(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
-            if (dto.getNationality2() != null) {
-
+            if (!StringUtils.isEmpty(dto.getNationality2())) {
                 if (dto.getNationality2().equalsIgnoreCase(dto.getNationality1())) {
                     createValidationError(request, errorList,
                             apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY2));
@@ -294,7 +296,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             }
         }
     private void validateNationality3(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
-        if (dto.getNationality3() != null) {
+        if (!StringUtils.isEmpty(dto.getNationality3())) {
 
             if (dto.getNationality3().equalsIgnoreCase(dto.getNationality1())) {
                 createValidationError(request, errorList,
