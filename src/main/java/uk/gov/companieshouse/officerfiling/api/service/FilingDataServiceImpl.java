@@ -98,25 +98,27 @@ public class FilingDataServiceImpl implements FilingDataService {
                 appointmentId, ericPassThroughHeader);
         String surname;
         var firstname = "";
+        var middlenames = "";
         // if it is a corporate Director then we must pass the name field into the lastName field
         // as that is where chips expects the corporate director name to be
         if (companyAppointment.getOfficerRole().equalsIgnoreCase("corporate-director")) {
             surname = companyAppointment.getName();
-            firstname = "";
         } else {
             surname = companyAppointment.getSurname();
             firstname = companyAppointment.getForename();
+            middlenames = companyAppointment.getOtherForenames();
         }
 
         var dataBuilder = OfficerFilingData.builder(officerFiling.getData())
                 .firstName(firstname)
+                .middleNames(middlenames)
                 .lastName(surname)
                 .name(companyAppointment.getName())
                 .corporateDirector(mapCorporateDirector(transaction, companyAppointment));
 
         // For non-corporate Directors
         if(companyAppointment.getDateOfBirth() != null){
-            LocalDate date =  LocalDate.parse(companyAppointment.getDateOfBirth().getYear() + "-" + companyAppointment.getDateOfBirth().getMonth() + "-" + companyAppointment.getDateOfBirth().getDay());
+            LocalDate date = LocalDate.of(companyAppointment.getDateOfBirth().getYear(), companyAppointment.getDateOfBirth().getMonth(), companyAppointment.getDateOfBirth().getDay());
             Instant dobInstant = date.atStartOfDay().toInstant(ZoneOffset.UTC);
             dataBuilder = dataBuilder
                     .dateOfBirth(dobInstant);

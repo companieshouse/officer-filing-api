@@ -64,7 +64,6 @@ public enum ValidationEnum {
     POSTAL_CODE_BLANK("postal-code-blank"),
     POSTAL_CODE_CHARACTERS("postal-code-characters"),
     POSTAL_CODE_LENGTH("postal-code-length"),
-    POSTAL_CODE_WITHOUT_COUNTRY("postal-code-without-country"),
     ADDRESS_LINE_TWO_CHARACTERS("address-line-two-characters"),
     ADDRESS_LINE_TWO_LENGTH("address-line-two-length"),
     REGION_CHARACTERS("region-characters"),

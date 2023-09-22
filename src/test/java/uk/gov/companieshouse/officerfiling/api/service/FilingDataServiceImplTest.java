@@ -132,6 +132,7 @@ class FilingDataServiceImplTest {
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
                 .name(COMPANY_NAME)
                 .firstName("")
+                .middleNames("")
                 .lastName(COMPANY_NAME)
                 .resignedOn(RESIGNED_ON_INS)
                 .build();
