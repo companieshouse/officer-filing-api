@@ -1,13 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.validation;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.ArrayList;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +21,15 @@ import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionServiceImpl;
+
+import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class OfficerAppointmentValidatorTest {
@@ -1062,15 +1063,25 @@ class OfficerAppointmentValidatorTest {
         when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(null);
-        when(apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_PREMISES_BLANK)).thenReturn(
                 "Enter a property name or number");
-        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_ADDRESS_LINE_ONE_BLANK)).thenReturn(
                 "Enter an address");
-        when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_LOCALITY_BLANK)).thenReturn(
                 "Enter a city or town");
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_BLANK)).thenReturn(
                 "Enter a postcode or ZIP");
-        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_COUNTRY_BLANK)).thenReturn(
+                "Enter a country");
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_PREMISES_BLANK)).thenReturn(
+                "Enter a property name or number");
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_LINE_ONE_BLANK)).thenReturn(
+                "Enter an address");
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_LOCALITY_BLANK)).thenReturn(
+                "Enter a city or town");
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_BLANK)).thenReturn(
+                "Enter a postcode or ZIP");
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_COUNTRY_BLANK)).thenReturn(
                 "Enter a country");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1099,7 +1110,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).premises(null).build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_PREMISES_BLANK)).thenReturn(
                 "Enter a property name or number");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1124,7 +1135,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).premises("ゃ").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.PREMISES_CHARACTERS)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_PREMISES_CHARACTERS)).thenReturn(
                 "Property name or number must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1149,7 +1160,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).premises("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.PREMISES_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_PREMISES_LENGTH)).thenReturn(
                 "Property name or number must be 200 characters or less");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1175,7 +1186,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine1(null).build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_ADDRESS_LINE_ONE_BLANK)).thenReturn(
                 "Enter an address");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1200,7 +1211,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getNationality1()).thenReturn("British");
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine1("ゃ").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_CHARACTERS)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_ADDRESS_LINE_ONE_CHARACTERS)).thenReturn(
                 "Address line 1 must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1224,7 +1235,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine1("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_ADDRESS_LINE_ONE_LENGTH)).thenReturn(
                 "Address line 1 must be 50 characters or less");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1249,7 +1260,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine2("ゃ").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_TWO_CHARACTERS)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_ADDRESS_LINE_TWO_CHARACTERS)).thenReturn(
                 "Address line 2 must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1273,7 +1284,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).addressLine2("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_TWO_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_ADDRESS_LINE_TWO_LENGTH)).thenReturn(
                 "Address line 2 must be 50 characters or less");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1298,7 +1309,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).locality(null).build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_LOCALITY_BLANK)).thenReturn(
                 "Enter a city or town");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1323,7 +1334,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).locality("ゃ").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_CHARACTERS)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_LOCALITY_CHARACTERS)).thenReturn(
                 "City or town must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1347,7 +1358,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).locality("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_LOCALITY_LENGTH)).thenReturn(
                 "City or town must be 50 characters or less");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1372,7 +1383,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).region("ゃ").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.REGION_CHARACTERS)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_REGION_CHARACTERS)).thenReturn(
                 "County, state, province or region must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1396,7 +1407,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).region("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.REGION_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_REGION_LENGTH)).thenReturn(
                 "County, state, province or region must be 50 characters or less");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1421,9 +1432,9 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country(null).postalCode(null).build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_BLANK)).thenReturn(
                 "Enter a postcode or ZIP");
-        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_COUNTRY_BLANK)).thenReturn(
                 "Enter a country");
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -1448,9 +1459,9 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country("ゃ").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_CHARACTERS)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_COUNTRY_CHARACTERS)).thenReturn(
                 "Country must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
-        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_INVALID)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_COUNTRY_INVALID)).thenReturn(
                 "Select a country from the list");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1474,9 +1485,9 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_INVALID)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_COUNTRY_INVALID)).thenReturn(
                 "Select a country from the list");
-        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_COUNTRY_LENGTH)).thenReturn(
                 "Country must be 50 characters or less");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1502,7 +1513,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getNationality1()).thenReturn("British");
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country("England").postalCode(null).build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_BLANK)).thenReturn(
                 "Enter a postcode or ZIP");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1527,7 +1538,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).postalCode("ゃ").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressOutOfUK);
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_CHARACTERS)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_CHARACTERS)).thenReturn(
                 "Postal code must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1550,7 +1561,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).postalCode("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_LENGTH)).thenReturn(
                 "Postal code must be 20 characters or less");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1573,7 +1584,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country(null).postalCode("11111").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_COUNTRY_BLANK)).thenReturn(
                 "Select a country from the list");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1803,15 +1814,15 @@ class OfficerAppointmentValidatorTest {
     void validationWhenCorrespondenceAddressDtoObjectIsNull() {
         setupDefaultParamaters();
         when(dto.getServiceAddress()).thenReturn(null);
-        when(apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_PREMISES_BLANK)).thenReturn(
                 "Enter a property name or number");
-        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_LINE_ONE_BLANK)).thenReturn(
                 "Enter an address");
-        when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_LOCALITY_BLANK)).thenReturn(
                 "Enter a city or town");
-        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_COUNTRY_BLANK)).thenReturn(
                 "Enter a country");
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_BLANK)).thenReturn(
                 "Enter a postcode or ZIP");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1837,15 +1848,15 @@ class OfficerAppointmentValidatorTest {
                 .country(null)
                 .postalCode(null)
                 .build());
-        when(apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_PREMISES_BLANK)).thenReturn(
                 "Enter a property name or number");
-        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_LINE_ONE_BLANK)).thenReturn(
                 "Enter an address");
-        when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_LOCALITY_BLANK)).thenReturn(
                 "Enter a city or town");
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_BLANK)).thenReturn(
                 "Enter a postcode or ZIP");
-        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_COUNTRY_BLANK)).thenReturn(
                 "Enter a country");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1871,15 +1882,15 @@ class OfficerAppointmentValidatorTest {
                 .country("")
                 .postalCode("")
                 .build());
-        when(apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_PREMISES_BLANK)).thenReturn(
                 "Enter a property name or number");
-        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_LINE_ONE_BLANK)).thenReturn(
                 "Enter an address");
-        when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_LOCALITY_BLANK)).thenReturn(
                 "Enter a city or town");
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_BLANK)).thenReturn(
                 "Enter a postcode or ZIP");
-        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_COUNTRY_BLANK)).thenReturn(
                 "Enter a country");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1899,7 +1910,7 @@ class OfficerAppointmentValidatorTest {
     void validationWhenCorrespondenceAddressInUKWithNullPostcode() {
         setupDefaultParamaters();
         when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressInUK).postalCode(null).build());
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_BLANK)).thenReturn(
                 "Enter a postcode or ZIP");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1927,7 +1938,7 @@ class OfficerAppointmentValidatorTest {
     void validateWhenCorrespondencePostalCodeNoCountry() {
         setupDefaultParamaters();
         when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressOutOfUK).country(null).postalCode("123456").build());
-        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_COUNTRY_BLANK)).thenReturn(
                 "Select a country from the list");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1950,17 +1961,17 @@ class OfficerAppointmentValidatorTest {
                 .region("long region long region long region long region long region long region long region long region long region long region long region long region long region long region")
                 .postalCode("LONGPOSTCODE LONGPOSTCODE LONGPOSTCODE LONGPOSTCODE LONGPOSTCODE")
                 .build());
-        when(apiEnumerations.getValidation(ValidationEnum.PREMISES_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_PREMISES_LENGTH)).thenReturn(
                 "Property name or number must be 200 characters or less");
-        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_LINE_ONE_LENGTH)).thenReturn(
                 "Address line 1 must be 50 characters or less");
-        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_TWO_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_LINE_TWO_LENGTH)).thenReturn(
                 "Address line 2 must be 50 characters or less");
-        when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_LOCALITY_LENGTH)).thenReturn(
                 "City or town must be 50 characters or less");
-        when(apiEnumerations.getValidation(ValidationEnum.REGION_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_REGION_LENGTH)).thenReturn(
                 "County, state, province or region must be 50 characters or less");
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_LENGTH)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_LENGTH)).thenReturn(
                 "Postal code must be 20 characters or less");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -1989,21 +2000,21 @@ class OfficerAppointmentValidatorTest {
                 .country("ゃ")
                 .postalCode("ゃ")
                 .build());
-        when(apiEnumerations.getValidation(ValidationEnum.PREMISES_CHARACTERS)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_PREMISES_CHARACTERS)).thenReturn(
                 "Property name or number must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
-        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_CHARACTERS)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_LINE_ONE_CHARACTERS)).thenReturn(
                 "Address line 1 must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
-        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_TWO_CHARACTERS)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_LINE_TWO_CHARACTERS)).thenReturn(
                 "Address line 2 must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
-        when(apiEnumerations.getValidation(ValidationEnum.LOCALITY_CHARACTERS)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_LOCALITY_CHARACTERS)).thenReturn(
                 "Locality must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
-        when(apiEnumerations.getValidation(ValidationEnum.REGION_CHARACTERS)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_REGION_CHARACTERS)).thenReturn(
                 "Region must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
-        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_INVALID)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_COUNTRY_INVALID)).thenReturn(
                 "Select a country from the list");
-        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_CHARACTERS)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_COUNTRY_CHARACTERS)).thenReturn(
                 "Country must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_CHARACTERS)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_CHARACTERS)).thenReturn(
                 "Postal code must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
@@ -2030,9 +2041,9 @@ class OfficerAppointmentValidatorTest {
                 .postalCode(null)
                 .build());
 
-        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_COUNTRY_BLANK)).thenReturn(
                 "Enter a country");
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_BLANK)).thenReturn(
                 "Enter a postcode or ZIP");
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -2051,7 +2062,7 @@ class OfficerAppointmentValidatorTest {
                 .postalCode(null)
                 .build());
 
-        when(apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_BLANK)).thenReturn(
                 "Enter a postcode or ZIP");
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -2069,7 +2080,7 @@ class OfficerAppointmentValidatorTest {
                 .country(null)
                 .build());
 
-        when(apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK)).thenReturn(
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_COUNTRY_BLANK)).thenReturn(
                 "Select a country from the list");
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
