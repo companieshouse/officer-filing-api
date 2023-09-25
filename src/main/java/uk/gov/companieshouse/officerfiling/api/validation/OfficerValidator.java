@@ -57,7 +57,7 @@ public abstract class OfficerValidator {
 
     private CompanyAppointmentService companyAppointmentService;
 
-    public OfficerValidator(final Logger logger, final CompanyProfileService companyProfileService,
+    protected OfficerValidator(final Logger logger, final CompanyProfileService companyProfileService,
         final CompanyAppointmentService companyAppointmentService,
         final ApiEnumerations apiEnumerations) {
             this.logger = logger;
@@ -66,7 +66,7 @@ public abstract class OfficerValidator {
             this.apiEnumerations = apiEnumerations;
         }
 
-    public OfficerValidator(final Logger logger,
+    protected OfficerValidator(final Logger logger,
             final CompanyProfileService companyProfileService,
             final ApiEnumerations apiEnumerations) {
         this.logger = logger;
