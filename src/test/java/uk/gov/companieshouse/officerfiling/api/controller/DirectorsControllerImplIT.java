@@ -40,6 +40,7 @@ import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerService;
+import uk.gov.companieshouse.officerfiling.api.service.PostcodeValidationServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 @Tag("web")
@@ -67,6 +68,8 @@ class DirectorsControllerImplIT {
     private OpenTransactionInterceptor openTransactionInterceptor;
     @MockBean
     private OfficerService officerService;
+    @MockBean
+    private PostcodeValidationServiceImpl postcodeValidationService;
     @Mock
     private HttpServletRequest request;
     @Mock

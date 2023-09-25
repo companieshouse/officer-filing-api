@@ -25,6 +25,7 @@ import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
+import uk.gov.companieshouse.officerfiling.api.service.PostcodeValidationServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.officerfiling.api.validation.OfficerAppointmentValidator;
 import uk.gov.companieshouse.officerfiling.api.validation.OfficerTerminationValidator;
@@ -38,6 +39,7 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
     private final Logger logger;
     private final CompanyProfileService companyProfileService;
     private final CompanyAppointmentService companyAppointmentService;
+    private final PostcodeValidationServiceImpl postcodeValidationService;
     private final OfficerFilingMapper officerFilingMapper;
     private final ErrorMapper errorMapper;
     private final ApiEnumerations apiEnumerations;
@@ -53,13 +55,14 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
     private List<String> ukCountryList;
 
     public ValidationStatusControllerImpl(OfficerFilingService officerFilingService, Logger logger,
-            CompanyProfileService companyProfileService,
-        CompanyAppointmentService companyAppointmentService, OfficerFilingMapper officerFilingMapper,
-        ErrorMapper errorMapper, ApiEnumerations apiEnumerations) {
+                                          CompanyProfileService companyProfileService,
+                                          CompanyAppointmentService companyAppointmentService, PostcodeValidationServiceImpl postcodeValidationService, OfficerFilingMapper officerFilingMapper,
+                                          ErrorMapper errorMapper, ApiEnumerations apiEnumerations) {
         this.officerFilingService = officerFilingService;
         this.logger = logger;
         this.companyProfileService = companyProfileService;
         this.companyAppointmentService = companyAppointmentService;
+        this.postcodeValidationService = postcodeValidationService;
         this.officerFilingMapper = officerFilingMapper;
         this.errorMapper = errorMapper;
         this.apiEnumerations = apiEnumerations;
@@ -137,7 +140,7 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
             //has a removal date so must be a TM01
             validator = new OfficerTerminationValidator(logger, companyProfileService, companyAppointmentService, apiEnumerations);
         } else if(officerFiling.getReferenceEtag() == null) {
-            validator = new OfficerAppointmentValidator(logger, companyProfileService, apiEnumerations, inputAllowedNationalities, countryList, ukCountryList);
+            validator = new OfficerAppointmentValidator(logger, companyProfileService, postcodeValidationService, apiEnumerations, inputAllowedNationalities, countryList, ukCountryList);
         } else {
             // cannot work out what filing type is so throw an exception.
             throw new NotImplementedException("Filing type cannot be calculated using given data for transaction " + transaction.getId() );

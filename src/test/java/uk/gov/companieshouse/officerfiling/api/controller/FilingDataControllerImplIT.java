@@ -27,6 +27,7 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.service.FilingDataService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
+import uk.gov.companieshouse.officerfiling.api.service.PostcodeValidationServiceImpl;
 
 @Tag("web")
 @WebMvcTest(controllers = FilingDataControllerImpl.class)
@@ -42,6 +43,8 @@ class FilingDataControllerImplIT {
     private static final String KEY_ROLE ="*";
     @MockBean
     private FilingDataService filingDataService;
+    @MockBean
+    private PostcodeValidationServiceImpl postcodeValidationService;
     @MockBean
     private OfficerFilingService officerFilingService;
     @MockBean

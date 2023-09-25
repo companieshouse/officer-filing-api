@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.function.Supplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Main application configuration class.
@@ -29,5 +30,14 @@ public class AppConfig {
     @Bean
     public Supplier<LocalDate> dateNow() {
         return LocalDate::now;
+    }
+
+    /**
+     * Rest Template bean to reach external postcode service
+     * @return a rest template utilised in PostcodeValidationService.java
+     */
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }

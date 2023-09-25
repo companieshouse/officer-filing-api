@@ -26,6 +26,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.officerfiling.api.exception.CompanyProfileServiceException;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
+import uk.gov.companieshouse.officerfiling.api.service.PostcodeValidationServiceImpl;
 
 @Tag("web")
 @WebMvcTest(controllers = StopScreenValidationControllerImpl.class)
@@ -39,6 +40,8 @@ class StopScreenValidationControllerImplIT {
     private OfficerFilingService officerFilingService;
     @MockBean
     private CompanyProfileService companyProfileService;
+    @MockBean
+    private PostcodeValidationServiceImpl postcodeValidationService;
 
     @Mock
     private HttpServletRequest request;

@@ -42,10 +42,7 @@ import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
-import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
-import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
-import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
-import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
+import uk.gov.companieshouse.officerfiling.api.service.*;
 
 @Tag("web")
 @WebMvcTest(controllers = OfficerFilingControllerImpl.class)
@@ -72,6 +69,8 @@ class OfficerFilingControllerImplValidationIT {
     private OfficerFilingService officerFilingService;
     @MockBean
     private CompanyProfileService companyProfileService;
+    @MockBean
+    private PostcodeValidationServiceImpl postcodeValidationService;
     @MockBean
     private CompanyAppointmentService companyAppointmentService;
     @MockBean

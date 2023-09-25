@@ -24,6 +24,7 @@ import uk.gov.companieshouse.officerfiling.api.exception.ServiceUnavailableExcep
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
+import uk.gov.companieshouse.officerfiling.api.service.PostcodeValidationServiceImpl;
 
 /**
  * Provides all validation that should be carried out when an officer is terminated. Fetches all data necessary to complete
@@ -56,6 +57,8 @@ public class OfficerValidator {
 
     private CompanyAppointmentService companyAppointmentService;
 
+    private PostcodeValidationServiceImpl postcodeValidationService;
+
     public OfficerValidator(final Logger logger, final CompanyProfileService companyProfileService,
         final CompanyAppointmentService companyAppointmentService,
         final ApiEnumerations apiEnumerations) {
@@ -67,9 +70,11 @@ public class OfficerValidator {
 
     public OfficerValidator(final Logger logger,
             final CompanyProfileService companyProfileService,
+            final PostcodeValidationServiceImpl postcodeValidationService,
             final ApiEnumerations apiEnumerations) {
         this.logger = logger;
         this.companyProfileService = companyProfileService;
+        this.postcodeValidationService = postcodeValidationService;
         this.apiEnumerations = apiEnumerations;
     }
 
@@ -202,6 +207,9 @@ public class OfficerValidator {
         return getAllowedNationalities(inputAllowedNationalities).stream().anyMatch(x -> x.equalsIgnoreCase(nationality));
     }
 
+    public boolean validUKPostcode(String postcode) {
+        return postcodeValidationService.validUKPostcode(postcode.trim());
+    }
 
 
 }

@@ -16,6 +16,7 @@ import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
+import uk.gov.companieshouse.officerfiling.api.service.PostcodeValidationServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 /**
@@ -32,10 +33,11 @@ public class OfficerAppointmentValidator extends OfficerValidator {
 
     public OfficerAppointmentValidator(final Logger logger,
                                        final CompanyProfileService companyProfileService,
+                                       final PostcodeValidationServiceImpl postcodeValidationService,
                                        final ApiEnumerations apiEnumerations,
                                        final String inputAllowedNationalities,
-            List<String> countryList, List<String> ukCountryList) {
-        super(logger, companyProfileService, apiEnumerations);
+                                       List<String> countryList, List<String> ukCountryList) {
+        super(logger, companyProfileService, postcodeValidationService, apiEnumerations);
         this.logger = logger;
         this.apiEnumerations = getApiEnumerations();
         this.inputAllowedNationalities = inputAllowedNationalities;
@@ -320,13 +322,13 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             validateAddressLine1(request, errorList, dto.getResidentialAddress().getAddressLine1());
             validateLocality(request, errorList, dto.getResidentialAddress().getLocality());
             validateCountry(request, errorList, dto.getResidentialAddress().getCountry());
-            validatePostalCode(request, errorList, dto.getResidentialAddress().getPostalCode(), dto.getResidentialAddress().getCountry());
+            validateResidentialPostalCode(request, errorList, dto.getResidentialAddress().getPostalCode(), dto.getResidentialAddress().getCountry());
         }
         else{
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.PREMISES_BLANK));
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINE_ONE_BLANK));
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LOCALITY_BLANK));
-            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK));
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_BLANK));
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.COUNTRY_BLANK));
         }
     }
@@ -435,7 +437,23 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             }
         }
     }
-
+    private void validateResidentialPostalCode(HttpServletRequest request, List<ApiError> errorList,String postalCode, String country) {
+        if((country == null || country.isBlank() || ukCountryList.contains(country)) && (postalCode == null || postalCode.isBlank())) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_BLANK));
+            return;
+        }
+        if(postalCode != null && !postalCode.isBlank()){
+            if (!validateDtoFieldLength(postalCode, 20)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_LENGTH));
+            }
+            if (!isValidCharacters(postalCode)) {
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_CHARACTERS));
+            }
+            if ( (!(country == null || country.isBlank()) && ukCountryList.contains(country)) && !validUKPostcode(postalCode)) {
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POST_CODE_INVALID));
+            }
+        }
+    }
     private void validatePostalCode(HttpServletRequest request, List<ApiError> errorList,String postalCode, String country) {
         if((country == null || country.isBlank() || ukCountryList.contains(country)) && (postalCode == null || postalCode.isBlank())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_BLANK));
@@ -447,6 +465,9 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             }
             if (!isValidCharacters(postalCode)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.POSTAL_CODE_CHARACTERS));
+            }
+            if ( (!(country == null || country.isBlank()) && ukCountryList.contains(country)) && !validUKPostcode(postalCode)) {
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.POST_CODE_INVALID));
             }
         }
     }

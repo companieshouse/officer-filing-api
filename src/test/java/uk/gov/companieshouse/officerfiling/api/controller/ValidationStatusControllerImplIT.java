@@ -43,6 +43,7 @@ import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
+import uk.gov.companieshouse.officerfiling.api.service.PostcodeValidationServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 @Tag("web")
@@ -72,6 +73,8 @@ class ValidationStatusControllerImplIT {
     private CompanyProfileService companyProfileService;
     @MockBean
     private CompanyAppointmentService companyAppointmentService;
+    @MockBean
+    private PostcodeValidationServiceImpl postcodeValidationService;
     @Mock
     private ApiClient apiClientMock;
     @Mock
