@@ -40,6 +40,7 @@ class FilingDataServiceImplTest {
     private static final String RESIGNED_ON_STR = "2022-10-05";
     private static final Instant RESIGNED_ON_INS = Instant.parse("2022-10-05T00:00:00Z");
     public static final String FIRSTNAME = "JOE";
+    public static final String MIDDLENAMES  = "PETER MARTIN";
     public static final String LASTNAME = "BLOGGS";
     public static final String COMPANY_NAME = "Company Name";
     public static final String FULL_NAME = FIRSTNAME + " " + LASTNAME;
@@ -81,7 +82,7 @@ class FilingDataServiceImplTest {
     void generateTerminationOfficerFilingWhenFound() {
         ReflectionTestUtils.setField(testService, "filingDescription",
                 "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}");
-        final var filingData = new FilingData(FIRSTNAME, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, true);
+        final var filingData = new FilingData(FIRSTNAME, MIDDLENAMES, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, true);
         var offData = OfficerFilingData.builder()
                 .dateOfBirth(DATE_OF_BIRTH_INS)
                 .firstName(FIRSTNAME)
@@ -112,7 +113,7 @@ class FilingDataServiceImplTest {
         final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
 
         final Map<String, Object> expectedMap =
-                Map.of("first_name", FIRSTNAME, "last_name", LASTNAME,
+                Map.of("first_name", FIRSTNAME, "middle_names", MIDDLENAMES, "last_name", LASTNAME,
                         "date_of_birth", DATE_OF_BIRTH_STR,
                         "resigned_on", RESIGNED_ON_STR,
                         "is_corporate_director", true);
@@ -127,11 +128,12 @@ class FilingDataServiceImplTest {
     void generateCorporateOfficerFilingWhenFound() {
         ReflectionTestUtils.setField(testService, "filingDescription",
                 "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}");
-        final var filingData = new FilingData(null, COMPANY_NAME, null, RESIGNED_ON_STR, true);
+        final var filingData = new FilingData(null, null  , COMPANY_NAME,   null, RESIGNED_ON_STR, true);
         final var data = OfficerFilingData.builder()
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
                 .name(COMPANY_NAME)
                 .firstName("")
+                .middleNames("")
                 .lastName(COMPANY_NAME)
                 .resignedOn(RESIGNED_ON_INS)
                 .build();
@@ -181,9 +183,10 @@ class FilingDataServiceImplTest {
         // at the moment its just checking everything is null.
         ReflectionTestUtils.setField(testService, "filingDescription",
                 "(AP01) Appointment of director. Appointment of {director name}");
-        final var filingData = new FilingData(FIRSTNAME, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, true);
+        final var filingData = new FilingData(FIRSTNAME, MIDDLENAMES, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, true);
         var offData = OfficerFilingData.builder()
                 .firstName(FIRSTNAME)
+                .middleNames(MIDDLENAMES)
                 .lastName(LASTNAME)
                 .build();
         final var now = clock.instant();

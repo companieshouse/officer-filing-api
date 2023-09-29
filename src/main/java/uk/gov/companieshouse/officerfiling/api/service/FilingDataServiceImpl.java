@@ -97,6 +97,7 @@ public class FilingDataServiceImpl implements FilingDataService {
         final AppointmentFullRecordAPI companyAppointment = companyAppointmentService.getCompanyAppointment(transactionId, companyNumber,
                 appointmentId, ericPassThroughHeader);
         String surname;
+        var middleNames = "";
         var firstname = "";
         // if it is a corporate Director then we must pass the name field into the lastName field
         // as that is where chips expects the corporate director name to be
@@ -104,11 +105,13 @@ public class FilingDataServiceImpl implements FilingDataService {
             surname = companyAppointment.getName();
         } else {
             surname = companyAppointment.getSurname();
+            middleNames = companyAppointment.getOtherForenames();
             firstname = companyAppointment.getForename();
         }
 
         var dataBuilder = OfficerFilingData.builder(officerFiling.getData())
                 .firstName(firstname)
+                .middleNames(middleNames)
                 .lastName(surname)
                 .name(companyAppointment.getName())
                 .corporateDirector(mapCorporateDirector(transaction, companyAppointment));
