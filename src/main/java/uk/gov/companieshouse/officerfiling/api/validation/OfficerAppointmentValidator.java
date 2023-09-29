@@ -174,7 +174,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_OVERAGE));
             }
             else if(age < 16){
-                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_UNDERAGE));
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_UNDERAGE));
             }
         }
     }
