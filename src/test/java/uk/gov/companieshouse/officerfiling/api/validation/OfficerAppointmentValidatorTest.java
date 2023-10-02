@@ -604,6 +604,8 @@ class OfficerAppointmentValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_UNDERAGE)).thenReturn(
                 "You can only appoint a person as a director if they are at least 16 years old");
+        when(apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_UNDERAGE)).thenReturn(
+                "You can only appoint a person as a director if they are at least 16 years old on their appointment date");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(LocalDate.now().getYear()-15, 1, 1));
@@ -613,9 +615,10 @@ class OfficerAppointmentValidatorTest {
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
                 .as("An error should be produced when a director's date of birth is under 16")
-                .hasSize(1)
+                .hasSize(2)
                 .extracting(ApiError::getError)
-                .contains("You can only appoint a person as a director if they are at least 16 years old");
+                .contains("You can only appoint a person as a director if they are at least 16 years old")
+                .contains("You can only appoint a person as a director if they are at least 16 years old on their appointment date");
     }
 
     @Test
@@ -1758,13 +1761,13 @@ class OfficerAppointmentValidatorTest {
                 .dateOfBirth(LocalDate.of(2020, 1, 25))
                 .build();
 
-        when(apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_UNDERAGE)).thenReturn("You can only appoint a person as a director if they are at least 16 years old");
+        when(apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_UNDERAGE)).thenReturn("You can only appoint a person as a director if they are at least 16 years old on their appointment date");
         officerAppointmentValidator.validateDirectorAgeAtAppointment(request, apiErrorsList, officerFilingDto);
         assertThat(apiErrorsList)
                 .as("An error should be produced when directer is underage on appointment date")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("You can only appoint a person as a director if they are at least 16 years old");
+                .contains("You can only appoint a person as a director if they are at least 16 years old on their appointment date");
     }
 
     @Test
