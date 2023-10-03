@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class FilingData {
 
     private String firstName;
+    private String middleNames;
     private String lastName;
     private String dateOfBirth;
     private String resignedOn;
@@ -16,11 +17,13 @@ public class FilingData {
 
     @JsonCreator
     public FilingData(@JsonProperty("first_name") String firstName,
+                      @JsonProperty("middle_names") String middleNames,
                       @JsonProperty("last_name") String lastName,
                       @JsonProperty("date_of_birth") String dateOfBirth,
                       @JsonProperty("resigned_on") String resignedOn,
                       @JsonProperty("is_corporate_director") Boolean corporateDirector) {
         this.firstName = firstName;
+        this.middleNames = middleNames;
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
         this.resignedOn = resignedOn;
@@ -31,9 +34,11 @@ public class FilingData {
         return firstName;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getMiddleNames() {
+        return middleNames;
     }
+
+    public String getLastName() {   return lastName;    }
 
     public String getDateOfBirth() {
         return dateOfBirth;
