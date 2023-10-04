@@ -36,6 +36,7 @@ public class OfficerFilingDto {
     private String referenceOfficerListEtag;
     private LocalDate resignedOn;
     private AddressDto residentialAddress;
+    private String residentialAddressBackLink;
     private Boolean residentialAddressSameAsCorrespondenceAddress;
     private Boolean nationality2Link;
     private Boolean nationality3Link;
@@ -123,6 +124,10 @@ public class OfficerFilingDto {
         return residentialAddress;
     }
 
+    public String getResidentialAddressBackLink() {
+        return residentialAddressBackLink;
+    }
+
     public Boolean getResidentialAddressSameAsCorrespondenceAddress() {
         return residentialAddressSameAsCorrespondenceAddress;
     }
@@ -168,6 +173,7 @@ public class OfficerFilingDto {
                 && Objects.equals(getReferenceOfficerListEtag(), that.getReferenceOfficerListEtag())
                 && Objects.equals(getResignedOn(), that.getResignedOn())
                 && Objects.equals(getResidentialAddress(), that.getResidentialAddress())
+                && Objects.equals(getResidentialAddressBackLink(), that.getResidentialAddressBackLink())
                 && Objects.equals(getResidentialAddressSameAsCorrespondenceAddress(),
                 that.getResidentialAddressSameAsCorrespondenceAddress());
     }
@@ -210,6 +216,7 @@ public class OfficerFilingDto {
                 .add("referenceOfficerListEtag='" + referenceOfficerListEtag + "'")
                 .add("resignedOn=" + resignedOn)
                 .add("residentialAddress=" + residentialAddress)
+                .add("residentialAddressBackLink='" + residentialAddressBackLink + "'")
                 .add("residentialAddressSameAsCorrespondenceAddress="
                         + residentialAddressSameAsCorrespondenceAddress)
                 .toString();
@@ -358,6 +365,12 @@ public class OfficerFilingDto {
                     .map(v -> AddressDto.builder(v)
                             .build())
                     .orElse(null));
+            return this;
+        }
+
+        public Builder residentialAddressBackLink(final String value) {
+
+            buildSteps.add(data -> data.residentialAddressBackLink = value);
             return this;
         }
 

@@ -178,6 +178,7 @@ public class OfficerFiling {
                                     .resignedOn(v.getResignedOn())
                                     .status(v.getStatus())
                                     .residentialAddress(v.getResidentialAddress())
+                                    .residentialAddressBackLink(v.getResidentialAddressBackLink())
                                     .residentialAddressSameAsCorrespondenceAddress(v.getAddressSameAsRegisteredOfficeAddress())
                                     .corporateDirector(v.getCorporateDirector()).build())
                     .orElse(null));
