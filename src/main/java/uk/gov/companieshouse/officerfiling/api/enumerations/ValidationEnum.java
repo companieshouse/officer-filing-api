@@ -39,6 +39,7 @@ public enum ValidationEnum {
     DATE_OF_BIRTH_BLANK("date-of-birth-blank"),
     DATE_OF_BIRTH_OVERAGE("date-of-birth-overage"),
     DATE_OF_BIRTH_UNDERAGE("date-of-birth-underage"),
+    APPOINTMENT_DATE_UNDERAGE("appointment-date-underage"),
     OCCUPATION_LENGTH("occupation-length"),
     OCCUPATION_CHARACTERS("occupation-characters"),
     NATIONALITY_BLANK("nationality-blank"),
