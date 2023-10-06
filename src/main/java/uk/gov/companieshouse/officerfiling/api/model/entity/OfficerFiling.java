@@ -170,6 +170,7 @@ public class OfficerFiling {
                                     .nationality3(v.getNationality3())
                                     .nationality2Link(v.getNationality2Link())
                                     .nationality3Link(v.getNationality3Link())
+                                    .directorAppliedToProtectDetails(v.getDirectorAppliedToProtectDetails())
                                     .occupation(v.getOccupation())
                                     .officerRole(v.getOfficerRole())
                                     .referenceEtag(v.getReferenceEtag())

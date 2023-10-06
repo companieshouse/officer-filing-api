@@ -39,6 +39,7 @@ public class OfficerFilingDto {
     private Boolean residentialAddressSameAsCorrespondenceAddress;
     private Boolean nationality2Link;
     private Boolean nationality3Link;
+    private Boolean directorAppliedToProtectDetails;
 
     private OfficerFilingDto() {
     }
@@ -135,6 +136,8 @@ public class OfficerFilingDto {
         return nationality3Link;
     }
 
+    public Boolean getDirectorAppliedToProtectDetails() { return directorAppliedToProtectDetails; }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -162,6 +165,7 @@ public class OfficerFilingDto {
                 && Objects.equals(getNationality3(), that.getNationality3())
                 && Objects.equals(getNationality2Link(), that.getNationality2Link())
                 && Objects.equals(getNationality3Link(), that.getNationality3Link())
+                && Objects.equals(getDirectorAppliedToProtectDetails(), that.getDirectorAppliedToProtectDetails())
                 && Objects.equals(getOccupation(), that.getOccupation())
                 && Objects.equals(getReferenceEtag(), that.getReferenceEtag())
                 && Objects.equals(getReferenceAppointmentId(), that.getReferenceAppointmentId())
@@ -178,10 +182,9 @@ public class OfficerFilingDto {
                 getAppointedOn(), getCountryOfResidence(), getDateOfBirth(), getFormerNames(),
                 getIdentification(), getTitle(), getName(),
                 getFirstName(), getMiddleNames(), getLastName(), getNationality1(), getNationality2(),
-                getNationality2Link(), getNationality3Link(),getNationality3(), getOccupation(),
-                getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
-                getResignedOn(), getResidentialAddress(),
-                getResidentialAddressSameAsCorrespondenceAddress());
+                getNationality2Link(), getNationality3Link(), getDirectorAppliedToProtectDetails(), getNationality3(),
+                getOccupation(), getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
+                getResignedOn(), getResidentialAddress(), getResidentialAddressSameAsCorrespondenceAddress());
     }
 
     @Override
@@ -204,6 +207,7 @@ public class OfficerFilingDto {
                 .add("nationality3='" + nationality3 + "'")
                 .add("nationality2Link='" + nationality2Link + "'")
                 .add("nationality3Link='" + nationality3Link + "'")
+                .add("directorAppliedToProtectDetails='" + directorAppliedToProtectDetails + "'")
                 .add("occupation='" + occupation + "'")
                 .add("referenceEtag='" + referenceEtag + "'")
                 .add("referenceAppointmentId='" + referenceAppointmentId + "'")
@@ -374,6 +378,11 @@ public class OfficerFilingDto {
 
         public Builder nationality3Link(final Boolean value) {
             buildSteps.add(data -> data.nationality3Link = value);
+            return this;
+        }
+
+        public  Builder directorAppliedToProtectDetails(final Boolean value) {
+            buildSteps.add(data -> data.directorAppliedToProtectDetails = value);
             return this;
         }
 

@@ -90,6 +90,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
         when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getDirectorAppliedToProtectDetails()).thenReturn(false);
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -1054,6 +1055,34 @@ class OfficerAppointmentValidatorTest {
                 .as("No validation errors should have been raised")
                 .isEmpty();
     }
+
+    @Test
+    void validationWhenProtectedDetailsMissing() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getOccupation()).thenReturn("Engineer");
+        when(dto.getNationality1()).thenReturn("French");
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
+
+        when(dto.getDirectorAppliedToProtectDetails()).thenReturn(null);
+
+        when(apiEnumerations.getValidation(ValidationEnum.PROTECTED_DETAILS_MISSING)).thenReturn(
+                "Confirm if the director has ever applied to protect their details at Companies House");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when director applied to protect details is missing")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Confirm if the director has ever applied to protect their details at Companies House");
+    }
+
     @Test
     void validationWhenMissingResidentialAddress() {
 

@@ -91,6 +91,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateRequiredResidentialAddressFields(request, errorList, dto);
         validateCorrespondenceAddressFields(request, errorList, dto);
         validateAppointmentDate(request, errorList, dto);
+        validateProtectedDetails(request, errorList, dto);
     }
 
     @Override
@@ -176,6 +177,13 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             else if(age < 16){
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_UNDERAGE));
             }
+        }
+    }
+
+    private void validateProtectedDetails(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        if(dto.getDirectorAppliedToProtectDetails() == null){
+            createValidationError(request, errorList,
+                    apiEnumerations.getValidation(ValidationEnum.PROTECTED_DETAILS_MISSING));
         }
     }
 
