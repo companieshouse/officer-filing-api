@@ -88,7 +88,8 @@ public enum ValidationEnum {
     CORRESPONDENCE_ADDRESS_LINE_TWO_CHARACTERS("correspondence-address-line-two-characters"),
     CORRESPONDENCE_ADDRESS_LINE_TWO_LENGTH("correspondence-address-line-two-length"),
     CORRESPONDENCE_REGION_CHARACTERS("correspondence-region-characters"),
-    CORRESPONDENCE_REGION_LENGTH("correspondence-region-length");
+    CORRESPONDENCE_REGION_LENGTH("correspondence-region-length"),
+    PROTECTED_DETAILS_MISSING("protected-details-missing");
     private final String key;
 
     ValidationEnum(String key) {

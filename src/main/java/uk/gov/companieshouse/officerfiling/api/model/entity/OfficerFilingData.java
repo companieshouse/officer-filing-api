@@ -38,6 +38,7 @@ public class OfficerFilingData {
     private Boolean corporateDirector;
     private Boolean nationality2Link;
     private Boolean nationality3Link;
+    private Boolean directorAppliedToProtectDetails;
 
     public OfficerFilingData(
             final String referenceEtag,
@@ -154,6 +155,10 @@ public class OfficerFilingData {
         return nationality3Link;
     }
 
+    public Boolean getDirectorAppliedToProtectDetails() {
+        return directorAppliedToProtectDetails;
+    }
+
     public Boolean getCorporateDirector() {
         return corporateDirector;
     }
@@ -184,6 +189,7 @@ public class OfficerFilingData {
                 && Objects.equals(getNationality3(), that.getNationality3())
                 && Objects.equals(getNationality2Link(), that.getNationality2Link())
                 && Objects.equals(getNationality3Link(), that.getNationality3Link())
+                && Objects.equals(getDirectorAppliedToProtectDetails(), that.getDirectorAppliedToProtectDetails())
                 && Objects.equals(getOccupation(), that.getOccupation())
                 && Objects.equals(getOfficerRole(), that.getOfficerRole())
                 && Objects.equals(getReferenceEtag(), that.getReferenceEtag())
@@ -202,7 +208,8 @@ public class OfficerFilingData {
                 getAppointedOn(), getCountryOfResidence(), getDateOfBirth(),
                 getFormerNames(), getName(), getTitle(),
                 getFirstName(), getMiddleNames(), getLastName(), getNationality1(), getNationality2(),
-                getNationality3(), getNationality2Link(), getNationality3Link(), getOccupation(), getOfficerRole(),
+                getNationality3(), getNationality2Link(), getNationality3Link(), getDirectorAppliedToProtectDetails(),
+                getOccupation(), getOfficerRole(),
                 getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getStatus(), getResidentialAddress(),
                 getResidentialAddressSameAsCorrespondenceAddress());
@@ -227,6 +234,7 @@ public class OfficerFilingData {
                 .add("nationality3='" + nationality3 + "'")
                 .add("nationality2Link='" + nationality2Link + "'")
                 .add("nationality3Link='" + nationality3Link + "'")
+                .add("directorAppliedToProtectDetails='" + directorAppliedToProtectDetails + "'")
                 .add("occupation='" + occupation + "'")
                 .add("officerRole='" + officerRole + "'")
                 .add("referenceEtag='" + referenceEtag + "'")
@@ -279,6 +287,7 @@ public class OfficerFilingData {
                     .nationality3(other.getNationality3())
                     .nationality2Link(other.getNationality2Link())
                     .nationality3Link(other.getNationality3Link())
+                    .directorAppliedToProtectDetails(other.getDirectorAppliedToProtectDetails())
                     .occupation(other.getOccupation())
                     .officerRole(other.getOfficerRole())
                     .referenceEtag(other.getReferenceEtag())
@@ -446,6 +455,11 @@ public class OfficerFilingData {
 
         public Builder nationality3Link(final Boolean value) {
             buildSteps.add(data -> data.nationality3Link = value);
+            return this;
+        }
+
+        public Builder directorAppliedToProtectDetails(final Boolean value) {
+            buildSteps.add(data -> data.directorAppliedToProtectDetails = value);
             return this;
         }
 
