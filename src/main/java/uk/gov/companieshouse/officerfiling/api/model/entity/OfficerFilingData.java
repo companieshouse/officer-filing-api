@@ -34,6 +34,7 @@ public class OfficerFilingData {
     private Instant resignedOn;
     private String status;
     private Address residentialAddress;
+    private String residentialAddressBackLink;
     private Boolean residentialAddressSameAsCorrespondenceAddress;
     private Boolean corporateDirector;
     private Boolean nationality2Link;
@@ -143,6 +144,10 @@ public class OfficerFilingData {
         return residentialAddress;
     }
 
+    public String getResidentialAddressBackLink() {
+        return residentialAddressBackLink;
+    }
+
     public Boolean getResidentialAddressSameAsCorrespondenceAddress() {
         return residentialAddressSameAsCorrespondenceAddress;
     }
@@ -198,6 +203,7 @@ public class OfficerFilingData {
                 && Objects.equals(getResignedOn(), that.getResignedOn())
                 && Objects.equals(getStatus(), that.getStatus())
                 && Objects.equals(getResidentialAddress(), that.getResidentialAddress())
+                && Objects.equals(getResidentialAddressBackLink(), that.getResidentialAddressBackLink())
                 && Objects.equals(getResidentialAddressSameAsCorrespondenceAddress(),
                 that.getResidentialAddressSameAsCorrespondenceAddress());
     }
@@ -211,7 +217,7 @@ public class OfficerFilingData {
                 getNationality3(), getNationality2Link(), getNationality3Link(), getDirectorAppliedToProtectDetails(),
                 getOccupation(), getOfficerRole(),
                 getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
-                getResignedOn(), getStatus(), getResidentialAddress(),
+                getResignedOn(), getStatus(), getResidentialAddress(), getResidentialAddressBackLink(),
                 getResidentialAddressSameAsCorrespondenceAddress());
     }
 
@@ -243,6 +249,7 @@ public class OfficerFilingData {
                 .add("resignedOn=" + resignedOn)
                 .add("status='" + status + "'")
                 .add("residentialAddress=" + residentialAddress)
+                .add("residentialAddressBackLink=" + residentialAddressBackLink)
                 .add("residentialAddressSameAsCorrespondenceAddress="
                         + residentialAddressSameAsCorrespondenceAddress)
                 .add("corporateDirector=" + corporateDirector)
@@ -294,6 +301,7 @@ public class OfficerFilingData {
                     .referenceAppointmentId(other.getReferenceAppointmentId())
                     .referenceOfficerListEtag(other.getReferenceOfficerListEtag())
                     .residentialAddress(other.getResidentialAddress())
+                    .residentialAddressBackLink(other.getResidentialAddressBackLink())
                     .residentialAddressSameAsCorrespondenceAddress(
                             other.getResidentialAddressSameAsCorrespondenceAddress())
                     .resignedOn(other.getResignedOn())
@@ -434,6 +442,12 @@ public class OfficerFilingData {
                     .map(v -> Address.builder(v)
                             .build())
                     .orElse(null));
+            return this;
+        }
+
+        public Builder residentialAddressBackLink(final String value) {
+
+            buildSteps.add(data -> data.residentialAddressBackLink = value);
             return this;
         }
 

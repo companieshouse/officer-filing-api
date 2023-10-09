@@ -94,6 +94,7 @@ class OfficerFilingMapperTest {
                 .occupation("work")
                 .referenceOfficerListEtag("list")
                 .residentialAddress(addressDto)
+                .residentialAddressBackLink("backLink")
                 .residentialAddressSameAsCorrespondenceAddress(true)
                 .resignedOn(localDate1)
                 .build();
@@ -122,6 +123,7 @@ class OfficerFilingMapperTest {
         assertThat(filing.getData().getReferenceOfficerListEtag(), is("list"));
         assertThat(filing.getData().getResignedOn(), is(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC)));
         assertThat(filing.getData().getResidentialAddress(), is(equalTo(address)));
+        assertThat(filing.getData().getResidentialAddressBackLink(), is(equalTo("backLink")));
         assertThat(filing.getData().getResidentialAddressSameAsCorrespondenceAddress(), is(true));
         assertThat(filing.getData().getStatus(), is(nullValue()));
         assertThat(filing.getUpdatedAt(), is(nullValue()));
@@ -171,6 +173,7 @@ class OfficerFilingMapperTest {
                 .resignedOn(instant1)
                 .status("status")
                 .residentialAddress(address)
+                .residentialAddressBackLink("backLink")
                 .addressSameAsRegisteredOfficeAddress(true)
                 .corporateDirector(false)
                 .build();
@@ -194,6 +197,7 @@ class OfficerFilingMapperTest {
         assertThat(dto.getOccupation(), is("work"));
         assertThat(dto.getReferenceOfficerListEtag(), is("list"));
         assertThat(dto.getResidentialAddress(), is(equalTo(addressDto)));
+        assertThat(dto.getResidentialAddressBackLink(), is(equalTo("backLink")));
         assertThat(dto.getResidentialAddressSameAsCorrespondenceAddress(), is(true));
         assertThat(dto.getResignedOn(), is(localDate1));
     }
