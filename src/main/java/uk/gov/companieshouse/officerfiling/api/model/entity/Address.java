@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -13,8 +14,10 @@ public class Address {
 
     @NotNull
     @Field("address_line_1")
+    @JsonProperty("address_line_1")
     private String addressLine1;
     @Field("address_line_2")
+    @JsonProperty ("address_line_2")
     private String addressLine2;
     private String careOf;
     private String country;
