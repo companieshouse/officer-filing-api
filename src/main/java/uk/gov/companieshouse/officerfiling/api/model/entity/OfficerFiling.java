@@ -171,6 +171,7 @@ public class OfficerFiling {
                                     .nationality2Link(v.getNationality2Link())
                                     .nationality3Link(v.getNationality3Link())
                                     .directorAppliedToProtectDetails(v.getDirectorAppliedToProtectDetails())
+                                    .consentToAct(v.getConsentToAct())
                                     .occupation(v.getOccupation())
                                     .officerRole(v.getOfficerRole())
                                     .referenceEtag(v.getReferenceEtag())
