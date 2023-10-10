@@ -1717,7 +1717,7 @@ class OfficerAppointmentValidatorTest {
                 .contains("Select a country from the list");
     }
 
-    // ANONA
+    @Test
     void validateWhenMissingAppointmentDate() {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
@@ -1726,6 +1726,8 @@ class OfficerAppointmentValidatorTest {
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
         when(dto.getNationality1()).thenReturn("French");
         when(dto.getConsentToAct()).thenReturn(true);
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
         when(apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_MISSING)).thenReturn(
                 "Enter the date the director was appointed");
 
