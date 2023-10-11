@@ -196,8 +196,9 @@ class ValidationStatusControllerImplTest {
                 .addressLine1("Road").locality("Margate").country("France").build());
         when(dto.getDateOfBirth()).thenReturn(localDateDob1);
         when(dto.getNationality1()).thenReturn("British");
-
+        when(dto.getConsentToAct()).thenReturn(true);
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+
         final var response = testController.validate(transaction, FILING_ID, request);
         assertThat(response.getValidationStatusError(), is(nullValue()));
         assertThat(response.isValid(), is(true));

@@ -40,6 +40,7 @@ public class OfficerFilingData {
     private Boolean nationality2Link;
     private Boolean nationality3Link;
     private Boolean directorAppliedToProtectDetails;
+    private Boolean consentToAct;
 
     public OfficerFilingData(
             final String referenceEtag,
@@ -160,9 +161,9 @@ public class OfficerFilingData {
         return nationality3Link;
     }
 
-    public Boolean getDirectorAppliedToProtectDetails() {
-        return directorAppliedToProtectDetails;
-    }
+    public Boolean getDirectorAppliedToProtectDetails() { return directorAppliedToProtectDetails; }
+
+    public Boolean getConsentToAct() { return consentToAct; }
 
     public Boolean getCorporateDirector() {
         return corporateDirector;
@@ -195,6 +196,7 @@ public class OfficerFilingData {
                 && Objects.equals(getNationality2Link(), that.getNationality2Link())
                 && Objects.equals(getNationality3Link(), that.getNationality3Link())
                 && Objects.equals(getDirectorAppliedToProtectDetails(), that.getDirectorAppliedToProtectDetails())
+                && Objects.equals(getConsentToAct(), that.getConsentToAct())
                 && Objects.equals(getOccupation(), that.getOccupation())
                 && Objects.equals(getOfficerRole(), that.getOfficerRole())
                 && Objects.equals(getReferenceEtag(), that.getReferenceEtag())
@@ -215,7 +217,7 @@ public class OfficerFilingData {
                 getFormerNames(), getName(), getTitle(),
                 getFirstName(), getMiddleNames(), getLastName(), getNationality1(), getNationality2(),
                 getNationality3(), getNationality2Link(), getNationality3Link(), getDirectorAppliedToProtectDetails(),
-                getOccupation(), getOfficerRole(),
+                getConsentToAct(), getOccupation(), getOfficerRole(),
                 getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getStatus(), getResidentialAddress(), getResidentialAddressBackLink(),
                 getResidentialAddressSameAsCorrespondenceAddress());
@@ -241,6 +243,7 @@ public class OfficerFilingData {
                 .add("nationality2Link='" + nationality2Link + "'")
                 .add("nationality3Link='" + nationality3Link + "'")
                 .add("directorAppliedToProtectDetails='" + directorAppliedToProtectDetails + "'")
+                .add("consentToAct='" + consentToAct + "'")
                 .add("occupation='" + occupation + "'")
                 .add("officerRole='" + officerRole + "'")
                 .add("referenceEtag='" + referenceEtag + "'")
@@ -295,6 +298,7 @@ public class OfficerFilingData {
                     .nationality2Link(other.getNationality2Link())
                     .nationality3Link(other.getNationality3Link())
                     .directorAppliedToProtectDetails(other.getDirectorAppliedToProtectDetails())
+                    .consentToAct(other.getConsentToAct())
                     .occupation(other.getOccupation())
                     .officerRole(other.getOfficerRole())
                     .referenceEtag(other.getReferenceEtag())
@@ -474,6 +478,11 @@ public class OfficerFilingData {
 
         public Builder directorAppliedToProtectDetails(final Boolean value) {
             buildSteps.add(data -> data.directorAppliedToProtectDetails = value);
+            return this;
+        }
+
+        public Builder consentToAct(final Boolean value) {
+            buildSteps.add(data -> data.consentToAct = value);
             return this;
         }
 

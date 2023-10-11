@@ -92,6 +92,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateCorrespondenceAddressFields(request, errorList, dto);
         validateAppointmentDate(request, errorList, dto);
         validateProtectedDetails(request, errorList, dto);
+        validateConsentToAct(request, errorList, dto);
     }
 
     @Override
@@ -184,6 +185,17 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         if(dto.getDirectorAppliedToProtectDetails() == null){
             createValidationError(request, errorList,
                     apiEnumerations.getValidation(ValidationEnum.PROTECTED_DETAILS_MISSING));
+        }
+    }
+
+    private void validateConsentToAct(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        if(dto.getConsentToAct() == null){
+            createValidationError(request, errorList,
+                    apiEnumerations.getValidation(ValidationEnum.CONSENT_TO_ACT_MISSING));
+        }
+        else if(!dto.getConsentToAct()){
+            createValidationError(request, errorList,
+                    apiEnumerations.getValidation(ValidationEnum.CONSENT_TO_ACT_FALSE));
         }
     }
 
