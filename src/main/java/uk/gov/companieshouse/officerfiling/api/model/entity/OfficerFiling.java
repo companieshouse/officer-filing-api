@@ -155,6 +155,7 @@ public class OfficerFiling {
             buildSteps.add(buildData -> buildData.data = Optional.ofNullable(value)
                     .map(v -> OfficerFilingData.builder()
                                     .serviceAddress(v.getServiceAddress())
+                                    .serviceAddressBackLink(v.getServiceAddressBackLink())
                                     .addressSameAsRegisteredOfficeAddress(v.getAddressSameAsRegisteredOfficeAddress())
                                     .appointedOn(v.getAppointedOn())
                                     .countryOfResidence(v.getCountryOfResidence())

@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 public class OfficerFilingData {
 
     private Address serviceAddress;
+    private String serviceAddresssBackLink;
     private Boolean addressSameAsRegisteredOfficeAddress;
     private Instant appointedOn;
     private String countryOfResidence;
@@ -65,6 +66,10 @@ public class OfficerFilingData {
     }
     public Address getServiceAddress() {
         return serviceAddress;
+    }
+
+    public String getServiceAddressBackLink() {
+        return serviceAddresssBackLink;
     }
 
     public Boolean getAddressSameAsRegisteredOfficeAddress() {
@@ -179,6 +184,7 @@ public class OfficerFilingData {
         }
         final OfficerFilingData that = (OfficerFilingData) o;
         return Objects.equals(getServiceAddress(), that.getServiceAddress())
+                && Objects.equals(getServiceAddressBackLink(), that.getServiceAddressBackLink())
                 && Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
                 that.getAddressSameAsRegisteredOfficeAddress())
                 && Objects.equals(getAppointedOn(), that.getAppointedOn())
@@ -212,7 +218,7 @@ public class OfficerFilingData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getServiceAddress(), getAddressSameAsRegisteredOfficeAddress(),
+        return Objects.hash(getServiceAddress(), getServiceAddressBackLink(), getAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getDateOfBirth(),
                 getFormerNames(), getName(), getTitle(),
                 getFirstName(), getMiddleNames(), getLastName(), getNationality1(), getNationality2(),
@@ -227,6 +233,7 @@ public class OfficerFilingData {
     public String toString() {
         return new StringJoiner(", ", OfficerFilingData.class.getSimpleName() + "[", "]")
                 .add("serviceAddress=" + serviceAddress)
+                .add("serviceAddressBackLink=" + serviceAddresssBackLink)
                 .add("addressSameAsRegisteredOfficeAddress=" + addressSameAsRegisteredOfficeAddress)
                 .add("appointedOn=" + appointedOn)
                 .add("countryOfResidence='" + countryOfResidence + "'")
@@ -280,6 +287,7 @@ public class OfficerFilingData {
         public Builder(final OfficerFilingData other) {
             this();
             this.serviceAddress(other.getServiceAddress())
+                    .serviceAddressBackLink(other.getServiceAddressBackLink())
                     .addressSameAsRegisteredOfficeAddress(
                             other.getAddressSameAsRegisteredOfficeAddress())
                     .appointedOn(other.getAppointedOn())
@@ -318,6 +326,12 @@ public class OfficerFilingData {
                     .map(v -> Address.builder(v)
                             .build())
                     .orElse(null));
+            return this;
+        }
+
+        public Builder serviceAddressBackLink(final String value) {
+
+            buildSteps.add(data -> data.serviceAddresssBackLink = value);
             return this;
         }
 

@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 public class OfficerFilingDto {
 
     private AddressDto serviceAddress;
+    private String serviceAddressBackLink;
     private Boolean addressSameAsRegisteredOfficeAddress;
     private LocalDate appointedOn;
     private String countryOfResidence;
@@ -48,6 +49,10 @@ public class OfficerFilingDto {
 
     public AddressDto getServiceAddress() {
         return serviceAddress;
+    }
+
+    public String getServiceAddressBackLink() {
+        return serviceAddressBackLink;
     }
 
     public Boolean getAddressSameAsRegisteredOfficeAddress() {
@@ -156,6 +161,7 @@ public class OfficerFilingDto {
         }
         final var that = (OfficerFilingDto) o;
         return Objects.equals(getServiceAddress(), that.getServiceAddress())
+                && Objects.equals(getServiceAddressBackLink(), that.getServiceAddressBackLink())
                 && Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
                 that.getAddressSameAsRegisteredOfficeAddress())
                 && Objects.equals(getAppointedOn(), that.getAppointedOn())
@@ -201,6 +207,7 @@ public class OfficerFilingDto {
     public String toString() {
         return new StringJoiner(", ", OfficerFilingDto.class.getSimpleName() + "[", "]").add(
                         "serviceAddress=" + serviceAddress)
+                .add("serviceAddressBackLink='" + serviceAddressBackLink + "'")
                 .add("addressSameAsRegisteredOfficeAddress=" + addressSameAsRegisteredOfficeAddress)
                 .add("appointedOn=" + appointedOn)
                 .add("countryOfResidence='" + countryOfResidence + "'")
@@ -250,6 +257,12 @@ public class OfficerFilingDto {
                     .map(v -> AddressDto.builder(v)
                             .build())
                     .orElse(null));
+            return this;
+        }
+
+        public Builder serviceAddressBackLink(final String value) {
+
+            buildSteps.add(data -> data.serviceAddressBackLink = value);
             return this;
         }
 

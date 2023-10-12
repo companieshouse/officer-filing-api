@@ -21,6 +21,7 @@ public interface OfficerFilingMapper {
     @Mapping(target = "links", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "data.serviceAddress", source = "serviceAddress")
+    @Mapping(target = "data.serviceAddressBackLink", source = "serviceAddressBackLink")
     @Mapping(target = "data.addressSameAsRegisteredOfficeAddress", source = "addressSameAsRegisteredOfficeAddress")
     @Mapping(target = "data.appointedOn", source = "appointedOn")
     @Mapping(target = "data.countryOfResidence", source = "countryOfResidence")
@@ -55,6 +56,7 @@ public interface OfficerFilingMapper {
 
 
     @Mapping(target = "serviceAddress", source = "data.serviceAddress")
+    @Mapping(target = "serviceAddressBackLink", source = "data.serviceAddressBackLink")
     @Mapping(target = "addressSameAsRegisteredOfficeAddress", source = "data.addressSameAsRegisteredOfficeAddress")
     @Mapping(target = "appointedOn", source = "data.appointedOn")
     @Mapping(target = "countryOfResidence", source = "data.countryOfResidence")
