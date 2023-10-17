@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 public class OfficerFilingData {
 
     private Address serviceAddress;
-    private String serviceAddresssBackLink;
+    private String serviceAddressBackLink;
     private Boolean addressSameAsRegisteredOfficeAddress;
     private Instant appointedOn;
     private String countryOfResidence;
@@ -69,7 +69,7 @@ public class OfficerFilingData {
     }
 
     public String getServiceAddressBackLink() {
-        return serviceAddresssBackLink;
+        return serviceAddressBackLink;
     }
 
     public Boolean getAddressSameAsRegisteredOfficeAddress() {
@@ -233,7 +233,7 @@ public class OfficerFilingData {
     public String toString() {
         return new StringJoiner(", ", OfficerFilingData.class.getSimpleName() + "[", "]")
                 .add("serviceAddress=" + serviceAddress)
-                .add("serviceAddressBackLink=" + serviceAddresssBackLink)
+                .add("serviceAddressBackLink=" + serviceAddressBackLink)
                 .add("addressSameAsRegisteredOfficeAddress=" + addressSameAsRegisteredOfficeAddress)
                 .add("appointedOn=" + appointedOn)
                 .add("countryOfResidence='" + countryOfResidence + "'")
@@ -331,7 +331,7 @@ public class OfficerFilingData {
 
         public Builder serviceAddressBackLink(final String value) {
 
-            buildSteps.add(data -> data.serviceAddresssBackLink = value);
+            buildSteps.add(data -> data.serviceAddressBackLink = value);
             return this;
         }
 
