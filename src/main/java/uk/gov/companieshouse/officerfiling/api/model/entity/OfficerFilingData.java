@@ -345,7 +345,7 @@ public class OfficerFilingData {
 
         public Builder protectedDetailsBackLink(final String value) {
 
-            buildSteps.add(buildData -> buildData.protectedDetailsBackLink = value);
+            buildSteps.add(data -> data.protectedDetailsBackLink = value);
             return this;
         }
 
