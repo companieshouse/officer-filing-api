@@ -14,6 +14,7 @@ public class OfficerFilingData {
 
     private Address serviceAddress;
     private String serviceAddressBackLink;
+    private String protectedDetailsBackLink;
     private Boolean addressSameAsRegisteredOfficeAddress;
     private Instant appointedOn;
     private String countryOfResidence;
@@ -72,6 +73,10 @@ public class OfficerFilingData {
 
     public String getServiceAddressBackLink() {
         return serviceAddressBackLink;
+    }
+
+    public String getProtectedDetailsBackLink() {
+        return protectedDetailsBackLink;
     }
 
     public Boolean getAddressSameAsRegisteredOfficeAddress() {
@@ -195,6 +200,7 @@ public class OfficerFilingData {
         final OfficerFilingData that = (OfficerFilingData) o;
         return Objects.equals(getServiceAddress(), that.getServiceAddress())
                 && Objects.equals(getServiceAddressBackLink(), that.getServiceAddressBackLink())
+                && Objects.equals(getProtectedDetailsBackLink(), that.getProtectedDetailsBackLink())
                 && Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
                 that.getAddressSameAsRegisteredOfficeAddress())
                 && Objects.equals(getAppointedOn(), that.getAppointedOn())
@@ -230,8 +236,8 @@ public class OfficerFilingData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getServiceAddress(), getServiceAddressBackLink(), getAddressSameAsRegisteredOfficeAddress(),
-                getAppointedOn(), getCountryOfResidence(), getDateOfBirth(),
+        return Objects.hash(getServiceAddress(), getServiceAddressBackLink(), getProtectedDetailsBackLink(),
+                getAddressSameAsRegisteredOfficeAddress(), getAppointedOn(), getCountryOfResidence(), getDateOfBirth(),
                 getFormerNames(), getName(), getTitle(),
                 getFirstName(), getMiddleNames(), getLastName(), getNationality1(), getNationality2(),
                 getNationality3(), getNationality2Link(), getNationality3Link(), getDirectorAppliedToProtectDetails(),
@@ -246,6 +252,7 @@ public class OfficerFilingData {
         return new StringJoiner(", ", OfficerFilingData.class.getSimpleName() + "[", "]")
                 .add("serviceAddress=" + serviceAddress)
                 .add("serviceAddressBackLink=" + serviceAddressBackLink)
+                .add("protectedDetailsBackLink=" + protectedDetailsBackLink)
                 .add("addressSameAsRegisteredOfficeAddress=" + addressSameAsRegisteredOfficeAddress)
                 .add("appointedOn=" + appointedOn)
                 .add("countryOfResidence='" + countryOfResidence + "'")
@@ -302,6 +309,7 @@ public class OfficerFilingData {
             this();
             this.serviceAddress(other.getServiceAddress())
                     .serviceAddressBackLink(other.getServiceAddressBackLink())
+                    .protectedDetailsBackLink(other.getProtectedDetailsBackLink())
                     .addressSameAsRegisteredOfficeAddress(
                             other.getAddressSameAsRegisteredOfficeAddress())
                     .appointedOn(other.getAppointedOn())
@@ -348,6 +356,12 @@ public class OfficerFilingData {
         public Builder serviceAddressBackLink(final String value) {
 
             buildSteps.add(data -> data.serviceAddressBackLink = value);
+            return this;
+        }
+
+        public Builder protectedDetailsBackLink(final String value) {
+
+            buildSteps.add(data -> data.protectedDetailsBackLink = value);
             return this;
         }
 

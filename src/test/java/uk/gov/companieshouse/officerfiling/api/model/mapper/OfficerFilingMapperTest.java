@@ -83,6 +83,7 @@ class OfficerFilingMapperTest {
                 .identification(identificationDto)
                 .serviceAddress(addressDto)
                 .serviceAddressBackLink("backLink")
+                .protectedDetailsBackLink("protectedDetailsBackLink")
                 .addressSameAsRegisteredOfficeAddress(true)
                 .appointedOn(localDate1)
                 .countryOfResidence("countryOfResidence")
@@ -106,6 +107,7 @@ class OfficerFilingMapperTest {
 
         assertThat(filing.getData().getServiceAddress(), is(equalTo(address)));
         assertThat(filing.getData().getServiceAddressBackLink(), is(equalTo("backLink")));
+        assertThat(filing.getData().getProtectedDetailsBackLink(), is(equalTo("protectedDetailsBackLink")));
         assertThat(filing.getData().getAddressSameAsRegisteredOfficeAddress(), is(true));
         assertThat(filing.getData().getAppointedOn(),
                 is(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC)));
@@ -163,6 +165,7 @@ class OfficerFilingMapperTest {
         var offData = OfficerFilingData.builder()
                 .serviceAddress(address)
                 .serviceAddressBackLink("backLink")
+                .protectedDetailsBackLink("protectedDetailsBackLink")
                 .addressSameAsRegisteredOfficeAddress(true)
                 .appointedOn(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC))
                 .countryOfResidence("countryOfResidence")
@@ -194,6 +197,7 @@ class OfficerFilingMapperTest {
 
         assertThat(dto.getServiceAddress(), is(equalTo(addressDto)));
         assertThat(dto.getServiceAddressBackLink(), is(equalTo("backLink")));
+        assertThat(dto.getProtectedDetailsBackLink(), is(equalTo("protectedDetailsBackLink")));
         assertThat(dto.getAddressSameAsRegisteredOfficeAddress(), is(true));
         assertThat(dto.getAppointedOn(), is(localDate1));
         assertThat(dto.getCountryOfResidence(), is("countryOfResidence"));

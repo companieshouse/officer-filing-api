@@ -155,6 +155,7 @@ public class OfficerFiling {
                     .map(v -> OfficerFilingData.builder()
                                     .serviceAddress(v.getServiceAddress())
                                     .serviceAddressBackLink(v.getServiceAddressBackLink())
+                                    .protectedDetailsBackLink(v.getProtectedDetailsBackLink())
                                     .addressSameAsRegisteredOfficeAddress(v.getAddressSameAsRegisteredOfficeAddress())
                                     .appointedOn(v.getAppointedOn())
                                     .countryOfResidence(v.getCountryOfResidence())
