@@ -253,7 +253,7 @@ public class OfficerFilingDto {
                 .add("residentialAddressBackLink='" + residentialAddressBackLink + "'")
                 .add("residentialAddressSameAsCorrespondenceAddress="
                         + residentialAddressSameAsCorrespondenceAddress)
-                .add("whereDirectorLiveChoice'" + directorResidentialAddressChoice + "'")
+                .add("directorResidentialAddressChoice'" + directorResidentialAddressChoice + "'")
                 .add("directorCorrespondenceAddressChoice'" + directorCorrespondenceAddressChoice + "'")
                 .toString();
     }

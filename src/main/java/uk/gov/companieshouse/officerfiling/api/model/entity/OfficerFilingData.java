@@ -282,7 +282,7 @@ public class OfficerFilingData {
                 .add("residentialAddressSameAsCorrespondenceAddress="
                         + residentialAddressSameAsCorrespondenceAddress)
                 .add("corporateDirector=" + corporateDirector)
-                .add("whereDirectorLiveChoice=" + directorResidentialAddressChoice)
+                .add("directorResidentialAddressChoice=" + directorResidentialAddressChoice)
                 .add("directorCorrespondenceAddressChoice=" + directorCorrespondenceAddressChoice)
                 .toString();
     }
