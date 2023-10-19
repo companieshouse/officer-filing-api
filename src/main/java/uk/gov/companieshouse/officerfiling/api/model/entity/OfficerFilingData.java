@@ -42,6 +42,7 @@ public class OfficerFilingData {
     private Boolean nationality3Link;
     private Boolean directorAppliedToProtectDetails;
     private Boolean consentToAct;
+    private String checkYourAnswersLink;
 
     public OfficerFilingData(
             final String referenceEtag,
@@ -174,6 +175,10 @@ public class OfficerFilingData {
         return corporateDirector;
     }
 
+    public String getCheckYourAnswersLink() {
+        return checkYourAnswersLink;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -213,7 +218,8 @@ public class OfficerFilingData {
                 && Objects.equals(getResidentialAddress(), that.getResidentialAddress())
                 && Objects.equals(getResidentialAddressBackLink(), that.getResidentialAddressBackLink())
                 && Objects.equals(getResidentialAddressSameAsCorrespondenceAddress(),
-                that.getResidentialAddressSameAsCorrespondenceAddress());
+                that.getResidentialAddressSameAsCorrespondenceAddress())
+                && Objects.equals(getCheckYourAnswersLink(), that.getCheckYourAnswersLink());
     }
 
     @Override
@@ -226,7 +232,7 @@ public class OfficerFilingData {
                 getConsentToAct(), getOccupation(), getOfficerRole(),
                 getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getStatus(), getResidentialAddress(), getResidentialAddressBackLink(),
-                getResidentialAddressSameAsCorrespondenceAddress());
+                getResidentialAddressSameAsCorrespondenceAddress(), getCheckYourAnswersLink());
     }
 
     @Override
@@ -263,6 +269,7 @@ public class OfficerFilingData {
                 .add("residentialAddressSameAsCorrespondenceAddress="
                         + residentialAddressSameAsCorrespondenceAddress)
                 .add("corporateDirector=" + corporateDirector)
+                .add("checkYourAnswersLink=" + checkYourAnswersLink)
                 .toString();
     }
 
@@ -317,7 +324,8 @@ public class OfficerFilingData {
                     .residentialAddressSameAsCorrespondenceAddress(
                             other.getResidentialAddressSameAsCorrespondenceAddress())
                     .resignedOn(other.getResignedOn())
-                    .status(other.getStatus());
+                    .status(other.getStatus())
+                    .checkYourAnswersLink(other.getCheckYourAnswersLink());
         }
 
         public Builder serviceAddress(final Address value) {
@@ -497,6 +505,11 @@ public class OfficerFilingData {
 
         public Builder consentToAct(final Boolean value) {
             buildSteps.add(data -> data.consentToAct = value);
+            return this;
+        }
+
+        public Builder checkYourAnswersLink(final String value) {
+            buildSteps.add(data -> data.checkYourAnswersLink = value);
             return this;
         }
 

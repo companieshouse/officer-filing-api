@@ -183,7 +183,9 @@ public class OfficerFiling {
                                     .residentialAddress(v.getResidentialAddress())
                                     .residentialAddressBackLink(v.getResidentialAddressBackLink())
                                     .residentialAddressSameAsCorrespondenceAddress(v.getAddressSameAsRegisteredOfficeAddress())
-                                    .corporateDirector(v.getCorporateDirector()).build())
+                                    .corporateDirector(v.getCorporateDirector())
+                            .checkYourAnswersLink(v.getCheckYourAnswersLink())
+                            .build())
                     .orElse(null));
             return this;
         }

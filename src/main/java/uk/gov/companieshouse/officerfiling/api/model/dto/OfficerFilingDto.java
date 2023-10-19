@@ -43,6 +43,7 @@ public class OfficerFilingDto {
     private Boolean nationality3Link;
     private Boolean directorAppliedToProtectDetails;
     private Boolean consentToAct;
+    private String checkYourAnswersLink;
 
     private OfficerFilingDto() {
     }
@@ -151,6 +152,8 @@ public class OfficerFilingDto {
 
     public Boolean getConsentToAct() { return consentToAct; }
 
+    public String getCheckYourAnswersLink() { return checkYourAnswersLink; }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -189,7 +192,8 @@ public class OfficerFilingDto {
                 && Objects.equals(getResidentialAddress(), that.getResidentialAddress())
                 && Objects.equals(getResidentialAddressBackLink(), that.getResidentialAddressBackLink())
                 && Objects.equals(getResidentialAddressSameAsCorrespondenceAddress(),
-                that.getResidentialAddressSameAsCorrespondenceAddress());
+                that.getResidentialAddressSameAsCorrespondenceAddress())
+                && Objects.equals(getCheckYourAnswersLink(), that.getCheckYourAnswersLink());
     }
 
     @Override
@@ -200,7 +204,8 @@ public class OfficerFilingDto {
                 getNationality1(), getNationality2(), getNationality2Link(), getNationality3Link(),
                 getDirectorAppliedToProtectDetails(), getConsentToAct(), getNationality3(),
                 getOccupation(), getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
-                getResignedOn(), getResidentialAddress(), getResidentialAddressSameAsCorrespondenceAddress());
+                getResignedOn(), getResidentialAddress(), getResidentialAddressSameAsCorrespondenceAddress(),
+                getCheckYourAnswersLink());
     }
 
     @Override
@@ -235,6 +240,7 @@ public class OfficerFilingDto {
                 .add("residentialAddressBackLink='" + residentialAddressBackLink + "'")
                 .add("residentialAddressSameAsCorrespondenceAddress="
                         + residentialAddressSameAsCorrespondenceAddress)
+                .add("checkYourAnswersLink=" + checkYourAnswersLink)
                 .toString();
     }
 
@@ -419,6 +425,11 @@ public class OfficerFilingDto {
 
         public Builder consentToAct(final Boolean value) {
             buildSteps.add(data -> data.consentToAct = value);
+            return this;
+        }
+
+        public Builder checkYourAnswersLink(final String value) {
+            buildSteps.add(data -> data.checkYourAnswersLink = value);
             return this;
         }
 
