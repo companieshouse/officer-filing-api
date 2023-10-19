@@ -96,6 +96,8 @@ class OfficerFilingMapperTest {
                 .referenceOfficerListEtag("list")
                 .residentialAddress(addressDto)
                 .residentialAddressBackLink("backLink")
+                .directorResidentialAddressChoice("different-address")
+                .directorCorrespondenceAddressChoice("different-address")
                 .residentialAddressSameAsCorrespondenceAddress(true)
                 .resignedOn(localDate1)
                 .build();
@@ -126,6 +128,8 @@ class OfficerFilingMapperTest {
         assertThat(filing.getData().getResignedOn(), is(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC)));
         assertThat(filing.getData().getResidentialAddress(), is(equalTo(address)));
         assertThat(filing.getData().getResidentialAddressBackLink(), is(equalTo("backLink")));
+        assertThat(filing.getData().getDirectorResidentialAddressChoice(), is(equalTo("different-address")));
+        assertThat(filing.getData().getDirectorCorrespondenceAddressChoice(), is(equalTo("different-address")));
         assertThat(filing.getData().getResidentialAddressSameAsCorrespondenceAddress(), is(true));
         assertThat(filing.getData().getStatus(), is(nullValue()));
         assertThat(filing.getUpdatedAt(), is(nullValue()));
@@ -177,6 +181,8 @@ class OfficerFilingMapperTest {
                 .status("status")
                 .residentialAddress(address)
                 .residentialAddressBackLink("backLink")
+                .directorResidentialAddressChoice("different-address")
+                .directorCorrespondenceAddressChoice("different-address")
                 .addressSameAsRegisteredOfficeAddress(true)
                 .corporateDirector(false)
                 .build();
@@ -202,6 +208,8 @@ class OfficerFilingMapperTest {
         assertThat(dto.getReferenceOfficerListEtag(), is("list"));
         assertThat(dto.getResidentialAddress(), is(equalTo(addressDto)));
         assertThat(dto.getResidentialAddressBackLink(), is(equalTo("backLink")));
+        assertThat(dto.getDirectorResidentialAddressChoice(), is(equalTo("different-address")));
+        assertThat(dto.getDirectorCorrespondenceAddressChoice(), is(equalTo("different-address")));
         assertThat(dto.getResidentialAddressSameAsCorrespondenceAddress(), is(true));
         assertThat(dto.getResignedOn(), is(localDate1));
     }
