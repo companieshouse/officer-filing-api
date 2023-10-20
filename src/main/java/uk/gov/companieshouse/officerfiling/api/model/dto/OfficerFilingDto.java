@@ -221,7 +221,7 @@ public class OfficerFilingDto {
                 getDirectorAppliedToProtectDetails(), getConsentToAct(), getNationality3(),
                 getOccupation(), getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getResidentialAddress(), getResidentialAddressSameAsCorrespondenceAddress(),
-                getCheckYourAnswersLink()),getDirectorResidentialAddressChoice(), getDirectorCorrespondenceAddressChoice());
+                getCheckYourAnswersLink(), getDirectorResidentialAddressChoice(), getDirectorCorrespondenceAddressChoice());
     }
 
     @Override

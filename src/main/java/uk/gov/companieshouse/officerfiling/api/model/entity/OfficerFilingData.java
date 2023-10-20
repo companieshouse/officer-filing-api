@@ -541,6 +541,7 @@ public class OfficerFilingData {
 
         public Builder checkYourAnswersLink(final String value) {
             buildSteps.add(data -> data.checkYourAnswersLink = value);
+            return this;
         }
       
         public Builder directorResidentialAddressChoice(final String value) {
