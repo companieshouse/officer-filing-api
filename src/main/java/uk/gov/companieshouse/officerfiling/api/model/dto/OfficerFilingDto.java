@@ -17,6 +17,7 @@ public class OfficerFilingDto {
 
     private AddressDto serviceAddress;
     private String serviceAddressBackLink;
+    private String protectedDetailsBackLink;
     private Boolean addressSameAsRegisteredOfficeAddress;
     private LocalDate appointedOn;
     private String countryOfResidence;
@@ -55,6 +56,8 @@ public class OfficerFilingDto {
     public String getServiceAddressBackLink() {
         return serviceAddressBackLink;
     }
+
+    public String getProtectedDetailsBackLink() { return protectedDetailsBackLink; }
 
     public Boolean getAddressSameAsRegisteredOfficeAddress() {
         return addressSameAsRegisteredOfficeAddress;
@@ -165,6 +168,7 @@ public class OfficerFilingDto {
         final var that = (OfficerFilingDto) o;
         return Objects.equals(getServiceAddress(), that.getServiceAddress())
                 && Objects.equals(getServiceAddressBackLink(), that.getServiceAddressBackLink())
+                && Objects.equals(getProtectedDetailsBackLink(), that.getProtectedDetailsBackLink())
                 && Objects.equals(getAddressSameAsRegisteredOfficeAddress(),
                 that.getAddressSameAsRegisteredOfficeAddress())
                 && Objects.equals(getAppointedOn(), that.getAppointedOn())
@@ -213,6 +217,7 @@ public class OfficerFilingDto {
         return new StringJoiner(", ", OfficerFilingDto.class.getSimpleName() + "[", "]").add(
                         "serviceAddress=" + serviceAddress)
                 .add("serviceAddressBackLink='" + serviceAddressBackLink + "'")
+                .add("protectedDetailsBackLink='" + protectedDetailsBackLink + "'")
                 .add("addressSameAsRegisteredOfficeAddress=" + addressSameAsRegisteredOfficeAddress)
                 .add("appointedOn=" + appointedOn)
                 .add("countryOfResidence='" + countryOfResidence + "'")
@@ -269,6 +274,12 @@ public class OfficerFilingDto {
         public Builder serviceAddressBackLink(final String value) {
 
             buildSteps.add(data -> data.serviceAddressBackLink = value);
+            return this;
+        }
+
+        public Builder protectedDetailsBackLink(final String value) {
+
+            buildSteps.add(data -> data.protectedDetailsBackLink = value);
             return this;
         }
 
