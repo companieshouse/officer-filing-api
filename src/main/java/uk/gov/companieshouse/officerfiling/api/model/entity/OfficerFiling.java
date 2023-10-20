@@ -23,7 +23,6 @@ public class OfficerFiling {
     private Links links;
     private OfficerFilingData data;
     private Instant updatedAt;
-
     private OfficerFiling() {
     }
 
@@ -183,6 +182,8 @@ public class OfficerFiling {
                                     .status(v.getStatus())
                                     .residentialAddress(v.getResidentialAddress())
                                     .residentialAddressBackLink(v.getResidentialAddressBackLink())
+                                    .directorResidentialAddressChoice(v.getDirectorResidentialAddressChoice())
+                                    .directorCorrespondenceAddressChoice(v.getDirectorCorrespondenceAddressChoice())
                                     .residentialAddressSameAsCorrespondenceAddress(v.getAddressSameAsRegisteredOfficeAddress())
                                     .corporateDirector(v.getCorporateDirector())
                             .checkYourAnswersLink(v.getCheckYourAnswersLink())

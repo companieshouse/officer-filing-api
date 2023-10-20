@@ -44,6 +44,8 @@ public class OfficerFilingData {
     private Boolean directorAppliedToProtectDetails;
     private Boolean consentToAct;
     private String checkYourAnswersLink;
+    private String directorResidentialAddressChoice;
+    private String directorCorrespondenceAddressChoice;
 
     public OfficerFilingData(
             final String referenceEtag,
@@ -184,6 +186,14 @@ public class OfficerFilingData {
         return checkYourAnswersLink;
     }
 
+    public String getDirectorResidentialAddressChoice() {
+        return directorResidentialAddressChoice;
+    }
+
+    public String getDirectorCorrespondenceAddressChoice() {
+        return directorCorrespondenceAddressChoice;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -223,6 +233,8 @@ public class OfficerFilingData {
                 && Objects.equals(getStatus(), that.getStatus())
                 && Objects.equals(getResidentialAddress(), that.getResidentialAddress())
                 && Objects.equals(getResidentialAddressBackLink(), that.getResidentialAddressBackLink())
+                && Objects.equals(getDirectorResidentialAddressChoice(), that.getDirectorResidentialAddressChoice())
+                && Objects.equals(getDirectorCorrespondenceAddressChoice(), that.getDirectorCorrespondenceAddressChoice())
                 && Objects.equals(getResidentialAddressSameAsCorrespondenceAddress(),
                 that.getResidentialAddressSameAsCorrespondenceAddress())
                 && Objects.equals(getCheckYourAnswersLink(), that.getCheckYourAnswersLink());
@@ -238,7 +250,8 @@ public class OfficerFilingData {
                 getConsentToAct(), getOccupation(), getOfficerRole(),
                 getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getStatus(), getResidentialAddress(), getResidentialAddressBackLink(),
-                getResidentialAddressSameAsCorrespondenceAddress(), getCheckYourAnswersLink());
+                getCheckYourAnswersLink(), getResidentialAddressSameAsCorrespondenceAddress(),
+                getDirectorResidentialAddressChoice());
     }
 
     @Override
@@ -277,6 +290,8 @@ public class OfficerFilingData {
                         + residentialAddressSameAsCorrespondenceAddress)
                 .add("corporateDirector=" + corporateDirector)
                 .add("checkYourAnswersLink=" + checkYourAnswersLink)
+                .add("directorResidentialAddressChoice=" + directorResidentialAddressChoice)
+                .add("directorCorrespondenceAddressChoice=" + directorCorrespondenceAddressChoice)
                 .toString();
     }
 
@@ -332,8 +347,10 @@ public class OfficerFilingData {
                     .residentialAddressSameAsCorrespondenceAddress(
                             other.getResidentialAddressSameAsCorrespondenceAddress())
                     .resignedOn(other.getResignedOn())
-                    .status(other.getStatus())
-                    .checkYourAnswersLink(other.getCheckYourAnswersLink());
+                    .checkYourAnswersLink(other.getCheckYourAnswersLink())
+                    .directorResidentialAddressChoice(other.getDirectorResidentialAddressChoice())
+                    .directorCorrespondenceAddressChoice(other.getDirectorCorrespondenceAddressChoice())
+                    .status(other.getStatus());
         }
 
         public Builder serviceAddress(final Address value) {
@@ -524,6 +541,15 @@ public class OfficerFilingData {
 
         public Builder checkYourAnswersLink(final String value) {
             buildSteps.add(data -> data.checkYourAnswersLink = value);
+        }
+      
+        public Builder directorResidentialAddressChoice(final String value) {
+            buildSteps.add(data -> data.directorResidentialAddressChoice = value);
+            return this;
+        }
+
+        public Builder directorCorrespondenceAddressChoice(final String value) {
+            buildSteps.add(data -> data.directorCorrespondenceAddressChoice = value);
             return this;
         }
 
