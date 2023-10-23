@@ -185,7 +185,9 @@ public class OfficerFiling {
                                     .directorResidentialAddressChoice(v.getDirectorResidentialAddressChoice())
                                     .directorCorrespondenceAddressChoice(v.getDirectorCorrespondenceAddressChoice())
                                     .residentialAddressSameAsCorrespondenceAddress(v.getAddressSameAsRegisteredOfficeAddress())
-                                    .corporateDirector(v.getCorporateDirector()).build())
+                                    .corporateDirector(v.getCorporateDirector())
+                            .checkYourAnswersLink(v.getCheckYourAnswersLink())
+                            .build())
                     .orElse(null));
             return this;
         }
