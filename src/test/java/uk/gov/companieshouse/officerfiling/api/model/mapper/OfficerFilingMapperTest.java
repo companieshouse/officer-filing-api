@@ -84,7 +84,7 @@ class OfficerFilingMapperTest {
                 .serviceAddress(addressDto)
                 .serviceAddressBackLink("backLink")
                 .protectedDetailsBackLink("protectedDetailsBackLink")
-                .isMailingAddressSameAsRegisteredOfficeAddress(true)
+                .isMailingIsMailingAddressSameAsRegisteredOfficeAddress(true)
                 .appointedOn(localDate1)
                 .countryOfResidence("countryOfResidence")
                 .dateOfBirth(localDateDob1)
@@ -99,7 +99,7 @@ class OfficerFilingMapperTest {
                 .residentialAddressBackLink("backLink")
                 .directorResidentialAddressChoice("different-address")
                 .directorCorrespondenceAddressChoice("different-address")
-                .residentialAddressSameAsCorrespondenceAddress(true)
+                .isMailingAddressSameAsHomeAddress(true)
                 .resignedOn(localDate1)
                 .build();
 
@@ -108,7 +108,7 @@ class OfficerFilingMapperTest {
         assertThat(filing.getData().getServiceAddress(), is(equalTo(address)));
         assertThat(filing.getData().getServiceAddressBackLink(), is(equalTo("backLink")));
         assertThat(filing.getData().getProtectedDetailsBackLink(), is(equalTo("protectedDetailsBackLink")));
-        assertThat(filing.getData().getIsMailingAddressSameAsRegisteredOfficeAddress(), is(true));
+        assertThat(filing.getData().getIsMailingIsMailingAddressSameAsRegisteredOfficeAddress(), is(true));
         assertThat(filing.getData().getAppointedOn(),
                 is(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC)));
         assertThat(filing.getData().getCountryOfResidence(), is("countryOfResidence"));
@@ -132,7 +132,7 @@ class OfficerFilingMapperTest {
         assertThat(filing.getData().getResidentialAddressBackLink(), is(equalTo("backLink")));
         assertThat(filing.getData().getDirectorResidentialAddressChoice(), is(equalTo("different-address")));
         assertThat(filing.getData().getDirectorCorrespondenceAddressChoice(), is(equalTo("different-address")));
-        assertThat(filing.getData().getResidentialAddressSameAsCorrespondenceAddress(), is(true));
+        assertThat(filing.getData().getIsMailingAddressSameAsHomeAddress(), is(true));
         assertThat(filing.getData().getStatus(), is(nullValue()));
         assertThat(filing.getUpdatedAt(), is(nullValue()));
     }
@@ -155,8 +155,8 @@ class OfficerFilingMapperTest {
         final var filing = testMapper.map(dto);
 
         assertThat(filing, is(equalTo(emptyFiling)));
-        assertThat(filing.getData().getIsMailingAddressSameAsRegisteredOfficeAddress(), is(nullValue()));
-        assertThat(filing.getData().getResidentialAddressSameAsCorrespondenceAddress(), is(nullValue()));
+        assertThat(filing.getData().getIsMailingIsMailingAddressSameAsRegisteredOfficeAddress(), is(nullValue()));
+        assertThat(filing.getData().getIsMailingAddressSameAsHomeAddress(), is(nullValue()));
 
     }
 
@@ -166,7 +166,7 @@ class OfficerFilingMapperTest {
                 .serviceAddress(address)
                 .serviceAddressBackLink("backLink")
                 .protectedDetailsBackLink("protectedDetailsBackLink")
-                .isMailingAddressSameAsRegisteredOfficeAddress(true)
+                .isMailingIsMailingAddressSameAsRegisteredOfficeAddress(true)
                 .appointedOn(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC))
                 .countryOfResidence("countryOfResidence")
                 .dateOfBirth(dob1)
@@ -186,7 +186,7 @@ class OfficerFilingMapperTest {
                 .residentialAddressBackLink("backLink")
                 .directorResidentialAddressChoice("different-address")
                 .directorCorrespondenceAddressChoice("different-address")
-                .isMailingAddressSameAsRegisteredOfficeAddress(true)
+                .isMailingIsMailingAddressSameAsRegisteredOfficeAddress(true)
                 .corporateDirector(false)
                 .build();
         final var now = clock.instant();
@@ -198,7 +198,7 @@ class OfficerFilingMapperTest {
         assertThat(dto.getServiceAddress(), is(equalTo(addressDto)));
         assertThat(dto.getServiceAddressBackLink(), is(equalTo("backLink")));
         assertThat(dto.getProtectedDetailsBackLink(), is(equalTo("protectedDetailsBackLink")));
-        assertThat(dto.getIsMailingAddressSameAsRegisteredOfficeAddress(), is(true));
+        assertThat(dto.getIsMailingIsMailingAddressSameAsRegisteredOfficeAddress(), is(true));
         assertThat(dto.getAppointedOn(), is(localDate1));
         assertThat(dto.getCountryOfResidence(), is("countryOfResidence"));
         assertThat(dto.getDateOfBirth(), is(localDateDob1));
@@ -214,7 +214,7 @@ class OfficerFilingMapperTest {
         assertThat(dto.getResidentialAddressBackLink(), is(equalTo("backLink")));
         assertThat(dto.getDirectorResidentialAddressChoice(), is(equalTo("different-address")));
         assertThat(dto.getDirectorCorrespondenceAddressChoice(), is(equalTo("different-address")));
-        assertThat(dto.getResidentialAddressSameAsCorrespondenceAddress(), is(true));
+        assertThat(dto.getIsMailingAddressSameAsHomeAddress(), is(true));
         assertThat(dto.getResignedOn(), is(localDate1));
     }
 
@@ -230,8 +230,8 @@ class OfficerFilingMapperTest {
         final var dto = testMapper.map(filing);
 
         assertThat(dto, is(equalTo(emptyDto)));
-        assertThat(dto.getIsMailingAddressSameAsRegisteredOfficeAddress(), is(nullValue()));
-        assertThat(dto.getResidentialAddressSameAsCorrespondenceAddress(), is(nullValue()));
+        assertThat(dto.getIsMailingIsMailingAddressSameAsRegisteredOfficeAddress(), is(nullValue()));
+        assertThat(dto.getIsMailingAddressSameAsHomeAddress(), is(nullValue()));
     }
 
 }
