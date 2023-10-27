@@ -18,7 +18,7 @@ public class OfficerFilingDto {
     private AddressDto serviceAddress;
     private String serviceAddressBackLink;
     private String protectedDetailsBackLink;
-    private Boolean isMailingIsMailingAddressSameAsRegisteredOfficeAddress;
+    private Boolean isMailingAddressSameAsRegisteredOfficeAddress;
     private LocalDate appointedOn;
     private String countryOfResidence;
     private LocalDate dateOfBirth;
@@ -61,8 +61,8 @@ public class OfficerFilingDto {
 
     public String getProtectedDetailsBackLink() { return protectedDetailsBackLink; }
 
-    public Boolean getIsMailingIsMailingAddressSameAsRegisteredOfficeAddress() {
-        return isMailingIsMailingAddressSameAsRegisteredOfficeAddress;
+    public Boolean getIsMailingAddressSameAsRegisteredOfficeAddress() {
+        return isMailingAddressSameAsRegisteredOfficeAddress;
     }
 
     public LocalDate getAppointedOn() {
@@ -179,8 +179,8 @@ public class OfficerFilingDto {
         return Objects.equals(getServiceAddress(), that.getServiceAddress())
                 && Objects.equals(getServiceAddressBackLink(), that.getServiceAddressBackLink())
                 && Objects.equals(getProtectedDetailsBackLink(), that.getProtectedDetailsBackLink())
-                && Objects.equals(getIsMailingIsMailingAddressSameAsRegisteredOfficeAddress(),
-                that.getIsMailingIsMailingAddressSameAsRegisteredOfficeAddress())
+                && Objects.equals(getIsMailingAddressSameAsRegisteredOfficeAddress(),
+                that.getIsMailingAddressSameAsRegisteredOfficeAddress())
                 && Objects.equals(getAppointedOn(), that.getAppointedOn())
                 && Objects.equals(getCountryOfResidence(), that.getCountryOfResidence())
                 && Objects.equals(getDateOfBirth(), that.getDateOfBirth())
@@ -214,7 +214,7 @@ public class OfficerFilingDto {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getServiceAddress(), getIsMailingIsMailingAddressSameAsRegisteredOfficeAddress(),
+        return Objects.hash(getServiceAddress(), getIsMailingAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getDateOfBirth(), getFormerNames(),
                 getIdentification(), getTitle(), getName(), getFirstName(), getMiddleNames(), getLastName(),
                 getNationality1(), getNationality2(), getNationality2Link(), getNationality3Link(),
@@ -230,7 +230,7 @@ public class OfficerFilingDto {
                         "serviceAddress=" + serviceAddress)
                 .add("serviceAddressBackLink='" + serviceAddressBackLink + "'")
                 .add("protectedDetailsBackLink='" + protectedDetailsBackLink + "'")
-                .add("isMailingIsMailingAddressSameAsRegisteredOfficeAddress=" + isMailingIsMailingAddressSameAsRegisteredOfficeAddress)
+                .add("isMailingAddressSameAsRegisteredOfficeAddress=" + isMailingAddressSameAsRegisteredOfficeAddress)
                 .add("appointedOn=" + appointedOn)
                 .add("countryOfResidence='" + countryOfResidence + "'")
                 .add("dateOfBirth=" + dateOfBirth)
@@ -297,9 +297,9 @@ public class OfficerFilingDto {
             return this;
         }
 
-        public Builder isMailingIsMailingAddressSameAsRegisteredOfficeAddress(final Boolean value) {
+        public Builder isMailingAddressSameAsRegisteredOfficeAddress(final Boolean value) {
 
-            buildSteps.add(data -> data.isMailingIsMailingAddressSameAsRegisteredOfficeAddress = value);
+            buildSteps.add(data -> data.isMailingAddressSameAsRegisteredOfficeAddress = value);
             return this;
         }
 
