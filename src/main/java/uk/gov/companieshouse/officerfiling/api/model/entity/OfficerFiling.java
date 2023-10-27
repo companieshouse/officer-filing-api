@@ -184,7 +184,7 @@ public class OfficerFiling {
                                     .residentialAddressBackLink(v.getResidentialAddressBackLink())
                                     .directorResidentialAddressChoice(v.getDirectorResidentialAddressChoice())
                                     .directorCorrespondenceAddressChoice(v.getDirectorCorrespondenceAddressChoice())
-                                    .isMailingAddressSameAsHomeAddress(v.getIsMailingAddressSameAsRegisteredOfficeAddress())
+                                    .isMailingAddressSameAsHomeAddress(v.getIsMailingAddressSameAsHomeAddress())
                                     .corporateDirector(v.getCorporateDirector())
                             .checkYourAnswersLink(v.getCheckYourAnswersLink())
                             .build())
