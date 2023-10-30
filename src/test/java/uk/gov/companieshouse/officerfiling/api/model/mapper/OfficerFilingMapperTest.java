@@ -186,7 +186,7 @@ class OfficerFilingMapperTest {
                 .residentialAddressBackLink("backLink")
                 .directorResidentialAddressChoice("different-address")
                 .directorCorrespondenceAddressChoice("different-address")
-                .isMailingAddressSameAsRegisteredOfficeAddress(true)
+                .isMailingAddressSameAsHomeAddress(true)
                 .corporateDirector(false)
                 .build();
         final var now = clock.instant();
@@ -214,7 +214,7 @@ class OfficerFilingMapperTest {
         assertThat(dto.getResidentialAddressBackLink(), is(equalTo("backLink")));
         assertThat(dto.getDirectorResidentialAddressChoice(), is(equalTo("different-address")));
         assertThat(dto.getDirectorCorrespondenceAddressChoice(), is(equalTo("different-address")));
-        assertThat(dto.getIsMailingAddressSameAsRegisteredOfficeAddress(), is(true));
+        assertThat(dto.getIsMailingAddressSameAsHomeAddress(), is(true));
         assertThat(dto.getResignedOn(), is(localDate1));
     }
 
