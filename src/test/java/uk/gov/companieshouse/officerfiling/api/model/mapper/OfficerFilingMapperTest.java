@@ -186,7 +186,7 @@ class OfficerFilingMapperTest {
                 .residentialAddressBackLink("backLink")
                 .directorResidentialAddressChoice("different-address")
                 .directorCorrespondenceAddressChoice("different-address")
-                .isMailingAddressSameAsRegisteredOfficeAddress(true)
+                .isMailingAddressSameAsHomeAddress(true)
                 .corporateDirector(false)
                 .build();
         final var now = clock.instant();
