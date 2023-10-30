@@ -1,15 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
 import org.apache.commons.lang.NotImplementedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,6 +13,16 @@ import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.FilingAPIMapper;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.officerfiling.api.utils.MapHelper;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * Produces Filing Data format for consumption as JSON by filing-resource-handler external service.
@@ -73,7 +74,7 @@ public class FilingDataServiceImpl implements FilingDataService {
             } else if (presentOfficerFilingData.getReferenceEtag() == null) {
                 //has no Etag (and has no removal date) so it must be an AP01
                 filing.setKind("officer-filing#appointment");
-                setAppointmentFilingApiData(transactionId, filingId, ericPassThroughHeader);
+                setAppointmentFilingApiData(filing, transactionId, filingId, ericPassThroughHeader);
             } else {
                 throw new NotImplementedException("Kind cannot be calculated using given data for transaction " + transactionId );
             }
@@ -82,13 +83,16 @@ public class FilingDataServiceImpl implements FilingDataService {
             setTerminationFilingApiData(filing, transactionId, filingId, ericPassThroughHeader);
         }
 
-
         return filing;
     }
 
     private void setTerminationFilingApiData(FilingApi filing, String transactionId, String filingId,
             String ericPassThroughHeader) {
         var officerFilingOpt = officerFilingService.get(filingId, transactionId);
+
+        // Throw an exception if officerFilingOpt is empty
+
+
         var officerFiling = officerFilingOpt.orElseThrow(() -> new NotImplementedException(
                 String.format("Officer not found when generating filing for %s", filingId)));
         final var transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
@@ -140,14 +144,26 @@ public class FilingDataServiceImpl implements FilingDataService {
         setDescriptionFields(filing, companyAppointment);
     }
 
-    private void setAppointmentFilingApiData(String transactionId, String filingId,
-            String ericPassThroughHeader) {
-        //TODO - just creating a blank one of these for the moment,  need to add filing data into here as we add it in.
+    private void setAppointmentFilingApiData(FilingApi filing, String transactionId, String filingId,
+                                             String ericPassThroughHeader) {
+        var officerFiling = officerFilingService.get(filingId, transactionId)
+                .orElseThrow(() -> new IllegalStateException(String.format("Officer not found when generating filing for %s", filingId)));
         final var transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
 
+        var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
+                .createdAt(officerFiling.getCreatedAt())
+                .updatedAt(officerFiling.getUpdatedAt())
+                .data(OfficerFilingData.builder(officerFiling.getData())
+                        .build())
+                .build();
+
+        var filingData = filingAPIMapper.map(enhancedOfficerFiling);
+        var dataMap = MapHelper.convertObject(filingData, PropertyNamingStrategies.SNAKE_CASE);
         logger.debugContext(transactionId, "Created filing data for submission", new LogHelper.Builder(transaction)
                 .withFilingId(filingId)
                 .build());
+
+        filing.setData(dataMap);
     }
 
     /**
