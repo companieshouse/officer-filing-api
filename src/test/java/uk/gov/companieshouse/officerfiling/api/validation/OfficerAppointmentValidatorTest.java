@@ -2216,5 +2216,51 @@ class OfficerAppointmentValidatorTest {
                 .extracting(ApiError::getError)
                 .contains("Select a country from the list");
     }
+
+    @Test
+    void validationWhenBothAddressFlagAreNotSentOrNullValues() {
+        setupDefaultParamaters();
+        when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
+        when(dto.getIsMailingAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
+        when(dto.getIsMailingAddressSameAsHomeAddress()).thenReturn(null);
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("No Errors when both address flags sent as null values")
+                .isEmpty();
+    }
+
+    @Test
+    void validationWhenOneAddressFlagIsSetAsTrueAndOtherIsNull() {
+        setupDefaultParamaters();
+        when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
+        when(dto.getIsMailingAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
+        when(dto.getIsMailingAddressSameAsHomeAddress()).thenReturn(true);
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("No Errors when one flags sent as null values and other is sent as true")
+                .isEmpty();
+    }
+
+    @Test
+    void validationWhenBothAddressFlagAreSetAsTrue() {
+        setupDefaultParamaters();
+        when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
+        when(dto.getIsMailingAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(dto.getIsMailingAddressSameAsHomeAddress()).thenReturn(true);
+
+        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS)).thenReturn(
+                "The maximum number of address links that can be established is one");
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Errors when both address flags sent as true")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The maximum number of address links that can be established is one");
+    }
     
 }

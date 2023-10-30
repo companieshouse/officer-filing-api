@@ -104,6 +104,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         if(dto.getResidentialAddress() != null){
             validateOptionalResidentialAddressFields(request, errorList, dto);
         }
+        validateAddressesMultipleFlags(request, errorList, dto);
     }
 
     private void validateFirstName(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
@@ -372,6 +373,12 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_LOCALITY_BLANK));
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_BLANK));
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_COUNTRY_BLANK));
+        }
+    }
+
+    private void validateAddressesMultipleFlags(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
+        if(Boolean.TRUE.equals(dto.getIsMailingAddressSameAsHomeAddress()) && Boolean.TRUE.equals(dto.getIsMailingAddressSameAsRegisteredOfficeAddress())) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS));
         }
     }
 
