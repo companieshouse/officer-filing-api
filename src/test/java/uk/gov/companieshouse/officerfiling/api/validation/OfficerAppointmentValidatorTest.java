@@ -2226,6 +2226,9 @@ class OfficerAppointmentValidatorTest {
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
+        // validating null values to avoid unnecessary stubbing errors when running the tests.
+        assertThat(dto.getIsMailingAddressSameAsRegisteredOfficeAddress()).isNull();
+        assertThat(dto.getIsMailingAddressSameAsHomeAddress()).isNull();
         assertThat(apiErrors.getErrors())
                 .as("No Errors when both address flags sent as null values")
                 .isEmpty();

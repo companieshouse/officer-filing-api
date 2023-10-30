@@ -214,7 +214,7 @@ class OfficerFilingMapperTest {
         assertThat(dto.getResidentialAddressBackLink(), is(equalTo("backLink")));
         assertThat(dto.getDirectorResidentialAddressChoice(), is(equalTo("different-address")));
         assertThat(dto.getDirectorCorrespondenceAddressChoice(), is(equalTo("different-address")));
-        assertThat(dto.getIsMailingAddressSameAsHomeAddress(), is(true));
+        assertThat(dto.getIsMailingAddressSameAsRegisteredOfficeAddress(), is(true));
         assertThat(dto.getResignedOn(), is(localDate1));
     }
 
