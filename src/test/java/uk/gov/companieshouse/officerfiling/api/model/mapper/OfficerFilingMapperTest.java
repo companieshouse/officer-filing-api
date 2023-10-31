@@ -83,6 +83,7 @@ class OfficerFilingMapperTest {
                 .identification(identificationDto)
                 .serviceAddress(addressDto)
                 .serviceAddressBackLink("backLink")
+                .serviceManualAddressBackLink("serviceManualAddressBackLink")
                 .protectedDetailsBackLink("protectedDetailsBackLink")
                 .isMailingAddressSameAsRegisteredOfficeAddress(true)
                 .appointedOn(localDate1)
@@ -97,6 +98,7 @@ class OfficerFilingMapperTest {
                 .referenceOfficerListEtag("list")
                 .residentialAddress(addressDto)
                 .residentialAddressBackLink("backLink")
+                .residentialManualAddressBackLink("residentialManualAddressBackLink")
                 .directorResidentialAddressChoice("different-address")
                 .directorCorrespondenceAddressChoice("different-address")
                 .isMailingAddressSameAsHomeAddress(true)
@@ -107,6 +109,7 @@ class OfficerFilingMapperTest {
 
         assertThat(filing.getData().getServiceAddress(), is(equalTo(address)));
         assertThat(filing.getData().getServiceAddressBackLink(), is(equalTo("backLink")));
+        assertThat(filing.getData().getServiceManualAddressBackLink(), is(equalTo("serviceManualAddressBackLink")));
         assertThat(filing.getData().getProtectedDetailsBackLink(), is(equalTo("protectedDetailsBackLink")));
         assertThat(filing.getData().getIsMailingAddressSameAsRegisteredOfficeAddress(), is(true));
         assertThat(filing.getData().getAppointedOn(),
@@ -130,6 +133,7 @@ class OfficerFilingMapperTest {
         assertThat(filing.getData().getResignedOn(), is(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC)));
         assertThat(filing.getData().getResidentialAddress(), is(equalTo(address)));
         assertThat(filing.getData().getResidentialAddressBackLink(), is(equalTo("backLink")));
+        assertThat(filing.getData().getResidentialManualAddressBackLink(), is(equalTo("residentialManualAddressBackLink")));
         assertThat(filing.getData().getDirectorResidentialAddressChoice(), is(equalTo("different-address")));
         assertThat(filing.getData().getDirectorCorrespondenceAddressChoice(), is(equalTo("different-address")));
         assertThat(filing.getData().getIsMailingAddressSameAsHomeAddress(), is(true));
@@ -165,6 +169,7 @@ class OfficerFilingMapperTest {
         var offData = OfficerFilingData.builder()
                 .serviceAddress(address)
                 .serviceAddressBackLink("backLink")
+                .serviceManualAddressBackLink("serviceManualAddressBackLink")
                 .protectedDetailsBackLink("protectedDetailsBackLink")
                 .isMailingAddressSameAsRegisteredOfficeAddress(true)
                 .appointedOn(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC))
@@ -184,6 +189,7 @@ class OfficerFilingMapperTest {
                 .status("status")
                 .residentialAddress(address)
                 .residentialAddressBackLink("backLink")
+                .residentialManualAddressBackLink("residentialManualAddressBackLink")
                 .directorResidentialAddressChoice("different-address")
                 .directorCorrespondenceAddressChoice("different-address")
                 .isMailingAddressSameAsHomeAddress(true)
@@ -197,6 +203,7 @@ class OfficerFilingMapperTest {
 
         assertThat(dto.getServiceAddress(), is(equalTo(addressDto)));
         assertThat(dto.getServiceAddressBackLink(), is(equalTo("backLink")));
+        assertThat(dto.getServiceManualAddressBackLink(), is(equalTo("serviceManualAddressBackLink")));
         assertThat(dto.getProtectedDetailsBackLink(), is(equalTo("protectedDetailsBackLink")));
         assertThat(dto.getIsMailingAddressSameAsRegisteredOfficeAddress(), is(true));
         assertThat(dto.getAppointedOn(), is(localDate1));
@@ -212,6 +219,7 @@ class OfficerFilingMapperTest {
         assertThat(dto.getReferenceOfficerListEtag(), is("list"));
         assertThat(dto.getResidentialAddress(), is(equalTo(addressDto)));
         assertThat(dto.getResidentialAddressBackLink(), is(equalTo("backLink")));
+        assertThat(dto.getResidentialManualAddressBackLink(), is(equalTo("residentialManualAddressBackLink")));
         assertThat(dto.getDirectorResidentialAddressChoice(), is(equalTo("different-address")));
         assertThat(dto.getDirectorCorrespondenceAddressChoice(), is(equalTo("different-address")));
         assertThat(dto.getIsMailingAddressSameAsHomeAddress(), is(true));
