@@ -199,9 +199,9 @@ class FilingDataServiceImplTest {
                 .nationality3("nationality3")
                 .occupation("occupation")
                 .serviceAddress(Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build())
-                .addressSameAsRegisteredOfficeAddress(false)
+                .isMailingAddressSameAsRegisteredOfficeAddress(false)
                 .residentialAddress(Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build())
-                .residentialAddressSameAsCorrespondenceAddress(false)
+                .isMailingAddressSameAsHomeAddress(false)
                 .directorAppliedToProtectDetails(false)
                 .consentToAct(true)
                 .corporateDirector(false)
@@ -234,13 +234,13 @@ class FilingDataServiceImplTest {
                                 "address_line_1", "One Street",
                                 "country", "England",
                                 "postal_code", "TE1 3ST")),
-                        Map.entry("address_same_as_registered_office_address", false),
+                        Map.entry("mailing_address_same_as_registered_office_address", false),
                         Map.entry("residential_address", Map.of(
                                 "premises", "12",
                                 "address_line_1", "Two Street",
                                 "country", "Wales",
                                 "postal_code", "TE2 4ST")),
-                        Map.entry("residential_address_same_as_correspondence_address", false),
+                        Map.entry("mailing_address_same_as_home_address", false),
                         Map.entry("director_applied_to_protect_details", false),
                         Map.entry("consent_to_act", true),
                         Map.entry("is_corporate_director", false));

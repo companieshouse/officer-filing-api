@@ -22,9 +22,9 @@ public class FilingData {
     private String nationality3;
     private String occupation;
     private Address serviceAddress;
-    private Boolean addressSameAsRegisteredOfficeAddress;
+    private Boolean isMailingAddressSameAsRegisteredOfficeAddress;
     private Address residentialAddress;
-    private Boolean residentialAddressSameAsCorrespondenceAddress;
+    private Boolean isMailingAddressSameAsHomeAddress;
     private Boolean directorAppliedToProtectDetails;
     private Boolean consentToAct;
     @JsonProperty("is_corporate_director")
@@ -60,9 +60,9 @@ public class FilingData {
                          @JsonProperty("nationality3") String nationality3,
                          @JsonProperty("occupation") String occupation,
                          @JsonProperty("service_address") Address serviceAddress,
-                         @JsonProperty("address_same_as_registered_office_address") Boolean addressSameAsRegisteredOfficeAddress,
+                         @JsonProperty("is_mailing_address_same_as_registered_office_address") Boolean isMailingAddressSameAsRegisteredOfficeAddress,
                          @JsonProperty("residential_address") Address residentialAddress,
-                         @JsonProperty("residential_address_same_as_correspondence_address") Boolean residentialAddressSameAsCorrespondenceAddress,
+                         @JsonProperty("is_mailing_address_same_as_home_address") Boolean isMailingAddressSameAsHomeAddress,
                          @JsonProperty("director_applied_to_protect_details") Boolean directorAppliedToProtectDetails,
                          @JsonProperty("consent_to_act") Boolean consentToAct,
                          @JsonProperty("is_corporate_director") Boolean corporateDirector) {
@@ -79,9 +79,9 @@ public class FilingData {
         this.nationality3 = nationality3;
         this.occupation = occupation;
         this.serviceAddress = serviceAddress;
-        this.addressSameAsRegisteredOfficeAddress = addressSameAsRegisteredOfficeAddress;
+        this.isMailingAddressSameAsRegisteredOfficeAddress = isMailingAddressSameAsRegisteredOfficeAddress;
         this.residentialAddress = residentialAddress;
-        this.residentialAddressSameAsCorrespondenceAddress = residentialAddressSameAsCorrespondenceAddress;
+        this.isMailingAddressSameAsHomeAddress = isMailingAddressSameAsHomeAddress;
         this.directorAppliedToProtectDetails = directorAppliedToProtectDetails;
         this.consentToAct = consentToAct;
         this.corporateDirector = corporateDirector;
@@ -139,16 +139,16 @@ public class FilingData {
         return serviceAddress;
     }
 
-    public Boolean getAddressSameAsRegisteredOfficeAddress() {
-        return addressSameAsRegisteredOfficeAddress;
+    public Boolean getMailingAddressSameAsRegisteredOfficeAddress() {
+        return isMailingAddressSameAsRegisteredOfficeAddress;
     }
 
     public Address getResidentialAddress() {
         return residentialAddress;
     }
 
-    public Boolean getResidentialAddressSameAsCorrespondenceAddress() {
-        return residentialAddressSameAsCorrespondenceAddress;
+    public Boolean getMailingAddressSameAsHomeAddress() {
+        return isMailingAddressSameAsHomeAddress;
     }
 
     public Boolean getDirectorAppliedToProtectDetails() {
@@ -179,9 +179,9 @@ public class FilingData {
                 ", nationality3='" + nationality3 + '\'' +
                 ", occupation='" + occupation + '\'' +
                 ", serviceAddress=" + serviceAddress +
-                ", addressSameAsRegisteredOfficeAddress=" + addressSameAsRegisteredOfficeAddress +
+                ", isMailingAddressSameAsRegisteredOfficeAddress=" + isMailingAddressSameAsRegisteredOfficeAddress +
                 ", residentialAddress=" + residentialAddress +
-                ", residentialAddressSameAsCorrespondenceAddress=" + residentialAddressSameAsCorrespondenceAddress +
+                ", isMailingAddressSameAsHomeAddress=" + isMailingAddressSameAsHomeAddress +
                 ", directorAppliedToProtectDetails=" + directorAppliedToProtectDetails +
                 ", consentToAct=" + consentToAct +
                 ", corporateDirector=" + corporateDirector +
