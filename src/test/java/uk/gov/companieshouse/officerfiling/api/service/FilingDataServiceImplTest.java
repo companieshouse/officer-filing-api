@@ -1,17 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
 import org.apache.commons.lang.NotImplementedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,10 +13,24 @@ import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.delta.officers.SensitiveDateOfBirthAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Address;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.filing.FilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.FilingAPIMapper;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FilingDataServiceImplTest {
@@ -179,15 +181,30 @@ class FilingDataServiceImplTest {
 
     @Test
     void generateAppointmentOfficerFilingWhenFound() {
-        //TODO  will need to update this test once we add ion the filing data generation bits for AP01,
-        // at the moment its just checking everything is null.
         ReflectionTestUtils.setField(testService, "filingDescription",
                 "(AP01) Appointment of director. Appointment of {director name}");
-        final var filingData = new FilingData(FIRSTNAME, MIDDLENAMES, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, true);
+        final var filingData = new FilingData("Major", FIRSTNAME, MIDDLENAMES, LASTNAME, "former names", DATE_OF_BIRTH_STR, RESIGNED_ON_STR,
+                null, "nationality1", "nationality2", "nationality3", "occupation",
+                Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build(), false,
+                Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build(), false,
+                false, true, false);
         var offData = OfficerFilingData.builder()
                 .firstName(FIRSTNAME)
                 .middleNames(MIDDLENAMES)
                 .lastName(LASTNAME)
+                .dateOfBirth(DATE_OF_BIRTH_INS)
+                .appointedOn(RESIGNED_ON_INS)
+                .nationality1("nationality1")
+                .nationality2("nationality2")
+                .nationality3("nationality3")
+                .occupation("occupation")
+                .serviceAddress(Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build())
+                .isMailingAddressSameAsRegisteredOfficeAddress(false)
+                .residentialAddress(Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build())
+                .isMailingAddressSameAsHomeAddress(false)
+                .directorAppliedToProtectDetails(false)
+                .consentToAct(true)
+                .corporateDirector(false)
                 .build();
         final var now = clock.instant();
         final var officerFiling = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
@@ -195,10 +212,38 @@ class FilingDataServiceImplTest {
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(filingAPIMapper.map(officerFiling)).thenReturn(filingData);
 
         final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
 
-        final Map<String, Object> expectedMap = null;
+        final Map<String, Object> expectedMap =
+                Map.ofEntries(
+                        Map.entry("title", "Major"),
+                        Map.entry("first_name", FIRSTNAME),
+                        Map.entry("middle_names", MIDDLENAMES),
+                        Map.entry("last_name", LASTNAME),
+                        Map.entry("former_names", "former names"),
+                        Map.entry("date_of_birth", DATE_OF_BIRTH_STR),
+                        Map.entry("appointed_on", RESIGNED_ON_STR),
+                        Map.entry("nationality1", "nationality1"),
+                        Map.entry("nationality2", "nationality2"),
+                        Map.entry("nationality3", "nationality3"),
+                        Map.entry("occupation", "occupation"),
+                        Map.entry("service_address", Map.of(
+                                "premises", "11",
+                                "address_line_1", "One Street",
+                                "country", "England",
+                                "postal_code", "TE1 3ST")),
+                        Map.entry("mailing_address_same_as_registered_office_address", false),
+                        Map.entry("residential_address", Map.of(
+                                "premises", "12",
+                                "address_line_1", "Two Street",
+                                "country", "Wales",
+                                "postal_code", "TE2 4ST")),
+                        Map.entry("mailing_address_same_as_home_address", false),
+                        Map.entry("director_applied_to_protect_details", false),
+                        Map.entry("consent_to_act", true),
+                        Map.entry("is_corporate_director", false));
 
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#appointment"));

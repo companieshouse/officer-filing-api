@@ -2,12 +2,13 @@ package uk.gov.companieshouse.officerfiling.api.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import javax.validation.constraints.NotNull;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Address {
@@ -23,6 +24,8 @@ public class Address {
     private String country;
     private String locality;
     private String poBox;
+    @Field("postal_code")
+    @JsonProperty ("postal_code")
     private String postalCode;
     private String premises;
     private String region;
