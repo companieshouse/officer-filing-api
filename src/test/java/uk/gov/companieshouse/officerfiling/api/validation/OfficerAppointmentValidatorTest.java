@@ -2265,5 +2265,58 @@ class OfficerAppointmentValidatorTest {
                 .extracting(ApiError::getError)
                 .contains("The maximum number of address links that can be established is one");
     }
-    
+
+    @Test
+    void validationWithCaseInsensitivityForResidentialAndCorrespondenceCountry() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country("FRANCE").build());
+        when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressInUK).country("enGlaNd").build());
+        when(dto.getConsentToAct()).thenReturn(true);
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Error should not occur when country is passed in different cases to environment variables")
+                .isEmpty();
+    }
+
+    /**
+     @see uk.gov.companieshouse.officerfiling.api.error.ApiErrors#ApiErrors()
+     return a HashSet of errors which removes the duplicate errors from the list of Errors, hence the size is expected to be 1.
+     */
+    @Test
+    void validationWhenUKCountryCaseInsensitiveWithMissingResidentialAndOrCorrespondencePostalCode() {
+
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getNationality1()).thenReturn("British");
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country("ENGLAND").postalCode(null).build());
+        when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressInUK).country("sCotLanD").postalCode(null).build());
+        when(dto.getConsentToAct()).thenReturn(true);
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_BLANK)).thenReturn(
+                "Enter a postcode or ZIP");
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_BLANK)).thenReturn(
+                "Enter a postcode or ZIP");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when postal code is blank for a UK country")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a postcode or ZIP");
+    }
+
 }
