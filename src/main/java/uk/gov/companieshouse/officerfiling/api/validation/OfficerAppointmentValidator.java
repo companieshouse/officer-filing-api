@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Provides all validation that should be carried out when an officer is terminated. Fetches all data necessary to complete
@@ -515,7 +516,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_COUNTRY_BLANK));
         }
         else{
-            if(!countryList.contains(country)){
+            if(!countryList.stream().map(String::toLowerCase).collect(Collectors.toList()).contains(country.toLowerCase())){
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_COUNTRY_INVALID));
             }
             if(!validateDtoFieldLength(country, 50)){
@@ -532,7 +533,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_COUNTRY_BLANK));
         }
         else{
-            if(!countryList.contains(country)){
+            if(!countryList.stream().map(String::toLowerCase).collect(Collectors.toList()).contains(country.toLowerCase())){
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_COUNTRY_INVALID));
             }
             if(!validateDtoFieldLength(country, 50)){
@@ -545,7 +546,8 @@ public class OfficerAppointmentValidator extends OfficerValidator {
     }
 
     private void validateResidentialPostalCode(HttpServletRequest request, List<ApiError> errorList,String postalCode, String country) {
-        if((country == null || country.isBlank() || ukCountryList.contains(country)) && (postalCode == null || postalCode.isBlank())) {
+        if((country == null || country.isBlank() || ukCountryList.stream().map(String::toLowerCase).collect(Collectors.toList()).contains(country.toLowerCase()))
+                && (postalCode == null || postalCode.isBlank())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_BLANK));
             return;
         }
@@ -560,7 +562,8 @@ public class OfficerAppointmentValidator extends OfficerValidator {
     }
 
     private void validateCorrespondencePostalCode(HttpServletRequest request, List<ApiError> errorList,String postalCode, String country) {
-        if((country == null || country.isBlank() || ukCountryList.contains(country)) && (postalCode == null || postalCode.isBlank())) {
+        if((country == null || country.isBlank() || ukCountryList.stream().map(String::toLowerCase).collect(Collectors.toList()).contains(country.toLowerCase()))
+                && (postalCode == null || postalCode.isBlank())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_BLANK));
             return;
         }
