@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
 import org.springframework.validation.annotation.Validated;
+import uk.gov.companieshouse.officerfiling.api.config.JsonBooleanDeserializer;
 
 @JsonDeserialize(builder = OfficerFilingDto.Builder.class)
 @Validated
@@ -484,6 +485,7 @@ public class OfficerFilingDto {
             return this;
         }
 
+        @JsonDeserialize(using = JsonBooleanDeserializer.class)
         public Builder consentToAct(final Boolean value) {
             buildSteps.add(data -> data.consentToAct = value);
             return this;
