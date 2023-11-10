@@ -82,7 +82,7 @@ class FilingDataServiceImplTest {
 
     @Test
     void generateTerminationOfficerFilingWhenFound() {
-        ReflectionTestUtils.setField(testService, "filingDescription",
+        ReflectionTestUtils.setField(testService, "tm01FilingDescription",
                 "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}");
         final var filingData = new FilingData(FIRSTNAME, MIDDLENAMES, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, true);
         var offData = OfficerFilingData.builder()
@@ -128,7 +128,7 @@ class FilingDataServiceImplTest {
 
     @Test
     void generateCorporateOfficerFilingWhenFound() {
-        ReflectionTestUtils.setField(testService, "filingDescription",
+        ReflectionTestUtils.setField(testService, "tm01FilingDescription",
                 "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}");
         final var filingData = new FilingData(null, null  , COMPANY_NAME,   null, RESIGNED_ON_STR, true);
         final var data = OfficerFilingData.builder()
@@ -168,7 +168,7 @@ class FilingDataServiceImplTest {
 
     @Test
     void generateOfficerFilingWhenNotFound() {
-        ReflectionTestUtils.setField(testService, "filingDescription",
+        ReflectionTestUtils.setField(testService, "tm01FilingDescription",
                 "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}");
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
 
@@ -181,8 +181,8 @@ class FilingDataServiceImplTest {
 
     @Test
     void generateAppointmentOfficerFilingWhenFound() {
-        ReflectionTestUtils.setField(testService, "filingDescription",
-                "(AP01) Appointment of director. Appointment of {director name}");
+        ReflectionTestUtils.setField(testService, "ap01FilingDescription",
+                "(AP01) Appointment of director. Appointing {director name} on {appointment date}");
         final var filingData = new FilingData("Major", FIRSTNAME, MIDDLENAMES, LASTNAME, "former names", DATE_OF_BIRTH_STR, RESIGNED_ON_STR,
                 null, "nationality1", "nationality2", "nationality3", "occupation",
                 Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build(), false,
@@ -213,6 +213,7 @@ class FilingDataServiceImplTest {
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(filingAPIMapper.map(officerFiling)).thenReturn(filingData);
+        when(dateNowSupplier.get()).thenReturn(DUMMY_DATE);
 
         final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
 
@@ -247,7 +248,7 @@ class FilingDataServiceImplTest {
 
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#appointment"));
-        assertThat(filingApi.getDescription(), is(equalTo(null)));
+        assertThat(filingApi.getDescription(), is(equalTo("(AP01) Appointment of director. Appointing JOE BLOGGS on 16 March 2023")));
     }
 
     @ParameterizedTest

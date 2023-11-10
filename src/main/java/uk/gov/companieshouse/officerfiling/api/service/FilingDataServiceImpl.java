@@ -36,9 +36,12 @@ public class FilingDataServiceImpl implements FilingDataService {
     private final Logger logger;
     private final TransactionService transactionService;
     private final CompanyAppointmentService companyAppointmentService;
-    @Value("${OFFICER_FILING_DESCRIPTION:"
+    @Value("${OFFICER_FILING_TM01_DESCRIPTION:"
             + "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}}")
-    private String filingDescription;
+    private String tm01FilingDescription;
+    @Value("${OFFICER_FILING_AP01_DESCRIPTION:"
+            + "(AP01) Appointment of director. Appointing {director name} on {appointment date}}")
+    private String ap01FilingDescription;
     private final Supplier<LocalDate> dateNowSupplier;
 
     public FilingDataServiceImpl(OfficerFilingService officerFilingService,
@@ -89,10 +92,6 @@ public class FilingDataServiceImpl implements FilingDataService {
     private void setTerminationFilingApiData(FilingApi filing, String transactionId, String filingId,
             String ericPassThroughHeader) {
         var officerFilingOpt = officerFilingService.get(filingId, transactionId);
-
-        // Throw an exception if officerFilingOpt is empty
-
-
         var officerFiling = officerFilingOpt.orElseThrow(() -> new NotImplementedException(
                 String.format("Officer not found when generating filing for %s", filingId)));
         final var transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
@@ -141,11 +140,10 @@ public class FilingDataServiceImpl implements FilingDataService {
                 .build());
 
         filing.setData(dataMap);
-        setDescriptionFields(filing, companyAppointment);
+        setTm01DescriptionFields(filing, companyAppointment);
     }
 
-    private void setAppointmentFilingApiData(FilingApi filing, String transactionId, String filingId,
-                                             String ericPassThroughHeader) {
+    private void setAppointmentFilingApiData(FilingApi filing, String transactionId, String filingId, String ericPassThroughHeader) {
         var officerFiling = officerFilingService.get(filingId, transactionId)
                 .orElseThrow(() -> new IllegalStateException(String.format("Officer not found when generating filing for %s", filingId)));
         final var transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
@@ -164,6 +162,7 @@ public class FilingDataServiceImpl implements FilingDataService {
                 .build());
 
         filing.setData(dataMap);
+        setAp01DescriptionFields(filing, enhancedOfficerFiling.getData());
     }
 
     /**
@@ -182,9 +181,9 @@ public class FilingDataServiceImpl implements FilingDataService {
         return false;
     }
 
-    private void setDescriptionFields(FilingApi filing, AppointmentFullRecordAPI companyAppointment) {
+    private void setTm01DescriptionFields(FilingApi filing, AppointmentFullRecordAPI companyAppointment) {
         String formattedTerminationDate = dateNowSupplier.get().format(formatter);
-        filing.setDescriptionIdentifier(filingDescription);
+        filing.setDescriptionIdentifier(tm01FilingDescription);
         var surname = "";
         var officerFilingName = "";
         if(companyAppointment.getSurname()!= null) {
@@ -194,11 +193,23 @@ public class FilingDataServiceImpl implements FilingDataService {
             // is a corporate director
             officerFilingName = companyAppointment.getName();
         }
-        filing.setDescription(filingDescription.replace("{director name}", officerFilingName)
+        filing.setDescription(tm01FilingDescription.replace("{director name}", officerFilingName)
                 .replace("{termination date}", formattedTerminationDate));
         Map<String, String> values = new HashMap<>();
         values.put("termination date", formattedTerminationDate);
         values.put("director name", officerFilingName);
         filing.setDescriptionValues(values);
+    }
+
+    private void setAp01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData) {
+        final String formattedAppointmentDate = dateNowSupplier.get().format(formatter);
+        final String officerFilingName = officerFilingData.getFirstName().toUpperCase() + " " + officerFilingData.getLastName().toUpperCase();
+        filing.setDescriptionIdentifier(ap01FilingDescription);
+        filing.setDescription(ap01FilingDescription.replace("{director name}", officerFilingName)
+                .replace("{appointment date}", formattedAppointmentDate));
+        filing.setDescriptionValues(Map.of(
+                "appointment date", formattedAppointmentDate,
+                "director name", officerFilingName
+        ));
     }
 }
