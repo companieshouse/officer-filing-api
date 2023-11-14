@@ -110,7 +110,6 @@ class FilingDataServiceImplTest {
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER ))
                 .thenReturn(companyAppointment);
-        when(dateNowSupplier.get()).thenReturn(DUMMY_DATE);
 
         final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
 
@@ -123,7 +122,7 @@ class FilingDataServiceImplTest {
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#termination"));
         assertThat(filingApi.getDescription(), is("(TM01) Termination of appointment of director. Terminating appointment of "
-            + FIRSTNAME + " " + LASTNAME.toUpperCase()  + " on 16 March 2023"));
+            + FIRSTNAME + " " + LASTNAME.toUpperCase()  + " on 5 October 2022"));
     }
 
     @Test
@@ -151,7 +150,6 @@ class FilingDataServiceImplTest {
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER ))
                 .thenReturn(companyAppointment);
-        when(dateNowSupplier.get()).thenReturn(DUMMY_DATE);
 
         final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
 
@@ -163,7 +161,7 @@ class FilingDataServiceImplTest {
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#termination"));
         assertThat(filingApi.getDescription(), is("(TM01) Termination of appointment of director. Terminating appointment of "
-                + COMPANY_NAME  + " on 16 March 2023"));
+                + COMPANY_NAME  + " on 5 October 2022"));
     }
 
     @Test
@@ -213,7 +211,6 @@ class FilingDataServiceImplTest {
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(filingAPIMapper.map(officerFiling)).thenReturn(filingData);
-        when(dateNowSupplier.get()).thenReturn(DUMMY_DATE);
 
         final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
 
@@ -248,7 +245,7 @@ class FilingDataServiceImplTest {
 
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#appointment"));
-        assertThat(filingApi.getDescription(), is(equalTo("(AP01) Appointment of director. Appointing JOE BLOGGS on 16 March 2023")));
+        assertThat(filingApi.getDescription(), is(equalTo("(AP01) Appointment of director. Appointing JOE BLOGGS on 5 October 2022")));
     }
 
     @ParameterizedTest

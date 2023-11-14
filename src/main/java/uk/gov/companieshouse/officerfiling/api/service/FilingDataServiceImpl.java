@@ -140,7 +140,7 @@ public class FilingDataServiceImpl implements FilingDataService {
                 .build());
 
         filing.setData(dataMap);
-        setTm01DescriptionFields(filing, companyAppointment);
+        setTm01DescriptionFields(filing, enhancedOfficerFiling.getData(),  companyAppointment);
     }
 
     private void setAppointmentFilingApiData(FilingApi filing, String transactionId, String filingId, String ericPassThroughHeader) {
@@ -181,8 +181,8 @@ public class FilingDataServiceImpl implements FilingDataService {
         return false;
     }
 
-    private void setTm01DescriptionFields(FilingApi filing, AppointmentFullRecordAPI companyAppointment) {
-        String formattedTerminationDate = dateNowSupplier.get().format(formatter);
+    private void setTm01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData, AppointmentFullRecordAPI companyAppointment) {
+        final String formattedTerminationDate = LocalDate.ofInstant(officerFilingData.getResignedOn(), ZoneOffset.UTC).format(formatter);
         filing.setDescriptionIdentifier(tm01FilingDescription);
         var surname = "";
         var officerFilingName = "";
@@ -202,7 +202,7 @@ public class FilingDataServiceImpl implements FilingDataService {
     }
 
     private void setAp01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData) {
-        final String formattedAppointmentDate = dateNowSupplier.get().format(formatter);
+        final String formattedAppointmentDate = LocalDate.ofInstant(officerFilingData.getAppointedOn(), ZoneOffset.UTC).format(formatter);
         final String officerFilingName = officerFilingData.getFirstName().toUpperCase() + " " + officerFilingData.getLastName().toUpperCase();
         filing.setDescriptionIdentifier(ap01FilingDescription);
         filing.setDescription(ap01FilingDescription.replace("{director name}", officerFilingName)
