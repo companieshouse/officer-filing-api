@@ -37,10 +37,10 @@ public class FilingDataServiceImpl implements FilingDataService {
     private final TransactionService transactionService;
     private final CompanyAppointmentService companyAppointmentService;
     @Value("${OFFICER_FILING_TM01_DESCRIPTION:"
-            + "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}}")
+            + "(TM01) Termination of appointment of a director. Terminating appointment of {director name} on {termination date}}")
     private String tm01FilingDescription;
     @Value("${OFFICER_FILING_AP01_DESCRIPTION:"
-            + "(AP01) Appointment of director. Appointing {director name} on {appointment date}}")
+            + "(AP01) Appointment of a director. Appointment of {director name} on {appointment date}}")
     private String ap01FilingDescription;
     private final Supplier<LocalDate> dateNowSupplier;
 
