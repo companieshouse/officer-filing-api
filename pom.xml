@@ -35,7 +35,7 @@
         <private-api-sdk-java.version>2.0.282</private-api-sdk-java.version>
         <api-sdk-manager-java-library.version>1.0.4</api-sdk-manager-java-library.version>
         <api-security-java.version>0.3.10</api-security-java.version>
-        <api-helper-java.version>2.1.2</api-helper-java.version>
+        <api-helper-java8.version>1.4.7</api-helper-java8.version>
         <!--sonar configuration-->
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml,
             ${project.build.directory}/site/jacoco-it/jacoco.xml
@@ -96,11 +96,11 @@
             <artifactId>api-sdk-manager-java-library</artifactId>
             <version>${api-sdk-manager-java-library.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>uk.gov.companieshouse</groupId>-->
-<!--            <artifactId>api-helper-java</artifactId>-->
-<!--            <version>${api-helper-java.version}</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>api-helper-java</artifactId>
+            <version>${api-helper-java8.version}</version>
+        </dependency>
 
         <!-- test -->
         <dependency>
