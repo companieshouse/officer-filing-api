@@ -76,7 +76,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
             }
 
             error = buildRequestBodyError(msg, jsonPath, null);
-            addLocationInfo(error, location);
+            if (location != null) {
+                addLocationInfo(error, location);
+            }
         }
         else {
             error = buildRequestBodyError(ex.getMostSpecificCause().getMessage(), "$", null);
