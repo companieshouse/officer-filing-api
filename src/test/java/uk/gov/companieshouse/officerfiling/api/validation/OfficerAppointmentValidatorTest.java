@@ -788,15 +788,15 @@ class OfficerAppointmentValidatorTest {
         when(dto.getConsentToAct()).thenReturn(true);
 
         when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH49)).thenReturn(
-                "For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters including commas");
+                "For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-                .as("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters including commas")
+                .as("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters including commas");
+                .contains("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters");
     }
     @ParameterizedTest
     @NullSource
@@ -817,15 +817,15 @@ class OfficerAppointmentValidatorTest {
         when(dto.getConsentToAct()).thenReturn(true);
 
         when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH49)).thenReturn(
-                "For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters including commas");
+                "For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-                .as("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters including commas")
+                .as("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters including commas");
+                .contains("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters");
     }
 
     @Test
@@ -845,15 +845,15 @@ class OfficerAppointmentValidatorTest {
         when(dto.getConsentToAct()).thenReturn(true);
 
         when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH48)).thenReturn(
-                "For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters including commas");
+                "For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-                .as("For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters including commas")
+                .as("For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters including commas");
+                .contains("For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters");
     }
     @Test
     void validateNationality1PlusNationality2PlusNationality3GreaterThan50Length() {
@@ -872,15 +872,15 @@ class OfficerAppointmentValidatorTest {
         when(dto.getConsentToAct()).thenReturn(true);
 
         when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH48)).thenReturn(
-                "For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters including commas");
+                "For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-                .as("For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters including commas")
+                .as("For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters including commas");
+                .contains("For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters");
     }
 
     @Test
