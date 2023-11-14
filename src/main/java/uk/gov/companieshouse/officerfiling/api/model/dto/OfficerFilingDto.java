@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
 import org.springframework.validation.annotation.Validated;
+import uk.gov.companieshouse.JsonBooleanDeserializer;
 
 @JsonDeserialize(builder = OfficerFilingDto.Builder.class)
 @Validated
@@ -317,6 +318,7 @@ public class OfficerFilingDto {
             return this;
         }
 
+        @JsonDeserialize(using = JsonBooleanDeserializer.class)
         public Builder isMailingAddressSameAsRegisteredOfficeAddress(final Boolean value) {
 
             buildSteps.add(data -> data.isMailingAddressSameAsRegisteredOfficeAddress = value);
@@ -463,6 +465,7 @@ public class OfficerFilingDto {
             return this;
         }
 
+        @JsonDeserialize(using = JsonBooleanDeserializer.class)
         public Builder isMailingAddressSameAsHomeAddress(final Boolean value) {
 
             buildSteps.add(data -> data.isMailingAddressSameAsHomeAddress = value);
@@ -479,11 +482,13 @@ public class OfficerFilingDto {
             return this;
         }
 
+        @JsonDeserialize(using = JsonBooleanDeserializer.class)
         public  Builder directorAppliedToProtectDetails(final Boolean value) {
             buildSteps.add(data -> data.directorAppliedToProtectDetails = value);
             return this;
         }
 
+        @JsonDeserialize(using = JsonBooleanDeserializer.class)
         public Builder consentToAct(final Boolean value) {
             buildSteps.add(data -> data.consentToAct = value);
             return this;
