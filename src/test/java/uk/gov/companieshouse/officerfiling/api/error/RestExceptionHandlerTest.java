@@ -157,6 +157,32 @@ class RestExceptionHandlerTest {
     }
 
     @Test
+    void handleHttpMessageNotReadableWhenWithNullLocation() {
+        final var msg = "IllegalArgumentException";
+        final var message =
+                new MockHttpInputMessage(TM01_FRAGMENT.replaceAll("2022", "ABC").getBytes());
+
+        when(jsonParseException.getMessage()).thenReturn(msg);
+
+        final var exceptionMessage =
+                new HttpMessageNotReadableException(msg, jsonParseException, message);
+
+        final var response =
+                testExceptionHandler.handleHttpMessageNotReadable(exceptionMessage, headers,
+                        HttpStatus.BAD_REQUEST, request);
+
+        final var apiErrors = (ApiErrors) response.getBody();
+        final var expectedError =
+                new ApiError("JSON parse error: " + msg, "$", "json-path", "ch:validation");
+
+        final var actualError = Objects.requireNonNull(apiErrors).getErrors().iterator().next();
+
+        assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
+        assertThat(actualError, is(samePropertyValuesAs(expectedError)));
+        assertThat(actualError.getError(), containsString("JSON parse error: IllegalArgumentException"));
+    }
+
+    @Test
     void handleResourceNotFoundException() {
         final var exception = new ResourceNotFoundException("test resource missing");
 
