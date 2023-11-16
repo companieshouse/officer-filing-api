@@ -2221,14 +2221,14 @@ class OfficerAppointmentValidatorTest {
     void validationWhenBothAddressFlagAreNotSentOrNullValues() {
         setupDefaultParamaters();
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(dto.getIsMailingAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
-        when(dto.getIsMailingAddressSameAsHomeAddress()).thenReturn(null);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
+        when(dto.getIsServiceAddressSameAsHomeAddress()).thenReturn(null);
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         // validating null values to avoid unnecessary stubbing errors when running the tests.
-        assertThat(dto.getIsMailingAddressSameAsRegisteredOfficeAddress()).isNull();
-        assertThat(dto.getIsMailingAddressSameAsHomeAddress()).isNull();
+        assertThat(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).isNull();
+        assertThat(dto.getIsServiceAddressSameAsHomeAddress()).isNull();
         assertThat(apiErrors.getErrors())
                 .as("No Errors when both address flags sent as null values")
                 .isEmpty();
@@ -2238,8 +2238,8 @@ class OfficerAppointmentValidatorTest {
     void validationWhenOneAddressFlagIsSetAsTrueAndOtherIsNull() {
         setupDefaultParamaters();
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(dto.getIsMailingAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
-        when(dto.getIsMailingAddressSameAsHomeAddress()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
+        when(dto.getIsServiceAddressSameAsHomeAddress()).thenReturn(true);
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -2252,8 +2252,8 @@ class OfficerAppointmentValidatorTest {
     void validationWhenBothAddressFlagAreSetAsTrue() {
         setupDefaultParamaters();
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(dto.getIsMailingAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
-        when(dto.getIsMailingAddressSameAsHomeAddress()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsHomeAddress()).thenReturn(true);
 
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS)).thenReturn(
                 "The maximum number of address links that can be established is one");

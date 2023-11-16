@@ -22,9 +22,9 @@ public class FilingData {
     private String nationality3;
     private String occupation;
     private Address serviceAddress;
-    private Boolean isMailingAddressSameAsRegisteredOfficeAddress;
+    private Boolean isServiceAddressSameAsRegisteredOfficeAddress;
     private Address residentialAddress;
-    private Boolean isMailingAddressSameAsHomeAddress;
+    private Boolean isServiceAddressSameAsHomeAddress;
     private Boolean directorAppliedToProtectDetails;
     private Boolean consentToAct;
     @JsonProperty("is_corporate_director")
@@ -60,9 +60,9 @@ public class FilingData {
                          @JsonProperty("nationality3") String nationality3,
                          @JsonProperty("occupation") String occupation,
                          @JsonProperty("service_address") Address serviceAddress,
-                         @JsonProperty("is_mailing_address_same_as_registered_office_address") Boolean isMailingAddressSameAsRegisteredOfficeAddress,
+                         @JsonProperty("is_service_address_same_as_registered_office_address") Boolean isServiceAddressSameAsRegisteredOfficeAddress,
                          @JsonProperty("residential_address") Address residentialAddress,
-                         @JsonProperty("is_mailing_address_same_as_home_address") Boolean isMailingAddressSameAsHomeAddress,
+                         @JsonProperty("is_service_address_same_as_home_address") Boolean isServiceAddressSameAsHomeAddress,
                          @JsonProperty("director_applied_to_protect_details") Boolean directorAppliedToProtectDetails,
                          @JsonProperty("consent_to_act") Boolean consentToAct,
                          @JsonProperty("is_corporate_director") Boolean corporateDirector) {
@@ -79,9 +79,9 @@ public class FilingData {
         this.nationality3 = nationality3;
         this.occupation = occupation;
         this.serviceAddress = serviceAddress;
-        this.isMailingAddressSameAsRegisteredOfficeAddress = isMailingAddressSameAsRegisteredOfficeAddress;
+        this.isServiceAddressSameAsRegisteredOfficeAddress = isServiceAddressSameAsRegisteredOfficeAddress;
         this.residentialAddress = residentialAddress;
-        this.isMailingAddressSameAsHomeAddress = isMailingAddressSameAsHomeAddress;
+        this.isServiceAddressSameAsHomeAddress = isServiceAddressSameAsHomeAddress;
         this.directorAppliedToProtectDetails = directorAppliedToProtectDetails;
         this.consentToAct = consentToAct;
         this.corporateDirector = corporateDirector;
@@ -139,16 +139,16 @@ public class FilingData {
         return serviceAddress;
     }
 
-    public Boolean getMailingAddressSameAsRegisteredOfficeAddress() {
-        return isMailingAddressSameAsRegisteredOfficeAddress;
+    public Boolean getServiceAddressSameAsRegisteredOfficeAddress() {
+        return isServiceAddressSameAsRegisteredOfficeAddress;
     }
 
     public Address getResidentialAddress() {
         return residentialAddress;
     }
 
-    public Boolean getMailingAddressSameAsHomeAddress() {
-        return isMailingAddressSameAsHomeAddress;
+    public Boolean getServiceAddressSameAsHomeAddress() {
+        return isServiceAddressSameAsHomeAddress;
     }
 
     public Boolean getDirectorAppliedToProtectDetails() {
@@ -179,9 +179,9 @@ public class FilingData {
                 ", nationality3='" + nationality3 + '\'' +
                 ", occupation='" + occupation + '\'' +
                 ", serviceAddress=" + serviceAddress +
-                ", isMailingAddressSameAsRegisteredOfficeAddress=" + isMailingAddressSameAsRegisteredOfficeAddress +
+                ", isServiceAddressSameAsRegisteredOfficeAddress=" + isServiceAddressSameAsRegisteredOfficeAddress +
                 ", residentialAddress=" + residentialAddress +
-                ", isMailingAddressSameAsHomeAddress=" + isMailingAddressSameAsHomeAddress +
+                ", isServiceAddressSameAsHomeAddress=" + isServiceAddressSameAsHomeAddress +
                 ", directorAppliedToProtectDetails=" + directorAppliedToProtectDetails +
                 ", consentToAct=" + consentToAct +
                 ", corporateDirector=" + corporateDirector +

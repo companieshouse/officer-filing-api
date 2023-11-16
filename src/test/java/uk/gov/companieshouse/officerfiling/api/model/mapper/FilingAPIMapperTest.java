@@ -39,7 +39,7 @@ class FilingAPIMapperTest {
     @Test
     void officerFilingToFilingAPI() {
         var offData = OfficerFilingData.builder()
-                .isMailingAddressSameAsRegisteredOfficeAddress(true)
+                .isServiceAddressSameAsRegisteredOfficeAddress(true)
                 .appointedOn(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC))
                 .countryOfResidence("countryOfResidence")
                 .dateOfBirth(dob1)
@@ -54,7 +54,7 @@ class FilingAPIMapperTest {
                 .referenceOfficerListEtag("list")
                 .resignedOn(instant1)
                 .status("status")
-                .isMailingAddressSameAsRegisteredOfficeAddress(true)
+                .isServiceAddressSameAsRegisteredOfficeAddress(true)
                 .corporateDirector(false)
                 .build();
         final var now = clock.instant();

@@ -378,7 +378,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
     }
 
     private void validateAddressesMultipleFlags(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
-        if(Boolean.TRUE.equals(dto.getIsMailingAddressSameAsHomeAddress()) && Boolean.TRUE.equals(dto.getIsMailingAddressSameAsRegisteredOfficeAddress())) {
+        if(Boolean.TRUE.equals(dto.getIsServiceAddressSameAsHomeAddress()) && Boolean.TRUE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS));
         }
     }

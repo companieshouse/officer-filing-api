@@ -468,7 +468,7 @@
             }
           ]
         },
-        "residentialAddressSameAsCorrespondenceAddress": {
+        "residentialAddressSameAsServiceAddress": {
           "title": "ROA Same As",
           "type": "boolean"
         },
