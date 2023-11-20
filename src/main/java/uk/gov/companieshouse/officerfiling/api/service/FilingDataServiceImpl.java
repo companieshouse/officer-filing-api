@@ -37,10 +37,10 @@ public class FilingDataServiceImpl implements FilingDataService {
     private final TransactionService transactionService;
     private final CompanyAppointmentService companyAppointmentService;
     @Value("${OFFICER_FILING_TM01_DESCRIPTION:"
-            + "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}}")
+            + "(TM01) Termination of appointment of a director. Terminating appointment of {director name} on {termination date}}")
     private String tm01FilingDescription;
     @Value("${OFFICER_FILING_AP01_DESCRIPTION:"
-            + "(AP01) Appointment of director. Appointing {director name} on {appointment date}}")
+            + "(AP01) Appointment of a director. Appointment of {director name} on {appointment date}}")
     private String ap01FilingDescription;
     private final Supplier<LocalDate> dateNowSupplier;
 
@@ -140,7 +140,7 @@ public class FilingDataServiceImpl implements FilingDataService {
                 .build());
 
         filing.setData(dataMap);
-        setTm01DescriptionFields(filing, companyAppointment);
+        setTm01DescriptionFields(filing, enhancedOfficerFiling.getData(),  companyAppointment);
     }
 
     private void setAppointmentFilingApiData(FilingApi filing, String transactionId, String filingId, String ericPassThroughHeader) {
@@ -181,8 +181,8 @@ public class FilingDataServiceImpl implements FilingDataService {
         return false;
     }
 
-    private void setTm01DescriptionFields(FilingApi filing, AppointmentFullRecordAPI companyAppointment) {
-        String formattedTerminationDate = dateNowSupplier.get().format(formatter);
+    private void setTm01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData, AppointmentFullRecordAPI companyAppointment) {
+        final String formattedTerminationDate = LocalDate.ofInstant(officerFilingData.getResignedOn(), ZoneOffset.UTC).format(formatter);
         filing.setDescriptionIdentifier(tm01FilingDescription);
         var surname = "";
         var officerFilingName = "";
@@ -202,7 +202,7 @@ public class FilingDataServiceImpl implements FilingDataService {
     }
 
     private void setAp01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData) {
-        final String formattedAppointmentDate = dateNowSupplier.get().format(formatter);
+        final String formattedAppointmentDate = LocalDate.ofInstant(officerFilingData.getAppointedOn(), ZoneOffset.UTC).format(formatter);
         final String officerFilingName = officerFilingData.getFirstName().toUpperCase() + " " + officerFilingData.getLastName().toUpperCase();
         filing.setDescriptionIdentifier(ap01FilingDescription);
         filing.setDescription(ap01FilingDescription.replace("{director name}", officerFilingName)
