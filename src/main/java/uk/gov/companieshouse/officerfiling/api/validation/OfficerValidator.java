@@ -40,6 +40,8 @@ public abstract class OfficerValidator {
     public static final List<String> ALLOWED_OFFICER_ROLES = List.of("director", "corporate-director", "nominee-director", "corporate-nominee-director");
     private static final String REG_EXP_FOR_VALID_CHARACTERS = "^[-,.:; 0-9A-Z&@$£¥€'\"«»?!/\\\\()\\[\\]{}<>*=#%+ÀÁÂÃÄÅĀĂĄÆǼÇĆĈĊČÞĎÐÈÉÊËĒĔĖĘĚĜĞĠĢĤĦÌÍÎÏĨĪĬĮİĴĶĹĻĽĿŁÑŃŅŇŊÒÓÔÕÖØŌŎŐǾŒŔŖŘŚŜŞŠŢŤŦÙÚÛÜŨŪŬŮŰŲŴẀẂẄỲÝŶŸŹŻŽa-zſƒǺàáâãäåāăąæǽçćĉċčþďðèéêëēĕėęěĝģğġĥħìíîïĩīĭįĵķĺļľŀłñńņňŋòóôõöøōŏőǿœŕŗřśŝşšţťŧùúûüũūŭůűųŵẁẃẅỳýŷÿźżž]*$";
 
+    private static final String REG_EXP_FOR_UK_POSTCODE = "^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$";
+
     private Logger logger;
 
     public ApiEnumerations getApiEnumerations() {
@@ -189,6 +191,12 @@ public abstract class OfficerValidator {
 
     public static boolean isValidCharacters(String field) {
         var pattern = Pattern.compile(REG_EXP_FOR_VALID_CHARACTERS);
+        var matcher = pattern.matcher(field);
+        return matcher.matches();
+    }
+
+    public static boolean isValidCharactersForUkPostcode(String field) {
+        var pattern = Pattern.compile(REG_EXP_FOR_UK_POSTCODE);
         var matcher = pattern.matcher(field);
         return matcher.matches();
     }
