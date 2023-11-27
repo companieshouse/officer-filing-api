@@ -545,13 +545,17 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         }
     }
 
-    private void validateResidentialPostalCode(HttpServletRequest request, List<ApiError> errorList,String postalCode, String country) {
-        if((country == null || country.isBlank() || ukCountryList.stream().map(String::toLowerCase).collect(Collectors.toList()).contains(country.toLowerCase()))
-                && (postalCode == null || postalCode.isBlank())) {
-            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_BLANK));
-            return;
+    private void validateResidentialPostalCode(HttpServletRequest request, List<ApiError> errorList, String postalCode, String country) {
+        if (country == null || country.isBlank() || ukCountryList.stream().anyMatch(country::equalsIgnoreCase)) {
+            if (postalCode == null || postalCode.isBlank()) {
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_BLANK));
+                return;
+            } else if (!isValidCharactersForUkPostcode(postalCode)) {
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTCODE_UK_INVALID));
+                return;
+            }
         }
-        if(postalCode != null && !postalCode.isBlank()){
+        if (postalCode != null && !postalCode.isBlank()){
             if (!validateDtoFieldLength(postalCode, 20)){
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_LENGTH));
             }
@@ -562,10 +566,14 @@ public class OfficerAppointmentValidator extends OfficerValidator {
     }
 
     private void validateCorrespondencePostalCode(HttpServletRequest request, List<ApiError> errorList,String postalCode, String country) {
-        if((country == null || country.isBlank() || ukCountryList.stream().map(String::toLowerCase).collect(Collectors.toList()).contains(country.toLowerCase()))
-                && (postalCode == null || postalCode.isBlank())) {
-            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_BLANK));
-            return;
+        if (country == null || country.isBlank() || ukCountryList.stream().anyMatch(country::equalsIgnoreCase)) {
+            if (postalCode == null || postalCode.isBlank()) {
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_BLANK));
+                return;
+            } else if (!isValidCharactersForUkPostcode(postalCode)) {
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTCODE_UK_INVALID));
+                return;
+            }
         }
         if(postalCode != null && !postalCode.isBlank()){
             if (!validateDtoFieldLength(postalCode, 20)){

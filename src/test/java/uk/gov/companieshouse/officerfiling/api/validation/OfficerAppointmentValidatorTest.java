@@ -1702,7 +1702,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
         when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
-        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country(null).postalCode("11111").build());
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country(null).postalCode("ST631LJ").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
         when(dto.getConsentToAct()).thenReturn(true);
         when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_COUNTRY_BLANK)).thenReturn(
@@ -1715,6 +1715,30 @@ class OfficerAppointmentValidatorTest {
                 .hasSize(1)
                 .extracting(ApiError::getError)
                 .contains("Select a country from the list");
+    }
+
+    @Test
+    void validateResidentialPostalCodeWhenUkAndInvalidFormat() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country("England").postalCode("S 12").build());
+        when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
+        when(dto.getConsentToAct()).thenReturn(true);
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTCODE_UK_INVALID)).thenReturn(
+                "Enter a UK postcode. If the address is outside the UK, enter the address manually");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when a UK postcode is submitted that does not match the expected format")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a UK postcode. If the address is outside the UK, enter the address manually");
     }
 
     @Test
@@ -2063,7 +2087,7 @@ class OfficerAppointmentValidatorTest {
     @Test
     void validateWhenCorrespondencePostalCodeNoCountry() {
         setupDefaultParamaters();
-        when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressOutOfUK).country(null).postalCode("123456").build());
+        when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressOutOfUK).country(null).postalCode("AB12 3CD").build());
         when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_COUNTRY_BLANK)).thenReturn(
                 "Select a country from the list");
 
@@ -2077,9 +2101,27 @@ class OfficerAppointmentValidatorTest {
     }
 
     @Test
-    void validateWhenCorrespondenceAddressLengthFieldsAreOverLimit() {
+    void validateCorrespondencePostalCodeWhenUkAndInvalidFormat() {
         setupDefaultParamaters();
         when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressInUK)
+                .postalCode("S 12")
+                .build());
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTCODE_UK_INVALID)).thenReturn(
+                "Enter a UK postcode. If the address is outside the UK, enter the address manually");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when a UK postcode is submitted that does not match the expected format")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a UK postcode. If the address is outside the UK, enter the address manually");
+    }
+
+    @Test
+    void validateWhenCorrespondenceAddressLengthFieldsAreOverLimit() {
+        setupDefaultParamaters();
+        when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressOutOfUK)
                 .premises("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111")
                 .addressLine1("long address line 1 long address line 1 long address line 1 long address line 1 long address line 1 long address line 1 long address line 1 long address line 1")
                 .addressLine2("long address line 2 long address line 2 long address line 2 long address line 2 long address line 2 long address line 2 long address line 2 long address line 2")
