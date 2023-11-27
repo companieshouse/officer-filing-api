@@ -20,7 +20,7 @@ public class OfficerFilingDto {
     private String serviceAddressBackLink;
     private String serviceManualAddressBackLink;
     private String protectedDetailsBackLink;
-    private Boolean isMailingAddressSameAsRegisteredOfficeAddress;
+    private Boolean isServiceAddressSameAsRegisteredOfficeAddress;
     private LocalDate appointedOn;
     private String countryOfResidence;
     private LocalDate dateOfBirth;
@@ -42,14 +42,14 @@ public class OfficerFilingDto {
     private AddressDto residentialAddress;
     private String residentialAddressBackLink;
     private String residentialManualAddressBackLink;
-    private Boolean isMailingAddressSameAsHomeAddress;
+    private Boolean isServiceAddressSameAsHomeAddress;
     private Boolean nationality2Link;
     private Boolean nationality3Link;
     private Boolean directorAppliedToProtectDetails;
     private Boolean consentToAct;
     private String checkYourAnswersLink;
     private String directorResidentialAddressChoice;
-    private String directorCorrespondenceAddressChoice;
+    private String directorServiceAddressChoice;
 
     private OfficerFilingDto() {
     }
@@ -68,8 +68,8 @@ public class OfficerFilingDto {
 
     public String getProtectedDetailsBackLink() { return protectedDetailsBackLink; }
 
-    public Boolean getIsMailingAddressSameAsRegisteredOfficeAddress() {
-        return isMailingAddressSameAsRegisteredOfficeAddress;
+    public Boolean getIsServiceAddressSameAsRegisteredOfficeAddress() {
+        return isServiceAddressSameAsRegisteredOfficeAddress;
     }
 
     public LocalDate getAppointedOn() {
@@ -152,8 +152,8 @@ public class OfficerFilingDto {
         return residentialManualAddressBackLink;
     }
 
-    public Boolean getIsMailingAddressSameAsHomeAddress() {
-        return isMailingAddressSameAsHomeAddress;
+    public Boolean getIsServiceAddressSameAsHomeAddress() {
+        return isServiceAddressSameAsHomeAddress;
     }
 
     public Boolean getNationality2Link(){
@@ -174,8 +174,8 @@ public class OfficerFilingDto {
         return directorResidentialAddressChoice;
     }
 
-    public String getDirectorCorrespondenceAddressChoice() {
-        return directorCorrespondenceAddressChoice;
+    public String getDirectorServiceAddressChoice() {
+        return directorServiceAddressChoice;
     }
 
     @Override
@@ -191,8 +191,8 @@ public class OfficerFilingDto {
                 && Objects.equals(getServiceAddressBackLink(), that.getServiceAddressBackLink())
                 && Objects.equals(getServiceManualAddressBackLink(), that.getServiceManualAddressBackLink())
                 && Objects.equals(getProtectedDetailsBackLink(), that.getProtectedDetailsBackLink())
-                && Objects.equals(getIsMailingAddressSameAsRegisteredOfficeAddress(),
-                that.getIsMailingAddressSameAsRegisteredOfficeAddress())
+                && Objects.equals(getIsServiceAddressSameAsRegisteredOfficeAddress(),
+                that.getIsServiceAddressSameAsRegisteredOfficeAddress())
                 && Objects.equals(getAppointedOn(), that.getAppointedOn())
                 && Objects.equals(getCountryOfResidence(), that.getCountryOfResidence())
                 && Objects.equals(getDateOfBirth(), that.getDateOfBirth())
@@ -219,22 +219,22 @@ public class OfficerFilingDto {
                 && Objects.equals(getResidentialAddressBackLink(), that.getResidentialAddressBackLink())
                 && Objects.equals(getResidentialManualAddressBackLink(), that.getResidentialManualAddressBackLink())
                 && Objects.equals(getDirectorResidentialAddressChoice(), that.getDirectorResidentialAddressChoice())
-                && Objects.equals(getDirectorCorrespondenceAddressChoice(), that.getDirectorCorrespondenceAddressChoice())
-                && Objects.equals(getIsMailingAddressSameAsHomeAddress(),
-                that.getIsMailingAddressSameAsHomeAddress())
+                && Objects.equals(getDirectorServiceAddressChoice(), that.getDirectorServiceAddressChoice())
+                && Objects.equals(getIsServiceAddressSameAsHomeAddress(),
+                that.getIsServiceAddressSameAsHomeAddress())
                 && Objects.equals(getCheckYourAnswersLink(), that.getCheckYourAnswersLink());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getServiceAddress(), getServiceManualAddressBackLink(), getIsMailingAddressSameAsRegisteredOfficeAddress(),
+        return Objects.hash(getServiceAddress(), getServiceManualAddressBackLink(), getIsServiceAddressSameAsRegisteredOfficeAddress(),
                 getAppointedOn(), getCountryOfResidence(), getDateOfBirth(), getFormerNames(),
                 getIdentification(), getTitle(), getName(), getFirstName(), getMiddleNames(), getLastName(),
                 getNationality1(), getNationality2(), getNationality2Link(), getNationality3Link(),
                 getDirectorAppliedToProtectDetails(), getConsentToAct(), getNationality3(),
                 getOccupation(), getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
-                getResignedOn(), getResidentialAddress(), getResidentialManualAddressBackLink(),getIsMailingAddressSameAsHomeAddress(),
-                getCheckYourAnswersLink(), getDirectorResidentialAddressChoice(), getDirectorCorrespondenceAddressChoice());
+                getResignedOn(), getResidentialAddress(), getResidentialManualAddressBackLink(),getIsServiceAddressSameAsHomeAddress(),
+                getCheckYourAnswersLink(), getDirectorResidentialAddressChoice(), getDirectorServiceAddressChoice());
     }
 
     @Override
@@ -244,7 +244,7 @@ public class OfficerFilingDto {
                 .add("serviceAddressBackLink='" + serviceAddressBackLink + "'")
                 .add("serviceManualAddressBackLink'" + serviceManualAddressBackLink + "'")
                 .add("protectedDetailsBackLink='" + protectedDetailsBackLink + "'")
-                .add("isMailingAddressSameAsRegisteredOfficeAddress=" + isMailingAddressSameAsRegisteredOfficeAddress)
+                .add("isServiceAddressSameAsRegisteredOfficeAddress=" + isServiceAddressSameAsRegisteredOfficeAddress)
                 .add("appointedOn=" + appointedOn)
                 .add("countryOfResidence='" + countryOfResidence + "'")
                 .add("dateOfBirth=" + dateOfBirth)
@@ -270,11 +270,11 @@ public class OfficerFilingDto {
                 .add("residentialAddress=" + residentialAddress)
                 .add("residentialAddressBackLink='" + residentialAddressBackLink + "'")
                 .add("residentialManualAddressBackLink='" + residentialManualAddressBackLink + "'")
-                .add("isMailingAddressSameAsHomeAddress="
-                        + isMailingAddressSameAsHomeAddress)
+                .add("isServiceAddressSameAsHomeAddress="
+                        + isServiceAddressSameAsHomeAddress)
                 .add("checkYourAnswersLink=" + checkYourAnswersLink)
                 .add("directorResidentialAddressChoice'" + directorResidentialAddressChoice + "'")
-                .add("directorCorrespondenceAddressChoice'" + directorCorrespondenceAddressChoice + "'")
+                .add("directorServiceAddressChoice'" + directorServiceAddressChoice + "'")
                 .toString();
     }
 
@@ -319,9 +319,9 @@ public class OfficerFilingDto {
         }
 
         @JsonDeserialize(using = JsonBooleanDeserializer.class)
-        public Builder isMailingAddressSameAsRegisteredOfficeAddress(final Boolean value) {
+        public Builder isServiceAddressSameAsRegisteredOfficeAddress(final Boolean value) {
 
-            buildSteps.add(data -> data.isMailingAddressSameAsRegisteredOfficeAddress = value);
+            buildSteps.add(data -> data.isServiceAddressSameAsRegisteredOfficeAddress = value);
             return this;
         }
 
@@ -460,15 +460,15 @@ public class OfficerFilingDto {
             return this;
         }
 
-        public Builder directorCorrespondenceAddressChoice(final String value) {
-            buildSteps.add(data -> data.directorCorrespondenceAddressChoice = value);
+        public Builder directorServiceAddressChoice(final String value) {
+            buildSteps.add(data -> data.directorServiceAddressChoice = value);
             return this;
         }
 
         @JsonDeserialize(using = JsonBooleanDeserializer.class)
-        public Builder isMailingAddressSameAsHomeAddress(final Boolean value) {
+        public Builder isServiceAddressSameAsHomeAddress(final Boolean value) {
 
-            buildSteps.add(data -> data.isMailingAddressSameAsHomeAddress = value);
+            buildSteps.add(data -> data.isServiceAddressSameAsHomeAddress = value);
             return this;
         }
 

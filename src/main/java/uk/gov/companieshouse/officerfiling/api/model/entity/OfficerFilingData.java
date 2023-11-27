@@ -16,7 +16,7 @@ public class OfficerFilingData {
     private String serviceAddressBackLink;
     private String serviceManualAddressBackLink;
     private String protectedDetailsBackLink;
-    private Boolean isMailingAddressSameAsRegisteredOfficeAddress;
+    private Boolean isServiceAddressSameAsRegisteredOfficeAddress;
     private Instant appointedOn;
     private String countryOfResidence;
     private Instant dateOfBirth;
@@ -39,7 +39,7 @@ public class OfficerFilingData {
     private Address residentialAddress;
     private String residentialAddressBackLink;
     private String residentialManualAddressBackLink;
-    private Boolean isMailingAddressSameAsHomeAddress;
+    private Boolean isServiceAddressSameAsHomeAddress;
     private Boolean corporateDirector;
     private Boolean nationality2Link;
     private Boolean nationality3Link;
@@ -47,7 +47,7 @@ public class OfficerFilingData {
     private Boolean consentToAct;
     private String checkYourAnswersLink;
     private String directorResidentialAddressChoice;
-    private String directorCorrespondenceAddressChoice;
+    private String directorServiceAddressChoice;
 
     public OfficerFilingData(
             final String referenceEtag,
@@ -86,8 +86,8 @@ public class OfficerFilingData {
         return protectedDetailsBackLink;
     }
 
-    public Boolean getIsMailingAddressSameAsRegisteredOfficeAddress() {
-        return isMailingAddressSameAsRegisteredOfficeAddress;
+    public Boolean getIsServiceAddressSameAsRegisteredOfficeAddress() {
+        return isServiceAddressSameAsRegisteredOfficeAddress;
     }
 
     public Instant getAppointedOn() {
@@ -172,8 +172,8 @@ public class OfficerFilingData {
         return residentialManualAddressBackLink;
     }
 
-    public Boolean getIsMailingAddressSameAsHomeAddress() {
-        return isMailingAddressSameAsHomeAddress;
+    public Boolean getIsServiceAddressSameAsHomeAddress() {
+        return isServiceAddressSameAsHomeAddress;
     }
 
     public Boolean getNationality2Link(){
@@ -200,8 +200,8 @@ public class OfficerFilingData {
         return directorResidentialAddressChoice;
     }
 
-    public String getDirectorCorrespondenceAddressChoice() {
-        return directorCorrespondenceAddressChoice;
+    public String getDirectorServiceAddressChoice() {
+        return directorServiceAddressChoice;
     }
 
     @Override
@@ -217,8 +217,8 @@ public class OfficerFilingData {
                 && Objects.equals(getServiceAddressBackLink(), that.getServiceAddressBackLink())
                 && Objects.equals(getServiceManualAddressBackLink(), that.getServiceManualAddressBackLink())
                 && Objects.equals(getProtectedDetailsBackLink(), that.getProtectedDetailsBackLink())
-                && Objects.equals(getIsMailingAddressSameAsRegisteredOfficeAddress(),
-                that.getIsMailingAddressSameAsRegisteredOfficeAddress())
+                && Objects.equals(getIsServiceAddressSameAsRegisteredOfficeAddress(),
+                that.getIsServiceAddressSameAsRegisteredOfficeAddress())
                 && Objects.equals(getAppointedOn(), that.getAppointedOn())
                 && Objects.equals(getCountryOfResidence(), that.getCountryOfResidence())
                 && Objects.equals(getDateOfBirth(), that.getDateOfBirth())
@@ -246,23 +246,23 @@ public class OfficerFilingData {
                 && Objects.equals(getResidentialAddressBackLink(), that.getResidentialAddressBackLink())
                 && Objects.equals(getResidentialManualAddressBackLink(), that.getResidentialManualAddressBackLink())
                 && Objects.equals(getDirectorResidentialAddressChoice(), that.getDirectorResidentialAddressChoice())
-                && Objects.equals(getDirectorCorrespondenceAddressChoice(), that.getDirectorCorrespondenceAddressChoice())
-                && Objects.equals(getIsMailingAddressSameAsHomeAddress(),
-                that.getIsMailingAddressSameAsHomeAddress())
+                && Objects.equals(getDirectorServiceAddressChoice(), that.getDirectorServiceAddressChoice())
+                && Objects.equals(getIsServiceAddressSameAsHomeAddress(),
+                that.getIsServiceAddressSameAsHomeAddress())
                 && Objects.equals(getCheckYourAnswersLink(), that.getCheckYourAnswersLink());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getServiceAddress(), getServiceAddressBackLink(), getServiceManualAddressBackLink(), getProtectedDetailsBackLink(),
-                getIsMailingAddressSameAsRegisteredOfficeAddress(), getAppointedOn(), getCountryOfResidence(), getDateOfBirth(),
+                getIsServiceAddressSameAsRegisteredOfficeAddress(), getAppointedOn(), getCountryOfResidence(), getDateOfBirth(),
                 getFormerNames(), getName(), getTitle(),
                 getFirstName(), getMiddleNames(), getLastName(), getNationality1(), getNationality2(),
                 getNationality3(), getNationality2Link(), getNationality3Link(), getDirectorAppliedToProtectDetails(),
                 getConsentToAct(), getOccupation(), getOfficerRole(),
                 getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getStatus(), getResidentialAddress(), getResidentialAddressBackLink(), getResidentialManualAddressBackLink(),
-                getCheckYourAnswersLink(), getIsMailingAddressSameAsHomeAddress(),
+                getCheckYourAnswersLink(), getIsServiceAddressSameAsHomeAddress(),
                 getDirectorResidentialAddressChoice());
     }
 
@@ -273,7 +273,7 @@ public class OfficerFilingData {
                 .add("serviceManualAddressBackLink=" + serviceManualAddressBackLink)
                 .add("serviceAddressBackLink=" + serviceAddressBackLink)
                 .add("protectedDetailsBackLink=" + protectedDetailsBackLink)
-                .add("isMailingAddressSameAsRegisteredOfficeAddress=" + isMailingAddressSameAsRegisteredOfficeAddress)
+                .add("isServiceAddressSameAsRegisteredOfficeAddress=" + isServiceAddressSameAsRegisteredOfficeAddress)
                 .add("appointedOn=" + appointedOn)
                 .add("countryOfResidence='" + countryOfResidence + "'")
                 .add("dateOfBirth=" + dateOfBirth)
@@ -300,12 +300,12 @@ public class OfficerFilingData {
                 .add("residentialAddress=" + residentialAddress)
                 .add("residentialAddressBackLink=" + residentialAddressBackLink)
                 .add("residentialManualAddressBackLink=" + residentialManualAddressBackLink)
-                .add("isMailingAddressSameAsHomeAddress="
-                        + isMailingAddressSameAsHomeAddress)
+                .add("isServiceAddressSameAsHomeAddress="
+                        + isServiceAddressSameAsHomeAddress)
                 .add("corporateDirector=" + corporateDirector)
                 .add("checkYourAnswersLink=" + checkYourAnswersLink)
                 .add("directorResidentialAddressChoice=" + directorResidentialAddressChoice)
-                .add("directorCorrespondenceAddressChoice=" + directorCorrespondenceAddressChoice)
+                .add("directorServiceAddressChoice=" + directorServiceAddressChoice)
                 .toString();
     }
 
@@ -333,8 +333,8 @@ public class OfficerFilingData {
                     .serviceAddressBackLink(other.getServiceAddressBackLink())
                     .serviceManualAddressBackLink(other.getServiceManualAddressBackLink())
                     .protectedDetailsBackLink(other.getProtectedDetailsBackLink())
-                    .isMailingAddressSameAsRegisteredOfficeAddress(
-                            other.getIsMailingAddressSameAsRegisteredOfficeAddress())
+                    .isServiceAddressSameAsRegisteredOfficeAddress(
+                            other.getIsServiceAddressSameAsRegisteredOfficeAddress())
                     .appointedOn(other.getAppointedOn())
                     .corporateDirector(other.getCorporateDirector())
                     .countryOfResidence(other.getCountryOfResidence())
@@ -360,12 +360,12 @@ public class OfficerFilingData {
                     .residentialAddress(other.getResidentialAddress())
                     .residentialAddressBackLink(other.getResidentialAddressBackLink())
                     .residentialManualAddressBackLink(other.getResidentialManualAddressBackLink())
-                    .isMailingAddressSameAsHomeAddress(
-                            other.getIsMailingAddressSameAsHomeAddress())
+                    .isServiceAddressSameAsHomeAddress(
+                            other.getIsServiceAddressSameAsHomeAddress())
                     .resignedOn(other.getResignedOn())
                     .checkYourAnswersLink(other.getCheckYourAnswersLink())
                     .directorResidentialAddressChoice(other.getDirectorResidentialAddressChoice())
-                    .directorCorrespondenceAddressChoice(other.getDirectorCorrespondenceAddressChoice())
+                    .directorServiceAddressChoice(other.getDirectorServiceAddressChoice())
                     .status(other.getStatus());
         }
 
@@ -396,9 +396,9 @@ public class OfficerFilingData {
             return this;
         }
 
-        public Builder isMailingAddressSameAsRegisteredOfficeAddress(final Boolean value) {
+        public Builder isServiceAddressSameAsRegisteredOfficeAddress(final Boolean value) {
 
-            buildSteps.add(data -> data.isMailingAddressSameAsRegisteredOfficeAddress = value);
+            buildSteps.add(data -> data.isServiceAddressSameAsRegisteredOfficeAddress = value);
             return this;
         }
 
@@ -536,9 +536,9 @@ public class OfficerFilingData {
             return this;
         }
 
-        public Builder isMailingAddressSameAsHomeAddress(final Boolean value) {
+        public Builder isServiceAddressSameAsHomeAddress(final Boolean value) {
 
-            buildSteps.add(data -> data.isMailingAddressSameAsHomeAddress = value);
+            buildSteps.add(data -> data.isServiceAddressSameAsHomeAddress = value);
             return this;
         }
 
@@ -577,8 +577,8 @@ public class OfficerFilingData {
             return this;
         }
 
-        public Builder directorCorrespondenceAddressChoice(final String value) {
-            buildSteps.add(data -> data.directorCorrespondenceAddressChoice = value);
+        public Builder directorServiceAddressChoice(final String value) {
+            buildSteps.add(data -> data.directorServiceAddressChoice = value);
             return this;
         }
 
