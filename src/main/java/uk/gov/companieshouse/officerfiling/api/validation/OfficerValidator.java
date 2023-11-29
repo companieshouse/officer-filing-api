@@ -188,7 +188,6 @@ public abstract class OfficerValidator {
         return formerNames.length() <= 160;
     }
 
-
     public static boolean isValidCharacters(String field) {
         var pattern = Pattern.compile(REG_EXP_FOR_VALID_CHARACTERS);
         var matcher = pattern.matcher(field);
@@ -196,8 +195,9 @@ public abstract class OfficerValidator {
     }
 
     public static boolean isValidCharactersForUkPostcode(String field) {
+        if (field == null) return false;
         var pattern = Pattern.compile(REG_EXP_FOR_UK_POSTCODE);
-        var matcher = pattern.matcher(field);
+        var matcher = pattern.matcher(field.toUpperCase().trim());
         return matcher.matches();
     }
 

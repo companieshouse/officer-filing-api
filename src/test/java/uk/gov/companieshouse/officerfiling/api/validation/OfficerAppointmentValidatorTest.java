@@ -1654,19 +1654,22 @@ class OfficerAppointmentValidatorTest {
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
         when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
-        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).postalCode("ゃ").build());
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).country("England").postalCode("ゃ").build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressOutOfUK);
         when(dto.getConsentToAct()).thenReturn(true);
         when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_CHARACTERS)).thenReturn(
                 "Postal code must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTCODE_UK_INVALID)).thenReturn(
+                "Enter a UK postcode. If the address is outside the UK, enter the address manually");
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
                 .as("An error should be produced when Postal code contains illegal characters")
-                .hasSize(1)
+                .hasSize(2)
                 .extracting(ApiError::getError)
-                .contains("Postal code must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+                .contains("Postal code must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes")
+                .contains("Enter a UK postcode. If the address is outside the UK, enter the address manually");
     }
 
     @Test
@@ -2098,6 +2101,37 @@ class OfficerAppointmentValidatorTest {
                 .hasSize(1)
                 .extracting(ApiError::getError)
                 .contains("Select a country from the list");
+    }
+
+    @Test
+    void validateCorrespondencePostalCodeCharacters() {
+        setupDefaultParamaters();
+        when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressInUK).postalCode("§§§").build());
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_CHARACTERS)).thenReturn(
+                "Postal code must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTCODE_UK_INVALID)).thenReturn(
+                "Enter a UK postcode. If the address is outside the UK, enter the address manually");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when Postal code contains illegal characters")
+                .hasSize(2)
+                .extracting(ApiError::getError)
+                .contains("Postal code must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes")
+                .contains("Enter a UK postcode. If the address is outside the UK, enter the address manually");
+    }
+
+    @Test
+    void validateWhenUkCorrespondencePostalCodeLowerCase() {
+        setupDefaultParamaters();
+        when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressInUK).postalCode("ab12 3cd").build());
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("No errors should be produced when validating a real uk postcode that contains lowercase letters")
+                .isEmpty();
     }
 
     @Test
