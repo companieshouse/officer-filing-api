@@ -248,6 +248,77 @@ class FilingDataServiceImplTest {
         assertThat(filingApi.getDescription(), is(equalTo("(AP01) Appointment of director. Appointing JOE BLOGGS on 5 October 2022")));
     }
 
+    @Test
+    void generateAppointmentOfficerFilingWithDefaultFlagsWhenSameAsFlagsDoesNotExist() {
+        ReflectionTestUtils.setField(testService, "ap01FilingDescription",
+                "(AP01) Appointment of director. Appointing {director name} on {appointment date}");
+        final var filingData = new FilingData("Major", FIRSTNAME, MIDDLENAMES, LASTNAME, "former names", DATE_OF_BIRTH_STR, RESIGNED_ON_STR,
+                null, "nationality1", "nationality2", "nationality3", "occupation",
+                Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build(), null,
+                Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build(), null,
+                false, true, false);
+        var offData = OfficerFilingData.builder()
+                .firstName(FIRSTNAME)
+                .middleNames(MIDDLENAMES)
+                .lastName(LASTNAME)
+                .dateOfBirth(DATE_OF_BIRTH_INS)
+                .appointedOn(RESIGNED_ON_INS)
+                .nationality1("nationality1")
+                .nationality2("nationality2")
+                .nationality3("nationality3")
+                .occupation("occupation")
+                .serviceAddress(Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build())
+                .isServiceAddressSameAsRegisteredOfficeAddress(null)
+                .residentialAddress(Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build())
+                .isServiceAddressSameAsHomeAddress(null)
+                .directorAppliedToProtectDetails(false)
+                .consentToAct(true)
+                .corporateDirector(false)
+                .build();
+        final var now = clock.instant();
+        final var officerFiling = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+                .build();
+
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(filingAPIMapper.map(officerFiling)).thenReturn(filingData);
+
+        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        final Map<String, Object> expectedMap =
+                Map.ofEntries(
+                        Map.entry("title", "Major"),
+                        Map.entry("first_name", FIRSTNAME),
+                        Map.entry("middle_names", MIDDLENAMES),
+                        Map.entry("last_name", LASTNAME),
+                        Map.entry("former_names", "former names"),
+                        Map.entry("date_of_birth", DATE_OF_BIRTH_STR),
+                        Map.entry("appointed_on", RESIGNED_ON_STR),
+                        Map.entry("nationality1", "nationality1"),
+                        Map.entry("nationality2", "nationality2"),
+                        Map.entry("nationality3", "nationality3"),
+                        Map.entry("occupation", "occupation"),
+                        Map.entry("service_address", Map.of(
+                                "premises", "11",
+                                "address_line_1", "One Street",
+                                "country", "England",
+                                "postal_code", "TE1 3ST")),
+                        Map.entry("residential_address", Map.of(
+                                "premises", "12",
+                                "address_line_1", "Two Street",
+                                "country", "Wales",
+                                "postal_code", "TE2 4ST")),
+                        Map.entry("director_applied_to_protect_details", false),
+                        Map.entry("consent_to_act", true),
+                        Map.entry("is_corporate_director", false),
+                        Map.entry("service_address_same_as_registered_office_address", false),
+                        Map.entry("service_address_same_as_home_address", false));
+
+        assertThat(filingApi.getData(), is(equalTo(expectedMap)));
+        assertThat(filingApi.getKind(), is("officer-filing#appointment"));
+        assertThat(filingApi.getDescription(), is(equalTo("(AP01) Appointment of director. Appointing JOE BLOGGS on 5 October 2022")));
+    }
+
     @ParameterizedTest
     @CsvSource({
             "corporate-director,true",

@@ -8,6 +8,7 @@ import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.FilingAPIMapper;
@@ -80,6 +81,14 @@ public class FilingDataServiceImpl implements FilingDataService {
                 setAppointmentFilingApiData(filing, transactionId, filingId, ericPassThroughHeader);
             } else {
                 throw new NotImplementedException("Kind cannot be calculated using given data for transaction " + transactionId );
+            }
+
+            // add same as booleans if null / or does not exist.
+            if (presentOfficerFilingData.getIsServiceAddressSameAsRegisteredOfficeAddress() == null) {
+                filing.getData().put("service_address_same_as_registered_office_address", false);
+            }
+            if (presentOfficerFilingData.getIsServiceAddressSameAsHomeAddress() == null) {
+                filing.getData().put("service_address_same_as_home_address", false);
             }
         } else {
             filing.setKind("officer-filing#termination");
