@@ -546,42 +546,34 @@ public class OfficerAppointmentValidator extends OfficerValidator {
     }
 
     private void validateResidentialPostalCode(HttpServletRequest request, List<ApiError> errorList, String postalCode, String country) {
-        if (country == null || country.isBlank() || ukCountryList.stream().anyMatch(country::equalsIgnoreCase)) {
-            if (postalCode == null || postalCode.isBlank()) {
-                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_BLANK));
-                return;
-            } else if (!isValidCharactersForUkPostcode(postalCode)) {
-                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTCODE_UK_INVALID));
-                return;
-            }
-        }
         if (postalCode != null && !postalCode.isBlank()){
-            if (!validateDtoFieldLength(postalCode, 20)){
-                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_LENGTH));
-            }
             if (!isValidCharacters(postalCode)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_CHARACTERS));
             }
+            if (!validateDtoFieldLength(postalCode, 20)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_LENGTH));
+            }
+        }
+        if ((country == null || country.isBlank() || isUkCountry(country)) && (postalCode == null || postalCode.isBlank())) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_BLANK));
+        } else if (isUkCountry(country) && !isValidCharactersForUkPostcode(postalCode)) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTCODE_UK_INVALID));
         }
     }
 
     private void validateCorrespondencePostalCode(HttpServletRequest request, List<ApiError> errorList,String postalCode, String country) {
-        if (country == null || country.isBlank() || ukCountryList.stream().anyMatch(country::equalsIgnoreCase)) {
-            if (postalCode == null || postalCode.isBlank()) {
-                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_BLANK));
-                return;
-            } else if (!isValidCharactersForUkPostcode(postalCode)) {
-                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTCODE_UK_INVALID));
-                return;
-            }
-        }
-        if(postalCode != null && !postalCode.isBlank()){
-            if (!validateDtoFieldLength(postalCode, 20)){
-                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_LENGTH));
-            }
+        if (postalCode != null && !postalCode.isBlank()){
             if (!isValidCharacters(postalCode)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_CHARACTERS));
             }
+            if (!validateDtoFieldLength(postalCode, 20)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_LENGTH));
+            }
+        }
+        if ((country == null || country.isBlank() || isUkCountry(country)) && (postalCode == null || postalCode.isBlank())) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_BLANK));
+        } else if (isUkCountry(country) && !isValidCharactersForUkPostcode(postalCode)) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTCODE_UK_INVALID));
         }
     }
 
@@ -596,6 +588,10 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         } else if (dto.getAppointedOn().isBefore(companyProfile.getDateOfCreation())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_AFTER_INCORPORATION_DATE));
         }
+    }
+
+    private boolean isUkCountry(String country) {
+        return country != null && !country.isBlank() && ukCountryList.stream().anyMatch(country::equalsIgnoreCase);
     }
 
 }
