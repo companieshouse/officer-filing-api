@@ -16,7 +16,7 @@ public class OfficerFilingData {
     private String serviceAddressBackLink;
     private String serviceManualAddressBackLink;
     private String protectedDetailsBackLink;
-    private Boolean isServiceAddressSameAsRegisteredOfficeAddress;
+    private Boolean isServiceAddressSameAsRegisteredOfficeAddress = false;
     private Instant appointedOn;
     private String countryOfResidence;
     private Instant dateOfBirth;
@@ -39,7 +39,7 @@ public class OfficerFilingData {
     private Address residentialAddress;
     private String residentialAddressBackLink;
     private String residentialManualAddressBackLink;
-    private Boolean isServiceAddressSameAsHomeAddress;
+    private Boolean isServiceAddressSameAsHomeAddress = false;
     private Boolean corporateDirector;
     private Boolean nationality2Link;
     private Boolean nationality3Link;
