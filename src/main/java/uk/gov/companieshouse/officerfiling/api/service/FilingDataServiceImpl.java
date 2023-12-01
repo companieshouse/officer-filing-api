@@ -79,17 +79,17 @@ public class FilingDataServiceImpl implements FilingDataService {
                 //has no Etag (and has no removal date) so it must be an AP01
                 filing.setKind("officer-filing#appointment");
                 setAppointmentFilingApiData(filing, transactionId, filingId, ericPassThroughHeader);
+                // add same as booleans if null / or does not exist in appointment.
+                if (presentOfficerFilingData.getIsServiceAddressSameAsRegisteredOfficeAddress() == null) {
+                    filing.getData().put("service_address_same_as_registered_office_address", false);
+                }
+                if (presentOfficerFilingData.getIsServiceAddressSameAsHomeAddress() == null) {
+                    filing.getData().put("service_address_same_as_home_address", false);
+                }
             } else {
                 throw new NotImplementedException("Kind cannot be calculated using given data for transaction " + transactionId );
             }
 
-            // add same as booleans if null / or does not exist.
-            if (presentOfficerFilingData.getIsServiceAddressSameAsRegisteredOfficeAddress() == null) {
-                filing.getData().put("service_address_same_as_registered_office_address", false);
-            }
-            if (presentOfficerFilingData.getIsServiceAddressSameAsHomeAddress() == null) {
-                filing.getData().put("service_address_same_as_home_address", false);
-            }
         } else {
             filing.setKind("officer-filing#termination");
             setTerminationFilingApiData(filing, transactionId, filingId, ericPassThroughHeader);
