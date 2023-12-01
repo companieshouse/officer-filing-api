@@ -7,7 +7,7 @@
   "info": {
     "title": "Officer Filing API (Private)",
     "version": "TBC",
-    "description": "An API that allows clients to submit officer filing. Currently for TM01 (Terminate an officer) only."
+    "description": "An API that allows clients to submit officer filing. Currently for TM01 (Terminate an officer) and AP01 (Appoint an officer) only."
   },
   "host": "api.chs.local:4001",
   "basePath": "/",
@@ -17,8 +17,8 @@
   "security": [
     {
       "oauth2": [
-        "https://api.company-information.service.gov.uk/company/*/officers.read-protected",
-        "https://api.company-information.service.gov.uk/company/*/officers.delete",
+        "https://api.company-information.service.gov.uk/company/{company_number}/officers.read-protected",
+        "https://api.company-information.service.gov.uk/company/{company_number}/officers.delete",
         "https://account.companieshouse.gov.uk/user/profile.read"
       ]
     }
@@ -478,8 +478,8 @@
       "authorizationUrl": "http://account.chs.local/oauth2/authorise",
       "tokenUrl": "http://account.chs.local/oauth2/token",
       "scopes": {
-        "https://api.company-information.service.gov.uk/company/*/officers.delete": "Grants permission to terminate an officer belonging to this company.",
-        "https://api.company-information.service.gov.uk/company/*/officers.read-protected": "Grants permissions to read protected data for officers in this company.",
+        "https://api.company-information.service.gov.uk/company/{company_number}/officers.delete": "Grants permission to terminate an officer belonging to this company.",
+        "https://api.company-information.service.gov.uk/company/{company_number}/officers.read-protected": "Grants permissions to read protected data for officers in this company.",
         "https://account.companieshouse.gov.uk/user/profile.read": "Grants permission to read the CHS User profile."
       }
     },
@@ -785,6 +785,59 @@
     },
     "OfficerFiling": {
       "properties": {
+        "service_address": {
+          "$ref": "#/definitions/AddressDto"
+        },
+        "address": {
+          "$ref": "#/definitions/AddressDto"
+        },
+        "is_service_address_same_as_registered_office_address": {
+          "type": "boolean",
+          "description": "Service Address is the same as registered office address"
+        },
+        "appointed_on": {
+          "format": "date",
+          "type": "string",
+          "description": "Date the officer was appointed on"
+        },
+        "country_of_residence": {
+          "type": "string",
+          "description": "Country of residence"
+        },
+        "date_of_birth": {
+          "$ref": "#/definitions/DateOfBirth",
+          "description": "Date of birth"
+        },
+        "former_names": {
+          "items": {
+            "$ref": "#/definitions/FormerName"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name"
+        },
+        "nationality1": {
+          "type": "string",
+          "description": "Nationality"
+        },
+        "nationality2": {
+          "type": "string",
+          "description": "Nationality2"
+        },
+        "nationality3": {
+          "type": "string",
+          "description": "Nationality3"
+        },
+        "occupation": {
+          "type": "string",
+          "description": "Occupation"
+        },
+        "officerRole": {
+          "type": "string",
+          "description": "The officers role"
+        },
         "reference_appointment_id": {
           "type": "string",
           "description": "The officers appointment ID"
@@ -793,10 +846,53 @@
           "type": "string",
           "description": "ETAG for the officer data"
         },
+        "reference_officer_list_etag": {
+          "type": "string",
+          "description": "Reference officer list etag"
+        },
+        "residential_address": {
+          "$ref": "#/definitions/AddressDto"
+        },
+        "is_service_address_same_as_home_address": {
+          "type": "boolean",
+          "description": "Correspondence address same as home address"
+        },
+        "corporate_director": {
+          "type": "boolean",
+          "description": "Indicates the director is corporate"
+        },
         "resigned_on": {
           "format": "date",
           "type": "string",
           "description": "Date the officer resigned"
+        },
+        "nationality2_link": {
+          "type": "boolean",
+          "description": "Indicates the nationality 2 link has been clicked"
+        },
+        "nationality3_link": {
+          "type": "boolean",
+          "description": "Indicates the nationality 3 link has been clicked"
+        },
+        "directorAppliedToProtectDetails": {
+          "type": "boolean",
+          "description": "Indicates the director has applied to protect their details"
+        },
+        "consent_to_act": {
+          "type": "boolean",
+          "description": "Indicates the officer has consented to act as a director"
+        },
+        "check_your_answers_link": {
+          "type": "string",
+          "description": "The link to return to when change has been selected on the check your answers page"
+        },
+        "director_residential_address_choice": {
+          "type": "string",
+          "description": "The radio button selected on the officer home address page"
+        },
+        "director_service_address_choice": {
+          "type": "string",
+          "description": "The radio button selected on the officer correspondence address page"
         }
       },
       "type": "object",
@@ -819,6 +915,9 @@
         "data": {
             "$ref": "#/definitions/OfficerFiling"
           },
+        "identification": {
+          "$ref": "#/definitions/Identification"
+        },
         "updated_at": {
           "format": "date",
           "type": "string",
