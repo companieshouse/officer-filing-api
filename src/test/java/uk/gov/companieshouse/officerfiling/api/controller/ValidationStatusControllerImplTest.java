@@ -1,19 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import java.time.Clock;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.Mockito.when;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.lang.NotImplementedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +17,6 @@ import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.exception.FeatureNotEnabledException;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
-import uk.gov.companieshouse.officerfiling.api.model.dto.Date3TupleDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
@@ -44,6 +29,21 @@ import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.officerfiling.api.validation.OfficerAppointmentValidator;
 import uk.gov.companieshouse.officerfiling.api.validation.OfficerTerminationValidator;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
+
+import javax.servlet.http.HttpServletRequest;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ValidationStatusControllerImplTest {
@@ -205,18 +205,18 @@ class ValidationStatusControllerImplTest {
     }
 
     @Test
-    void validateWhenFilingAP01FoundAndInvalidDataWithEtagAndNoRemoveDate() {
-        ReflectionTestUtils.setField(testController, "isAp01Enabled", true);
+    void validateWhenFilingCH01FoundAndNoValidationErrors() {
+        ReflectionTestUtils.setField(testController, "isCh01Enabled", true);
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(officerFilingMapper.map(filing)).thenReturn(dto);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
-        when(dto.getReferenceEtag()).thenReturn("ETAG");
         when(dto.getResignedOn()).thenReturn(null);
 
-        assertThrows(
-                NotImplementedException.class, () -> testController.validate(transaction, FILING_ID, request));
+        final var response = testController.validate(transaction, FILING_ID, request);
+        assertThat(response.getValidationStatusError(), is(nullValue()));
+        assertThat(response.isValid(), is(true));
     }
 }

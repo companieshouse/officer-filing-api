@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,7 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.delta.officers.SensitiveDateOfBirthAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -17,6 +15,7 @@ import uk.gov.companieshouse.officerfiling.api.model.entity.Address;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.filing.FilingData;
+import uk.gov.companieshouse.officerfiling.api.model.filing.OfficerPreviousDetails;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.FilingAPIMapper;
 
 import java.time.Clock;
@@ -30,6 +29,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -82,8 +82,6 @@ class FilingDataServiceImplTest {
 
     @Test
     void generateTerminationOfficerFilingWhenFound() {
-        ReflectionTestUtils.setField(testService, "tm01FilingDescription",
-                "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}");
         final var filingData = new FilingData(FIRSTNAME, MIDDLENAMES, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, true);
         var offData = OfficerFilingData.builder()
                 .dateOfBirth(DATE_OF_BIRTH_INS)
@@ -121,14 +119,12 @@ class FilingDataServiceImplTest {
 
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#termination"));
-        assertThat(filingApi.getDescription(), is("(TM01) Termination of appointment of director. Terminating appointment of "
+        assertThat(filingApi.getDescription(), is("(TM01) Termination of appointment of a director. Terminating appointment of "
             + FIRSTNAME + " " + LASTNAME.toUpperCase()  + " on 5 October 2022"));
     }
 
     @Test
     void generateCorporateOfficerFilingWhenFound() {
-        ReflectionTestUtils.setField(testService, "tm01FilingDescription",
-                "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}");
         final var filingData = new FilingData(null, null  , COMPANY_NAME,   null, RESIGNED_ON_STR, true);
         final var data = OfficerFilingData.builder()
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
@@ -160,17 +156,15 @@ class FilingDataServiceImplTest {
 
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#termination"));
-        assertThat(filingApi.getDescription(), is("(TM01) Termination of appointment of director. Terminating appointment of "
+        assertThat(filingApi.getDescription(), is("(TM01) Termination of appointment of a director. Terminating appointment of "
                 + COMPANY_NAME  + " on 5 October 2022"));
     }
 
     @Test
     void generateOfficerFilingWhenNotFound() {
-        ReflectionTestUtils.setField(testService, "tm01FilingDescription",
-                "(TM01) Termination of appointment of director. Terminating appointment of {director name} on {termination date}");
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
 
-        final var exception = assertThrows(NotImplementedException.class,
+        final var exception = assertThrows(IllegalStateException.class,
                 () -> testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER));
 
         assertThat(exception.getMessage(),
@@ -179,13 +173,11 @@ class FilingDataServiceImplTest {
 
     @Test
     void generateAppointmentOfficerFilingWhenFound() {
-        ReflectionTestUtils.setField(testService, "ap01FilingDescription",
-                "(AP01) Appointment of director. Appointing {director name} on {appointment date}");
         final var filingData = new FilingData("Major", FIRSTNAME, MIDDLENAMES, LASTNAME, "former names", DATE_OF_BIRTH_STR, RESIGNED_ON_STR,
                 null, "nationality1", "nationality2", "nationality3", "occupation",
                 Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build(), false,
                 Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build(), false,
-                false, true, false);
+                false, true, false, null, "2023-01-01");
         var offData = OfficerFilingData.builder()
                 .firstName(FIRSTNAME)
                 .middleNames(MIDDLENAMES)
@@ -241,22 +233,72 @@ class FilingDataServiceImplTest {
                         Map.entry("service_address_same_as_home_address", false),
                         Map.entry("director_applied_to_protect_details", false),
                         Map.entry("consent_to_act", true),
-                        Map.entry("is_corporate_director", false));
+                        Map.entry("is_corporate_director", false),
+                        Map.entry("directors_details_changed_date", "2023-01-01"));
 
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#appointment"));
-        assertThat(filingApi.getDescription(), is(equalTo("(AP01) Appointment of director. Appointing JOE BLOGGS on 5 October 2022")));
+        assertThat(filingApi.getDescription(), is(equalTo("(AP01) Appointment of a director. Appointment of JOE BLOGGS on 5 October 2022")));
+    }
+
+    @Test
+    void generateUpdateOfficerFilingWhenFound() {
+        final var filingData = new FilingData("Major", FIRSTNAME, MIDDLENAMES, LASTNAME, "former names", DATE_OF_BIRTH_STR, RESIGNED_ON_STR,
+                null, "nationality1", "nationality2", "nationality3", "occupation",
+                Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build(), false,
+                Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build(), false,
+                false, true, false,
+                OfficerPreviousDetails.builder().title("Major").firstName(FIRSTNAME).middleNames(MIDDLENAMES).lastName(LASTNAME).dateOfBirth(DATE_OF_BIRTH_STR).build(), "2023-01-01");
+        var offData = OfficerFilingData.builder()
+                .referenceEtag(REF_ETAG)
+                .firstName(FIRSTNAME)
+                .middleNames(MIDDLENAMES)
+                .lastName(LASTNAME)
+                .dateOfBirth(DATE_OF_BIRTH_INS)
+                .appointedOn(RESIGNED_ON_INS)
+                .nationality1("nationality1")
+                .nationality2("nationality2")
+                .nationality3("nationality3")
+                .occupation("occupation")
+                .serviceAddress(Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build())
+                .isServiceAddressSameAsRegisteredOfficeAddress(false)
+                .residentialAddress(Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build())
+                .isServiceAddressSameAsHomeAddress(false)
+                .directorAppliedToProtectDetails(false)
+                .consentToAct(true)
+                .corporateDirector(false)
+                .directorsDetailsChangedDate(Instant.parse("2023-10-01T18:35:24Z"))
+                .officerPreviousDetails(
+                        OfficerPreviousDetails.builder()
+                                .title("Major")
+                                .firstName(FIRSTNAME)
+                                .middleNames(MIDDLENAMES)
+                                .lastName(LASTNAME)
+                                .dateOfBirth(DATE_OF_BIRTH_STR)
+                                .build()
+                )
+                .build();
+        final var now = clock.instant();
+        final var officerFiling = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+                .build();
+
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(filingAPIMapper.map(any(OfficerFiling.class))).thenReturn(filingData);
+
+        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        assertThat(filingApi.getKind(), is("officer-filing#update"));
+        assertThat(filingApi.getDescription(), is(equalTo("(CH01) Update of a director. Update of ROBINSON WILDER on 1 October 2023")));
     }
 
     @Test
     void generateAppointmentOfficerFilingWithDefaultFlagsWhenSameAsFlagsDoesNotExist() {
-        ReflectionTestUtils.setField(testService, "ap01FilingDescription",
-                "(AP01) Appointment of director. Appointing {director name} on {appointment date}");
         final var filingData = new FilingData("Major", FIRSTNAME, MIDDLENAMES, LASTNAME, "former names", DATE_OF_BIRTH_STR, RESIGNED_ON_STR,
                 null, "nationality1", "nationality2", "nationality3", "occupation",
                 Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build(), null,
                 Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build(), null,
-                false, true, false);
+                false, true, false, null, "2023-01-01");
         var offData = OfficerFilingData.builder()
                 .firstName(FIRSTNAME)
                 .middleNames(MIDDLENAMES)
@@ -312,11 +354,12 @@ class FilingDataServiceImplTest {
                         Map.entry("consent_to_act", true),
                         Map.entry("is_corporate_director", false),
                         Map.entry("service_address_same_as_registered_office_address", false),
-                        Map.entry("service_address_same_as_home_address", false));
+                        Map.entry("service_address_same_as_home_address", false),
+                        Map.entry("directors_details_changed_date", "2023-01-01"));
 
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#appointment"));
-        assertThat(filingApi.getDescription(), is(equalTo("(AP01) Appointment of director. Appointing JOE BLOGGS on 5 October 2022")));
+        assertThat(filingApi.getDescription(), is(equalTo("(AP01) Appointment of a director. Appointment of JOE BLOGGS on 5 October 2022")));
     }
 
     @ParameterizedTest

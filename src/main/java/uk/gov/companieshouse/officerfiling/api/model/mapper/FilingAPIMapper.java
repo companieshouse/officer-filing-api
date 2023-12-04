@@ -20,6 +20,7 @@ public interface FilingAPIMapper {
     @Mapping(target = "dateOfBirth", source = "data.dateOfBirth")
     @Mapping(target = "appointedOn", source = "data.appointedOn")
     @Mapping(target = "resignedOn", source = "data.resignedOn")
+    @Mapping(target = "directorsDetailsChangedDate", source = "data.directorsDetailsChangedDate")
     @Mapping(target = "nationality1", source = "data.nationality1")
     @Mapping(target = "nationality2", source = "data.nationality2")
     @Mapping(target = "nationality3", source = "data.nationality3")
@@ -31,6 +32,7 @@ public interface FilingAPIMapper {
     @Mapping(target = "directorAppliedToProtectDetails", source = "data.directorAppliedToProtectDetails")
     @Mapping(target = "consentToAct", source = "data.consentToAct")
     @Mapping(target = "corporateDirector", source = "data.corporateDirector")
+    @Mapping(target = "officerPreviousDetails", source = "data.officerPreviousDetails")
     FilingData map(OfficerFiling officerFiling);
 
     @Mapping(target = "data.dateOfBirth", source = "dateOfBirth")

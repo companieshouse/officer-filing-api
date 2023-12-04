@@ -29,6 +29,8 @@ public class FilingData {
     private Boolean consentToAct;
     @JsonProperty("is_corporate_director")
     private Boolean corporateDirector;
+    private OfficerPreviousDetails officerPreviousDetails;
+    private String directorsDetailsChangedDate;
 
     @JsonCreator
     public FilingData(@JsonProperty("first_name") String firstName,
@@ -65,7 +67,9 @@ public class FilingData {
                          @JsonProperty("is_service_address_same_as_home_address") Boolean isServiceAddressSameAsHomeAddress,
                          @JsonProperty("director_applied_to_protect_details") Boolean directorAppliedToProtectDetails,
                          @JsonProperty("consent_to_act") Boolean consentToAct,
-                         @JsonProperty("is_corporate_director") Boolean corporateDirector) {
+                         @JsonProperty("is_corporate_director") Boolean corporateDirector,
+                         @JsonProperty("officer_previous_details") OfficerPreviousDetails officerPreviousDetails,
+                         @JsonProperty("directors_details_changed_date") String directorsDetailsChangedDate) {
         this.title = title;
         this.firstName = firstName;
         this.middleNames = middleNames;
@@ -85,6 +89,8 @@ public class FilingData {
         this.directorAppliedToProtectDetails = directorAppliedToProtectDetails;
         this.consentToAct = consentToAct;
         this.corporateDirector = corporateDirector;
+        this.officerPreviousDetails = officerPreviousDetails;
+        this.directorsDetailsChangedDate = directorsDetailsChangedDate;
     }
 
     public String getTitle() {
@@ -163,6 +169,14 @@ public class FilingData {
         return corporateDirector;
     }
 
+    public OfficerPreviousDetails getOfficerPreviousDetails() {
+        return officerPreviousDetails;
+    }
+
+    public String getDirectorsDetailsChangedDate() {
+        return directorsDetailsChangedDate;
+    }
+
     @Override
     public String toString() {
         return "FilingData{" +
@@ -185,6 +199,8 @@ public class FilingData {
                 ", directorAppliedToProtectDetails=" + directorAppliedToProtectDetails +
                 ", consentToAct=" + consentToAct +
                 ", corporateDirector=" + corporateDirector +
+                ", officerPreviousDetails=" + officerPreviousDetails +
+                ", directorsDetailsChangedDate='" + directorsDetailsChangedDate + '\'' +
                 '}';
     }
 }
