@@ -1,12 +1,13 @@
 package uk.gov.companieshouse.officerfiling.api.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import uk.gov.companieshouse.officerfiling.api.model.filing.OfficerPreviousDetails;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.StringJoiner;
 import java.util.function.Consumer;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -48,6 +49,8 @@ public class OfficerFilingData {
     private String checkYourAnswersLink;
     private String directorResidentialAddressChoice;
     private String directorServiceAddressChoice;
+    private OfficerPreviousDetails officerPreviousDetails;
+    private Instant directorsDetailsChangedDate;
 
     public OfficerFilingData(
             final String referenceEtag,
@@ -204,6 +207,14 @@ public class OfficerFilingData {
         return directorServiceAddressChoice;
     }
 
+    public OfficerPreviousDetails getOfficerPreviousDetails() {
+        return officerPreviousDetails;
+    }
+
+    public Instant getDirectorsDetailsChangedDate() {
+        return directorsDetailsChangedDate;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -249,7 +260,9 @@ public class OfficerFilingData {
                 && Objects.equals(getDirectorServiceAddressChoice(), that.getDirectorServiceAddressChoice())
                 && Objects.equals(getIsServiceAddressSameAsHomeAddress(),
                 that.getIsServiceAddressSameAsHomeAddress())
-                && Objects.equals(getCheckYourAnswersLink(), that.getCheckYourAnswersLink());
+                && Objects.equals(getCheckYourAnswersLink(), that.getCheckYourAnswersLink())
+                && Objects.equals(getOfficerPreviousDetails(), that.getOfficerPreviousDetails())
+                && Objects.equals(getDirectorsDetailsChangedDate(), that.getDirectorsDetailsChangedDate());
     }
 
     @Override
@@ -263,53 +276,52 @@ public class OfficerFilingData {
                 getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
                 getResignedOn(), getStatus(), getResidentialAddress(), getResidentialAddressBackLink(), getResidentialManualAddressBackLink(),
                 getCheckYourAnswersLink(), getIsServiceAddressSameAsHomeAddress(),
-                getDirectorResidentialAddressChoice());
+                getDirectorResidentialAddressChoice(), getOfficerPreviousDetails(), getDirectorsDetailsChangedDate());
     }
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", OfficerFilingData.class.getSimpleName() + "[", "]")
-                .add("serviceAddress=" + serviceAddress)
-                .add("serviceManualAddressBackLink=" + serviceManualAddressBackLink)
-                .add("serviceAddressBackLink=" + serviceAddressBackLink)
-                .add("protectedDetailsBackLink=" + protectedDetailsBackLink)
-                .add("isServiceAddressSameAsRegisteredOfficeAddress=" + isServiceAddressSameAsRegisteredOfficeAddress)
-                .add("appointedOn=" + appointedOn)
-                .add("countryOfResidence='" + countryOfResidence + "'")
-                .add("dateOfBirth=" + dateOfBirth)
-                .add("formerNames=" + formerNames)
-                .add("name='" + name + "'")
-                .add("title='" + title + "'")
-                .add("firstName='" + firstName + "'")
-                .add("middleNames='" + middleNames + "'")
-                .add("lastName='" + lastName + "'")
-                .add("nationality1='" + nationality1 + "'")
-                .add("nationality2='" + nationality2 + "'")
-                .add("nationality3='" + nationality3 + "'")
-                .add("nationality2Link='" + nationality2Link + "'")
-                .add("nationality3Link='" + nationality3Link + "'")
-                .add("directorAppliedToProtectDetails='" + directorAppliedToProtectDetails + "'")
-                .add("consentToAct='" + consentToAct + "'")
-                .add("occupation='" + occupation + "'")
-                .add("officerRole='" + officerRole + "'")
-                .add("referenceEtag='" + referenceEtag + "'")
-                .add("referenceAppointmentId='" + referenceAppointmentId + "'")
-                .add("referenceOfficerListEtag='" + referenceOfficerListEtag + "'")
-                .add("resignedOn=" + resignedOn)
-                .add("status='" + status + "'")
-                .add("residentialAddress=" + residentialAddress)
-                .add("residentialAddressBackLink=" + residentialAddressBackLink)
-                .add("residentialManualAddressBackLink=" + residentialManualAddressBackLink)
-                .add("isServiceAddressSameAsHomeAddress="
-                        + isServiceAddressSameAsHomeAddress)
-                .add("corporateDirector=" + corporateDirector)
-                .add("checkYourAnswersLink=" + checkYourAnswersLink)
-                .add("directorResidentialAddressChoice=" + directorResidentialAddressChoice)
-                .add("directorServiceAddressChoice=" + directorServiceAddressChoice)
-                .toString();
+        return "OfficerFilingData{" +
+                "serviceAddress=" + serviceAddress +
+                ", serviceAddressBackLink='" + serviceAddressBackLink + '\'' +
+                ", serviceManualAddressBackLink='" + serviceManualAddressBackLink + '\'' +
+                ", protectedDetailsBackLink='" + protectedDetailsBackLink + '\'' +
+                ", isServiceAddressSameAsRegisteredOfficeAddress=" + isServiceAddressSameAsRegisteredOfficeAddress +
+                ", appointedOn=" + appointedOn +
+                ", countryOfResidence='" + countryOfResidence + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", formerNames='" + formerNames + '\'' +
+                ", name='" + name + '\'' +
+                ", title='" + title + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", middleNames='" + middleNames + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", nationality1='" + nationality1 + '\'' +
+                ", nationality2='" + nationality2 + '\'' +
+                ", nationality3='" + nationality3 + '\'' +
+                ", occupation='" + occupation + '\'' +
+                ", officerRole='" + officerRole + '\'' +
+                ", referenceEtag='" + referenceEtag + '\'' +
+                ", referenceAppointmentId='" + referenceAppointmentId + '\'' +
+                ", referenceOfficerListEtag='" + referenceOfficerListEtag + '\'' +
+                ", resignedOn=" + resignedOn +
+                ", status='" + status + '\'' +
+                ", residentialAddress=" + residentialAddress +
+                ", residentialAddressBackLink='" + residentialAddressBackLink + '\'' +
+                ", residentialManualAddressBackLink='" + residentialManualAddressBackLink + '\'' +
+                ", isServiceAddressSameAsHomeAddress=" + isServiceAddressSameAsHomeAddress +
+                ", corporateDirector=" + corporateDirector +
+                ", nationality2Link=" + nationality2Link +
+                ", nationality3Link=" + nationality3Link +
+                ", directorAppliedToProtectDetails=" + directorAppliedToProtectDetails +
+                ", consentToAct=" + consentToAct +
+                ", checkYourAnswersLink='" + checkYourAnswersLink + '\'' +
+                ", directorResidentialAddressChoice='" + directorResidentialAddressChoice + '\'' +
+                ", directorServiceAddressChoice='" + directorServiceAddressChoice + '\'' +
+                ", officerPreviousDetails=" + officerPreviousDetails +
+                ", directorsDetailsChangedDate=" + directorsDetailsChangedDate +
+                '}';
     }
-
-
 
     public static Builder builder() {
         return new Builder();
@@ -579,6 +591,16 @@ public class OfficerFilingData {
 
         public Builder directorServiceAddressChoice(final String value) {
             buildSteps.add(data -> data.directorServiceAddressChoice = value);
+            return this;
+        }
+
+        public Builder officerPreviousDetails(final OfficerPreviousDetails value) {
+            buildSteps.add(data -> data.officerPreviousDetails = value);
+            return this;
+        }
+
+        public Builder directorsDetailsChangedDate(final Instant value) {
+            buildSteps.add(data -> data.directorsDetailsChangedDate = value);
             return this;
         }
 

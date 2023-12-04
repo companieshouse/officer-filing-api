@@ -1,6 +1,9 @@
 package uk.gov.companieshouse.officerfiling.api.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +11,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "officer_filing")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -153,42 +154,44 @@ public class OfficerFiling {
         public Builder data(final OfficerFilingData value) {
             buildSteps.add(buildData -> buildData.data = Optional.ofNullable(value)
                     .map(v -> OfficerFilingData.builder()
-                                    .serviceAddress(v.getServiceAddress())
-                                    .serviceAddressBackLink(v.getServiceAddressBackLink())
-                                    .serviceManualAddressBackLink(v.getServiceManualAddressBackLink())
-                                    .protectedDetailsBackLink(v.getProtectedDetailsBackLink())
-                                    .isServiceAddressSameAsRegisteredOfficeAddress(v.getIsServiceAddressSameAsRegisteredOfficeAddress())
-                                    .appointedOn(v.getAppointedOn())
-                                    .countryOfResidence(v.getCountryOfResidence())
-                                    .dateOfBirth(v.getDateOfBirth())
-                                    .formerNames(v.getFormerNames())
-                                    .title(v.getTitle())
-                                    .name(v.getName())
-                                    .firstName(v.getFirstName())
-                                    .middleNames(v.getMiddleNames())
-                                    .lastName(v.getLastName())
-                                    .nationality1(v.getNationality1())
-                                    .nationality2(v.getNationality2())
-                                    .nationality3(v.getNationality3())
-                                    .nationality2Link(v.getNationality2Link())
-                                    .nationality3Link(v.getNationality3Link())
-                                    .directorAppliedToProtectDetails(v.getDirectorAppliedToProtectDetails())
-                                    .consentToAct(v.getConsentToAct())
-                                    .occupation(v.getOccupation())
-                                    .officerRole(v.getOfficerRole())
-                                    .referenceEtag(v.getReferenceEtag())
-                                    .referenceAppointmentId(v.getReferenceAppointmentId())
-                                    .referenceOfficerListEtag(v.getReferenceOfficerListEtag())
-                                    .resignedOn(v.getResignedOn())
-                                    .status(v.getStatus())
-                                    .residentialAddress(v.getResidentialAddress())
-                                    .residentialAddressBackLink(v.getResidentialAddressBackLink())
-                                    .residentialManualAddressBackLink(v.getResidentialManualAddressBackLink())
-                                    .directorResidentialAddressChoice(v.getDirectorResidentialAddressChoice())
-                                    .directorServiceAddressChoice(v.getDirectorServiceAddressChoice())
-                                    .isServiceAddressSameAsHomeAddress(v.getIsServiceAddressSameAsHomeAddress())
-                                    .corporateDirector(v.getCorporateDirector())
+                            .serviceAddress(v.getServiceAddress())
+                            .serviceAddressBackLink(v.getServiceAddressBackLink())
+                            .serviceManualAddressBackLink(v.getServiceManualAddressBackLink())
+                            .protectedDetailsBackLink(v.getProtectedDetailsBackLink())
+                            .isServiceAddressSameAsRegisteredOfficeAddress(v.getIsServiceAddressSameAsRegisteredOfficeAddress())
+                            .appointedOn(v.getAppointedOn())
+                            .countryOfResidence(v.getCountryOfResidence())
+                            .dateOfBirth(v.getDateOfBirth())
+                            .formerNames(v.getFormerNames())
+                            .title(v.getTitle())
+                            .name(v.getName())
+                            .firstName(v.getFirstName())
+                            .middleNames(v.getMiddleNames())
+                            .lastName(v.getLastName())
+                            .nationality1(v.getNationality1())
+                            .nationality2(v.getNationality2())
+                            .nationality3(v.getNationality3())
+                            .nationality2Link(v.getNationality2Link())
+                            .nationality3Link(v.getNationality3Link())
+                            .directorAppliedToProtectDetails(v.getDirectorAppliedToProtectDetails())
+                            .consentToAct(v.getConsentToAct())
+                            .occupation(v.getOccupation())
+                            .officerRole(v.getOfficerRole())
+                            .referenceEtag(v.getReferenceEtag())
+                            .referenceAppointmentId(v.getReferenceAppointmentId())
+                            .referenceOfficerListEtag(v.getReferenceOfficerListEtag())
+                            .resignedOn(v.getResignedOn())
+                            .status(v.getStatus())
+                            .residentialAddress(v.getResidentialAddress())
+                            .residentialAddressBackLink(v.getResidentialAddressBackLink())
+                            .residentialManualAddressBackLink(v.getResidentialManualAddressBackLink())
+                            .directorResidentialAddressChoice(v.getDirectorResidentialAddressChoice())
+                            .directorServiceAddressChoice(v.getDirectorServiceAddressChoice())
+                            .isServiceAddressSameAsHomeAddress(v.getIsServiceAddressSameAsHomeAddress())
+                            .corporateDirector(v.getCorporateDirector())
                             .checkYourAnswersLink(v.getCheckYourAnswersLink())
+                            .officerPreviousDetails(v.getOfficerPreviousDetails())
+                            .directorsDetailsChangedDate(v.getDirectorsDetailsChangedDate())
                             .build())
                     .orElse(null));
             return this;
@@ -207,4 +210,5 @@ public class OfficerFiling {
             return officerFiling;
         }
     }
+
 }
