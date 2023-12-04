@@ -90,7 +90,7 @@ class DirectorsControllerImplIT {
         httpHeaders.add("ERIC-Identity", USER);
         httpHeaders.add("ERIC-Identity-Type", KEY);
         httpHeaders.add("ERIC-Authorised-Key-Roles", KEY_ROLE);
-        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete,create");
+        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete,create,update");
         var offData = new OfficerFilingData(
                 "etag",
                 null,

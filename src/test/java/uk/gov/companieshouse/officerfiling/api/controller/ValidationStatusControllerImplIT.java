@@ -96,7 +96,7 @@ class ValidationStatusControllerImplIT {
     void setUp() throws IOException, URIValidationException {
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
-        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete,create");
+        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete,create,update");
 
         transaction = new Transaction();
         transaction.setCompanyNumber(COMPANY_NUMBER);

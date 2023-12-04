@@ -57,6 +57,10 @@ public class OfficersCRUDAuthenticationInterceptor implements HandlerInterceptor
         boolean hasCompanyOfficersCreatePermission = tokenPermissions.hasPermission(
                 Key.COMPANY_OFFICERS, Value.CREATE);
 
+        // Check the user has the company_officers=create permission
+        boolean hasCompanyOfficersUpdatePermission = tokenPermissions.hasPermission(
+                Key.COMPANY_OFFICERS, Value.UPDATE);
+
         // Check the user has the company_officers=readprotected permission
         boolean hasCompanyOfficersReadProtectedPermission = tokenPermissions.hasPermission(
                 Key.COMPANY_OFFICERS, Value.READ_PROTECTED);
@@ -68,13 +72,15 @@ public class OfficersCRUDAuthenticationInterceptor implements HandlerInterceptor
                 hasCompanyOfficersDeletePermission);
         authInfoMap.put("has_company_officers_create_permission",
                 hasCompanyOfficersCreatePermission);
+        authInfoMap.put("has_company_officers_update_permission",
+                hasCompanyOfficersUpdatePermission);
         authInfoMap.put("has_company_officers_readprotected_permission",
                 hasCompanyOfficersReadProtectedPermission);
 
-        if (hasCompanyOfficersDeletePermission && hasCompanyOfficersCreatePermission && hasCompanyOfficersReadProtectedPermission) {
+        if (hasCompanyOfficersDeletePermission && hasCompanyOfficersCreatePermission && hasCompanyOfficersUpdatePermission && hasCompanyOfficersReadProtectedPermission) {
             logger.debugContext(reqId,
                     "OfficersCRUDAuthenticationInterceptor authorised with company_officers=readprotected, " +
-                            "company_officers=delete and company_officers=create permissions",
+                            "company_officers=delete, company_officers=update and company_officers=create permissions",
                     authInfoMap);
             return true;
         }
