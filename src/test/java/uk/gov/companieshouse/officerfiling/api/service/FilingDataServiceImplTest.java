@@ -42,7 +42,7 @@ class FilingDataServiceImplTest {
     private static final String RESIGNED_ON_STR = "2022-10-05";
     private static final Instant RESIGNED_ON_INS = Instant.parse("2022-10-05T00:00:00Z");
     public static final String FIRSTNAME = "JOE";
-    public static final String MIDDLENAMES  = "PETER MARTIN";
+    public static final String MIDDLENAMES = "PETER MARTIN";
     public static final String LASTNAME = "BLOGGS";
     public static final String COMPANY_NAME = "Company Name";
     public static final String FULL_NAME = FIRSTNAME + " " + LASTNAME;
@@ -82,13 +82,14 @@ class FilingDataServiceImplTest {
 
     @Test
     void generateTerminationOfficerFilingWhenFound() {
-        final var filingData = new FilingData(FIRSTNAME, MIDDLENAMES, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, true);
+        final var filingData = new FilingData(FIRSTNAME, MIDDLENAMES, LASTNAME, DATE_OF_BIRTH_STR, RESIGNED_ON_STR, false);
         var offData = OfficerFilingData.builder()
                 .dateOfBirth(DATE_OF_BIRTH_INS)
                 .firstName(FIRSTNAME)
                 .lastName(LASTNAME)
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
                 .resignedOn(RESIGNED_ON_INS)
+                .corporateDirector(false)
                 .build();
         final var now = clock.instant();
         final var officerFiling = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
@@ -106,7 +107,7 @@ class FilingDataServiceImplTest {
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
         when(filingAPIMapper.map(officerFiling)).thenReturn(filingData);
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
-        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER ))
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
                 .thenReturn(companyAppointment);
 
         final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
@@ -115,17 +116,17 @@ class FilingDataServiceImplTest {
                 Map.of("first_name", FIRSTNAME, "middle_names", MIDDLENAMES, "last_name", LASTNAME,
                         "date_of_birth", DATE_OF_BIRTH_STR,
                         "resigned_on", RESIGNED_ON_STR,
-                        "is_corporate_director", true);
+                        "is_corporate_director", false);
 
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#termination"));
         assertThat(filingApi.getDescription(), is("(TM01) Termination of appointment of a director. Terminating appointment of "
-            + FIRSTNAME + " " + LASTNAME.toUpperCase()  + " on 5 October 2022"));
+                + FIRSTNAME + " " + LASTNAME.toUpperCase() + " on 5 October 2022"));
     }
 
     @Test
     void generateCorporateOfficerFilingWhenFound() {
-        final var filingData = new FilingData(null, null  , COMPANY_NAME,   null, RESIGNED_ON_STR, true);
+        final var filingData = new FilingData(null, null, COMPANY_NAME, null, RESIGNED_ON_STR, true);
         final var data = OfficerFilingData.builder()
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
                 .name(COMPANY_NAME)
@@ -133,6 +134,7 @@ class FilingDataServiceImplTest {
                 .middleNames("")
                 .lastName(COMPANY_NAME)
                 .resignedOn(RESIGNED_ON_INS)
+                .corporateDirector(true)
                 .build();
         final var officerFiling = OfficerFiling.builder()
                 .data(data)
@@ -144,7 +146,7 @@ class FilingDataServiceImplTest {
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
         when(filingAPIMapper.map(officerFiling)).thenReturn(filingData);
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
-        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER ))
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
                 .thenReturn(companyAppointment);
 
         final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
@@ -157,7 +159,7 @@ class FilingDataServiceImplTest {
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#termination"));
         assertThat(filingApi.getDescription(), is("(TM01) Termination of appointment of a director. Terminating appointment of "
-                + COMPANY_NAME  + " on 5 October 2022"));
+                + COMPANY_NAME + " on 5 October 2022"));
     }
 
     @Test
