@@ -41,9 +41,9 @@ public class FilingDataServiceImpl implements FilingDataService {
     private final Supplier<LocalDate> dateNowSupplier;
 
     public FilingDataServiceImpl(OfficerFilingService officerFilingService,
-            FilingAPIMapper filingAPIMapper, Logger logger, TransactionService transactionService,
-            CompanyAppointmentService companyAppointmentService,
-            Supplier<LocalDate> dateNowSupplier) {
+                                 FilingAPIMapper filingAPIMapper, Logger logger, TransactionService transactionService,
+                                 CompanyAppointmentService companyAppointmentService,
+                                 Supplier<LocalDate> dateNowSupplier) {
         this.officerFilingService = officerFilingService;
         this.filingAPIMapper = filingAPIMapper;
         this.logger = logger;
@@ -55,8 +55,8 @@ public class FilingDataServiceImpl implements FilingDataService {
     /**
      * Generate FilingApi data enriched by names and date of birth from company-appointments API.
      *
-     * @param transactionId the Transaction ID
-     * @param filingId      the Officer Filing ID
+     * @param transactionId         the Transaction ID
+     * @param filingId              the Officer Filing ID
      * @param ericPassThroughHeader includes authorisation for company appointment fetch
      * @return the FilingApi data for JSON response
      */
@@ -118,7 +118,7 @@ public class FilingDataServiceImpl implements FilingDataService {
                 .corporateDirector(mapCorporateDirector(transaction, companyAppointment));
 
         // For non-corporate Directors
-        if(companyAppointment.getDateOfBirth() != null){
+        if (companyAppointment.getDateOfBirth() != null) {
             LocalDate date = LocalDate.of(companyAppointment.getDateOfBirth().getYear(), companyAppointment.getDateOfBirth().getMonth(), companyAppointment.getDateOfBirth().getDay());
             Instant dobInstant = date.atStartOfDay().toInstant(ZoneOffset.UTC);
             dataBuilder = dataBuilder
@@ -138,7 +138,7 @@ public class FilingDataServiceImpl implements FilingDataService {
                 .build());
 
         filing.setData(dataMap);
-        setTm01DescriptionFields(filing, enhancedOfficerFiling.getData(),  companyAppointment);
+        setTm01DescriptionFields(filing, enhancedOfficerFiling.getData(), companyAppointment);
     }
 
     private void setAppointmentFilingApiData(FilingApi filing, String transactionId, String filingId, String ericPassThroughHeader, OfficerFiling officerFiling) {
@@ -162,28 +162,35 @@ public class FilingDataServiceImpl implements FilingDataService {
     }
 
     private void setUpdateFilingApiData(FilingApi filing, String transactionId, String filingId, String ericPassThroughHeader, OfficerFiling officerFiling) {
+        final OfficerFilingData data = officerFiling.getData();
         final var transaction = transactionService.getTransaction(transactionId, ericPassThroughHeader);
+
+        OfficerFilingData.Builder dataBuilder = OfficerFilingData.builder()
+                .officerPreviousDetails(OfficerPreviousDetails.builder()
+                        .title("Ms")
+                        .firstName("Crossland")
+                        .middleNames("Ann")
+                        .lastName("Wilder")
+                        .dateOfBirth("1961-06-13T00:00:00.00Z") // Jackson doesn't map this properly if it is an instant
+                        .build())
+                .directorsDetailsChangedDate(data.getDirectorsDetailsChangedDate());
+
+        // Only the updated sections should be included in the filing
+        // Software filer will only send the data sections that should be updated but not include any hasBeenUpdated booleans
+        // Web filer will send all data sections and all hasBeenUpdated booleans, so we can work out which sections have been updated
+        if (data.getNameHasBeenUpdated() == null || data.getNameHasBeenUpdated()) {
+            dataBuilder = dataBuilder.title(data.getTitle())
+                    .firstName(data.getFirstName())
+                    .middleNames(data.getMiddleNames())
+                    .lastName(data.getLastName())
+                    .formerNames(data.getFormerNames());
+        }
+
         final var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
                 .createdAt(officerFiling.getCreatedAt())
                 .updatedAt(officerFiling.getUpdatedAt())
-                // Temporarily hard-coded to test xml into CHIPS. Will be replaced when CH01 filing data is complete.
-                .data(OfficerFilingData.builder()
-                        .title("Ms")
-                        .firstName("Robinson")
-                        .middleNames("Ann")
-                        .lastName("Wilder")
-                        .appointedOn(Instant.parse("2023-10-01T18:35:24.00Z"))
-                        .directorsDetailsChangedDate(Instant.parse("2023-10-01T18:35:24.00Z"))
-                        .officerPreviousDetails(OfficerPreviousDetails.builder()
-                                .title("Ms")
-                                .firstName("Crossland")
-                                .middleNames("Ann")
-                                .lastName("Wilder")
-                                .dateOfBirth("1961-06-13T00:00:00.00Z") // Jackson doesn't map this properly if it is an instant
-                                .build())
-                        .build())
+                .data(dataBuilder.build())
                 .build();
-
         var filingData = filingAPIMapper.map(enhancedOfficerFiling);
         var dataMap = MapHelper.convertObject(filingData, PropertyNamingStrategies.SNAKE_CASE);
         logger.debugContext(transactionId, "Created update filing data for submission", new LogHelper.Builder(transaction)
@@ -215,7 +222,7 @@ public class FilingDataServiceImpl implements FilingDataService {
         filing.setDescriptionIdentifier(TM01_FILING_DESCRIPTION);
         var surname = "";
         var officerFilingName = "";
-        if(companyAppointment.getSurname()!= null) {
+        if (companyAppointment.getSurname() != null) {
             surname = companyAppointment.getSurname().toUpperCase();
             officerFilingName = companyAppointment.getForename() + " " + surname;
         } else {
@@ -232,7 +239,7 @@ public class FilingDataServiceImpl implements FilingDataService {
 
     private void setAp01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData) {
         final String formattedAppointmentDate = LocalDate.ofInstant(officerFilingData.getAppointedOn(), ZoneOffset.UTC).format(formatter);
-        final String officerFilingName = officerFilingData.getFirstName().toUpperCase() + " " + officerFilingData.getLastName().toUpperCase();
+        final String officerFilingName = getOfficerName(officerFilingData);
         filing.setDescriptionIdentifier(AP01_FILING_DESCRIPTION);
         filing.setDescription(AP01_FILING_DESCRIPTION.replace("{" + DIRECTOR_NAME + "}", officerFilingName)
                 .replace("{appointment date}", formattedAppointmentDate));
@@ -244,7 +251,7 @@ public class FilingDataServiceImpl implements FilingDataService {
 
     private void setCh01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData) {
         final String formattedUpdateDate = LocalDate.ofInstant(officerFilingData.getDirectorsDetailsChangedDate(), ZoneOffset.UTC).format(formatter);
-        final String officerFilingName = officerFilingData.getFirstName().toUpperCase() + " " + officerFilingData.getLastName().toUpperCase();
+        final String officerFilingName = getOfficerName(officerFilingData);
         filing.setDescriptionIdentifier(CH01_FILING_DESCRIPTION);
         filing.setDescription(CH01_FILING_DESCRIPTION.replace("{" + DIRECTOR_NAME + "}", officerFilingName)
                 .replace("{update date}", formattedUpdateDate));
@@ -252,5 +259,12 @@ public class FilingDataServiceImpl implements FilingDataService {
                 "update date", formattedUpdateDate,
                 DIRECTOR_NAME, officerFilingName
         ));
+    }
+
+    private String getOfficerName(OfficerFilingData officerFilingData) {
+        if (officerFilingData != null && officerFilingData.getFirstName() != null && officerFilingData.getLastName() != null) {
+            return officerFilingData.getFirstName().toUpperCase() + " " + officerFilingData.getLastName().toUpperCase();
+        }
+        return "OFFICER";   // If names don't exist then should use original name?
     }
 }
