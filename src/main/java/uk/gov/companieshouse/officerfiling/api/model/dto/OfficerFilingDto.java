@@ -2,15 +2,15 @@ package uk.gov.companieshouse.officerfiling.api.model.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import org.springframework.validation.annotation.Validated;
+import uk.gov.companieshouse.JsonBooleanDeserializer;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.StringJoiner;
 import java.util.function.Consumer;
-import org.springframework.validation.annotation.Validated;
-import uk.gov.companieshouse.JsonBooleanDeserializer;
 
 @JsonDeserialize(builder = OfficerFilingDto.Builder.class)
 @Validated
@@ -50,6 +50,11 @@ public class OfficerFilingDto {
     private String checkYourAnswersLink;
     private String directorResidentialAddressChoice;
     private String directorServiceAddressChoice;
+    private Boolean nameHasBeenUpdated;
+    private Boolean nationalityHasBeenUpdated;
+    private Boolean occupationHasBeenUpdated;
+    private Boolean correspondenceAddressHasBeenUpdated;
+    private Boolean residentialAddressHasBeenUpdated;
 
     private OfficerFilingDto() {
     }
@@ -66,7 +71,9 @@ public class OfficerFilingDto {
         return serviceManualAddressBackLink;
     }
 
-    public String getProtectedDetailsBackLink() { return protectedDetailsBackLink; }
+    public String getProtectedDetailsBackLink() {
+        return protectedDetailsBackLink;
+    }
 
     public Boolean getIsServiceAddressSameAsRegisteredOfficeAddress() {
         return isServiceAddressSameAsRegisteredOfficeAddress;
@@ -95,6 +102,7 @@ public class OfficerFilingDto {
     public String getName() {
         return name;
     }
+
     public String getTitle() {
         return title;
     }
@@ -114,12 +122,15 @@ public class OfficerFilingDto {
     public String getNationality1() {
         return nationality1;
     }
+
     public String getNationality2() {
         return nationality2;
     }
+
     public String getNationality3() {
         return nationality3;
     }
+
     public String getOccupation() {
         return occupation;
     }
@@ -156,20 +167,26 @@ public class OfficerFilingDto {
         return isServiceAddressSameAsHomeAddress;
     }
 
-    public Boolean getNationality2Link(){
+    public Boolean getNationality2Link() {
         return nationality2Link;
     }
 
-    public Boolean getNationality3Link(){
+    public Boolean getNationality3Link() {
         return nationality3Link;
     }
 
-    public Boolean getDirectorAppliedToProtectDetails() { return directorAppliedToProtectDetails; }
+    public Boolean getDirectorAppliedToProtectDetails() {
+        return directorAppliedToProtectDetails;
+    }
 
-    public Boolean getConsentToAct() { return consentToAct; }
+    public Boolean getConsentToAct() {
+        return consentToAct;
+    }
 
-    public String getCheckYourAnswersLink() { return checkYourAnswersLink; }
-  
+    public String getCheckYourAnswersLink() {
+        return checkYourAnswersLink;
+    }
+
     public String getDirectorResidentialAddressChoice() {
         return directorResidentialAddressChoice;
     }
@@ -178,104 +195,82 @@ public class OfficerFilingDto {
         return directorServiceAddressChoice;
     }
 
+    public Boolean getNameHasBeenUpdated() {
+        return nameHasBeenUpdated;
+    }
+
+    public Boolean getNationalityHasBeenUpdated() {
+        return nationalityHasBeenUpdated;
+    }
+
+    public Boolean getOccupationHasBeenUpdated() {
+        return occupationHasBeenUpdated;
+    }
+
+    public Boolean getCorrespondenceAddressHasBeenUpdated() {
+        return correspondenceAddressHasBeenUpdated;
+    }
+
+    public Boolean getResidentialAddressHasBeenUpdated() {
+        return residentialAddressHasBeenUpdated;
+    }
+
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final var that = (OfficerFilingDto) o;
-        return Objects.equals(getServiceAddress(), that.getServiceAddress())
-                && Objects.equals(getServiceAddressBackLink(), that.getServiceAddressBackLink())
-                && Objects.equals(getServiceManualAddressBackLink(), that.getServiceManualAddressBackLink())
-                && Objects.equals(getProtectedDetailsBackLink(), that.getProtectedDetailsBackLink())
-                && Objects.equals(getIsServiceAddressSameAsRegisteredOfficeAddress(),
-                that.getIsServiceAddressSameAsRegisteredOfficeAddress())
-                && Objects.equals(getAppointedOn(), that.getAppointedOn())
-                && Objects.equals(getCountryOfResidence(), that.getCountryOfResidence())
-                && Objects.equals(getDateOfBirth(), that.getDateOfBirth())
-                && Objects.equals(getFormerNames(), that.getFormerNames())
-                && Objects.equals(getIdentification(), that.getIdentification())
-                && Objects.equals(getTitle(), that.getTitle())
-                && Objects.equals(getName(), that.getName())
-                && Objects.equals(getFirstName(), that.getFirstName())
-                && Objects.equals(getMiddleNames(), that.getMiddleNames())
-                && Objects.equals(getLastName(), that.getLastName())
-                && Objects.equals(getNationality1(), that.getNationality1())
-                && Objects.equals(getNationality2(), that.getNationality2())
-                && Objects.equals(getNationality3(), that.getNationality3())
-                && Objects.equals(getNationality2Link(), that.getNationality2Link())
-                && Objects.equals(getNationality3Link(), that.getNationality3Link())
-                && Objects.equals(getDirectorAppliedToProtectDetails(), that.getDirectorAppliedToProtectDetails())
-                && Objects.equals(getConsentToAct(), that.getConsentToAct())
-                && Objects.equals(getOccupation(), that.getOccupation())
-                && Objects.equals(getReferenceEtag(), that.getReferenceEtag())
-                && Objects.equals(getReferenceAppointmentId(), that.getReferenceAppointmentId())
-                && Objects.equals(getReferenceOfficerListEtag(), that.getReferenceOfficerListEtag())
-                && Objects.equals(getResignedOn(), that.getResignedOn())
-                && Objects.equals(getResidentialAddress(), that.getResidentialAddress())
-                && Objects.equals(getResidentialAddressBackLink(), that.getResidentialAddressBackLink())
-                && Objects.equals(getResidentialManualAddressBackLink(), that.getResidentialManualAddressBackLink())
-                && Objects.equals(getDirectorResidentialAddressChoice(), that.getDirectorResidentialAddressChoice())
-                && Objects.equals(getDirectorServiceAddressChoice(), that.getDirectorServiceAddressChoice())
-                && Objects.equals(getIsServiceAddressSameAsHomeAddress(),
-                that.getIsServiceAddressSameAsHomeAddress())
-                && Objects.equals(getCheckYourAnswersLink(), that.getCheckYourAnswersLink());
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OfficerFilingDto)) return false;
+        OfficerFilingDto that = (OfficerFilingDto) o;
+        return Objects.equals(getServiceAddress(), that.getServiceAddress()) && Objects.equals(getServiceAddressBackLink(), that.getServiceAddressBackLink()) && Objects.equals(getServiceManualAddressBackLink(), that.getServiceManualAddressBackLink()) && Objects.equals(getProtectedDetailsBackLink(), that.getProtectedDetailsBackLink()) && Objects.equals(getIsServiceAddressSameAsRegisteredOfficeAddress(), that.getIsServiceAddressSameAsRegisteredOfficeAddress()) && Objects.equals(getAppointedOn(), that.getAppointedOn()) && Objects.equals(getCountryOfResidence(), that.getCountryOfResidence()) && Objects.equals(getDateOfBirth(), that.getDateOfBirth()) && Objects.equals(getFormerNames(), that.getFormerNames()) && Objects.equals(getIdentification(), that.getIdentification()) && Objects.equals(getName(), that.getName()) && Objects.equals(getTitle(), that.getTitle()) && Objects.equals(getFirstName(), that.getFirstName()) && Objects.equals(getMiddleNames(), that.getMiddleNames()) && Objects.equals(getLastName(), that.getLastName()) && Objects.equals(getNationality1(), that.getNationality1()) && Objects.equals(getNationality2(), that.getNationality2()) && Objects.equals(getNationality3(), that.getNationality3()) && Objects.equals(getOccupation(), that.getOccupation()) && Objects.equals(getReferenceEtag(), that.getReferenceEtag()) && Objects.equals(getReferenceAppointmentId(), that.getReferenceAppointmentId()) && Objects.equals(getReferenceOfficerListEtag(), that.getReferenceOfficerListEtag()) && Objects.equals(getResignedOn(), that.getResignedOn()) && Objects.equals(getResidentialAddress(), that.getResidentialAddress()) && Objects.equals(getResidentialAddressBackLink(), that.getResidentialAddressBackLink()) && Objects.equals(getResidentialManualAddressBackLink(), that.getResidentialManualAddressBackLink()) && Objects.equals(getIsServiceAddressSameAsHomeAddress(), that.getIsServiceAddressSameAsHomeAddress()) && Objects.equals(getNationality2Link(), that.getNationality2Link()) && Objects.equals(getNationality3Link(), that.getNationality3Link()) && Objects.equals(getDirectorAppliedToProtectDetails(), that.getDirectorAppliedToProtectDetails()) && Objects.equals(getConsentToAct(), that.getConsentToAct()) && Objects.equals(getCheckYourAnswersLink(), that.getCheckYourAnswersLink()) && Objects.equals(getDirectorResidentialAddressChoice(), that.getDirectorResidentialAddressChoice()) && Objects.equals(getDirectorServiceAddressChoice(), that.getDirectorServiceAddressChoice()) && Objects.equals(getNameHasBeenUpdated(), that.getNameHasBeenUpdated()) && Objects.equals(getNationalityHasBeenUpdated(), that.getNationalityHasBeenUpdated()) && Objects.equals(getOccupationHasBeenUpdated(), that.getOccupationHasBeenUpdated()) && Objects.equals(getCorrespondenceAddressHasBeenUpdated(), that.getCorrespondenceAddressHasBeenUpdated()) && Objects.equals(getResidentialAddressHasBeenUpdated(), that.getResidentialAddressHasBeenUpdated());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getServiceAddress(), getServiceManualAddressBackLink(), getIsServiceAddressSameAsRegisteredOfficeAddress(),
-                getAppointedOn(), getCountryOfResidence(), getDateOfBirth(), getFormerNames(),
-                getIdentification(), getTitle(), getName(), getFirstName(), getMiddleNames(), getLastName(),
-                getNationality1(), getNationality2(), getNationality2Link(), getNationality3Link(),
-                getDirectorAppliedToProtectDetails(), getConsentToAct(), getNationality3(),
-                getOccupation(), getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(),
-                getResignedOn(), getResidentialAddress(), getResidentialManualAddressBackLink(),getIsServiceAddressSameAsHomeAddress(),
-                getCheckYourAnswersLink(), getDirectorResidentialAddressChoice(), getDirectorServiceAddressChoice());
+        return Objects.hash(getServiceAddress(), getServiceAddressBackLink(), getServiceManualAddressBackLink(), getProtectedDetailsBackLink(), getIsServiceAddressSameAsRegisteredOfficeAddress(), getAppointedOn(), getCountryOfResidence(), getDateOfBirth(), getFormerNames(), getIdentification(), getName(), getTitle(), getFirstName(), getMiddleNames(), getLastName(), getNationality1(), getNationality2(), getNationality3(), getOccupation(), getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(), getResignedOn(), getResidentialAddress(), getResidentialAddressBackLink(), getResidentialManualAddressBackLink(), getIsServiceAddressSameAsHomeAddress(), getNationality2Link(), getNationality3Link(), getDirectorAppliedToProtectDetails(), getConsentToAct(), getCheckYourAnswersLink(), getDirectorResidentialAddressChoice(), getDirectorServiceAddressChoice(), getNameHasBeenUpdated(), getNationalityHasBeenUpdated(), getOccupationHasBeenUpdated(), getCorrespondenceAddressHasBeenUpdated(), getResidentialAddressHasBeenUpdated());
     }
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", OfficerFilingDto.class.getSimpleName() + "[", "]").add(
-                        "serviceAddress=" + serviceAddress)
-                .add("serviceAddressBackLink='" + serviceAddressBackLink + "'")
-                .add("serviceManualAddressBackLink'" + serviceManualAddressBackLink + "'")
-                .add("protectedDetailsBackLink='" + protectedDetailsBackLink + "'")
-                .add("isServiceAddressSameAsRegisteredOfficeAddress=" + isServiceAddressSameAsRegisteredOfficeAddress)
-                .add("appointedOn=" + appointedOn)
-                .add("countryOfResidence='" + countryOfResidence + "'")
-                .add("dateOfBirth=" + dateOfBirth)
-                .add("formerNames=" + formerNames)
-                .add("identification=" + identification)
-                .add("title='" + title + "'")
-                .add("name='" + name + "'")
-                .add("firstName='" + firstName + "'")
-                .add("middleNames='" + middleNames + "'")
-                .add("lastName='" + lastName + "'")
-                .add("nationality1='" + nationality1 + "'")
-                .add("nationality2='" + nationality2 + "'")
-                .add("nationality3='" + nationality3 + "'")
-                .add("nationality2Link='" + nationality2Link + "'")
-                .add("nationality3Link='" + nationality3Link + "'")
-                .add("directorAppliedToProtectDetails='" + directorAppliedToProtectDetails + "'")
-                .add("consentToAct='" + consentToAct + "'")
-                .add("occupation='" + occupation + "'")
-                .add("referenceEtag='" + referenceEtag + "'")
-                .add("referenceAppointmentId='" + referenceAppointmentId + "'")
-                .add("referenceOfficerListEtag='" + referenceOfficerListEtag + "'")
-                .add("resignedOn=" + resignedOn)
-                .add("residentialAddress=" + residentialAddress)
-                .add("residentialAddressBackLink='" + residentialAddressBackLink + "'")
-                .add("residentialManualAddressBackLink='" + residentialManualAddressBackLink + "'")
-                .add("isServiceAddressSameAsHomeAddress="
-                        + isServiceAddressSameAsHomeAddress)
-                .add("checkYourAnswersLink=" + checkYourAnswersLink)
-                .add("directorResidentialAddressChoice'" + directorResidentialAddressChoice + "'")
-                .add("directorServiceAddressChoice'" + directorServiceAddressChoice + "'")
-                .toString();
+        return "OfficerFilingDto{" +
+                "serviceAddress=" + serviceAddress +
+                ", serviceAddressBackLink='" + serviceAddressBackLink + '\'' +
+                ", serviceManualAddressBackLink='" + serviceManualAddressBackLink + '\'' +
+                ", protectedDetailsBackLink='" + protectedDetailsBackLink + '\'' +
+                ", isServiceAddressSameAsRegisteredOfficeAddress=" + isServiceAddressSameAsRegisteredOfficeAddress +
+                ", appointedOn=" + appointedOn +
+                ", countryOfResidence='" + countryOfResidence + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", formerNames='" + formerNames + '\'' +
+                ", identification=" + identification +
+                ", name='" + name + '\'' +
+                ", title='" + title + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", middleNames='" + middleNames + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", nationality1='" + nationality1 + '\'' +
+                ", nationality2='" + nationality2 + '\'' +
+                ", nationality3='" + nationality3 + '\'' +
+                ", occupation='" + occupation + '\'' +
+                ", referenceEtag='" + referenceEtag + '\'' +
+                ", referenceAppointmentId='" + referenceAppointmentId + '\'' +
+                ", referenceOfficerListEtag='" + referenceOfficerListEtag + '\'' +
+                ", resignedOn=" + resignedOn +
+                ", residentialAddress=" + residentialAddress +
+                ", residentialAddressBackLink='" + residentialAddressBackLink + '\'' +
+                ", residentialManualAddressBackLink='" + residentialManualAddressBackLink + '\'' +
+                ", isServiceAddressSameAsHomeAddress=" + isServiceAddressSameAsHomeAddress +
+                ", nationality2Link=" + nationality2Link +
+                ", nationality3Link=" + nationality3Link +
+                ", directorAppliedToProtectDetails=" + directorAppliedToProtectDetails +
+                ", consentToAct=" + consentToAct +
+                ", checkYourAnswersLink='" + checkYourAnswersLink + '\'' +
+                ", directorResidentialAddressChoice='" + directorResidentialAddressChoice + '\'' +
+                ", directorServiceAddressChoice='" + directorServiceAddressChoice + '\'' +
+                ", nameHasBeenUpdated=" + nameHasBeenUpdated +
+                ", nationalityHasBeenUpdated=" + nationalityHasBeenUpdated +
+                ", occupationHasBeenUpdated=" + occupationHasBeenUpdated +
+                ", correspondenceAddressHasBeenUpdated=" + correspondenceAddressHasBeenUpdated +
+                ", residentialAddressHasBeenUpdated=" + residentialAddressHasBeenUpdated +
+                '}';
     }
 
     public static Builder builder() {
@@ -394,16 +389,19 @@ public class OfficerFilingDto {
             buildSteps.add(data -> data.nationality1 = value);
             return this;
         }
+
         public Builder nationality2(final String value) {
 
             buildSteps.add(data -> data.nationality2 = value);
             return this;
         }
+
         public Builder nationality3(final String value) {
 
             buildSteps.add(data -> data.nationality3 = value);
             return this;
         }
+
         public Builder occupation(final String value) {
 
             buildSteps.add(data -> data.occupation = value);
@@ -483,7 +481,7 @@ public class OfficerFilingDto {
         }
 
         @JsonDeserialize(using = JsonBooleanDeserializer.class)
-        public  Builder directorAppliedToProtectDetails(final Boolean value) {
+        public Builder directorAppliedToProtectDetails(final Boolean value) {
             buildSteps.add(data -> data.directorAppliedToProtectDetails = value);
             return this;
         }
@@ -496,6 +494,31 @@ public class OfficerFilingDto {
 
         public Builder checkYourAnswersLink(final String value) {
             buildSteps.add(data -> data.checkYourAnswersLink = value);
+            return this;
+        }
+
+        public Builder nameHasBeenUpdated(final Boolean value) {
+            buildSteps.add(data -> data.nameHasBeenUpdated = value);
+            return this;
+        }
+
+        public Builder nationalityHasBeenUpdated(final Boolean value) {
+            buildSteps.add(data -> data.nationalityHasBeenUpdated = value);
+            return this;
+        }
+
+        public Builder occupationHasBeenUpdated(final Boolean value) {
+            buildSteps.add(data -> data.occupationHasBeenUpdated = value);
+            return this;
+        }
+
+        public Builder correspondenceAddressHasBeenUpdated(final Boolean value) {
+            buildSteps.add(data -> data.correspondenceAddressHasBeenUpdated = value);
+            return this;
+        }
+
+        public Builder residentialAddressHasBeenUpdated(final Boolean value) {
+            buildSteps.add(data -> data.residentialAddressHasBeenUpdated = value);
             return this;
         }
 
