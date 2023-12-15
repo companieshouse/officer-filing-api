@@ -55,6 +55,7 @@ public class OfficerFilingDto {
     private Boolean occupationHasBeenUpdated;
     private Boolean correspondenceAddressHasBeenUpdated;
     private Boolean residentialAddressHasBeenUpdated;
+    private LocalDate changeDate;
 
     private OfficerFilingDto() {
     }
@@ -215,17 +216,19 @@ public class OfficerFilingDto {
         return residentialAddressHasBeenUpdated;
     }
 
+    public LocalDate getChangeDate() { return changeDate; }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof OfficerFilingDto)) return false;
         OfficerFilingDto that = (OfficerFilingDto) o;
-        return Objects.equals(getServiceAddress(), that.getServiceAddress()) && Objects.equals(getServiceAddressBackLink(), that.getServiceAddressBackLink()) && Objects.equals(getServiceManualAddressBackLink(), that.getServiceManualAddressBackLink()) && Objects.equals(getProtectedDetailsBackLink(), that.getProtectedDetailsBackLink()) && Objects.equals(getIsServiceAddressSameAsRegisteredOfficeAddress(), that.getIsServiceAddressSameAsRegisteredOfficeAddress()) && Objects.equals(getAppointedOn(), that.getAppointedOn()) && Objects.equals(getCountryOfResidence(), that.getCountryOfResidence()) && Objects.equals(getDateOfBirth(), that.getDateOfBirth()) && Objects.equals(getFormerNames(), that.getFormerNames()) && Objects.equals(getIdentification(), that.getIdentification()) && Objects.equals(getName(), that.getName()) && Objects.equals(getTitle(), that.getTitle()) && Objects.equals(getFirstName(), that.getFirstName()) && Objects.equals(getMiddleNames(), that.getMiddleNames()) && Objects.equals(getLastName(), that.getLastName()) && Objects.equals(getNationality1(), that.getNationality1()) && Objects.equals(getNationality2(), that.getNationality2()) && Objects.equals(getNationality3(), that.getNationality3()) && Objects.equals(getOccupation(), that.getOccupation()) && Objects.equals(getReferenceEtag(), that.getReferenceEtag()) && Objects.equals(getReferenceAppointmentId(), that.getReferenceAppointmentId()) && Objects.equals(getReferenceOfficerListEtag(), that.getReferenceOfficerListEtag()) && Objects.equals(getResignedOn(), that.getResignedOn()) && Objects.equals(getResidentialAddress(), that.getResidentialAddress()) && Objects.equals(getResidentialAddressBackLink(), that.getResidentialAddressBackLink()) && Objects.equals(getResidentialManualAddressBackLink(), that.getResidentialManualAddressBackLink()) && Objects.equals(getIsServiceAddressSameAsHomeAddress(), that.getIsServiceAddressSameAsHomeAddress()) && Objects.equals(getNationality2Link(), that.getNationality2Link()) && Objects.equals(getNationality3Link(), that.getNationality3Link()) && Objects.equals(getDirectorAppliedToProtectDetails(), that.getDirectorAppliedToProtectDetails()) && Objects.equals(getConsentToAct(), that.getConsentToAct()) && Objects.equals(getCheckYourAnswersLink(), that.getCheckYourAnswersLink()) && Objects.equals(getDirectorResidentialAddressChoice(), that.getDirectorResidentialAddressChoice()) && Objects.equals(getDirectorServiceAddressChoice(), that.getDirectorServiceAddressChoice()) && Objects.equals(getNameHasBeenUpdated(), that.getNameHasBeenUpdated()) && Objects.equals(getNationalityHasBeenUpdated(), that.getNationalityHasBeenUpdated()) && Objects.equals(getOccupationHasBeenUpdated(), that.getOccupationHasBeenUpdated()) && Objects.equals(getCorrespondenceAddressHasBeenUpdated(), that.getCorrespondenceAddressHasBeenUpdated()) && Objects.equals(getResidentialAddressHasBeenUpdated(), that.getResidentialAddressHasBeenUpdated());
+        return Objects.equals(getServiceAddress(), that.getServiceAddress()) && Objects.equals(getServiceAddressBackLink(), that.getServiceAddressBackLink()) && Objects.equals(getServiceManualAddressBackLink(), that.getServiceManualAddressBackLink()) && Objects.equals(getProtectedDetailsBackLink(), that.getProtectedDetailsBackLink()) && Objects.equals(getIsServiceAddressSameAsRegisteredOfficeAddress(), that.getIsServiceAddressSameAsRegisteredOfficeAddress()) && Objects.equals(getAppointedOn(), that.getAppointedOn()) && Objects.equals(getCountryOfResidence(), that.getCountryOfResidence()) && Objects.equals(getDateOfBirth(), that.getDateOfBirth()) && Objects.equals(getFormerNames(), that.getFormerNames()) && Objects.equals(getIdentification(), that.getIdentification()) && Objects.equals(getName(), that.getName()) && Objects.equals(getTitle(), that.getTitle()) && Objects.equals(getFirstName(), that.getFirstName()) && Objects.equals(getMiddleNames(), that.getMiddleNames()) && Objects.equals(getLastName(), that.getLastName()) && Objects.equals(getNationality1(), that.getNationality1()) && Objects.equals(getNationality2(), that.getNationality2()) && Objects.equals(getNationality3(), that.getNationality3()) && Objects.equals(getOccupation(), that.getOccupation()) && Objects.equals(getReferenceEtag(), that.getReferenceEtag()) && Objects.equals(getReferenceAppointmentId(), that.getReferenceAppointmentId()) && Objects.equals(getReferenceOfficerListEtag(), that.getReferenceOfficerListEtag()) && Objects.equals(getResignedOn(), that.getResignedOn()) && Objects.equals(getResidentialAddress(), that.getResidentialAddress()) && Objects.equals(getResidentialAddressBackLink(), that.getResidentialAddressBackLink()) && Objects.equals(getResidentialManualAddressBackLink(), that.getResidentialManualAddressBackLink()) && Objects.equals(getIsServiceAddressSameAsHomeAddress(), that.getIsServiceAddressSameAsHomeAddress()) && Objects.equals(getNationality2Link(), that.getNationality2Link()) && Objects.equals(getNationality3Link(), that.getNationality3Link()) && Objects.equals(getDirectorAppliedToProtectDetails(), that.getDirectorAppliedToProtectDetails()) && Objects.equals(getConsentToAct(), that.getConsentToAct()) && Objects.equals(getCheckYourAnswersLink(), that.getCheckYourAnswersLink()) && Objects.equals(getDirectorResidentialAddressChoice(), that.getDirectorResidentialAddressChoice()) && Objects.equals(getDirectorServiceAddressChoice(), that.getDirectorServiceAddressChoice()) && Objects.equals(getNameHasBeenUpdated(), that.getNameHasBeenUpdated()) && Objects.equals(getNationalityHasBeenUpdated(), that.getNationalityHasBeenUpdated()) && Objects.equals(getOccupationHasBeenUpdated(), that.getOccupationHasBeenUpdated()) && Objects.equals(getCorrespondenceAddressHasBeenUpdated(), that.getCorrespondenceAddressHasBeenUpdated()) && Objects.equals(getResidentialAddressHasBeenUpdated(), that.getResidentialAddressHasBeenUpdated()) && Objects.equals(getChangeDate(), that.getChangeDate());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getServiceAddress(), getServiceAddressBackLink(), getServiceManualAddressBackLink(), getProtectedDetailsBackLink(), getIsServiceAddressSameAsRegisteredOfficeAddress(), getAppointedOn(), getCountryOfResidence(), getDateOfBirth(), getFormerNames(), getIdentification(), getName(), getTitle(), getFirstName(), getMiddleNames(), getLastName(), getNationality1(), getNationality2(), getNationality3(), getOccupation(), getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(), getResignedOn(), getResidentialAddress(), getResidentialAddressBackLink(), getResidentialManualAddressBackLink(), getIsServiceAddressSameAsHomeAddress(), getNationality2Link(), getNationality3Link(), getDirectorAppliedToProtectDetails(), getConsentToAct(), getCheckYourAnswersLink(), getDirectorResidentialAddressChoice(), getDirectorServiceAddressChoice(), getNameHasBeenUpdated(), getNationalityHasBeenUpdated(), getOccupationHasBeenUpdated(), getCorrespondenceAddressHasBeenUpdated(), getResidentialAddressHasBeenUpdated());
+        return Objects.hash(getServiceAddress(), getServiceAddressBackLink(), getServiceManualAddressBackLink(), getProtectedDetailsBackLink(), getIsServiceAddressSameAsRegisteredOfficeAddress(), getAppointedOn(), getCountryOfResidence(), getDateOfBirth(), getFormerNames(), getIdentification(), getName(), getTitle(), getFirstName(), getMiddleNames(), getLastName(), getNationality1(), getNationality2(), getNationality3(), getOccupation(), getReferenceEtag(), getReferenceAppointmentId(), getReferenceOfficerListEtag(), getResignedOn(), getResidentialAddress(), getResidentialAddressBackLink(), getResidentialManualAddressBackLink(), getIsServiceAddressSameAsHomeAddress(), getNationality2Link(), getNationality3Link(), getDirectorAppliedToProtectDetails(), getConsentToAct(), getCheckYourAnswersLink(), getDirectorResidentialAddressChoice(), getDirectorServiceAddressChoice(), getNameHasBeenUpdated(), getNationalityHasBeenUpdated(), getOccupationHasBeenUpdated(), getCorrespondenceAddressHasBeenUpdated(), getResidentialAddressHasBeenUpdated(), getChangeDate());
     }
 
     @Override
@@ -270,6 +273,7 @@ public class OfficerFilingDto {
                 ", occupationHasBeenUpdated=" + occupationHasBeenUpdated +
                 ", correspondenceAddressHasBeenUpdated=" + correspondenceAddressHasBeenUpdated +
                 ", residentialAddressHasBeenUpdated=" + residentialAddressHasBeenUpdated +
+                ", changeDate=" + changeDate +
                 '}';
     }
 
@@ -519,6 +523,11 @@ public class OfficerFilingDto {
 
         public Builder residentialAddressHasBeenUpdated(final Boolean value) {
             buildSteps.add(data -> data.residentialAddressHasBeenUpdated = value);
+            return this;
+        }
+
+        public Builder changeDate(final LocalDate value) {
+            buildSteps.add(data -> data.changeDate = value);
             return this;
         }
 

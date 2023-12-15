@@ -4,6 +4,7 @@ import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
+import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
@@ -20,12 +21,14 @@ import java.util.List;
 public class OfficerUpdateValidator extends OfficerValidator {
 
     private final Logger logger;
+    private ApiEnumerations apiEnumerations;
 
     public OfficerUpdateValidator(final Logger logger,
                                   final CompanyProfileService companyProfileService,
                                   final ApiEnumerations apiEnumerations) {
         super(logger, companyProfileService, apiEnumerations);
         this.logger = logger;
+        this.apiEnumerations = apiEnumerations;
     }
 
     /**
@@ -42,7 +45,24 @@ public class OfficerUpdateValidator extends OfficerValidator {
                 .withRequest(request)
                 .build());
         final List<ApiError> errorList = new ArrayList<>();
+
+        validateRequiredDtoFields(request, errorList, dto);
+
         return new ApiErrors(errorList);
+    }
+
+    @Override
+    public void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
+        validateChangeDate(request, errorList, dto);
+    }
+
+    public void validateChangeDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
+        if (dto.getChangeDate() == null) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_MISSING));
+        } else {
+            //validateChangePastOrPresent(request, errorList, dto);
+            //validate...(request, errorList, dto);
+        }
     }
 
 }

@@ -10,6 +10,7 @@ public enum ValidationEnum {
     APPOINTMENT_DATE_IN_PAST("appointment-date-in-past"),
     REMOVAL_DATE_MISSING("removal-date-missing"),
     APPOINTMENT_DATE_MISSING("appointment-date-missing"),
+    CHANGE_DATE_MISSING("change-date-missing"),
     DIRECTOR_ALREADY_REMOVED("director-already-removed"),
     REMOVAL_DATE_AFTER_APPOINTMENT_DATE("removal-date-after-appointment-date"),
     REMOVAL_DATE_INVALID("removal-date-invalid"),
