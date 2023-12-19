@@ -192,7 +192,6 @@ public class OfficerFiling {
                             .checkYourAnswersLink(v.getCheckYourAnswersLink())
                             .officerPreviousDetails(v.getOfficerPreviousDetails())
                             .directorsDetailsChangedDate(v.getDirectorsDetailsChangedDate())
-                            .changeDate(v.getChangeDate())
                             .build())
                     .orElse(null));
             return this;

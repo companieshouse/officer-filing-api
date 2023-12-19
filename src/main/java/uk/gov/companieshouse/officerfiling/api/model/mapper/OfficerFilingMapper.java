@@ -64,7 +64,7 @@ public interface OfficerFilingMapper {
     @Mapping(target = "data.occupationHasBeenUpdated", source = "occupationHasBeenUpdated")
     @Mapping(target = "data.correspondenceAddressHasBeenUpdated", source = "correspondenceAddressHasBeenUpdated")
     @Mapping(target = "data.residentialAddressHasBeenUpdated", source = "residentialAddressHasBeenUpdated")
-    @Mapping(target = "data.changeDate", source = "changeDate")
+    @Mapping(target = "data.directorsDetailsChangedDate", source = "directorsDetailsChangedDate")
     OfficerFiling map(OfficerFilingDto officerFilingDto);
 
 
@@ -111,7 +111,7 @@ public interface OfficerFilingMapper {
     @Mapping(target = "occupationHasBeenUpdated", source = "data.occupationHasBeenUpdated")
     @Mapping(target = "correspondenceAddressHasBeenUpdated", source = "data.correspondenceAddressHasBeenUpdated")
     @Mapping(target = "residentialAddressHasBeenUpdated", source = "data.residentialAddressHasBeenUpdated")
-    @Mapping(target = "changeDate", source = "data.changeDate")
+    @Mapping(target = "directorsDetailsChangedDate", source = "data.directorsDetailsChangedDate")
     OfficerFilingDto map(OfficerFiling officerFiling);
 
     default Instant map(final LocalDate date) {

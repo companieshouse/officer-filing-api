@@ -92,7 +92,6 @@ class ValidationStatusControllerImplTest {
     private OfficerTerminationValidator officerTerminationValidator;
     private OfficerAppointmentValidator officerAppointmentValidator;
 
-
     @BeforeEach
     void setUp() {
         testController = new ValidationStatusControllerImpl(officerFilingService, logger,
