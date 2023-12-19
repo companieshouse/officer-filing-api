@@ -97,7 +97,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
         }
         if (dto.getDirectorsDetailsChangedDate() == null) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_MISSING));
-        } else if (dto.getAppointedOn().isBefore(companyProfile.getDateOfCreation())) {
+        } else if (dto.getDirectorsDetailsChangedDate().isBefore(companyProfile.getDateOfCreation())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_AFTER_INCORPORATION_DATE));
         }
     }
