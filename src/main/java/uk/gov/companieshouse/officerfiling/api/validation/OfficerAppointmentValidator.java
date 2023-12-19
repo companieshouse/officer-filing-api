@@ -90,7 +90,9 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateNationality3(request, errorList, dto);
         validateNationalityLength(request, errorList, dto);
         validateRequiredResidentialAddressFields(request, errorList, dto);
-        validateCorrespondenceAddressFields(request, errorList, dto);
+        if (!Boolean.TRUE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()) || dto.getServiceAddress() != null) {
+            validateCorrespondenceAddressFields(request, errorList, dto);
+        }
         validateAppointmentDate(request, errorList, dto);
         validateProtectedDetails(request, errorList, dto);
         validateConsentToAct(request, errorList, dto);
