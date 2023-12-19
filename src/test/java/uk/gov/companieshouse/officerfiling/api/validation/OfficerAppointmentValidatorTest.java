@@ -2395,4 +2395,89 @@ class OfficerAppointmentValidatorTest {
                 .contains("Enter a postcode or ZIP");
     }
 
+    @Test
+    void validationWhenValidNoServiceAddress() {
+        validationWhenValidNoServiceAddressAndGivenIsServiceAddressSameAsROA(null);
+    }
+
+    @Test
+    void validationWhenValidNoServiceAddressAndNotIsServiceAddressSameAsROA() {
+        validationWhenValidNoServiceAddressAndGivenIsServiceAddressSameAsROA(Boolean.FALSE);
+    }
+
+    void validationWhenValidNoServiceAddressAndGivenIsServiceAddressSameAsROA(Boolean isServiceAddressSameAsRegisteredOfficeAddress) {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
+
+        when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getServiceAddress()).thenReturn(null);
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getDirectorAppliedToProtectDetails()).thenReturn(false);
+        when(dto.getConsentToAct()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(isServiceAddressSameAsRegisteredOfficeAddress);
+
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_PREMISES_BLANK)).thenReturn(
+                "Enter a premises");
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_LINE_ONE_BLANK)).thenReturn(
+                "Enter an address line one");
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_LOCALITY_BLANK)).thenReturn(
+                "Enter a locality");
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_BLANK)).thenReturn(
+                "Enter a post code");
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_COUNTRY_BLANK)).thenReturn(
+                "Enter a country");
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Missing service address fields").hasSize(5);
+    }
+
+    @Test
+    void validationWhenNoServiceAddressWithIsServiceAddressSameAsROA() {
+        validationWhenServiceAddressGivenIsServiceAddressSameAsROA(null, Boolean.TRUE);
+    }
+
+    @Test
+    void validationWhenServiceAddressWithIsServiceAddressSameAsROA() {
+        validationWhenServiceAddressGivenIsServiceAddressSameAsROA(validCorrespondenceAddressInUK, Boolean.TRUE);
+    }
+
+    @Test
+    void validationWhenServiceAddressWithNotIsServiceAddressSameAsROA() {
+        validationWhenServiceAddressGivenIsServiceAddressSameAsROA(validCorrespondenceAddressInUK, Boolean.FALSE);
+    }
+
+    @Test
+    void validationWhenServiceAddressWithNullIsServiceAddressSameAsROA() {
+        validationWhenServiceAddressGivenIsServiceAddressSameAsROA(validCorrespondenceAddressInUK, null);
+    }
+
+    void validationWhenServiceAddressGivenIsServiceAddressSameAsROA(AddressDto serviceAddress, Boolean isServiceAddressSameAsRegisteredOfficeAddress) {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(companyProfile.getType()).thenReturn(COMPANY_TYPE);
+
+        when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
+        when(dto.getFirstName()).thenReturn("John");
+        when(dto.getLastName()).thenReturn("Smith");
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+        when(dto.getServiceAddress()).thenReturn(serviceAddress);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(isServiceAddressSameAsRegisteredOfficeAddress);
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
+        when(dto.getNationality1()).thenReturn("British");
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getDirectorAppliedToProtectDetails()).thenReturn(false);
+        when(dto.getConsentToAct()).thenReturn(true);
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("No validation errors should have been raised")
+                .isEmpty();
+    }
 }
