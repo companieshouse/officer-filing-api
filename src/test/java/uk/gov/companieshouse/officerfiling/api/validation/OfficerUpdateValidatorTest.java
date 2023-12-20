@@ -170,7 +170,82 @@ class OfficerUpdateValidatorTest {
                 .contains("Date the director’s details changed must be on or after 1 October 2009. If the director was removed before this date, you must submit form 288b instead.");
     }
 
+    @Test
+    void validateChangeDateAfterIncorporationDateWhenValid() {
+        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+//                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerUpdateValidator.validateChangeDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when change date is after incorporation date")
+                .isEmpty();
+    }
 
+    @Test
+    void validateChangeDateAfterIncorporationDateWhenInvalid() {
+        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 6));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+//                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        when(apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_AFTER_INCORPORATION_DATE)).thenReturn("The date you enter must be after the company's incorporation date");
+        officerUpdateValidator.validateChangeDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when change date is before incorporation date")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The date you enter must be after the company's incorporation date");
+    }
+
+    @Test
+    void validateChangeDateAfterIncorporationDateWhenSameDay() {
+        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 5));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+//                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerUpdateValidator.validateChangeDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when change date is the incorporation date")
+                .isEmpty();
+    }
+
+    @Test
+    void validateAppointmentDateAfterIncorporationDateWhenCreationDateNull() {
+        when(companyProfile.getDateOfCreation()).thenReturn(null);
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+//                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerUpdateValidator.validateChangeDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        assertThat(apiErrorsList)
+                .as("Validation should be skipped when incorporation date is null")
+                .isEmpty();
+    }
+
+    @Test
+    void validateChangeDateAfterIncorporationDateWhenAppointedOnNull() {
+        when(companyProfile.getDateOfCreation()).thenReturn(LocalDate.of(2001, Month.JANUARY, 5));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+//                .appointedOn(null)
+                .build();
+        when(apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_MISSING)).thenReturn(
+                "Enter the date the director was appointed");
+        officerUpdateValidator.validateChangeDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when change date is missing")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter the date the director was updated");
+    }
 
 
 }
