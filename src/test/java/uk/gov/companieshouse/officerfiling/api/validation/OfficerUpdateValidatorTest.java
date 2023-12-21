@@ -176,7 +176,7 @@ class OfficerUpdateValidatorTest {
         final var officerFilingDto = OfficerFilingDto.builder()
                 .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
-//                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .directorsDetailsChangedDate(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
         officerUpdateValidator.validateChangeDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
         assertThat(apiErrorsList)
@@ -190,7 +190,7 @@ class OfficerUpdateValidatorTest {
         final var officerFilingDto = OfficerFilingDto.builder()
                 .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
-//                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .directorsDetailsChangedDate(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
         when(apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_AFTER_INCORPORATION_DATE)).thenReturn("The date you enter must be after the company's incorporation date");
         officerUpdateValidator.validateChangeDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
@@ -207,7 +207,7 @@ class OfficerUpdateValidatorTest {
         final var officerFilingDto = OfficerFilingDto.builder()
                 .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
-//                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .directorsDetailsChangedDate(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
         officerUpdateValidator.validateChangeDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
         assertThat(apiErrorsList)
@@ -221,7 +221,7 @@ class OfficerUpdateValidatorTest {
         final var officerFilingDto = OfficerFilingDto.builder()
                 .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
-//                .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .directorsDetailsChangedDate(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
         officerUpdateValidator.validateChangeDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
         assertThat(apiErrorsList)
@@ -235,10 +235,10 @@ class OfficerUpdateValidatorTest {
         final var officerFilingDto = OfficerFilingDto.builder()
                 .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
-//                .appointedOn(null)
+                .directorsDetailsChangedDate(null)
                 .build();
         when(apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_MISSING)).thenReturn(
-                "Enter the date the director was appointed");
+                "Enter the date the director was updated");
         officerUpdateValidator.validateChangeDateAfterIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
         assertThat(apiErrorsList)
                 .as("An error should be produced when change date is missing")
