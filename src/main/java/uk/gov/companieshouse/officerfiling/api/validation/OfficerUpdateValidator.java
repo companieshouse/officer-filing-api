@@ -101,6 +101,4 @@ public class OfficerUpdateValidator extends OfficerValidator {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_AFTER_INCORPORATION_DATE));
         }
     }
-            //character type?
-            //validate...(request, errorList, dto);
-        }
+}
