@@ -24,6 +24,7 @@ public class OfficerFiling {
     private Links links;
     private OfficerFilingData data;
     private Instant updatedAt;
+
     private OfficerFiling() {
     }
 
@@ -46,6 +47,7 @@ public class OfficerFiling {
     public Links getLinks() {
         return links;
     }
+
     public OfficerFilingData getData() {
         return data;
     }
@@ -74,7 +76,7 @@ public class OfficerFiling {
     @Override
     public int hashCode() {
         return Objects.hash(getCreatedAt(), getIdentification(), getKind(), getLinks(), getData(),
-                 getUpdatedAt());
+                getUpdatedAt());
     }
 
     @Override
@@ -192,6 +194,11 @@ public class OfficerFiling {
                             .checkYourAnswersLink(v.getCheckYourAnswersLink())
                             .officerPreviousDetails(v.getOfficerPreviousDetails())
                             .directorsDetailsChangedDate(v.getDirectorsDetailsChangedDate())
+                            .nameHasBeenUpdated(v.getNameHasBeenUpdated())
+                            .nationalityHasBeenUpdated(v.getNationalityHasBeenUpdated())
+                            .occupationHasBeenUpdated(v.getOccupationHasBeenUpdated())
+                            .correspondenceAddressHasBeenUpdated(v.getCorrespondenceAddressHasBeenUpdated())
+                            .residentialAddressHasBeenUpdated(v.getResidentialAddressHasBeenUpdated())
                             .build())
                     .orElse(null));
             return this;

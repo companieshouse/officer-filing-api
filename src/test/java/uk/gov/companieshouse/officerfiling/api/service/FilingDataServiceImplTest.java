@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
@@ -28,8 +30,10 @@ import java.util.function.Supplier;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,6 +56,7 @@ class FilingDataServiceImplTest {
 
     private static final Instant DATE_OF_BIRTH_INS = Instant.parse("2000-10-20T00:00:00Z");
     private static final LocalDate DUMMY_DATE = LocalDate.of(2023, 3, 16);
+    public static final Instant DIRECTOR_DETAILS_CHANGED_DATE = Instant.parse("2023-10-01T18:35:24Z");
     @Mock
     private OfficerFilingService officerFilingService;
     @Mock
@@ -73,11 +78,13 @@ class FilingDataServiceImplTest {
     @Mock
     private Clock clock;
 
+    @Captor
+    private ArgumentCaptor<OfficerFiling> officerFilingCaptor;
+
     @BeforeEach
     void setUp() {
         testService = new FilingDataServiceImpl(officerFilingService, filingAPIMapper, logger, transactionService,
                 companyAppointmentService, dateNowSupplier);
-
     }
 
     @Test
@@ -244,57 +251,6 @@ class FilingDataServiceImplTest {
     }
 
     @Test
-    void generateUpdateOfficerFilingWhenFound() {
-        final var filingData = new FilingData("Major", FIRSTNAME, MIDDLENAMES, LASTNAME, "former names", DATE_OF_BIRTH_STR, RESIGNED_ON_STR,
-                null, "nationality1", "nationality2", "nationality3", "occupation",
-                Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build(), false,
-                Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build(), false,
-                false, true, false,
-                OfficerPreviousDetails.builder().title("Major").firstName(FIRSTNAME).middleNames(MIDDLENAMES).lastName(LASTNAME).dateOfBirth(DATE_OF_BIRTH_STR).build(), "2023-01-01");
-        var offData = OfficerFilingData.builder()
-                .referenceEtag(REF_ETAG)
-                .firstName(FIRSTNAME)
-                .middleNames(MIDDLENAMES)
-                .lastName(LASTNAME)
-                .dateOfBirth(DATE_OF_BIRTH_INS)
-                .appointedOn(RESIGNED_ON_INS)
-                .nationality1("nationality1")
-                .nationality2("nationality2")
-                .nationality3("nationality3")
-                .occupation("occupation")
-                .serviceAddress(Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build())
-                .isServiceAddressSameAsRegisteredOfficeAddress(false)
-                .residentialAddress(Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build())
-                .isServiceAddressSameAsHomeAddress(false)
-                .directorAppliedToProtectDetails(false)
-                .consentToAct(true)
-                .corporateDirector(false)
-                .directorsDetailsChangedDate(Instant.parse("2023-10-01T18:35:24Z"))
-                .officerPreviousDetails(
-                        OfficerPreviousDetails.builder()
-                                .title("Major")
-                                .firstName(FIRSTNAME)
-                                .middleNames(MIDDLENAMES)
-                                .lastName(LASTNAME)
-                                .dateOfBirth(DATE_OF_BIRTH_STR)
-                                .build()
-                )
-                .build();
-        final var now = clock.instant();
-        final var officerFiling = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
-                .build();
-
-        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
-        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
-        when(filingAPIMapper.map(any(OfficerFiling.class))).thenReturn(filingData);
-
-        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
-
-        assertThat(filingApi.getKind(), is("officer-filing#update"));
-        assertThat(filingApi.getDescription(), is(equalTo("(CH01) Update of a director. Update of ROBINSON WILDER on 1 October 2023")));
-    }
-
-    @Test
     void generateAppointmentOfficerFilingWithDefaultFlagsWhenSameAsFlagsDoesNotExist() {
         final var filingData = new FilingData("Major", FIRSTNAME, MIDDLENAMES, LASTNAME, "former names", DATE_OF_BIRTH_STR, RESIGNED_ON_STR,
                 null, "nationality1", "nationality2", "nationality3", "occupation",
@@ -376,5 +332,209 @@ class FilingDataServiceImplTest {
         when(companyAppointment.getOfficerRole()).thenReturn(officerRole);
         final Boolean corporateDirector = testService.mapCorporateDirector(transaction, companyAppointment);
         assertThat(corporateDirector, is(isCorporateDirector));
+    }
+
+    @Test
+    void generateUpdateOfficerFilingWhenFound() {
+        final var originalData = testOfficerFilingDataBuilder().build();
+        final var originalOfficerFiling = OfficerFiling.builder()
+                .createdAt(clock.instant())
+                .updatedAt(clock.instant())
+                .data(originalData)
+                .build();
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(originalOfficerFiling));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
+
+        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        verify(filingAPIMapper).map(officerFilingCaptor.capture());
+        var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
+        assertThat(filingApi.getKind(), is("officer-filing#update"));
+        assertThat(filingApi.getDescription(), is(equalTo("(CH01) Update of a director. Update of JOE BLOGGS on 1 October 2023")));
+
+        var expectedOfficerFilingData = OfficerFilingData.builder()
+                .title(originalData.getTitle())
+                .firstName(FIRSTNAME)
+                .middleNames(MIDDLENAMES)
+                .lastName(LASTNAME)
+                .formerNames(originalData.getFormerNames())
+                .nationality1(null)
+                .occupation(null)
+                .serviceAddress(null)
+                .residentialAddress(null)
+                .build();
+        assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
+    }
+
+    @Test
+    void generateUpdateOfficerFilingWhenNothingUpdated() {
+        final var originalData = testOfficerFilingDataBuilder()
+                .nameHasBeenUpdated(false)
+                .nationalityHasBeenUpdated(false)
+                .occupationHasBeenUpdated(false)
+                .correspondenceAddressHasBeenUpdated(false)
+                .residentialAddressHasBeenUpdated(false)
+                .build();
+        final var originalOfficerFiling = OfficerFiling.builder()
+                .createdAt(clock.instant())
+                .updatedAt(clock.instant())
+                .data(originalData)
+                .build();
+        when(officerFilingService.get(any(), any())).thenReturn(Optional.of(originalOfficerFiling));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
+
+        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        verify(filingAPIMapper).map(officerFilingCaptor.capture());
+        var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
+        assertThat(filingApi.getKind(), is("officer-filing#update"));
+        assertThat(filingApi.getDescription(), is(equalTo("(CH01) Update of a director. Update of JOE BLOGGS on 1 October 2023")));
+
+        var expectedOfficerFilingData = OfficerFilingData.builder()
+                .title(null)
+                .firstName(null)
+                .nationality1(null)
+                .occupation(null)
+                .serviceAddress(null)
+                .residentialAddress(null)
+                .build();
+        assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
+    }
+
+    @Test
+    void generateUpdateOfficerFilingWhenNameHasBeenUpdated() {
+        final var originalData = testOfficerFilingDataBuilder()
+                .nameHasBeenUpdated(true)
+                .build();
+        final var originalOfficerFiling = OfficerFiling.builder()
+                .createdAt(clock.instant())
+                .updatedAt(clock.instant())
+                .data(originalData)
+                .build();
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(originalOfficerFiling));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
+
+        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        verify(filingAPIMapper).map(officerFilingCaptor.capture());
+        var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
+        var expectedOfficerFilingData = OfficerFilingData.builder()
+                .title(originalData.getTitle())
+                .firstName(FIRSTNAME)
+                .middleNames(MIDDLENAMES)
+                .lastName(LASTNAME)
+                .formerNames(originalData.getFormerNames())
+                .build();
+        assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
+    }
+
+    @Test
+    void generateUpdateOfficerFilingWhenNameHasNotBeenUpdated() {
+        final var originalData = testOfficerFilingDataBuilder()
+                .nameHasBeenUpdated(false)
+                .build();
+        final var originalOfficerFiling = OfficerFiling.builder()
+                .createdAt(clock.instant())
+                .updatedAt(clock.instant())
+                .data(originalData)
+                .build();
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(originalOfficerFiling));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
+
+        testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        verify(filingAPIMapper).map(officerFilingCaptor.capture());
+        var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
+        var expectedOfficerFilingData = OfficerFilingData.builder()
+                .title(null)
+                .firstName(null)
+                .middleNames(null)
+                .lastName(null)
+                .formerNames(null)
+                .build();
+        assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
+    }
+
+    private static OfficerFilingData.Builder testOfficerFilingDataBuilder() {
+        return OfficerFilingData.builder()
+                .referenceAppointmentId(REF_APPOINTMENT_ID)
+                .referenceEtag(REF_ETAG)
+                .title("TITLE")
+                .firstName(FIRSTNAME)
+                .middleNames(MIDDLENAMES)
+                .lastName(LASTNAME)
+                .formerNames("former names")
+                .dateOfBirth(DATE_OF_BIRTH_INS)
+                .appointedOn(RESIGNED_ON_INS)
+                .nationality1("nationality1")
+                .nationality2("nationality2")
+                .nationality3("nationality3")
+                .occupation("occupation")
+                .serviceAddress(Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build())
+                .isServiceAddressSameAsRegisteredOfficeAddress(false)
+                .residentialAddress(Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build())
+                .isServiceAddressSameAsHomeAddress(false)
+                .directorAppliedToProtectDetails(false)
+                .consentToAct(true)
+                .corporateDirector(false)
+                .directorsDetailsChangedDate(DIRECTOR_DETAILS_CHANGED_DATE)
+                .officerPreviousDetails(
+                        OfficerPreviousDetails.builder()
+                                .title("Major")
+                                .firstName(FIRSTNAME)
+                                .middleNames(MIDDLENAMES)
+                                .lastName(LASTNAME)
+                                .dateOfBirth(DATE_OF_BIRTH_STR)
+                                .build()
+                );
+    }
+
+    private static SensitiveDateOfBirthAPI testSensitiveDateOfBirth() {
+        SensitiveDateOfBirthAPI sensitiveDateOfBirth = new SensitiveDateOfBirthAPI();
+        sensitiveDateOfBirth.setYear(2000);
+        sensitiveDateOfBirth.setMonth(10);
+        sensitiveDateOfBirth.setDay(20);
+        return sensitiveDateOfBirth;
+    }
+
+    private static OfficerPreviousDetails testOfficerPreviousDetails() {
+        return OfficerPreviousDetails.builder()
+                .firstName(FIRSTNAME)
+                .middleNames(MIDDLENAMES)
+                .lastName(LASTNAME)
+                .dateOfBirth(DATE_OF_BIRTH_STR)
+                .build();
     }
 }
