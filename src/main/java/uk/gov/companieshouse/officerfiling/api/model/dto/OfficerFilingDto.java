@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.companieshouse.JsonBooleanDeserializer;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -217,7 +216,9 @@ public class OfficerFilingDto {
         return residentialAddressHasBeenUpdated;
     }
 
-    public LocalDate getDirectorsDetailsChangedDate() { return directorsDetailsChangedDate; }
+    public LocalDate getDirectorsDetailsChangedDate() {
+        return directorsDetailsChangedDate;
+    }
 
     @Override
     public boolean equals(Object o) {

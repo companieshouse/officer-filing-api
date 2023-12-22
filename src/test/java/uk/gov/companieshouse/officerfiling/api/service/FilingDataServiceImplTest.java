@@ -56,6 +56,7 @@ class FilingDataServiceImplTest {
 
     private static final Instant DATE_OF_BIRTH_INS = Instant.parse("2000-10-20T00:00:00Z");
     private static final LocalDate DUMMY_DATE = LocalDate.of(2023, 3, 16);
+    public static final Instant DIRECTOR_DETAILS_CHANGED_DATE = Instant.parse("2023-10-01T18:35:24Z");
     @Mock
     private OfficerFilingService officerFilingService;
     @Mock
@@ -343,6 +344,12 @@ class FilingDataServiceImplTest {
                 .build();
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(originalOfficerFiling));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
 
         final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
 
@@ -363,6 +370,8 @@ class FilingDataServiceImplTest {
                 .residentialAddress(null)
                 .build();
         assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
     }
 
     @Test
@@ -381,13 +390,19 @@ class FilingDataServiceImplTest {
                 .build();
         when(officerFilingService.get(any(), any())).thenReturn(Optional.of(originalOfficerFiling));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
 
         final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
 
         verify(filingAPIMapper).map(officerFilingCaptor.capture());
         var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
         assertThat(filingApi.getKind(), is("officer-filing#update"));
-        assertThat(filingApi.getDescription(), is(equalTo("(CH01) Update of a director. Update of OFFICER on 1 October 2023")));
+        assertThat(filingApi.getDescription(), is(equalTo("(CH01) Update of a director. Update of JOE BLOGGS on 1 October 2023")));
 
         var expectedOfficerFilingData = OfficerFilingData.builder()
                 .title(null)
@@ -398,6 +413,8 @@ class FilingDataServiceImplTest {
                 .residentialAddress(null)
                 .build();
         assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
     }
 
     @Test
@@ -412,6 +429,12 @@ class FilingDataServiceImplTest {
                 .build();
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(originalOfficerFiling));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
 
         final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
 
@@ -425,6 +448,8 @@ class FilingDataServiceImplTest {
                 .formerNames(originalData.getFormerNames())
                 .build();
         assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
     }
 
     @Test
@@ -439,6 +464,12 @@ class FilingDataServiceImplTest {
                 .build();
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(originalOfficerFiling));
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
 
         testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
 
@@ -452,10 +483,13 @@ class FilingDataServiceImplTest {
                 .formerNames(null)
                 .build();
         assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
     }
 
     private static OfficerFilingData.Builder testOfficerFilingDataBuilder() {
         return OfficerFilingData.builder()
+                .referenceAppointmentId(REF_APPOINTMENT_ID)
                 .referenceEtag(REF_ETAG)
                 .title("TITLE")
                 .firstName(FIRSTNAME)
@@ -475,7 +509,7 @@ class FilingDataServiceImplTest {
                 .directorAppliedToProtectDetails(false)
                 .consentToAct(true)
                 .corporateDirector(false)
-                .directorsDetailsChangedDate(Instant.parse("2023-10-01T18:35:24Z"))
+                .directorsDetailsChangedDate(DIRECTOR_DETAILS_CHANGED_DATE)
                 .officerPreviousDetails(
                         OfficerPreviousDetails.builder()
                                 .title("Major")
@@ -485,5 +519,22 @@ class FilingDataServiceImplTest {
                                 .dateOfBirth(DATE_OF_BIRTH_STR)
                                 .build()
                 );
+    }
+
+    private static SensitiveDateOfBirthAPI testSensitiveDateOfBirth() {
+        SensitiveDateOfBirthAPI sensitiveDateOfBirth = new SensitiveDateOfBirthAPI();
+        sensitiveDateOfBirth.setYear(2000);
+        sensitiveDateOfBirth.setMonth(10);
+        sensitiveDateOfBirth.setDay(20);
+        return sensitiveDateOfBirth;
+    }
+
+    private static OfficerPreviousDetails testOfficerPreviousDetails() {
+        return OfficerPreviousDetails.builder()
+                .firstName(FIRSTNAME)
+                .middleNames(MIDDLENAMES)
+                .lastName(LASTNAME)
+                .dateOfBirth(DATE_OF_BIRTH_STR)
+                .build();
     }
 }
