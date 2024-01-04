@@ -2298,13 +2298,13 @@ class OfficerAppointmentValidatorTest {
         setupDefaultParamaters();
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
-        when(dto.getIsServiceAddressSameAsHomeAddress()).thenReturn(null);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(null);
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
         // validating null values to avoid unnecessary stubbing errors when running the tests.
         assertThat(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).isNull();
-        assertThat(dto.getIsServiceAddressSameAsHomeAddress()).isNull();
+        assertThat(dto.getIsHomeAddressSameAsServiceAddress()).isNull();
         assertThat(apiErrors.getErrors())
                 .as("No Errors when both address flags sent as null values")
                 .isEmpty();
@@ -2315,7 +2315,7 @@ class OfficerAppointmentValidatorTest {
         setupDefaultParamaters();
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
-        when(dto.getIsServiceAddressSameAsHomeAddress()).thenReturn(true);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);
@@ -2329,7 +2329,7 @@ class OfficerAppointmentValidatorTest {
         setupDefaultParamaters();
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
-        when(dto.getIsServiceAddressSameAsHomeAddress()).thenReturn(true);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
 
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS)).thenReturn(
                 "The maximum number of address links that can be established is one");

@@ -189,7 +189,7 @@ public class OfficerFiling {
                             .residentialManualAddressBackLink(v.getResidentialManualAddressBackLink())
                             .directorResidentialAddressChoice(v.getDirectorResidentialAddressChoice())
                             .directorServiceAddressChoice(v.getDirectorServiceAddressChoice())
-                            .isServiceAddressSameAsHomeAddress(v.getIsServiceAddressSameAsHomeAddress())
+                            .isHomeAddressSameAsServiceAddress(v.getIsHomeAddressSameAsServiceAddress())
                             .corporateDirector(v.getCorporateDirector())
                             .checkYourAnswersLink(v.getCheckYourAnswersLink())
                             .officerPreviousDetails(v.getOfficerPreviousDetails())

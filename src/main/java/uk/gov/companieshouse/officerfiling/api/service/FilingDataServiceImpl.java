@@ -79,8 +79,8 @@ public class FilingDataServiceImpl implements FilingDataService {
             if (presentOfficerFilingData.getIsServiceAddressSameAsRegisteredOfficeAddress() == null) {
                 filing.getData().put("service_address_same_as_registered_office_address", false);
             }
-            if (presentOfficerFilingData.getIsServiceAddressSameAsHomeAddress() == null) {
-                filing.getData().put("service_address_same_as_home_address", false);
+            if (presentOfficerFilingData.getIsHomeAddressSameAsServiceAddress() == null) {
+                filing.getData().put("home_address_same_as_service_address", false);
             }
         } else {
             // Must be a CH01

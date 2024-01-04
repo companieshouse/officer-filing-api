@@ -200,7 +200,7 @@ class FilingDataServiceImplTest {
                 .serviceAddress(Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build())
                 .isServiceAddressSameAsRegisteredOfficeAddress(false)
                 .residentialAddress(Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build())
-                .isServiceAddressSameAsHomeAddress(false)
+                .isHomeAddressSameAsServiceAddress(false)
                 .directorAppliedToProtectDetails(false)
                 .consentToAct(true)
                 .corporateDirector(false)
@@ -239,7 +239,7 @@ class FilingDataServiceImplTest {
                                 "address_line_1", "Two Street",
                                 "country", "Wales",
                                 "postal_code", "TE2 4ST")),
-                        Map.entry("service_address_same_as_home_address", false),
+                        Map.entry("home_address_same_as_service_address", false),
                         Map.entry("director_applied_to_protect_details", false),
                         Map.entry("consent_to_act", true),
                         Map.entry("is_corporate_director", false),
@@ -270,7 +270,7 @@ class FilingDataServiceImplTest {
                 .serviceAddress(Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build())
                 .isServiceAddressSameAsRegisteredOfficeAddress(null)
                 .residentialAddress(Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build())
-                .isServiceAddressSameAsHomeAddress(null)
+                .isHomeAddressSameAsServiceAddress(null)
                 .directorAppliedToProtectDetails(false)
                 .consentToAct(true)
                 .corporateDirector(false)
@@ -312,7 +312,7 @@ class FilingDataServiceImplTest {
                         Map.entry("consent_to_act", true),
                         Map.entry("is_corporate_director", false),
                         Map.entry("service_address_same_as_registered_office_address", false),
-                        Map.entry("service_address_same_as_home_address", false),
+                        Map.entry("home_address_same_as_service_address", false),
                         Map.entry("directors_details_changed_date", "2023-01-01"));
 
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
@@ -505,7 +505,7 @@ class FilingDataServiceImplTest {
                 .serviceAddress(Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build())
                 .isServiceAddressSameAsRegisteredOfficeAddress(false)
                 .residentialAddress(Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build())
-                .isServiceAddressSameAsHomeAddress(false)
+                .isHomeAddressSameAsServiceAddress(false)
                 .directorAppliedToProtectDetails(false)
                 .consentToAct(true)
                 .corporateDirector(false)
