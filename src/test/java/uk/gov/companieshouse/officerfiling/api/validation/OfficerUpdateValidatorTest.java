@@ -161,13 +161,13 @@ class OfficerUpdateValidatorTest {
                 .referenceAppointmentId(FILING_ID)
                 .directorsDetailsChangedDate(LocalDate.of(2009, Month.SEPTEMBER, 30))
                 .build();
-        when(apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_BEFORE_2009)).thenReturn("Date the director’s details changed must be on or after 1 October 2009. If the director was removed before this date, you must submit form 288b instead.");
+        when(apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_BEFORE_2009)).thenReturn("Date the director’s details changed must be on or after 1 October 2009.");
         officerUpdateValidator.validateMinChangeDate(request, apiErrorsList, officerFilingDto);
         assertThat(apiErrorsList)
                 .as("An error should be produced when resignation date is before 1st October 2009")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("Date the director’s details changed must be on or after 1 October 2009. If the director was removed before this date, you must submit form 288b instead.");
+                .contains("Date the director’s details changed must be on or after 1 October 2009.");
     }
 
     @Test
