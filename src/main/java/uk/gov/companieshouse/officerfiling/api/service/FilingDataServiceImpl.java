@@ -227,7 +227,7 @@ public class FilingDataServiceImpl implements FilingDataService {
         if (companyAppointment.getSurname() != null) {
             surname = companyAppointment.getSurname().toUpperCase();
             middleNames = companyAppointment.getOtherForenames();
-            officerFilingName = companyAppointment.getForename() + " " + middleNames + "" + surname;
+            officerFilingName = companyAppointment.getForename() + " " + middleNames + " " + surname;
         } else {
             // is a corporate director
             officerFilingName = companyAppointment.getName();

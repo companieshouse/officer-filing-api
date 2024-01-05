@@ -93,6 +93,7 @@ class FilingDataServiceImplTest {
         var offData = OfficerFilingData.builder()
                 .dateOfBirth(DATE_OF_BIRTH_INS)
                 .firstName(FIRSTNAME)
+                .middleNames((MIDDLENAMES))
                 .lastName(LASTNAME)
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
                 .resignedOn(RESIGNED_ON_INS)
@@ -110,6 +111,7 @@ class FilingDataServiceImplTest {
         when(companyAppointment.getDateOfBirth()).thenReturn(dateOfBirthAPI);
         when(companyAppointment.getOfficerRole()).thenReturn("director");
         when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
         when(companyAppointment.getSurname()).thenReturn(LASTNAME);
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
         when(filingAPIMapper.map(officerFiling)).thenReturn(filingData);
@@ -128,7 +130,7 @@ class FilingDataServiceImplTest {
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#termination"));
         assertThat(filingApi.getDescription(), is("(TM01) Termination of appointment of a director. Terminating appointment of "
-                + FIRSTNAME + " " + LASTNAME.toUpperCase() + " on 5 October 2022"));
+                + FIRSTNAME + " " + MIDDLENAMES + " " + LASTNAME.toUpperCase() + " on 5 October 2022"));
     }
 
     @Test
@@ -247,7 +249,7 @@ class FilingDataServiceImplTest {
 
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#appointment"));
-        assertThat(filingApi.getDescription(), is(equalTo("(AP01) Appointment of a director. Appointment of JOE BLOGGS on 5 October 2022")));
+        assertThat(filingApi.getDescription(), is(equalTo("(AP01) Appointment of a director. Appointment of JOE PETER MARTIN BLOGGS on 5 October 2022")));
     }
 
     @Test
@@ -317,7 +319,7 @@ class FilingDataServiceImplTest {
 
         assertThat(filingApi.getData(), is(equalTo(expectedMap)));
         assertThat(filingApi.getKind(), is("officer-filing#appointment"));
-        assertThat(filingApi.getDescription(), is(equalTo("(AP01) Appointment of a director. Appointment of JOE BLOGGS on 5 October 2022")));
+        assertThat(filingApi.getDescription(), is(equalTo("(AP01) Appointment of a director. Appointment of JOE PETER MARTIN BLOGGS on 5 October 2022")));
     }
 
     @ParameterizedTest
@@ -356,7 +358,7 @@ class FilingDataServiceImplTest {
         verify(filingAPIMapper).map(officerFilingCaptor.capture());
         var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
         assertThat(filingApi.getKind(), is("officer-filing#update"));
-        assertThat(filingApi.getDescription(), is(equalTo("(CH01) Update of a director. Update of JOE BLOGGS on 1 October 2023")));
+        assertThat(filingApi.getDescription(), is(equalTo("(CH01) Update of a director. Update of JOE PETER MARTIN BLOGGS on 1 October 2023")));
 
         var expectedOfficerFilingData = OfficerFilingData.builder()
                 .title(originalData.getTitle())
@@ -402,7 +404,7 @@ class FilingDataServiceImplTest {
         verify(filingAPIMapper).map(officerFilingCaptor.capture());
         var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
         assertThat(filingApi.getKind(), is("officer-filing#update"));
-        assertThat(filingApi.getDescription(), is(equalTo("(CH01) Update of a director. Update of JOE BLOGGS on 1 October 2023")));
+        assertThat(filingApi.getDescription(), is(equalTo("(CH01) Update of a director. Update of JOE PETER MARTIN BLOGGS on 1 October 2023")));
 
         var expectedOfficerFilingData = OfficerFilingData.builder()
                 .title(null)
