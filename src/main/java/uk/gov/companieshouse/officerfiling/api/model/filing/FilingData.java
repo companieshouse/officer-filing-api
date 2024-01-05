@@ -153,7 +153,7 @@ public class FilingData {
         return residentialAddress;
     }
 
-    public Boolean getServiceAddressSameAsHomeAddress() {
+    public Boolean getHomeAddressSameAsServiceAddress() {
         return isHomeAddressSameAsServiceAddress;
     }
 
