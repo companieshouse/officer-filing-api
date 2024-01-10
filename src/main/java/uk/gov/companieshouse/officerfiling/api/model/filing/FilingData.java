@@ -24,7 +24,7 @@ public class FilingData {
     private Address serviceAddress;
     private Boolean isServiceAddressSameAsRegisteredOfficeAddress;
     private Address residentialAddress;
-    private Boolean isServiceAddressSameAsHomeAddress;
+    private Boolean isHomeAddressSameAsServiceAddress;
     private Boolean directorAppliedToProtectDetails;
     private Boolean consentToAct;
     @JsonProperty("is_corporate_director")
@@ -64,7 +64,7 @@ public class FilingData {
                          @JsonProperty("service_address") Address serviceAddress,
                          @JsonProperty("is_service_address_same_as_registered_office_address") Boolean isServiceAddressSameAsRegisteredOfficeAddress,
                          @JsonProperty("residential_address") Address residentialAddress,
-                         @JsonProperty("is_service_address_same_as_home_address") Boolean isServiceAddressSameAsHomeAddress,
+                         @JsonProperty("is_home_address_same_as_service_address") Boolean isHomeAddressSameAsServiceAddress,
                          @JsonProperty("director_applied_to_protect_details") Boolean directorAppliedToProtectDetails,
                          @JsonProperty("consent_to_act") Boolean consentToAct,
                          @JsonProperty("is_corporate_director") Boolean corporateDirector,
@@ -85,7 +85,7 @@ public class FilingData {
         this.serviceAddress = serviceAddress;
         this.isServiceAddressSameAsRegisteredOfficeAddress = isServiceAddressSameAsRegisteredOfficeAddress;
         this.residentialAddress = residentialAddress;
-        this.isServiceAddressSameAsHomeAddress = isServiceAddressSameAsHomeAddress;
+        this.isHomeAddressSameAsServiceAddress = isHomeAddressSameAsServiceAddress;
         this.directorAppliedToProtectDetails = directorAppliedToProtectDetails;
         this.consentToAct = consentToAct;
         this.corporateDirector = corporateDirector;
@@ -153,8 +153,8 @@ public class FilingData {
         return residentialAddress;
     }
 
-    public Boolean getServiceAddressSameAsHomeAddress() {
-        return isServiceAddressSameAsHomeAddress;
+    public Boolean getHomeAddressSameAsServiceAddress() {
+        return isHomeAddressSameAsServiceAddress;
     }
 
     public Boolean getDirectorAppliedToProtectDetails() {
@@ -195,7 +195,7 @@ public class FilingData {
                 ", serviceAddress=" + serviceAddress +
                 ", isServiceAddressSameAsRegisteredOfficeAddress=" + isServiceAddressSameAsRegisteredOfficeAddress +
                 ", residentialAddress=" + residentialAddress +
-                ", isServiceAddressSameAsHomeAddress=" + isServiceAddressSameAsHomeAddress +
+                ", isHomeAddressSameAsServiceAddress=" + isHomeAddressSameAsServiceAddress +
                 ", directorAppliedToProtectDetails=" + directorAppliedToProtectDetails +
                 ", consentToAct=" + consentToAct +
                 ", corporateDirector=" + corporateDirector +

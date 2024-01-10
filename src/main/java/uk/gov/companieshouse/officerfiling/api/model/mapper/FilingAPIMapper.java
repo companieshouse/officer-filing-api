@@ -28,7 +28,7 @@ public interface FilingAPIMapper {
     @Mapping(target = "serviceAddress", source = "data.serviceAddress")
     @Mapping(target = "isServiceAddressSameAsRegisteredOfficeAddress", source = "data.isServiceAddressSameAsRegisteredOfficeAddress")
     @Mapping(target = "residentialAddress", source = "data.residentialAddress")
-    @Mapping(target = "isServiceAddressSameAsHomeAddress", source = "data.isServiceAddressSameAsHomeAddress")
+    @Mapping(target = "isHomeAddressSameAsServiceAddress", source = "data.isHomeAddressSameAsServiceAddress")
     @Mapping(target = "directorAppliedToProtectDetails", source = "data.directorAppliedToProtectDetails")
     @Mapping(target = "consentToAct", source = "data.consentToAct")
     @Mapping(target = "corporateDirector", source = "data.corporateDirector")
