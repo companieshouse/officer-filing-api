@@ -211,6 +211,26 @@ public abstract class OfficerValidator {
         return getAllowedNationalities(inputAllowedNationalities).stream().anyMatch(x -> x.equalsIgnoreCase(nationality));
     }
 
+    public Optional<LocalDate> getAppointmentDate(HttpServletRequest request, AppointmentFullRecordAPI companyAppointment) {
+        var isPre1992 = companyAppointment.getIsPre1992Appointment();
+        if (isPre1992 == null) {
+            logger.errorRequest(request, "null data was found in the Company Appointment API within the Pre-1992 Appointment field");
+            return Optional.empty();
+        }
+        // If pre-1992 then set as appointedBefore field
+        if (isPre1992) {
+            return Optional.ofNullable(companyAppointment.getAppointedBefore()).or(() -> {
+                logger.errorRequest(request, "null data was found in the Company Appointment API within the Appointed Before field");
+                return Optional.empty();
+            });
+        }
+        // Else set as appointedOn field
+        return Optional.ofNullable(companyAppointment.getAppointedOn()).or(() -> {
+            logger.errorRequest(request, "null data was found in the Company Appointment API within the Appointed On field");
+            return Optional.empty();
+        });
+    }
+
 
 
 }

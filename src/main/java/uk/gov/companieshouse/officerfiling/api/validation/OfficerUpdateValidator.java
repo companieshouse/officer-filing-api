@@ -9,6 +9,7 @@ import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
+import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
@@ -28,9 +29,10 @@ public class OfficerUpdateValidator extends OfficerValidator {
     private ApiEnumerations apiEnumerations;
 
     public OfficerUpdateValidator(final Logger logger,
+                                  final CompanyAppointmentService companyAppointmentService,
                                   final CompanyProfileService companyProfileService,
                                   final ApiEnumerations apiEnumerations) {
-        super(logger, companyProfileService, apiEnumerations);
+        super(logger, companyProfileService, companyAppointmentService, apiEnumerations);
         this.logger = logger;
         this.apiEnumerations = apiEnumerations;
     }
@@ -54,11 +56,14 @@ public class OfficerUpdateValidator extends OfficerValidator {
 
         // Retrieve data objects required for the validation process
         final Optional<CompanyProfileApi> companyProfile = getCompanyProfile(request, errorList, transaction, passthroughHeader);
-        if ( companyProfile.isEmpty()) {
+        final Optional<AppointmentFullRecordAPI> companyAppointment = getOfficerAppointment(request, errorList, dto, transaction, passthroughHeader);
+
+        if ( companyProfile.isEmpty() || companyAppointment.isEmpty()) {
             return new ApiErrors(errorList);
         }
 
         // Perform validation
+        validateChangeDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
         validateChangeDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
 
         return new ApiErrors(errorList);
@@ -99,6 +104,13 @@ public class OfficerUpdateValidator extends OfficerValidator {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_MISSING));
         } else if (dto.getDirectorsDetailsChangedDate().isBefore(companyProfile.getDateOfCreation())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_AFTER_INCORPORATION_DATE));
+        }
+    }
+
+    public void validateChangeDateAfterAppointmentDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment) {
+        var appointmentDate = getAppointmentDate(request, companyAppointment);
+        if(appointmentDate.isPresent() && dto.getDirectorsDetailsChangedDate().isBefore(appointmentDate.get())) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_BEFORE_OFFICER_APPOINTMENT_DATE));
         }
     }
 }

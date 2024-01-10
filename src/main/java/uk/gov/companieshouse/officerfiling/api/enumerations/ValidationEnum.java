@@ -13,6 +13,7 @@ public enum ValidationEnum {
     CHANGE_DATE_MISSING("change-date-missing"),
     CHANGE_DATE_BEFORE_2009("change-date-before-2009"),
     CHANGE_DATE_IN_PAST("change-date-in-past"),
+    CHANGE_DATE_BEFORE_OFFICER_APPOINTMENT_DATE("change-date-before-officer-appointment-date"),
     CHANGE_DATE_AFTER_INCORPORATION_DATE("change-date-after-incorporation-date"),
     DIRECTOR_ALREADY_REMOVED("director-already-removed"),
     REMOVAL_DATE_AFTER_APPOINTMENT_DATE("removal-date-after-appointment-date"),
