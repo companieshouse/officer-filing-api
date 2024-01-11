@@ -14,6 +14,7 @@ import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
+import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionServiceImpl;
 
@@ -53,6 +54,8 @@ class OfficerUpdateValidatorTest {
     @Mock
     private TransactionServiceImpl transactionService;
     @Mock
+    private CompanyAppointmentService companyAppointmentService;
+    @Mock
     private CompanyProfileServiceImpl companyProfileService;
     @Mock
     private Transaction transaction;
@@ -68,7 +71,7 @@ class OfficerUpdateValidatorTest {
     @BeforeEach
     void setUp() {
         //String allowedNationalities = "A very long nationality indeed so long in fact that it breaks the legal length for nationalities,thisIs25Characterslongggh,thisIs25Characterslongggg,thisIs16Charactz,thisIs17Character,thisIs16Characte,thisIsAVeryLongNationalityWhichWilltakeUsOver50Characterslong,Afghan,Albanian,Algerian,American,Andorran,Angolan,Anguillan,Citizen of Antigua and Barbuda,Argentine,Armenian,Australian,Austrian,Azerbaijani,Bahamian,Bahraini,Bangladeshi,Barbadian,Belarusian,Belgian,Belizean,Beninese,Bermudian,Bhutanese,Bolivian,Citizen of Bosnia and Herzegovina,Botswanan,Brazilian,British,British Virgin Islander,Bruneian,Bulgarian,Burkinan,Burmese,Burundian,Cambodian,Cameroonian,Canadian,Cape Verdean,Cayman Islander,Central African,Chadian,Chilean,Chinese,Colombian,Comoran,Congolese (Congo),Congolese (DRC),Cook Islander,Costa Rican,Croatian,Cuban,Cymraes,Cymro,Cypriot,Czech,Danish,Djiboutian,Dominican,Citizen of the Dominican Republic,Dutch,East Timorese\tEcuadorean\tEgyptian\tEmirati,English,Equatorial Guinean,Eritrean,Estonian,Ethiopian,Faroese,Fijian,Filipino,Finnish,French,Gabonese,Gambian,Georgian,German,Ghanaian,Gibraltarian,Greek,Greenlandic,Grenadian,Guamanian,Guatemalan,Citizen of Guinea-Bissau,Guinean,Guyanese,Haitian,Honduran,Hong Konger,Hungarian,Icelandic,Indian,Indonesian,Iranian,Iraqi,Irish,Israeli,Italian,Ivorian,Jamaican,Japanese,Jordanian,Kazakh,Kenyan,Kittitian,Citizen of Kiribati,Kosovan,Kuwaiti,Kyrgyz,Lao,Latvian,Lebanese,Liberian,Libyan,Liechtenstein citizen,Lithuanian,Luxembourger,Macanese,Macedonian,Malagasy,Malawian,Malaysian,Maldivian,Malian,Maltese,Marshallese,Martiniquais,Mauritanian,Mauritian,Mexican,Micronesian,Moldovan,Monegasque,Mongolian,Montenegrin,Montserratian,Moroccan,Mosotho,Mozambican,Namibian,Nauruan,Nepalese,New Zealander,Nicaraguan,Nigerian,Nigerien,Niuean,North Korean,Northern Irish,Norwegian,Omani,Pakistani,Palauan,Palestinian,Panamanian,Papua New Guinean,Paraguayan,Peruvian,Pitcairn Islander,Polish,Portuguese,Prydeinig,Puerto Rican,Qatari,Romanian,Russian,Rwandan,Salvadorean,Sammarinese,Samoan,Sao Tomean,Saudi Arabian,Scottish,Senegalese,Serbian,Citizen of Seychelles,Sierra Leonean,Singaporean,Slovak,Slovenian,Solomon Islander,Somali,South African,South Korean,South Sudanese,Spanish,Sri Lankan,St Helenian,St Lucian,Stateless,Sudanese,Surinamese,Swazi,Swedish,Swiss,Syrian,Taiwanese,Tajik,Tanzanian,Thai,Togolese,Tongan,Trinidadian,Tristanian,Tunisian,Turkish,Turkmen,Turks and Caicos Islander,Tuvaluan,Ugandan,Ukrainian,Uruguayan,Uzbek,Vatican citizen,Citizen of Vanuatu,Venezuelan,Vietnamese,Vincentian,Wallisian,Welsh,Yemeni,Zambian,Zimbabwean";
-        officerUpdateValidator = new OfficerUpdateValidator(logger, companyProfileService, apiEnumerations);
+         officerUpdateValidator = new OfficerUpdateValidator(logger, companyAppointmentService, companyProfileService, apiEnumerations);
          apiErrorsList = new ArrayList<>();
     }
 
@@ -214,6 +217,99 @@ class OfficerUpdateValidatorTest {
                 .as("An error should not be produced when change date is the incorporation date")
                 .isEmpty();
     }
+
+    @Test
+    void validateChangeDateAfterAppointmentDateWhenValid() {
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .directorsDetailsChangedDate(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerUpdateValidator.validateChangeDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when change date is after appointment date")
+                .isEmpty();
+    }
+
+    @Test
+    void validateChangeDateAfterAppointmentDateWhenInvalid() {
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 6));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .directorsDetailsChangedDate(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        when(apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_BEFORE_OFFICER_APPOINTMENT_DATE)).thenReturn("Enter a date that is on or after the date the director was appointed");
+        officerUpdateValidator.validateChangeDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when change date is before appointment date")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a date that is on or after the date the director was appointed");
+    }
+
+    @Test
+    void validateChangeDateAndAppointmentDateWhenSameDay() {
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 5));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .directorsDetailsChangedDate(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerUpdateValidator.validateChangeDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when change date is same as appointment date")
+                .isEmpty();
+    }
+
+
+    @Test
+    void validateDateOfChangeWhenAppointedOnDateIsNull() {
+        when(companyAppointment.getAppointedOn()).thenReturn(null);
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .directorsDetailsChangedDate(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+        officerUpdateValidator.validateChangeDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("Validation should be skipped when appointment date is null")
+                .isEmpty();
+    }
+
+    @Test
+    void validateDateOfChangeWhenCompanyAppointmentHasPre1992SetToTrueWithAppointBeforeDate() {
+        when(companyAppointment.getIsPre1992Appointment()).thenReturn(true);
+        when(companyAppointment.getAppointedBefore()).thenReturn(LocalDate.of(1991, Month.JANUARY, 20));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .directorsDetailsChangedDate(LocalDate.of(1990, Month.JANUARY, 5))
+                .build();
+        when(apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_BEFORE_OFFICER_APPOINTMENT_DATE)).thenReturn("Enter a date that is on or after the date the director was appointed");
+        officerUpdateValidator.validateChangeDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when change date is before appointment date - pre 1992 check")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a date that is on or after the date the director was appointed");
+    }
+
+    @Test
+    void validateDateOfChangeWhenCompanyAppointmentHasPre1992SetToTrueWithoutAppointBeforeDate() {
+        when(companyAppointment.getIsPre1992Appointment()).thenReturn(true);
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .directorsDetailsChangedDate(LocalDate.of(1990, Month.JANUARY, 5))
+                .build();
+        officerUpdateValidator.validateChangeDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("Validation should be skipped isPre1992 set to true and has no appointment before date")
+                .isEmpty();
+    }
+
 
     @Test
     void validateAppointmentDateAfterIncorporationDateWhenCreationDateNull() {
