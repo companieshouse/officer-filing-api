@@ -14,6 +14,7 @@ import org.springframework.test.context.TestPropertySource;
 import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.officerfiling.api.controller.OfficerFilingController;
+import uk.gov.companieshouse.officerfiling.api.interceptor.OfficersCRUDAuthenticationInterceptor;
 
 @Tag("app")
 @SpringBootTest
@@ -27,6 +28,8 @@ class OfficerFilingApiApplicationTests {
     private TransactionInterceptor TransactionInterceptor;
     @MockBean
     private OpenTransactionInterceptor openTransactionInterceptor;
+    @MockBean
+    private OfficersCRUDAuthenticationInterceptor officersCRUDAuthenticationInterceptor;
 
     @Test
     void contextLoads() {
