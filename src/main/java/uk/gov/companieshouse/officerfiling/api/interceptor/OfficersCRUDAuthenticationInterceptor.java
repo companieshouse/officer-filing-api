@@ -1,7 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.interceptor;
 
-import static uk.gov.companieshouse.officerfiling.api.utils.Constants.ERIC_REQUEST_ID_KEY;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -25,9 +23,13 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
+import static uk.gov.companieshouse.officerfiling.api.utils.Constants.ERIC_REQUEST_ID_KEY;
+
 public class OfficersCRUDAuthenticationInterceptor implements HandlerInterceptor {
     
     private static final String TRANSACTION_ID_KEY = "transactionId";
+    public static final String COMPANY_NUMBER_KEY = "company_number";
+    public static final String ERIC_AUTHORISED_TOKEN_PERMISSIONS = "ERIC-Authorised-Token-Permissions";
 
     @Autowired
     private Logger logger;
@@ -38,8 +40,10 @@ public class OfficersCRUDAuthenticationInterceptor implements HandlerInterceptor
     public OfficersCRUDAuthenticationInterceptor() {
     }
 
-    public static final String COMPANY_NUMBER_KEY = "company_number";
-    public static final String ERIC_AUTHORISED_TOKEN_PERMISSIONS = "ERIC-Authorised-Token-Permissions";
+    public OfficersCRUDAuthenticationInterceptor(Logger logger, TransactionService transactionService) {
+        this.logger = logger;
+        this.transactionService = transactionService;
+    }
 
     /**
      * Pre handle method to authorize the request before it reaches the controller. Retrieves the
@@ -55,11 +59,10 @@ public class OfficersCRUDAuthenticationInterceptor implements HandlerInterceptor
                 (Map<String, String>) request.getAttribute(
                         HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         final var transactionId = pathVariables.get(TRANSACTION_ID_KEY);
-        String reqId = request.getHeader(ERIC_REQUEST_ID_KEY);
-
-        var logMap = new HashMap<String, Object>();
+        final String reqId = request.getHeader(ERIC_REQUEST_ID_KEY);
+        final var logMap = new HashMap<String, Object>();
         
-        if (transactionId == null) {
+        if (StringUtils.isEmpty(transactionId)) {
             logger.errorContext(reqId, "OfficersCRUDAuthenticationInterceptor unauthorised - no transaction identifier found", null, logMap);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return false;
@@ -75,7 +78,7 @@ public class OfficersCRUDAuthenticationInterceptor implements HandlerInterceptor
         }
        
         var companyNumberInScope = getCompanyNumberInScope(request);
-        logger.debugContext(reqId, "OfficersCRUDAuthenticationInterceptor authenticate request for company number: " + companyNumberToDisplay(companyNumberInScope), logMap);
+        logger.debugContext(reqId, "OfficersCRUDAuthenticationInterceptor authenticate request for company number: " + companyNumberForDisplay(companyNumberInScope), logMap);
         if (companyNumberInScope == null) {
             logger.errorContext(reqId, "OfficersCRUDAuthenticationInterceptor unauthorised - no company number in scope", null, logMap);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -121,7 +124,7 @@ public class OfficersCRUDAuthenticationInterceptor implements HandlerInterceptor
         authInfoMap.put("has_company_officers_readprotected_permission",
                 hasCompanyOfficersReadProtectedPermission);
         authInfoMap.put("company_number_in_transaction",
-                companyNumberToDisplay(companyNumberInTransaction.get()));
+                companyNumberForDisplay(companyNumberInTransaction.get()));
 
         if (hasCompanyOfficersDeletePermission && hasCompanyOfficersCreatePermission && hasCompanyOfficersUpdatePermission && hasCompanyOfficersReadProtectedPermission) {
             logger.debugContext(reqId,
@@ -152,18 +155,18 @@ public class OfficersCRUDAuthenticationInterceptor implements HandlerInterceptor
             logger.debugContext(reqId, "Call to Transaction Service returned null transaction object " + transactionId, logMap);
             return Optional.empty();
         }
-        logMap.put("company_number_in_transaction", companyNumberToDisplay(transaction.getCompanyNumber()));
+        logMap.put("company_number_in_transaction", companyNumberForDisplay(transaction.getCompanyNumber()));
         logger.debugContext(reqId, "Transaction successfully retrieved " + transactionId, logMap);
         return Optional.ofNullable(transaction.getCompanyNumber());
     }
 
     private String getCompanyNumberInScope (HttpServletRequest request) {
         final Map<String, List<String>> privileges = getERICTokenPermissions(request);
-        return privileges.get(COMPANY_NUMBER_KEY).get(0);
-    }
-
-    private String companyNumberToDisplay(String companyNumber) {
-        return StringUtils.isEmpty(companyNumber) ? "None" : companyNumber;
+        var privilegesList = privileges.get(COMPANY_NUMBER_KEY);
+        if (privilegesList == null || privilegesList.isEmpty()) {
+            return null;
+        }
+        return privilegesList.get(0);
     }
 
     private Map<String, List<String>> getERICTokenPermissions(HttpServletRequest request) {
@@ -172,9 +175,15 @@ public class OfficersCRUDAuthenticationInterceptor implements HandlerInterceptor
         if (tokenPermissionsHeader != null) {
             for (String pair : tokenPermissionsHeader.split(" ")) {
                 String[] parts = pair.split("=");
-                permissions.put(parts[0], Arrays.asList(parts[1].split(",")));
+                if (parts.length == 2) {
+                    permissions.put(parts[0], Arrays.asList(parts[1].split(",")));
+                }
             }
         }
         return permissions;
+    }
+
+    private String companyNumberForDisplay(String companyNumber) {
+        return StringUtils.isEmpty(companyNumber) ? "None" : companyNumber;
     }
 }
