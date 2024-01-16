@@ -160,10 +160,10 @@ public class OfficersCRUDAuthenticationInterceptor implements HandlerInterceptor
         return Optional.ofNullable(transaction.getCompanyNumber());
     }
 
-    private String getCompanyNumberInScope (HttpServletRequest request) {
+    String getCompanyNumberInScope (HttpServletRequest request) {
         final Map<String, List<String>> privileges = getERICTokenPermissions(request);
         var privilegesList = privileges.get(COMPANY_NUMBER_KEY);
-        if (privilegesList == null || privilegesList.isEmpty()) {
+        if (privilegesList == null) {
             return null;
         }
         return privilegesList.get(0);

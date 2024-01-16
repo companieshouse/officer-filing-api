@@ -2,6 +2,7 @@ package uk.gov.companieshouse.officerfiling.api.interceptor;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -200,5 +201,13 @@ class OfficersCRUDAuthenticationInterceptorTest {
         var response = OfficerCRUDAuthenticationInterceptor.preHandle(mockRequest, mockResponse, handler);
 
         assertThat(response, is(true));
+    }
+
+    @Test
+    void invalidERICTokenPermissions() {
+        var officerCRUDAuthenticationInterceptor = new OfficersCRUDAuthenticationInterceptor();
+        when(mockRequest.getHeader(OfficersCRUDAuthenticationInterceptor.ERIC_AUTHORISED_TOKEN_PERMISSIONS)).thenReturn("HSU&@AZ123xj*");
+        mockRequest.getHeader(ERIC_REQUEST_ID_KEY);
+        assertNull(officerCRUDAuthenticationInterceptor.getCompanyNumberInScope(mockRequest));
     }
 }
