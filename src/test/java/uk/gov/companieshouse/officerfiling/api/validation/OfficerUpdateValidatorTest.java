@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,6 +35,7 @@ class OfficerUpdateValidatorTest {
     private static final String TRANS_ID = "12345-54321-76666";
     private static final String PASSTHROUGH_HEADER = "passthrough";
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
+    private static final String REF_APPOINTMENT_ID = "12345";
     private static final String ETAG = "etag";
     private static final String COMPANY_TYPE = "ltd";
     private static final String OFFICER_ROLE = "director";
@@ -79,7 +81,6 @@ class OfficerUpdateValidatorTest {
     void validationWhenValid() {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
-        when(dto.getDirectorsDetailsChangedDate()).thenReturn(LocalDate.now().minusDays(1));
 
         final var apiErrors = officerUpdateValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -90,6 +91,8 @@ class OfficerUpdateValidatorTest {
     void validateWhenMissingChangeDate() {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, null, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_MISSING)).thenReturn(
                 "Enter the date the director’s details changed");
 

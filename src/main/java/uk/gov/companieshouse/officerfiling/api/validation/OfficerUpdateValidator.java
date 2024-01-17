@@ -51,36 +51,36 @@ public class OfficerUpdateValidator extends OfficerValidator {
                 .withRequest(request)
                 .build());
         final List<ApiError> errorList = new ArrayList<>();
-
-        validateRequiredDtoFields(request, errorList, dto);
-
         // Retrieve data objects required for the validation process
         final Optional<CompanyProfileApi> companyProfile = getCompanyProfile(request, errorList, transaction, passthroughHeader);
         final Optional<AppointmentFullRecordAPI> companyAppointment = getOfficerAppointment(request, errorList, dto, transaction, passthroughHeader);
-
         if ( companyProfile.isEmpty() || companyAppointment.isEmpty()) {
             return new ApiErrors(errorList);
         }
 
-        // Perform validation
-        validateChangeDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
-        validateChangeDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
+        validateRequiredDtoFields(request, errorList, dto, companyProfile.get(), companyAppointment.get());
+//        // Perform validation
+//        validateChangeDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
+//        validateChangeDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
 
         return new ApiErrors(errorList);
     }
 
-    @Override
-    public void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
-        validateChangeDate(request, errorList, dto);
+    public void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, CompanyProfileApi companyProfile, AppointmentFullRecordAPI companyAppointment) {
+        validateChangeDate(request, errorList, dto, companyProfile, companyAppointment);
     }
 
-    public void validateChangeDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
+    public List<ApiError> validateChangeDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, CompanyProfileApi companyProfile, AppointmentFullRecordAPI companyAppointment) {
         if (dto.getDirectorsDetailsChangedDate() == null) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_MISSING));
         } else {
             validateChangeDatePastOrPresent(request, errorList, dto);
             validateMinChangeDate(request, errorList, dto);
+            validateChangeDateAfterIncorporationDate(request, errorList, dto, companyProfile);
+            validateChangeDateAfterAppointmentDate(request, errorList, dto, companyAppointment);
         }
+
+        return errorList;
     }
 
     public void validateChangeDatePastOrPresent(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
