@@ -346,5 +346,29 @@ class OfficerUpdateValidatorTest {
                 .contains("Enter the date the director was updated");
     }
 
+    @Test
+    void testShouldNotThrowNullPointerWhenChangeDateIsNull() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_MISSING)).thenReturn(
+                "Enter the date the director was updated");
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, "6332aa6ed28ad2333c3a520a", PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
+        when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .directorsDetailsChangedDate(null)
+                .build();
+
+        final var apiErrors = officerUpdateValidator.validate(request, officerFilingDto, transaction, PASSTHROUGH_HEADER);
+
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when change date is missing")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter the date the director was updated");
+    }
+
+
 
 }

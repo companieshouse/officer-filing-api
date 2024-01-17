@@ -59,9 +59,6 @@ public class OfficerUpdateValidator extends OfficerValidator {
         }
 
         validateRequiredDtoFields(request, errorList, dto, companyProfile.get(), companyAppointment.get());
-//        // Perform validation
-//        validateChangeDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
-//        validateChangeDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
 
         return new ApiErrors(errorList);
     }
