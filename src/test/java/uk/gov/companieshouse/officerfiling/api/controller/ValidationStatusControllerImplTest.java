@@ -213,7 +213,6 @@ class ValidationStatusControllerImplTest {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getResignedOn()).thenReturn(null);
-        when(dto.getDirectorsDetailsChangedDate()).thenReturn(LocalDate.of(2023, Month.JANUARY, 5));
 
         final var response = testController.validate(transaction, FILING_ID, request);
         assertThat(response.getValidationStatusError(), is(nullValue()));
