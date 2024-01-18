@@ -123,7 +123,9 @@ public class OfficerUpdateValidator extends OfficerValidator {
 
     public void validateChangeDateAfterAppointmentDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment) {
         var appointmentDate = getAppointmentDate(request, companyAppointment);
-        if(appointmentDate.isPresent() && dto.getDirectorsDetailsChangedDate().isBefore(appointmentDate.get())) {
+        if(dto.getDirectorsDetailsChangedDate() == null) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_MISSING));
+        } else if(appointmentDate.isPresent() && dto.getDirectorsDetailsChangedDate().isBefore(appointmentDate.get())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_BEFORE_OFFICER_APPOINTMENT_DATE));
         }
     }
