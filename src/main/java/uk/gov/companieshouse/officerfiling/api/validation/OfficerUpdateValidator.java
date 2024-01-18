@@ -90,14 +90,10 @@ public class OfficerUpdateValidator extends OfficerValidator {
         Boolean anyNameFieldsExistInDto = (dto.getTitle() != null || dto.getFirstName() != null || dto.getLastName() != null || dto.getMiddleNames() != null);
 
         if (nameHasBeenUpdated && anyNameFieldsExistInDto) {
-            if(dto.getTitle() != null) {
-                validateTitle(request, errorList, dto);
-            }
+            validateTitle(request, errorList, dto);
             validateFirstName(request, errorList, dto);
             validateLastName(request, errorList, dto);
-            if(dto.getMiddleNames() != null) {
-                validateMiddleNames(request, errorList, dto);
-            }
+            validateMiddleNames(request, errorList, dto);
         }
     }
 

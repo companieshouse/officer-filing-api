@@ -362,9 +362,6 @@ class OfficerUpdateValidatorTest {
         //validate the methods to validate firstname and lastname are called.
         Mockito.verify(officerUpdateValidatorSpy).validateFirstName(any(), any(), any());
         Mockito.verify(officerUpdateValidatorSpy).validateLastName(any(), any(), any());
-        //validate the methods to validate title and middle-names are not called as it's not in the filing.
-        Mockito.verify(officerUpdateValidatorSpy, times(0)).validateMiddleNames(any(), any(), any());
-        Mockito.verify(officerUpdateValidatorSpy, times(0)).validateTitle(any(), any(), any());
 
         assertThat(apiErrors.getErrors())
                 .as("No validation errors should have been raised")
@@ -392,9 +389,6 @@ class OfficerUpdateValidatorTest {
         //validate the methods to validate firstname and lastname are called.
         Mockito.verify(officerUpdateValidatorSpy).validateFirstName(any(), any(), any());
         Mockito.verify(officerUpdateValidatorSpy).validateLastName(any(), any(), any());
-        //validate the methods to validate title and middle-names are not called as it's not in the filing.
-        Mockito.verify(officerUpdateValidatorSpy, times(0)).validateMiddleNames(any(), any(), any());
-        Mockito.verify(officerUpdateValidatorSpy, times(0)).validateTitle(any(), any(), any());
 
         assertThat(apiErrors.getErrors())
                 .as("No validation errors should have been raised")
