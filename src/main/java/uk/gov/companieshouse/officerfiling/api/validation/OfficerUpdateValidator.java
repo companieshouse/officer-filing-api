@@ -53,6 +53,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
         final List<ApiError> errorList = new ArrayList<>();
 
         validateRequiredDtoFields(request, errorList, dto);
+        validateOptionalDtoFields(request, errorList, dto);
 
         // Retrieve data objects required for the validation process
         final Optional<CompanyProfileApi> companyProfile = getCompanyProfile(request, errorList, transaction, passthroughHeader);
@@ -80,6 +81,23 @@ public class OfficerUpdateValidator extends OfficerValidator {
         } else {
             validateChangeDatePastOrPresent(request, errorList, dto);
             validateMinChangeDate(request, errorList, dto);
+        }
+    }
+
+    @Override
+    public void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
+        Boolean nameHasBeenUpdated = (dto.getNameHasBeenUpdated() == null || dto.getNameHasBeenUpdated());
+        Boolean anyNameFieldsExistInDto = (dto.getTitle() != null || dto.getFirstName() != null || dto.getLastName() != null || dto.getMiddleNames() != null);
+
+        if (nameHasBeenUpdated && anyNameFieldsExistInDto) {
+            if(dto.getTitle() != null) {
+                validateTitle(request, errorList, dto);
+            }
+            validateFirstName(request, errorList, dto);
+            validateLastName(request, errorList, dto);
+            if(dto.getMiddleNames() != null) {
+                validateMiddleNames(request, errorList, dto);
+            }
         }
     }
 
