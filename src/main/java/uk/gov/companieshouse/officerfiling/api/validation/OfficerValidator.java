@@ -55,7 +55,7 @@ public class OfficerValidator {
 
     private ApiEnumerations apiEnumerations;
 
-    private CompanyProfileService companyProfileService;
+    private final CompanyProfileService companyProfileService;
 
     private CompanyAppointmentService companyAppointmentService;
 
@@ -74,9 +74,6 @@ public class OfficerValidator {
         this.logger = logger;
         this.companyProfileService = companyProfileService;
         this.apiEnumerations = apiEnumerations;
-    }
-
-    public OfficerValidator() {
     }
 
     /**
