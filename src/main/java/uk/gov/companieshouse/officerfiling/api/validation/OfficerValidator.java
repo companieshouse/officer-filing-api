@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  */
 
 
-public abstract class OfficerValidator {
+public class OfficerValidator {
 
     public static final LocalDate MIN_RESIGNATION_DATE = LocalDate.of(2009, 10, 1);
     public static final List<String> ALLOWED_COMPANY_TYPES = List.of("private-unlimited", "ltd", "plc", "private-limited-guarant-nsc-limited-exemption",
@@ -231,6 +231,58 @@ public abstract class OfficerValidator {
         });
     }
 
+    protected void validateTitle(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        if(dto.getTitle() != null){
+            if (!validateDtoFieldLength(dto.getTitle(), 50)) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.TITLE_LENGTH));
+            }
+            if (!isValidCharacters(dto.getTitle())) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.TITLE_CHARACTERS));
+            }
+        }
+    }
 
+    protected void validateFirstName(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        if (dto.getFirstName() == null || dto.getFirstName().isBlank()) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_BLANK));
+        }
+        else{
+            if(!validateDtoFieldLength(dto.getFirstName(), 50)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_LENGTH));
+            }
+            if(!isValidCharacters(dto.getFirstName())){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_CHARACTERS));
+            }
+        }
+    }
+
+    protected void validateLastName(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        if (dto.getLastName() == null || dto.getLastName().isBlank()) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LAST_NAME_BLANK));
+        }
+        else{
+            if(!validateDtoFieldLength(dto.getLastName(), 160)){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LAST_NAME_LENGTH));
+            }
+            if(!isValidCharacters(dto.getLastName())){
+                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LAST_NAME_CHARACTERS));
+            }
+        }
+    }
+
+    protected void validateMiddleNames(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
+        if(dto.getMiddleNames() != null){
+            if (!validateDtoFieldLength(dto.getMiddleNames(), 50)) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_LENGTH));
+            }
+            if (!isValidCharacters(dto.getMiddleNames())) {
+                createValidationError(request, errorList,
+                        apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_CHARACTERS));
+            }
+        }
+    }
 
 }

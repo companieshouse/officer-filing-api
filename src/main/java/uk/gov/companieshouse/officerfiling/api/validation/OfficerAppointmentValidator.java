@@ -108,34 +108,6 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateAddressesMultipleFlags(request, errorList, dto);
     }
 
-    private void validateFirstName(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
-        if (dto.getFirstName() == null || dto.getFirstName().isBlank()) {
-            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_BLANK));
-        }
-        else{
-            if(!validateDtoFieldLength(dto.getFirstName(), 50)){
-                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_LENGTH));
-            }
-            if(!isValidCharacters(dto.getFirstName())){
-                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_CHARACTERS));
-            }
-        }
-    }
-
-    private void validateLastName(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
-        if (dto.getLastName() == null || dto.getLastName().isBlank()) {
-            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LAST_NAME_BLANK));
-        }
-        else{
-            if(!validateDtoFieldLength(dto.getLastName(), 160)){
-                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LAST_NAME_LENGTH));
-            }
-            if(!isValidCharacters(dto.getLastName())){
-                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LAST_NAME_CHARACTERS));
-            }
-        }
-    }
-
     private void validateDateOfBirth(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
         if (dto.getDateOfBirth() == null ) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_BLANK));
@@ -198,32 +170,6 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         else if(!dto.getConsentToAct()){
             createValidationError(request, errorList,
                     apiEnumerations.getValidation(ValidationEnum.CONSENT_TO_ACT_FALSE));
-        }
-    }
-
-    private void validateTitle(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
-        if(dto.getTitle() != null){
-            if (!validateDtoFieldLength(dto.getTitle(), 50)) {
-                createValidationError(request, errorList,
-                        apiEnumerations.getValidation(ValidationEnum.TITLE_LENGTH));
-            }
-            if (!isValidCharacters(dto.getTitle())) {
-                createValidationError(request, errorList,
-                        apiEnumerations.getValidation(ValidationEnum.TITLE_CHARACTERS));
-            }
-        }
-    }
-
-    private void validateMiddleNames(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto){
-        if(dto.getMiddleNames() != null){
-            if (!validateDtoFieldLength(dto.getMiddleNames(), 50)) {
-                createValidationError(request, errorList,
-                        apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_LENGTH));
-            }
-            if (!isValidCharacters(dto.getMiddleNames())) {
-                createValidationError(request, errorList,
-                        apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_CHARACTERS));
-            }
         }
     }
 
