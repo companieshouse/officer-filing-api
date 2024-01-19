@@ -186,6 +186,11 @@ public class FilingDataServiceImpl implements FilingDataService {
                     .lastName(data.getLastName())
                     .formerNames(data.getFormerNames());
         }
+        if (data.getNationalityHasBeenUpdated() == null || data.getNationalityHasBeenUpdated()) {
+            dataBuilder = dataBuilder.nationality1(data.getNationality1())
+                    .nationality2(data.getNationality2())
+                    .nationality3(data.getNationality3());
+        }
 
         final var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
                 .createdAt(officerFiling.getCreatedAt())
