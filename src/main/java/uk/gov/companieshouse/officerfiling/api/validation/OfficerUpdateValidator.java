@@ -31,23 +31,25 @@ public class OfficerUpdateValidator extends OfficerValidator {
     public OfficerUpdateValidator(final Logger logger,
                                   final CompanyAppointmentService companyAppointmentService,
                                   final CompanyProfileService companyProfileService,
+                                  final String inputAllowedNationalities,
                                   final ApiEnumerations apiEnumerations) {
-        super(logger, companyProfileService, companyAppointmentService, apiEnumerations);
+        super(logger, companyProfileService, companyAppointmentService, inputAllowedNationalities, apiEnumerations);
         this.logger = logger;
         this.apiEnumerations = apiEnumerations;
     }
 
     /**
      * Main validation method to fetch the required data and validate the request. This should be the point of call when updating an officer.
-     * @param request The servlet request used in logging
-     * @param dto Data Object containing details of the update
-     * @param transaction the transaction for this update
+     *
+     * @param request           The servlet request used in logging
+     * @param dto               Data Object containing details of the update
+     * @param transaction       the transaction for this update
      * @param passthroughHeader ERIC pass through header for authorisation
      * @return An object containing a list of any validation errors that have been raised
      */
     @Override
     public ApiErrors validate(HttpServletRequest request, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
-            logger.debugContext(transaction.getId(), "Beginning officer update validation", new LogHelper.Builder(transaction)
+        logger.debugContext(transaction.getId(), "Beginning officer update validation", new LogHelper.Builder(transaction)
                 .withRequest(request)
                 .build());
         final List<ApiError> errorList = new ArrayList<>();
@@ -59,7 +61,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
         final Optional<CompanyProfileApi> companyProfile = getCompanyProfile(request, errorList, transaction, passthroughHeader);
         final Optional<AppointmentFullRecordAPI> companyAppointment = getOfficerAppointment(request, errorList, dto, transaction, passthroughHeader);
 
-        if ( companyProfile.isEmpty() || companyAppointment.isEmpty()) {
+        if (companyProfile.isEmpty() || companyAppointment.isEmpty()) {
             return new ApiErrors(errorList);
         }
 
@@ -86,14 +88,26 @@ public class OfficerUpdateValidator extends OfficerValidator {
 
     @Override
     public void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
-        Boolean nameHasBeenUpdated = (dto.getNameHasBeenUpdated() == null || dto.getNameHasBeenUpdated());
-        Boolean anyNameFieldsExistInDto = (dto.getTitle() != null || dto.getFirstName() != null || dto.getLastName() != null || dto.getMiddleNames() != null);
+        // For each data section, validation will be performed if either:
+        // - the hasBeenUpdated boolean is true
+        // - the hasBeenUpdated boolean is null and any data is present
 
-        if (nameHasBeenUpdated && anyNameFieldsExistInDto) {
+        final boolean anyNameFieldsExistInDto = (dto.getTitle() != null || dto.getFirstName() != null || dto.getLastName() != null || dto.getMiddleNames() != null);
+        final boolean nameHasBeenUpdated = (dto.getNameHasBeenUpdated() == null && anyNameFieldsExistInDto) || (dto.getNameHasBeenUpdated() != null && dto.getNameHasBeenUpdated());
+        if (nameHasBeenUpdated) {
             validateTitle(request, errorList, dto);
             validateFirstName(request, errorList, dto);
             validateLastName(request, errorList, dto);
             validateMiddleNames(request, errorList, dto);
+        }
+
+        final boolean anyNationalityFieldsExistInDto = (dto.getNationality1() != null || dto.getNationality2() != null || dto.getNationality3() != null);
+        final boolean nationalityHasBeenUpdated = (dto.getNationalityHasBeenUpdated() == null && anyNationalityFieldsExistInDto) || (dto.getNationalityHasBeenUpdated() != null && dto.getNationalityHasBeenUpdated());
+        if (nationalityHasBeenUpdated) {
+            validateNationality1(request, errorList, dto);
+            validateNationality2(request, errorList, dto);
+            validateNationality3(request, errorList, dto);
+            validateNationalityLength(request, errorList, dto);
         }
     }
 
@@ -123,9 +137,9 @@ public class OfficerUpdateValidator extends OfficerValidator {
 
     public void validateChangeDateAfterAppointmentDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment) {
         var appointmentDate = getAppointmentDate(request, companyAppointment);
-        if(dto.getDirectorsDetailsChangedDate() == null) {
+        if (dto.getDirectorsDetailsChangedDate() == null) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_MISSING));
-        } else if(appointmentDate.isPresent() && dto.getDirectorsDetailsChangedDate().isBefore(appointmentDate.get())) {
+        } else if (appointmentDate.isPresent() && dto.getDirectorsDetailsChangedDate().isBefore(appointmentDate.get())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_BEFORE_OFFICER_APPOINTMENT_DATE));
         }
     }
