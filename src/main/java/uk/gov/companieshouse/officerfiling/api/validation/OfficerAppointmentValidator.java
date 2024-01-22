@@ -89,11 +89,15 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateNationality2(request, errorList, dto);
         validateNationality3(request, errorList, dto);
         validateNationalityLength(request, errorList, dto);
-        validateRequiredResidentialAddressFields(request, errorList, dto);
-        validateCorrespondenceAddressFields(request, errorList, dto);
         validateAppointmentDate(request, errorList, dto);
         validateProtectedDetails(request, errorList, dto);
         validateConsentToAct(request, errorList, dto);
+        if (dto.getIsHomeAddressSameAsServiceAddress() == null || Boolean.FALSE.equals(dto.getIsHomeAddressSameAsServiceAddress())) { //home + correspondance
+            validateRequiredResidentialAddressFields(request, errorList, dto); //home
+        }
+        if (dto.getIsServiceAddressSameAsRegisteredOfficeAddress() == null || Boolean.FALSE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress())) { //correspondance + roa
+            validateCorrespondenceAddressFields(request, errorList, dto); //correspondance
+        }
     }
 
     @Override
@@ -103,7 +107,9 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateFormerNames(request, errorList, dto);
         validateOccupation(request, errorList, dto);
         if(dto.getResidentialAddress() != null){
-            validateOptionalResidentialAddressFields(request, errorList, dto);
+            if(dto.getIsHomeAddressSameAsServiceAddress() == null || Boolean.FALSE.equals(dto.getIsHomeAddressSameAsServiceAddress())) {
+                validateOptionalResidentialAddressFields(request, errorList, dto); //home
+            }
         }
         validateAddressesMultipleFlags(request, errorList, dto);
     }
