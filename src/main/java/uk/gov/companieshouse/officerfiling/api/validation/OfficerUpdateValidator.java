@@ -53,6 +53,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
         final List<ApiError> errorList = new ArrayList<>();
 
         validateRequiredDtoFields(request, errorList, dto);
+        validateOptionalDtoFields(request, errorList, dto);
 
         // Retrieve data objects required for the validation process
         final Optional<CompanyProfileApi> companyProfile = getCompanyProfile(request, errorList, transaction, passthroughHeader);
@@ -83,6 +84,19 @@ public class OfficerUpdateValidator extends OfficerValidator {
         }
     }
 
+    @Override
+    public void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
+        Boolean nameHasBeenUpdated = (dto.getNameHasBeenUpdated() == null || dto.getNameHasBeenUpdated());
+        Boolean anyNameFieldsExistInDto = (dto.getTitle() != null || dto.getFirstName() != null || dto.getLastName() != null || dto.getMiddleNames() != null);
+
+        if (nameHasBeenUpdated && anyNameFieldsExistInDto) {
+            validateTitle(request, errorList, dto);
+            validateFirstName(request, errorList, dto);
+            validateLastName(request, errorList, dto);
+            validateMiddleNames(request, errorList, dto);
+        }
+    }
+
     public void validateChangeDatePastOrPresent(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         if (dto.getDirectorsDetailsChangedDate().isAfter(LocalDate.now())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_IN_PAST));
@@ -109,7 +123,9 @@ public class OfficerUpdateValidator extends OfficerValidator {
 
     public void validateChangeDateAfterAppointmentDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment) {
         var appointmentDate = getAppointmentDate(request, companyAppointment);
-        if(appointmentDate.isPresent() && dto.getDirectorsDetailsChangedDate().isBefore(appointmentDate.get())) {
+        if(dto.getDirectorsDetailsChangedDate() == null) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_MISSING));
+        } else if(appointmentDate.isPresent() && dto.getDirectorsDetailsChangedDate().isBefore(appointmentDate.get())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_BEFORE_OFFICER_APPOINTMENT_DATE));
         }
     }

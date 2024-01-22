@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
@@ -16,7 +17,6 @@ import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
-import uk.gov.companieshouse.officerfiling.api.service.TransactionServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
@@ -25,7 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OfficerUpdateValidatorTest {
@@ -44,6 +45,7 @@ class OfficerUpdateValidatorTest {
     private static final AddressDto validCorrespondenceAddressInUK = AddressDto.builder().premises("51")
             .addressLine1("UK Road").locality("UK Town").country("England").postalCode("AB12 3CD").build();
 
+    @Mock
     private OfficerUpdateValidator officerUpdateValidator;
     private List<ApiError> apiErrorsList;
 
@@ -51,8 +53,6 @@ class OfficerUpdateValidatorTest {
     private HttpServletRequest request;
     @Mock
     private Logger logger;
-    @Mock
-    private TransactionServiceImpl transactionService;
     @Mock
     private CompanyAppointmentService companyAppointmentService;
     @Mock
@@ -70,7 +70,6 @@ class OfficerUpdateValidatorTest {
 
     @BeforeEach
     void setUp() {
-        //String allowedNationalities = "A very long nationality indeed so long in fact that it breaks the legal length for nationalities,thisIs25Characterslongggh,thisIs25Characterslongggg,thisIs16Charactz,thisIs17Character,thisIs16Characte,thisIsAVeryLongNationalityWhichWilltakeUsOver50Characterslong,Afghan,Albanian,Algerian,American,Andorran,Angolan,Anguillan,Citizen of Antigua and Barbuda,Argentine,Armenian,Australian,Austrian,Azerbaijani,Bahamian,Bahraini,Bangladeshi,Barbadian,Belarusian,Belgian,Belizean,Beninese,Bermudian,Bhutanese,Bolivian,Citizen of Bosnia and Herzegovina,Botswanan,Brazilian,British,British Virgin Islander,Bruneian,Bulgarian,Burkinan,Burmese,Burundian,Cambodian,Cameroonian,Canadian,Cape Verdean,Cayman Islander,Central African,Chadian,Chilean,Chinese,Colombian,Comoran,Congolese (Congo),Congolese (DRC),Cook Islander,Costa Rican,Croatian,Cuban,Cymraes,Cymro,Cypriot,Czech,Danish,Djiboutian,Dominican,Citizen of the Dominican Republic,Dutch,East Timorese\tEcuadorean\tEgyptian\tEmirati,English,Equatorial Guinean,Eritrean,Estonian,Ethiopian,Faroese,Fijian,Filipino,Finnish,French,Gabonese,Gambian,Georgian,German,Ghanaian,Gibraltarian,Greek,Greenlandic,Grenadian,Guamanian,Guatemalan,Citizen of Guinea-Bissau,Guinean,Guyanese,Haitian,Honduran,Hong Konger,Hungarian,Icelandic,Indian,Indonesian,Iranian,Iraqi,Irish,Israeli,Italian,Ivorian,Jamaican,Japanese,Jordanian,Kazakh,Kenyan,Kittitian,Citizen of Kiribati,Kosovan,Kuwaiti,Kyrgyz,Lao,Latvian,Lebanese,Liberian,Libyan,Liechtenstein citizen,Lithuanian,Luxembourger,Macanese,Macedonian,Malagasy,Malawian,Malaysian,Maldivian,Malian,Maltese,Marshallese,Martiniquais,Mauritanian,Mauritian,Mexican,Micronesian,Moldovan,Monegasque,Mongolian,Montenegrin,Montserratian,Moroccan,Mosotho,Mozambican,Namibian,Nauruan,Nepalese,New Zealander,Nicaraguan,Nigerian,Nigerien,Niuean,North Korean,Northern Irish,Norwegian,Omani,Pakistani,Palauan,Palestinian,Panamanian,Papua New Guinean,Paraguayan,Peruvian,Pitcairn Islander,Polish,Portuguese,Prydeinig,Puerto Rican,Qatari,Romanian,Russian,Rwandan,Salvadorean,Sammarinese,Samoan,Sao Tomean,Saudi Arabian,Scottish,Senegalese,Serbian,Citizen of Seychelles,Sierra Leonean,Singaporean,Slovak,Slovenian,Solomon Islander,Somali,South African,South Korean,South Sudanese,Spanish,Sri Lankan,St Helenian,St Lucian,Stateless,Sudanese,Surinamese,Swazi,Swedish,Swiss,Syrian,Taiwanese,Tajik,Tanzanian,Thai,Togolese,Tongan,Trinidadian,Tristanian,Tunisian,Turkish,Turkmen,Turks and Caicos Islander,Tuvaluan,Ugandan,Ukrainian,Uruguayan,Uzbek,Vatican citizen,Citizen of Vanuatu,Venezuelan,Vietnamese,Vincentian,Wallisian,Welsh,Yemeni,Zambian,Zimbabwean";
          officerUpdateValidator = new OfficerUpdateValidator(logger, companyAppointmentService, companyProfileService, apiEnumerations);
          apiErrorsList = new ArrayList<>();
     }
@@ -343,5 +342,115 @@ class OfficerUpdateValidatorTest {
                 .contains("Enter the date the director was updated");
     }
 
+    @Test
+    void validateCH01ValidationForDirectorNameMandatoryFieldsWhenNameHasBeenUpdatedIsTrue() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        OfficerUpdateValidator officerUpdateValidatorSpy = Mockito.spy(new OfficerUpdateValidator(logger, companyAppointmentService, companyProfileService, apiEnumerations));
+    
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .nameHasBeenUpdated(true)
+                .firstName("John")
+                .lastName("Smith")
+                .directorsDetailsChangedDate(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+
+        final var apiErrors = officerUpdateValidatorSpy.validate(request, officerFilingDto, transaction, PASSTHROUGH_HEADER);
+
+        //validate the methods to validate firstname and lastname are called.
+        Mockito.verify(officerUpdateValidatorSpy).validateFirstName(any(), any(), any());
+        Mockito.verify(officerUpdateValidatorSpy).validateLastName(any(), any(), any());
+
+        assertThat(apiErrors.getErrors())
+                .as("No validation errors should have been raised")
+                .isEmpty();
+
+    }
+
+    @Test
+    void validateCH01ValidationForDirectorNameMandatoryFieldsWhenNameHasBeenUpdatedIsNull() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        OfficerUpdateValidator officerUpdateValidatorSpy = Mockito.spy(new OfficerUpdateValidator(logger, companyAppointmentService, companyProfileService, apiEnumerations));
+
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .nameHasBeenUpdated(null)
+                .firstName("John")
+                .lastName("Smith")
+                .directorsDetailsChangedDate(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+
+        final var apiErrors = officerUpdateValidatorSpy.validate(request, officerFilingDto, transaction, PASSTHROUGH_HEADER);
+
+        //validate the methods to validate firstname and lastname are called.
+        Mockito.verify(officerUpdateValidatorSpy).validateFirstName(any(), any(), any());
+        Mockito.verify(officerUpdateValidatorSpy).validateLastName(any(), any(), any());
+
+        assertThat(apiErrors.getErrors())
+                .as("No validation errors should have been raised")
+                .isEmpty();
+
+    }
+
+
+    @Test
+    void validateCH01ValidationForDirectorNameOptionalFieldsWhenNameHasBeenUpdatedIsTrue() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        OfficerUpdateValidator officerUpdateValidatorSpy = Mockito.spy(new OfficerUpdateValidator(logger, companyAppointmentService, companyProfileService, apiEnumerations));
+
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .nameHasBeenUpdated(true)
+                .title("Excelsior")
+                .firstName("John")
+                .middleNames("James")
+                .lastName("Doe")
+                .directorsDetailsChangedDate(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+
+        final var apiErrors = officerUpdateValidatorSpy.validate(request, officerFilingDto, transaction, PASSTHROUGH_HEADER);
+
+        //validate the methods to validate middlename and title are called.
+        Mockito.verify(officerUpdateValidatorSpy).validateTitle(any(), any(), any());
+        Mockito.verify(officerUpdateValidatorSpy).validateMiddleNames(any(), any(), any());
+
+        assertThat(apiErrors.getErrors())
+                .as("No validation errors should have been raised")
+                .isEmpty();
+
+    }
+
+    @Test
+    void shouldNotValidateNameWhenNameHasBeenUpdatedIsFalseAndNoNameFieldsExistInFiling() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        OfficerUpdateValidator officerUpdateValidatorSpy = Mockito.spy(new OfficerUpdateValidator(logger, companyAppointmentService, companyProfileService, apiEnumerations));
+
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .nameHasBeenUpdated(null)
+                .directorsDetailsChangedDate(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
+
+        final var apiErrors = officerUpdateValidatorSpy.validate(request, officerFilingDto, transaction, PASSTHROUGH_HEADER);
+
+        //validate the methods to validate the name are not called
+        Mockito.verify(officerUpdateValidatorSpy, times(0)).validateTitle(any(), any(), any());
+        Mockito.verify(officerUpdateValidatorSpy, times(0)).validateFirstName(any(), any(), any());
+        Mockito.verify(officerUpdateValidatorSpy, times(0)).validateMiddleNames(any(), any(), any());
+        Mockito.verify(officerUpdateValidatorSpy, times(0)).validateLastName(any(), any(), any());
+
+        assertThat(apiErrors.getErrors())
+                .as("No validation errors should have been raised")
+                .isEmpty();
+
+    }
 
 }
