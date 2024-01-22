@@ -92,10 +92,12 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateAppointmentDate(request, errorList, dto);
         validateProtectedDetails(request, errorList, dto);
         validateConsentToAct(request, errorList, dto);
-        if (dto.getIsHomeAddressSameAsServiceAddress() == null || Boolean.FALSE.equals(dto.getIsHomeAddressSameAsServiceAddress())) { //home + correspondance
+
+        if (Boolean.FALSE.equals(dto.getIsHomeAddressSameAsServiceAddress())) { //home + correspondance
             validateRequiredResidentialAddressFields(request, errorList, dto); //home
         }
-        if (dto.getIsServiceAddressSameAsRegisteredOfficeAddress() == null || Boolean.FALSE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress())) { //correspondance + roa
+
+        if (Boolean.FALSE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress())) { //correspondance + roa
             validateCorrespondenceAddressFields(request, errorList, dto); //correspondance
         }
     }
@@ -106,8 +108,8 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateMiddleNames(request, errorList, dto);
         validateFormerNames(request, errorList, dto);
         validateOccupation(request, errorList, dto);
-        if(dto.getResidentialAddress() != null){
-            if(dto.getIsHomeAddressSameAsServiceAddress() == null || Boolean.FALSE.equals(dto.getIsHomeAddressSameAsServiceAddress())) {
+        if(dto.getResidentialAddress() != null) {
+            if(Boolean.FALSE.equals(dto.getIsHomeAddressSameAsServiceAddress())) {
                 validateOptionalResidentialAddressFields(request, errorList, dto); //home
             }
         }
