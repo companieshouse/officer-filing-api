@@ -108,10 +108,8 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateMiddleNames(request, errorList, dto);
         validateFormerNames(request, errorList, dto);
         validateOccupation(request, errorList, dto);
-        if(dto.getResidentialAddress() != null) {
-            if(Boolean.FALSE.equals(dto.getIsHomeAddressSameAsServiceAddress())) {
-                validateOptionalResidentialAddressFields(request, errorList, dto);
-            }
+        if(dto.getResidentialAddress() != null && Boolean.FALSE.equals(dto.getIsHomeAddressSameAsServiceAddress())) {
+            validateOptionalResidentialAddressFields(request, errorList, dto);
         }
         validateAddressesMultipleFlags(request, errorList, dto);
     }
