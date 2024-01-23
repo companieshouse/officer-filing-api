@@ -449,23 +449,10 @@ class OfficerUpdateValidatorTest {
     }
 
     @Test
-    void validateNationalitySectionWhenHasBeenUpdatedIsTrue() {
-        when(apiEnumerations.getValidation(any())).thenReturn("error");
-        when(dto.getNationalityHasBeenUpdated()).thenReturn(true);
-
-        officerUpdateValidator.validateOptionalDtoFields(request, apiErrorsList, dto);
-
-        Mockito.verify(officerUpdateValidator).validateNationality1(any(), any(), any());
-        Mockito.verify(officerUpdateValidator).validateNationality2(any(), any(), any());
-        Mockito.verify(officerUpdateValidator).validateNationality3(any(), any(), any());
-        Mockito.verify(officerUpdateValidator).validateNationalityLength(any(), any(), any());
-    }
-
-    @Test
-    void validateNationalitySectionWhenHasBeenUpdatedIsFalse() {
+    public void validateNationalitySectionWhenBooleanIsFalse() {
         when(dto.getNationalityHasBeenUpdated()).thenReturn(false);
 
-        officerUpdateValidator.validateOptionalDtoFields(request, apiErrorsList, dto);
+        officerUpdateValidator.validateNationalitySection(request, apiErrorsList, dto, companyAppointment);
 
         Mockito.verify(officerUpdateValidator, times(0)).validateNationality1(any(), any(), any());
         Mockito.verify(officerUpdateValidator, times(0)).validateNationality2(any(), any(), any());
@@ -474,10 +461,28 @@ class OfficerUpdateValidatorTest {
     }
 
     @Test
-    void validateNationalitySectionWhenHasBeenUpdatedIsNullAndAllFieldsAreNull() {
+    public void validateNationalitySectionWhenBooleanIsTrueAndNoFieldsUpdated() {
+        when(dto.getNationalityHasBeenUpdated()).thenReturn(true);
+        when(dto.getNationality1()).thenReturn(null);
+        when(dto.getNationality2()).thenReturn(null);
+        when(dto.getNationality3()).thenReturn(null);
+
+        officerUpdateValidator.validateNationalitySection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(officerUpdateValidator, times(0)).validateNationality1(any(), any(), any());
+        Mockito.verify(officerUpdateValidator, times(0)).validateNationality2(any(), any(), any());
+        Mockito.verify(officerUpdateValidator, times(0)).validateNationality3(any(), any(), any());
+        Mockito.verify(officerUpdateValidator, times(0)).validateNationalityLength(any(), any(), any());
+    }
+
+    @Test
+    public void validateNationalitySectionWhenBooleanIsNullAndNoFieldsUpdated() {
         when(dto.getNationalityHasBeenUpdated()).thenReturn(null);
+        when(dto.getNationality1()).thenReturn(null);
+        when(dto.getNationality2()).thenReturn(null);
+        when(dto.getNationality3()).thenReturn(null);
 
-        officerUpdateValidator.validateOptionalDtoFields(request, apiErrorsList, dto);
+        officerUpdateValidator.validateNationalitySection(request, apiErrorsList, dto, companyAppointment);
 
         Mockito.verify(officerUpdateValidator, times(0)).validateNationality1(any(), any(), any());
         Mockito.verify(officerUpdateValidator, times(0)).validateNationality2(any(), any(), any());
@@ -486,12 +491,12 @@ class OfficerUpdateValidatorTest {
     }
 
     @Test
-    void validateNationalitySectionWhenHasBeenUpdatedIsNullAndNationality1Exists() {
-        when(apiEnumerations.getValidation(any())).thenReturn("error");
+    public void validateNationalitySectionWhenBooleanIsTrueAndFieldsUpdatedAndChipsDataIsNull() {
         when(dto.getNationalityHasBeenUpdated()).thenReturn(true);
-        when(dto.getNationality1()).thenReturn("nationality1");
+        when(dto.getNationality1()).thenReturn("British");
+        when(companyAppointment.getNationality()).thenReturn(null);
 
-        officerUpdateValidator.validateOptionalDtoFields(request, apiErrorsList, dto);
+        officerUpdateValidator.validateNationalitySection(request, apiErrorsList, dto, companyAppointment);
 
         Mockito.verify(officerUpdateValidator).validateNationality1(any(), any(), any());
         Mockito.verify(officerUpdateValidator).validateNationality2(any(), any(), any());
@@ -500,12 +505,26 @@ class OfficerUpdateValidatorTest {
     }
 
     @Test
-    void validateNationalitySectionWhenHasBeenUpdatedIsNullAndNationality2Exists() {
-        when(apiEnumerations.getValidation(any())).thenReturn("error");
+    public void validateNationalitySectionWhenBooleanIsNullAndFieldsUpdatedAndFieldsMatchChipsData() {
         when(dto.getNationalityHasBeenUpdated()).thenReturn(true);
-        when(dto.getNationality2()).thenReturn("nationality2");
+        when(dto.getNationality1()).thenReturn("British");
+        when(companyAppointment.getNationality()).thenReturn("BRITISH");
 
-        officerUpdateValidator.validateOptionalDtoFields(request, apiErrorsList, dto);
+        officerUpdateValidator.validateNationalitySection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(officerUpdateValidator, times(0)).validateNationality1(any(), any(), any());
+        Mockito.verify(officerUpdateValidator, times(0)).validateNationality2(any(), any(), any());
+        Mockito.verify(officerUpdateValidator, times(0)).validateNationality3(any(), any(), any());
+        Mockito.verify(officerUpdateValidator, times(0)).validateNationalityLength(any(), any(), any());
+    }
+
+    @Test
+    public void validateNationalitySectionWhenBooleanIsTrueAndFieldsUpdatedAndFieldsDontMatchChipsData() {
+        when(dto.getNationalityHasBeenUpdated()).thenReturn(true);
+        when(dto.getNationality1()).thenReturn("British");
+        when(companyAppointment.getNationality()).thenReturn("English");
+
+        officerUpdateValidator.validateNationalitySection(request, apiErrorsList, dto, companyAppointment);
 
         Mockito.verify(officerUpdateValidator).validateNationality1(any(), any(), any());
         Mockito.verify(officerUpdateValidator).validateNationality2(any(), any(), any());
@@ -514,12 +533,12 @@ class OfficerUpdateValidatorTest {
     }
 
     @Test
-    void validateNationalitySectionWhenHasBeenUpdatedIsNullAndNationality3Exists() {
-        when(apiEnumerations.getValidation(any())).thenReturn("error");
+    public void validateNationalitySectionWhenBooleanIsNullAndFieldsUpdatedAndFieldsDontMatchChipsData() {
         when(dto.getNationalityHasBeenUpdated()).thenReturn(true);
-        when(dto.getNationality3()).thenReturn("nationality3");
+        when(dto.getNationality1()).thenReturn("British");
+        when(companyAppointment.getNationality()).thenReturn("English");
 
-        officerUpdateValidator.validateOptionalDtoFields(request, apiErrorsList, dto);
+        officerUpdateValidator.validateNationalitySection(request, apiErrorsList, dto, companyAppointment);
 
         Mockito.verify(officerUpdateValidator).validateNationality1(any(), any(), any());
         Mockito.verify(officerUpdateValidator).validateNationality2(any(), any(), any());
@@ -528,19 +547,64 @@ class OfficerUpdateValidatorTest {
     }
 
     @Test
-    void validateNationalitySectionWhenHasBeenUpdatedIsNullAndAllNationalitiesExist() {
-        when(apiEnumerations.getValidation(any())).thenReturn("error");
-        when(dto.getNationalityHasBeenUpdated()).thenReturn(true);
-        when(dto.getNationality1()).thenReturn("nationality1");
-        when(dto.getNationality2()).thenReturn("nationality2");
-        when(dto.getNationality3()).thenReturn("nationality3");
+    void doesNationalityMatchChipsDataWhenNoChipsData() {
+        when(companyAppointment.getNationality()).thenReturn(null);
+        final var result = officerUpdateValidator.doesNationalityMatchChipsData(dto, companyAppointment);
+        assertThat(result).isFalse();
+    }
 
-        officerUpdateValidator.validateOptionalDtoFields(request, apiErrorsList, dto);
+    @Test
+    void doesNationalityMatchChipsDataWhenOneFieldSuppliedAndMatches() {
+        when(companyAppointment.getNationality()).thenReturn("British");
+        when(dto.getNationality1()).thenReturn("BRITISH");
+        final var result = officerUpdateValidator.doesNationalityMatchChipsData(dto, companyAppointment);
+        assertThat(result).isTrue();
+    }
 
-        Mockito.verify(officerUpdateValidator).validateNationality1(any(), any(), any());
-        Mockito.verify(officerUpdateValidator).validateNationality2(any(), any(), any());
-        Mockito.verify(officerUpdateValidator).validateNationality3(any(), any(), any());
-        Mockito.verify(officerUpdateValidator).validateNationalityLength(any(), any(), any());
+    @Test
+    void doesNationalityMatchChipsDataWhenTwoFieldsSuppliedAndAllMatch() {
+        when(companyAppointment.getNationality()).thenReturn("British, AFGHAN");
+        when(dto.getNationality1()).thenReturn("BRITISH");
+        when(dto.getNationality2()).thenReturn("AFGHAN");
+        final var result = officerUpdateValidator.doesNationalityMatchChipsData(dto, companyAppointment);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void doesNationalityMatchChipsDataWhenThreeFieldsSuppliedAndAllMatch() {
+        when(companyAppointment.getNationality()).thenReturn("British, AFGHAN, ARABIAN");
+        when(dto.getNationality1()).thenReturn("BRITISH");
+        when(dto.getNationality2()).thenReturn("Afghan");
+        when(dto.getNationality3()).thenReturn("arabian");
+        final var result = officerUpdateValidator.doesNationalityMatchChipsData(dto, companyAppointment);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void doesNationalityMatchChipsDataWhenOneFieldSuppliedAndDoesntMatch() {
+        when(companyAppointment.getNationality()).thenReturn("english");
+        when(dto.getNationality1()).thenReturn("BRITISH");
+        final var result = officerUpdateValidator.doesNationalityMatchChipsData(dto, companyAppointment);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void doesNationalityMatchChipsDataWhenThreeFieldsSuppliedAndThirdDoesntMatch() {
+        when(companyAppointment.getNationality()).thenReturn("British, AFGHAN, test");
+        when(dto.getNationality1()).thenReturn("BRITISH");
+        when(dto.getNationality2()).thenReturn("Afghan");
+        when(dto.getNationality3()).thenReturn("arabian");
+        final var result = officerUpdateValidator.doesNationalityMatchChipsData(dto, companyAppointment);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void doesNationalityMatchChipsDataWhenThreeFieldsSuppliedAndSecondDoesntMatch() {
+        when(companyAppointment.getNationality()).thenReturn("British, test, Arabian");
+        when(dto.getNationality1()).thenReturn("BRITISH");
+        when(dto.getNationality2()).thenReturn("Afghan");
+        final var result = officerUpdateValidator.doesNationalityMatchChipsData(dto, companyAppointment);
+        assertThat(result).isFalse();
     }
 
 }

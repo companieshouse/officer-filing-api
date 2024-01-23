@@ -68,6 +68,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
         // Perform validation
         validateChangeDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
         validateChangeDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
+        validateNationalitySection(request, errorList, dto, companyAppointment.get());
 
         return new ApiErrors(errorList);
     }
@@ -88,26 +89,14 @@ public class OfficerUpdateValidator extends OfficerValidator {
 
     @Override
     public void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
-        // For each data section, validation will be performed if either:
-        // - the hasBeenUpdated boolean is true
-        // - the hasBeenUpdated boolean is null and any data is present
-
         final boolean anyNameFieldsExistInDto = (dto.getTitle() != null || dto.getFirstName() != null || dto.getLastName() != null || dto.getMiddleNames() != null);
         final boolean nameHasBeenUpdated = (dto.getNameHasBeenUpdated() == null && anyNameFieldsExistInDto) || (dto.getNameHasBeenUpdated() != null && dto.getNameHasBeenUpdated());
+
         if (nameHasBeenUpdated) {
             validateTitle(request, errorList, dto);
             validateFirstName(request, errorList, dto);
             validateLastName(request, errorList, dto);
             validateMiddleNames(request, errorList, dto);
-        }
-
-        final boolean anyNationalityFieldsExistInDto = (dto.getNationality1() != null || dto.getNationality2() != null || dto.getNationality3() != null);
-        final boolean nationalityHasBeenUpdated = (dto.getNationalityHasBeenUpdated() == null && anyNationalityFieldsExistInDto) || (dto.getNationalityHasBeenUpdated() != null && dto.getNationalityHasBeenUpdated());
-        if (nationalityHasBeenUpdated) {
-            validateNationality1(request, errorList, dto);
-            validateNationality2(request, errorList, dto);
-            validateNationality3(request, errorList, dto);
-            validateNationalityLength(request, errorList, dto);
         }
     }
 
@@ -143,4 +132,46 @@ public class OfficerUpdateValidator extends OfficerValidator {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_BEFORE_OFFICER_APPOINTMENT_DATE));
         }
     }
+
+    public void validateNationalitySection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
+        // If hasBeenUpdated boolean is true or null then continue
+        if (Boolean.FALSE.equals(dto.getNationalityHasBeenUpdated())) {
+            return;
+        }
+        // If any of the fields within this section have been provided then continue
+        if (dto.getNationality1() == null && dto.getNationality2() == null && dto.getNationality3() == null) {
+            return;
+        }
+        // If the section matches the current chips data then throw a validation error and don't continue
+        if (doesNationalityMatchChipsData(dto, appointment)) {
+            createValidationError(request, errorList, "The nationality data submitted cannot pass validation as it is not an update from the previously submitted data");   // TODO: Move into api-enumerations
+            return;
+        }
+        // Perform validation
+        validateNationality1(request, errorList, dto);
+        validateNationality2(request, errorList, dto);
+        validateNationality3(request, errorList, dto);
+        validateNationalityLength(request, errorList, dto);
+    }
+
+    public boolean doesNationalityMatchChipsData(OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
+        if (appointment.getNationality() == null) {
+            return false;
+        }
+        final String[] chipsNationalities = appointment.getNationality().split(",");
+        return matchesChipsField(dto.getNationality1(), chipsNationalities[0]) &&
+                (chipsNationalities.length < 2 || matchesChipsField(dto.getNationality2(), chipsNationalities[1])) &&
+                (chipsNationalities.length < 3 || matchesChipsField(dto.getNationality3(), chipsNationalities[2]));
+    }
+
+    private boolean matchesChipsField(String field, String chipsField) {
+        if (field == null && chipsField == null) {
+            return true;
+        } else if (field == null || chipsField == null) {
+            return false;
+        } else {
+            return field.trim().equalsIgnoreCase(chipsField.trim());
+        }
+    }
+
 }
