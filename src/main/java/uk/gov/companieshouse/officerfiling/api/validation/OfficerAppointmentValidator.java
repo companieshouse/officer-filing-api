@@ -93,11 +93,11 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateProtectedDetails(request, errorList, dto);
         validateConsentToAct(request, errorList, dto);
 
-        if (Boolean.FALSE.equals(dto.getIsHomeAddressSameAsServiceAddress())) {
+        if (!Boolean.TRUE.equals(dto.getIsHomeAddressSameAsServiceAddress())) {
             validateRequiredResidentialAddressFields(request, errorList, dto);
         }
 
-        if (Boolean.FALSE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress())) {
+        if (!Boolean.TRUE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress())) {
             validateCorrespondenceAddressFields(request, errorList, dto);
         }
     }
@@ -108,7 +108,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateMiddleNames(request, errorList, dto);
         validateFormerNames(request, errorList, dto);
         validateOccupation(request, errorList, dto);
-        if(dto.getResidentialAddress() != null && Boolean.FALSE.equals(dto.getIsHomeAddressSameAsServiceAddress())) {
+        if(dto.getResidentialAddress() != null && !Boolean.TRUE.equals(dto.getIsHomeAddressSameAsServiceAddress())) {
             validateOptionalResidentialAddressFields(request, errorList, dto);
         }
         validateAddressesMultipleFlags(request, errorList, dto);

@@ -2297,6 +2297,7 @@ class OfficerAppointmentValidatorTest {
     @Test
     void validationWhenBothAddressFlagAreNotSentOrNullValues() {
         setupDefaultParamaters();
+        when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
         when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(null);
 
@@ -2313,6 +2314,7 @@ class OfficerAppointmentValidatorTest {
     @Test
     void validationWhenOneAddressFlagIsSetAsTrueAndOtherIsNull() {
         setupDefaultParamaters();
+        when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
         when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
 
