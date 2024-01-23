@@ -93,12 +93,12 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateProtectedDetails(request, errorList, dto);
         validateConsentToAct(request, errorList, dto);
 
-        if (Boolean.FALSE.equals(dto.getIsHomeAddressSameAsServiceAddress())) { //home + correspondance
-            validateRequiredResidentialAddressFields(request, errorList, dto); //home
+        if (Boolean.FALSE.equals(dto.getIsHomeAddressSameAsServiceAddress())) {
+            validateRequiredResidentialAddressFields(request, errorList, dto);
         }
 
-        if (Boolean.FALSE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress())) { //correspondance + roa
-            validateCorrespondenceAddressFields(request, errorList, dto); //correspondance
+        if (Boolean.FALSE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress())) {
+            validateCorrespondenceAddressFields(request, errorList, dto);
         }
     }
 
@@ -110,7 +110,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateOccupation(request, errorList, dto);
         if(dto.getResidentialAddress() != null) {
             if(Boolean.FALSE.equals(dto.getIsHomeAddressSameAsServiceAddress())) {
-                validateOptionalResidentialAddressFields(request, errorList, dto); //home
+                validateOptionalResidentialAddressFields(request, errorList, dto);
             }
         }
         validateAddressesMultipleFlags(request, errorList, dto);
