@@ -144,7 +144,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
         }
         // If the section matches the current chips data then throw a validation error and don't continue
         if (doesNationalityMatchChipsData(dto, appointment)) {
-            createValidationError(request, errorList, "The nationality data submitted cannot pass validation as it is not an update from the previously submitted data");   // TODO: Move into api-enumerations
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.NATIONALITY_MATCHES_CHIPS_DATA));
             return;
         }
         // Perform validation
