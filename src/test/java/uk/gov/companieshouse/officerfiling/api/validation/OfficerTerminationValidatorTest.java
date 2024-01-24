@@ -1,14 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.validation;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.when;
-
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.ArrayList;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +22,16 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionServiceImpl;
 
+import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 class OfficerTerminationValidatorTest {
     private static final String FILING_ID = "6332aa6ed28ad2333c3a520a";
@@ -40,6 +41,7 @@ class OfficerTerminationValidatorTest {
     private static final String ETAG = "etag";
     private static final String COMPANY_TYPE = "ltd";
     private static final String OFFICER_ROLE = "director";
+    private static final String ALLOWED_NATIONALITIES = "A very long nationality indeed so long in fact that it breaks the legal length for nationalities,thisIs25Characterslongggh,thisIs25Characterslongggg,thisIs16Charactz,thisIs17Character,thisIs16Characte,thisIsAVeryLongNationalityWhichWilltakeUsOver50Characterslong,Afghan,Albanian,Algerian,American,Andorran,Angolan,Anguillan,Citizen of Antigua and Barbuda,Argentine,Armenian,Australian,Austrian,Azerbaijani,Bahamian,Bahraini,Bangladeshi,Barbadian,Belarusian,Belgian,Belizean,Beninese,Bermudian,Bhutanese,Bolivian,Citizen of Bosnia and Herzegovina,Botswanan,Brazilian,British,British Virgin Islander,Bruneian,Bulgarian,Burkinan,Burmese,Burundian,Cambodian,Cameroonian,Canadian,Cape Verdean,Cayman Islander,Central African,Chadian,Chilean,Chinese,Colombian,Comoran,Congolese (Congo),Congolese (DRC),Cook Islander,Costa Rican,Croatian,Cuban,Cymraes,Cymro,Cypriot,Czech,Danish,Djiboutian,Dominican,Citizen of the Dominican Republic,Dutch,East Timorese\tEcuadorean\tEgyptian\tEmirati,English,Equatorial Guinean,Eritrean,Estonian,Ethiopian,Faroese,Fijian,Filipino,Finnish,French,Gabonese,Gambian,Georgian,German,Ghanaian,Gibraltarian,Greek,Greenlandic,Grenadian,Guamanian,Guatemalan,Citizen of Guinea-Bissau,Guinean,Guyanese,Haitian,Honduran,Hong Konger,Hungarian,Icelandic,Indian,Indonesian,Iranian,Iraqi,Irish,Israeli,Italian,Ivorian,Jamaican,Japanese,Jordanian,Kazakh,Kenyan,Kittitian,Citizen of Kiribati,Kosovan,Kuwaiti,Kyrgyz,Lao,Latvian,Lebanese,Liberian,Libyan,Liechtenstein citizen,Lithuanian,Luxembourger,Macanese,Macedonian,Malagasy,Malawian,Malaysian,Maldivian,Malian,Maltese,Marshallese,Martiniquais,Mauritanian,Mauritian,Mexican,Micronesian,Moldovan,Monegasque,Mongolian,Montenegrin,Montserratian,Moroccan,Mosotho,Mozambican,Namibian,Nauruan,Nepalese,New Zealander,Nicaraguan,Nigerian,Nigerien,Niuean,North Korean,Northern Irish,Norwegian,Omani,Pakistani,Palauan,Palestinian,Panamanian,Papua New Guinean,Paraguayan,Peruvian,Pitcairn Islander,Polish,Portuguese,Prydeinig,Puerto Rican,Qatari,Romanian,Russian,Rwandan,Salvadorean,Sammarinese,Samoan,Sao Tomean,Saudi Arabian,Scottish,Senegalese,Serbian,Citizen of Seychelles,Sierra Leonean,Singaporean,Slovak,Slovenian,Solomon Islander,Somali,South African,South Korean,South Sudanese,Spanish,Sri Lankan,St Helenian,St Lucian,Stateless,Sudanese,Surinamese,Swazi,Swedish,Swiss,Syrian,Taiwanese,Tajik,Tanzanian,Thai,Togolese,Tongan,Trinidadian,Tristanian,Tunisian,Turkish,Turkmen,Turks and Caicos Islander,Tuvaluan,Ugandan,Ukrainian,Uruguayan,Uzbek,Vatican citizen,Citizen of Vanuatu,Venezuelan,Vietnamese,Vincentian,Wallisian,Welsh,Yemeni,Zambian,Zimbabwean";
 
     private OfficerTerminationValidator officerTerminationValidator;
     private List<ApiError> apiErrorsList;
@@ -65,7 +67,7 @@ class OfficerTerminationValidatorTest {
 
     @BeforeEach
     void setUp() {
-        officerTerminationValidator = new OfficerTerminationValidator(logger, companyProfileService, companyAppointmentService, apiEnumerations);
+        officerTerminationValidator = new OfficerTerminationValidator(logger, companyProfileService, companyAppointmentService, ALLOWED_NATIONALITIES, apiEnumerations);
         apiErrorsList = new ArrayList<>();
     }
 
@@ -131,43 +133,43 @@ class OfficerTerminationValidatorTest {
     @Test
     void validationWhenCompanyAppointmentServiceUnavailable() {
         final var dto = OfficerFilingDto.builder()
-            .referenceEtag(ETAG)
-            .referenceAppointmentId(FILING_ID)
-            .resignedOn(LocalDate.of(2022, 9, 13))
-            .build();
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(apiEnumerations.getValidation(ValidationEnum.SERVICE_UNAVAILABLE)).thenReturn("Sorry, this service is unavailable. You will be able to use the service later");
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenThrow(
-            new ServiceUnavailableException());
+                new ServiceUnavailableException());
 
         final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-            .as("An error should be produced when the Company Appointment Service is unavailable")
-            .hasSize(1)
-            .extracting(ApiError::getError)
-            .contains("Sorry, this service is unavailable. You will be able to use the service later");
+                .as("An error should be produced when the Company Appointment Service is unavailable")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Sorry, this service is unavailable. You will be able to use the service later");
     }
 
     @Test
     void validationWhenCompanyProfileServiceUnavailable() {
         final var dto = OfficerFilingDto.builder()
-            .referenceEtag(ETAG)
-            .referenceAppointmentId(FILING_ID)
-            .resignedOn(LocalDate.of(2022, 9, 13))
-            .build();
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(apiEnumerations.getValidation(ValidationEnum.SERVICE_UNAVAILABLE)).thenReturn("Sorry, this service is unavailable. You will be able to use the service later");
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenThrow(
-            new ServiceUnavailableException());
+                new ServiceUnavailableException());
 
         final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-            .as("An error should be produced when the Company Profile Service is unavailable")
-            .hasSize(1)
-            .extracting(ApiError::getError)
-            .contains("Sorry, this service is unavailable. You will be able to use the service later");
+                .as("An error should be produced when the Company Profile Service is unavailable")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Sorry, this service is unavailable. You will be able to use the service later");
     }
 
     @Test
@@ -279,47 +281,47 @@ class OfficerTerminationValidatorTest {
     @Test
     void validationWhenOfficerNotIdentified() {
         final var dto = OfficerFilingDto.builder()
-            .referenceEtag(ETAG)
-            .referenceAppointmentId(FILING_ID)
-            .resignedOn(LocalDate.of(2022, 9, 13))
-            .build();
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenThrow(
-            new CompanyAppointmentServiceException("Error Retrieving appointment"));
+                new CompanyAppointmentServiceException("Error Retrieving appointment"));
         when(apiEnumerations.getValidation(ValidationEnum.DIRECTOR_NOT_FOUND, "Director")).thenReturn("Director cannot be found");
 
 
         final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-            .as("An error should be produced when an Officer cannot be identified")
-            .hasSize(1)
-            .extracting(ApiError::getError)
-            .contains("Director cannot be found");
+                .as("An error should be produced when an Officer cannot be identified")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Director cannot be found");
     }
 
     @Test
     void validationWhenCompanyNotFound() {
         final var dto = OfficerFilingDto.builder()
-            .referenceEtag(ETAG)
-            .referenceAppointmentId(FILING_ID)
-            .resignedOn(LocalDate.of(2022, 9, 13))
-            .build();
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2022, 9, 13))
+                .build();
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenThrow(
-            new CompanyProfileServiceException("Error Retrieving company"));
+                new CompanyProfileServiceException("Error Retrieving company"));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER))
-            .thenReturn(companyAppointment);
+                .thenReturn(companyAppointment);
         when(apiEnumerations.getValidation(ValidationEnum.CANNOT_FIND_COMPANY)).thenReturn("We cannot find the company");
 
         final var apiErrors = officerTerminationValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-            .as("An error should be produced when a Company cannot be found")
-            .hasSize(1)
-            .extracting(ApiError::getError)
-            .contains("We cannot find the company");
+                .as("An error should be produced when a Company cannot be found")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("We cannot find the company");
     }
 
     @Test
@@ -462,7 +464,7 @@ class OfficerTerminationValidatorTest {
         when(companyAppointment.getForename()).thenReturn("Vhagar");
         when(companyAppointment.getSurname()).thenReturn("Dragon");
         when(apiEnumerations.getValidation(ValidationEnum.DIRECTOR_ALREADY_REMOVED, "Vhagar Dragon")).thenReturn("Vhagar Dragon has already been removed from the company");
-        officerTerminationValidator.validateOfficerIsNotTerminated(request, apiErrorsList,companyAppointment);
+        officerTerminationValidator.validateOfficerIsNotTerminated(request, apiErrorsList, companyAppointment);
         assertThat(apiErrorsList)
                 .as("An error should be produced when an officer has already resigned")
                 .hasSize(1)
@@ -474,7 +476,7 @@ class OfficerTerminationValidatorTest {
     void validationAlreadyResignedWhenNullDirectorName() {
         when(companyAppointment.getResignedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 5));
         when(apiEnumerations.getValidation(ValidationEnum.DIRECTOR_ALREADY_REMOVED, "Director")).thenReturn("Director has already been removed from the company");
-        officerTerminationValidator.validateOfficerIsNotTerminated(request, apiErrorsList,companyAppointment);
+        officerTerminationValidator.validateOfficerIsNotTerminated(request, apiErrorsList, companyAppointment);
         assertThat(apiErrorsList)
                 .as("An error should be produced when an officer has already resigned")
                 .hasSize(1)
@@ -485,7 +487,7 @@ class OfficerTerminationValidatorTest {
     @Test
     void validationNotAlreadyResigned() {
         when(companyAppointment.getResignedOn()).thenReturn(null);
-        officerTerminationValidator.validateOfficerIsNotTerminated(request, apiErrorsList,companyAppointment);
+        officerTerminationValidator.validateOfficerIsNotTerminated(request, apiErrorsList, companyAppointment);
         assertThat(apiErrorsList)
                 .as("No error should be produced if an officer has not already resigned")
                 .isEmpty();
@@ -643,14 +645,14 @@ class OfficerTerminationValidatorTest {
     void validateSubmissionInformationInDateWhenValid() {
         when(companyAppointment.getEtag()).thenReturn(ETAG);
         final var officerFilingDto = OfficerFilingDto.builder()
-            .referenceEtag(ETAG)
-            .referenceAppointmentId(FILING_ID)
-            .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
-            .build();
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
         officerTerminationValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
         assertThat(apiErrorsList)
-            .as("An error should not be produced when the referenceEtag is valid/ in date")
-            .isEmpty();
+                .as("An error should not be produced when the referenceEtag is valid/ in date")
+                .isEmpty();
     }
 
     @Test
@@ -658,16 +660,16 @@ class OfficerTerminationValidatorTest {
         when(companyAppointment.getEtag()).thenReturn(ETAG);
         when(apiEnumerations.getValidation(ValidationEnum.ETAG_INVALID)).thenReturn("The Director’s information was updated before you sent this submission. You will need to start again");
         final var officerFilingDto = OfficerFilingDto.builder()
-            .referenceEtag("invalid_etag")
-            .referenceAppointmentId(FILING_ID)
-            .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
-            .build();
+                .referenceEtag("invalid_etag")
+                .referenceAppointmentId(FILING_ID)
+                .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
+                .build();
         officerTerminationValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
         assertThat(apiErrorsList)
-            .as("An error should be produced when the referenceEtag is invalid/ out of date")
-            .hasSize(1)
-            .extracting(ApiError::getError)
-            .contains("The Director’s information was updated before you sent this submission. You will need to start again");
+                .as("An error should be produced when the referenceEtag is invalid/ out of date")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The Director’s information was updated before you sent this submission. You will need to start again");
     }
 
     @Test

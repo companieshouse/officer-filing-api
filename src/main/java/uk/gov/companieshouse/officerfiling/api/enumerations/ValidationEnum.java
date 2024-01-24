@@ -97,9 +97,11 @@ public enum ValidationEnum {
     CORRESPONDENCE_REGION_CHARACTERS("correspondence-region-characters"),
     CORRESPONDENCE_REGION_LENGTH("correspondence-region-length"),
     PROTECTED_DETAILS_MISSING("protected-details-missing"),
-    CONSENT_TO_ACT_MISSING ("consent-to-act-missing"),
-    CONSENT_TO_ACT_FALSE ("consent-to-act-false"),
-    ADDRESS_LINKS_MULTIPLE_FLAGS ("address-links-multiple-flags");
+    CONSENT_TO_ACT_MISSING("consent-to-act-missing"),
+    CONSENT_TO_ACT_FALSE("consent-to-act-false"),
+    ADDRESS_LINKS_MULTIPLE_FLAGS("address-links-multiple-flags"),
+    NATIONALITY_MATCHES_CHIPS_DATA("nationality-matches-chips-data");
+
     private final String key;
 
     ValidationEnum(String key) {

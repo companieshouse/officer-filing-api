@@ -48,6 +48,9 @@ class FilingDataServiceImplTest {
     public static final String FIRSTNAME = "JOE";
     public static final String MIDDLENAMES = "PETER MARTIN";
     public static final String LASTNAME = "BLOGGS";
+    public static final String NATIONALITY_1 = "nationality1";
+    public static final String NATIONALITY_2 = "nationality2";
+    public static final String NATIONALITY_3 = "nationality3";
     public static final String COMPANY_NAME = "Company Name";
     public static final String FULL_NAME = FIRSTNAME + " " + LASTNAME;
     public static final String DATE_OF_BIRTH_STR = "2000-10-20";
@@ -366,7 +369,9 @@ class FilingDataServiceImplTest {
                 .middleNames(MIDDLENAMES)
                 .lastName(LASTNAME)
                 .formerNames(originalData.getFormerNames())
-                .nationality1(null)
+                .nationality1(NATIONALITY_1)
+                .nationality2(NATIONALITY_2)
+                .nationality3(NATIONALITY_3)
                 .occupation(null)
                 .serviceAddress(null)
                 .residentialAddress(null)
@@ -423,6 +428,10 @@ class FilingDataServiceImplTest {
     void generateUpdateOfficerFilingWhenNameHasBeenUpdated() {
         final var originalData = testOfficerFilingDataBuilder()
                 .nameHasBeenUpdated(true)
+                .nationalityHasBeenUpdated(false)
+                .occupationHasBeenUpdated(false)
+                .residentialAddressHasBeenUpdated(false)
+                .correspondenceAddressHasBeenUpdated(false)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
                 .createdAt(clock.instant())
@@ -458,6 +467,10 @@ class FilingDataServiceImplTest {
     void generateUpdateOfficerFilingWhenNameHasNotBeenUpdated() {
         final var originalData = testOfficerFilingDataBuilder()
                 .nameHasBeenUpdated(false)
+                .nationalityHasBeenUpdated(false)
+                .occupationHasBeenUpdated(false)
+                .residentialAddressHasBeenUpdated(false)
+                .correspondenceAddressHasBeenUpdated(false)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
                 .createdAt(clock.instant())
@@ -489,6 +502,80 @@ class FilingDataServiceImplTest {
         assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
     }
 
+    @Test
+    void generateUpdateOfficerFilingWhenNationalityHasBeenUpdated() {
+        final var originalData = testOfficerFilingDataBuilder()
+                .nameHasBeenUpdated(false)
+                .nationalityHasBeenUpdated(true)
+                .occupationHasBeenUpdated(false)
+                .residentialAddressHasBeenUpdated(false)
+                .correspondenceAddressHasBeenUpdated(false)
+                .build();
+        final var originalOfficerFiling = OfficerFiling.builder()
+                .createdAt(clock.instant())
+                .updatedAt(clock.instant())
+                .data(originalData)
+                .build();
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(originalOfficerFiling));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
+
+        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        verify(filingAPIMapper).map(officerFilingCaptor.capture());
+        var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
+        var expectedOfficerFilingData = OfficerFilingData.builder()
+                .nationality1(NATIONALITY_1)
+                .nationality2(NATIONALITY_2)
+                .nationality3(NATIONALITY_3)
+                .build();
+        assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
+    }
+
+    @Test
+    void generateUpdateOfficerFilingWhenNationalityHasNotBeenUpdated() {
+        final var originalData = testOfficerFilingDataBuilder()
+                .nameHasBeenUpdated(false)
+                .nationalityHasBeenUpdated(false)
+                .occupationHasBeenUpdated(false)
+                .residentialAddressHasBeenUpdated(false)
+                .correspondenceAddressHasBeenUpdated(false)
+                .build();
+        final var originalOfficerFiling = OfficerFiling.builder()
+                .createdAt(clock.instant())
+                .updatedAt(clock.instant())
+                .data(originalData)
+                .build();
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(originalOfficerFiling));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
+
+        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        verify(filingAPIMapper).map(officerFilingCaptor.capture());
+        var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
+        var expectedOfficerFilingData = OfficerFilingData.builder()
+                .nationality1(null)
+                .nationality2(null)
+                .nationality3(null)
+                .build();
+        assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
+    }
+
     private static OfficerFilingData.Builder testOfficerFilingDataBuilder() {
         return OfficerFilingData.builder()
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
@@ -500,9 +587,9 @@ class FilingDataServiceImplTest {
                 .formerNames("former names")
                 .dateOfBirth(DATE_OF_BIRTH_INS)
                 .appointedOn(RESIGNED_ON_INS)
-                .nationality1("nationality1")
-                .nationality2("nationality2")
-                .nationality3("nationality3")
+                .nationality1(NATIONALITY_1)
+                .nationality2(NATIONALITY_2)
+                .nationality3(NATIONALITY_3)
                 .occupation("occupation")
                 .serviceAddress(Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build())
                 .isServiceAddressSameAsRegisteredOfficeAddress(false)

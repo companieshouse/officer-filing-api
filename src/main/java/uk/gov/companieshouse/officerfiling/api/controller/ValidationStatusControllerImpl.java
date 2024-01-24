@@ -53,9 +53,9 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
     private List<String> ukCountryList;
 
     public ValidationStatusControllerImpl(OfficerFilingService officerFilingService, Logger logger,
-            CompanyProfileService companyProfileService,
-        CompanyAppointmentService companyAppointmentService, OfficerFilingMapper officerFilingMapper,
-        ErrorMapper errorMapper, ApiEnumerations apiEnumerations) {
+                                          CompanyProfileService companyProfileService,
+                                          CompanyAppointmentService companyAppointmentService, OfficerFilingMapper officerFilingMapper,
+                                          ErrorMapper errorMapper, ApiEnumerations apiEnumerations) {
         this.officerFilingService = officerFilingService;
         this.logger = logger;
         this.companyProfileService = companyProfileService;
@@ -69,20 +69,20 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
      * Controller endpoint: Perform final validation checks.
      * Provisional behaviour: return TRUE response until details of requirements known.
      *
-     * @param transaction        the Transaction
+     * @param transaction      the Transaction
      * @param filingResourceId the Filing resource ID
-     * @param request        the servlet request
+     * @param request          the servlet request
      * @return ValidationResponse of TRUE (provisional)
      */
     @Override
     @ResponseBody
     @GetMapping(value = "/{filingResourceId}/validation_status", produces = {"application/json"})
     public ValidationStatusResponse validate(
-        @RequestAttribute("transaction") Transaction transaction,
-        @PathVariable("filingResourceId") final String filingResourceId,
-        final HttpServletRequest request) {
+            @RequestAttribute("transaction") Transaction transaction,
+            @PathVariable("filingResourceId") final String filingResourceId,
+            final HttpServletRequest request) {
 
-        if(!isTm01Enabled){
+        if (!isTm01Enabled) {
             throw new FeatureNotEnabledException();
         }
 
@@ -105,19 +105,20 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
 
     /**
      * Create the associated OfficerValidator object (TM01, AP01, or CH01) and validate using that object
+     *
      * @return All validation errors raised during the validation
      */
     private ApiErrors validate(HttpServletRequest request, OfficerFilingDto officerFiling, Transaction transaction, String passthroughHeader) {
         if (isTm01Enabled && officerFiling.getResignedOn() != null) {
-            return new OfficerTerminationValidator(logger, companyProfileService, companyAppointmentService, apiEnumerations)
+            return new OfficerTerminationValidator(logger, companyProfileService, companyAppointmentService, inputAllowedNationalities, apiEnumerations)
                     .validate(request, officerFiling, transaction, passthroughHeader);
         }
         if (isAp01Enabled && officerFiling.getReferenceEtag() == null) {
             return new OfficerAppointmentValidator(logger, companyProfileService, apiEnumerations, inputAllowedNationalities, countryList, ukCountryList)
                     .validate(request, officerFiling, transaction, passthroughHeader);
         }
-        if (isCh01Enabled){
-            return new OfficerUpdateValidator(logger, companyAppointmentService, companyProfileService, apiEnumerations)
+        if (isCh01Enabled) {
+            return new OfficerUpdateValidator(logger, companyAppointmentService, companyProfileService, inputAllowedNationalities, apiEnumerations)
                     .validate(request, officerFiling, transaction, passthroughHeader);
         }
 
