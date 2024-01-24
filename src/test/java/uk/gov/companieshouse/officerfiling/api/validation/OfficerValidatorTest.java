@@ -3,6 +3,9 @@ package uk.gov.companieshouse.officerfiling.api.validation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.error.ApiError;
@@ -41,8 +44,11 @@ class OfficerValidatorTest {
 
     @BeforeEach
     void setUp() {
-        officerValidator = new OfficerValidator(logger, companyProfileService, companyAppointmentService, apiEnumerations);
+        final String allowedNationalities = "A very long nationality indeed so long in fact that it breaks the legal length for nationalities,thisIs25Characterslongggh,thisIs25Characterslongggg,thisIs16Charactz,thisIs17Character,thisIs16Characte,thisIsAVeryLongNationalityWhichWilltakeUsOver50Characterslong,Afghan,Albanian,Algerian,American,Andorran,Angolan,Anguillan,Citizen of Antigua and Barbuda,Argentine,Armenian,Australian,Austrian,Azerbaijani,Bahamian,Bahraini,Bangladeshi,Barbadian,Belarusian,Belgian,Belizean,Beninese,Bermudian,Bhutanese,Bolivian,Citizen of Bosnia and Herzegovina,Botswanan,Brazilian,British,British Virgin Islander,Bruneian,Bulgarian,Burkinan,Burmese,Burundian,Cambodian,Cameroonian,Canadian,Cape Verdean,Cayman Islander,Central African,Chadian,Chilean,Chinese,Colombian,Comoran,Congolese (Congo),Congolese (DRC),Cook Islander,Costa Rican,Croatian,Cuban,Cymraes,Cymro,Cypriot,Czech,Danish,Djiboutian,Dominican,Citizen of the Dominican Republic,Dutch,East Timorese\tEcuadorean\tEgyptian\tEmirati,English,Equatorial Guinean,Eritrean,Estonian,Ethiopian,Faroese,Fijian,Filipino,Finnish,French,Gabonese,Gambian,Georgian,German,Ghanaian,Gibraltarian,Greek,Greenlandic,Grenadian,Guamanian,Guatemalan,Citizen of Guinea-Bissau,Guinean,Guyanese,Haitian,Honduran,Hong Konger,Hungarian,Icelandic,Indian,Indonesian,Iranian,Iraqi,Irish,Israeli,Italian,Ivorian,Jamaican,Japanese,Jordanian,Kazakh,Kenyan,Kittitian,Citizen of Kiribati,Kosovan,Kuwaiti,Kyrgyz,Lao,Latvian,Lebanese,Liberian,Libyan,Liechtenstein citizen,Lithuanian,Luxembourger,Macanese,Macedonian,Malagasy,Malawian,Malaysian,Maldivian,Malian,Maltese,Marshallese,Martiniquais,Mauritanian,Mauritian,Mexican,Micronesian,Moldovan,Monegasque,Mongolian,Montenegrin,Montserratian,Moroccan,Mosotho,Mozambican,Namibian,Nauruan,Nepalese,New Zealander,Nicaraguan,Nigerian,Nigerien,Niuean,North Korean,Northern Irish,Norwegian,Omani,Pakistani,Palauan,Palestinian,Panamanian,Papua New Guinean,Paraguayan,Peruvian,Pitcairn Islander,Polish,Portuguese,Prydeinig,Puerto Rican,Qatari,Romanian,Russian,Rwandan,Salvadorean,Sammarinese,Samoan,Sao Tomean,Saudi Arabian,Scottish,Senegalese,Serbian,Citizen of Seychelles,Sierra Leonean,Singaporean,Slovak,Slovenian,Solomon Islander,Somali,South African,South Korean,South Sudanese,Spanish,Sri Lankan,St Helenian,St Lucian,Stateless,Sudanese,Surinamese,Swazi,Swedish,Swiss,Syrian,Taiwanese,Tajik,Tanzanian,Thai,Togolese,Tongan,Trinidadian,Tristanian,Tunisian,Turkish,Turkmen,Turks and Caicos Islander,Tuvaluan,Ugandan,Ukrainian,Uruguayan,Uzbek,Vatican citizen,Citizen of Vanuatu,Venezuelan,Vietnamese,Vincentian,Wallisian,Welsh,Yemeni,Zambian,Zimbabwean";
         apiErrorsList = new ArrayList<>();
+        officerValidator = new OfficerValidator(logger, companyProfileService, companyAppointmentService, allowedNationalities, apiEnumerations) {
+            // Anonymous subclass to directly test methods implemented in the abstract class
+        };
     }
 
     @Test
@@ -51,7 +57,7 @@ class OfficerValidatorTest {
         when(apiEnumerations.getValidation(ValidationEnum.TITLE_LENGTH)).thenReturn(
                 "Title can be no longer than 50 characters");
 
-        officerValidator.validateTitle(request, apiErrorsList ,dto);
+        officerValidator.validateTitle(request, apiErrorsList, dto);
         assertThat(apiErrorsList)
                 .as("An error should be produced when title is over 50 characters")
                 .hasSize(1)
@@ -79,7 +85,7 @@ class OfficerValidatorTest {
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_BLANK)).thenReturn(
                 "Enter the director’s full first name");
 
-        officerValidator.validateFirstName(request, apiErrorsList ,dto);
+        officerValidator.validateFirstName(request, apiErrorsList, dto);
         assertThat(apiErrorsList)
                 .as("An error should be produced when first name is blank")
                 .hasSize(1)
@@ -93,7 +99,7 @@ class OfficerValidatorTest {
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_LENGTH)).thenReturn(
                 "First name can be no longer than 50 characters");
 
-        officerValidator.validateFirstName(request, apiErrorsList ,dto);
+        officerValidator.validateFirstName(request, apiErrorsList, dto);
         assertThat(apiErrorsList)
                 .as("An error should be produced when first name is over 50 characters")
                 .hasSize(1)
@@ -121,7 +127,7 @@ class OfficerValidatorTest {
         when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_BLANK)).thenReturn(
                 "Enter the director’s full last name");
 
-        officerValidator.validateLastName(request, apiErrorsList ,dto);
+        officerValidator.validateLastName(request, apiErrorsList, dto);
         assertThat(apiErrorsList)
                 .as("An error should be produced when last name is blank")
                 .hasSize(1)
@@ -135,7 +141,7 @@ class OfficerValidatorTest {
         when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_LENGTH)).thenReturn(
                 "Last name can be no longer than 160 characters");
 
-        officerValidator.validateLastName(request, apiErrorsList ,dto);
+        officerValidator.validateLastName(request, apiErrorsList, dto);
         assertThat(apiErrorsList)
                 .as("An error should be produced when last name is over 160 characters")
                 .hasSize(1)
@@ -163,7 +169,7 @@ class OfficerValidatorTest {
         when(apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_LENGTH)).thenReturn(
                 "Middle name can be no longer than 50 characters");
 
-        officerValidator.validateMiddleNames(request, apiErrorsList ,dto);
+        officerValidator.validateMiddleNames(request, apiErrorsList, dto);
         assertThat(apiErrorsList)
                 .as("An error should be produced when Middle name is over 50 characters")
                 .hasSize(1)
@@ -183,6 +189,178 @@ class OfficerValidatorTest {
                 .hasSize(1)
                 .extracting(ApiError::getError)
                 .contains("Middle name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {""})
+    void validateNationality1Blank(String nationality) {
+        when(dto.getNationality1()).thenReturn(nationality);
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_BLANK)).thenReturn(
+                "Enter the director’s nationality");
+
+        officerValidator.validateNationality1(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when nationality1 is blank")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter the director’s nationality");
+    }
+
+    @Test
+    void validateNationality1IsAllowed() {
+        when(dto.getNationality1()).thenReturn("Britishhhh");
+        when(apiEnumerations.getValidation(ValidationEnum.INVALID_NATIONALITY)).thenReturn(
+                "Select a nationality from the list");
+
+        officerValidator.validateNationality1(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when nationality1 does not match an allowed nationality")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Select a nationality from the list");
+    }
+
+    @Test
+    void validateNationality2IsAllowed() {
+        when(dto.getNationality1()).thenReturn("Afghan");
+        when(dto.getNationality2()).thenReturn("Britishhhh");
+        when(apiEnumerations.getValidation(ValidationEnum.INVALID_NATIONALITY)).thenReturn(
+                "Select a nationality from the list");
+
+        officerValidator.validateNationality2(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when nationality2 does not match an allowed nationality")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Select a nationality from the list");
+    }
+
+    @Test
+    void validateNationality2DuplicateOfNationality1() {
+        when(dto.getNationality1()).thenReturn("Afghan");
+        when(dto.getNationality2()).thenReturn("Afghan");
+        when(apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY2)).thenReturn(
+                "Enter a different second nationality");
+
+        officerValidator.validateNationality2(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when nationality2 is a duplicate of nationality1")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a different second nationality");
+    }
+
+    @Test
+    void validateNationality3IsAllowed() {
+        when(dto.getNationality3()).thenReturn("Britishhhh");
+        when(apiEnumerations.getValidation(ValidationEnum.INVALID_NATIONALITY)).thenReturn(
+                "Select a nationality from the list");
+
+        officerValidator.validateNationality3(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when nationality3 does not match an allowed nationality")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Select a nationality from the list");
+    }
+
+    @Test
+    void validateNationality3DuplicateOfNationality1() {
+        when(dto.getNationality1()).thenReturn("Afghan");
+        when(dto.getNationality3()).thenReturn("Afghan");
+        when(apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY3)).thenReturn(
+                "Enter a different third nationality");
+
+        officerValidator.validateNationality3(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when nationality3 is a duplicate of nationality1")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a different third nationality");
+    }
+
+    @Test
+    void validateNationality3DuplicateOfNationality2() {
+        when(dto.getNationality2()).thenReturn("Afghan");
+        when(dto.getNationality3()).thenReturn("Afghan");
+        when(apiEnumerations.getValidation(ValidationEnum.DUPLICATE_NATIONALITY3)).thenReturn(
+                "Enter a different third nationality");
+
+        officerValidator.validateNationality3(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when nationality3 is a duplicate of nationality1")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter a different third nationality");
+    }
+
+    @Test
+    void validateNationality1Length() {
+        when(dto.getNationality1()).thenReturn("Abcdefghijklmnopqrstuvwxyz Abcdefghijklmnopqrstuvwxyz Abcdefghijklmnopqrstuvwxyz");
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH)).thenReturn(
+                "Nationality must be 50 characters or less");
+
+        officerValidator.validateNationalityLength(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when nationality contains more than 50 characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Nationality must be 50 characters or less");
+    }
+
+    @Test
+    void validateNationality1And2LengthWhen50Exactly() {
+        when(dto.getNationality1()).thenReturn("Abcdefghijklmnopqrstuvwxyz");
+        when(dto.getNationality2()).thenReturn("Abcdefghijklmnopqrstuvwx");
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH49)).thenReturn(
+                "For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters");
+
+        officerValidator.validateNationalityLength(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when nationality1 and 2 contain more than 49 characters between them")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters");
+    }
+
+    @Test
+    void validateNationality1And2LengthWhen49Exactly() {
+        when(dto.getNationality1()).thenReturn("Abcdefghijklmnopqrstuvwxyz");
+        when(dto.getNationality2()).thenReturn("Abcdefghijklmnopqrstuvw");
+
+        officerValidator.validateNationalityLength(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when nationality1 and 2 contain exactly 49 characters between them")
+                .isEmpty();
+    }
+
+    @Test
+    void validateNationality1And2And3LengthWhen49Exactly() {
+        when(dto.getNationality1()).thenReturn("Abcdefghijklmnopqrst");
+        when(dto.getNationality2()).thenReturn("Abcdefghijklmnopqrst");
+        when(dto.getNationality3()).thenReturn("abcdefghi");
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH48)).thenReturn(
+                "For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters");
+
+        officerValidator.validateNationalityLength(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when nationalities 1, 2, and 3 contain more than 48 characters between them")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters");
+    }
+
+    @Test
+    void validateNationality1And2And3LengthWhen48Exactly() {
+        when(dto.getNationality1()).thenReturn("Abcdefghijklmnopqrst");
+        when(dto.getNationality2()).thenReturn("Abcdefghijklmnopqrst");
+        when(dto.getNationality3()).thenReturn("abcdefgh");
+
+        officerValidator.validateNationalityLength(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when nationalities 1, 2, and 3 contain exactly 48 characters between them")
+                .isEmpty();
     }
 
 }

@@ -46,6 +46,8 @@ class OfficerAppointmentValidatorTest {
             .addressLine1("EU Road").locality("EU Town").country("France").build();
     private static final AddressDto validCorrespondenceAddressInUK = AddressDto.builder().premises("51")
             .addressLine1("UK Road").locality("UK Town").country("England").postalCode("AB12 3CD").build();
+    private static final String ALLOWED_NATIONALITIES = "A very long nationality indeed so long in fact that it breaks the legal length for nationalities,thisIs25Characterslongggh,thisIs25Characterslongggg,thisIs16Charactz,thisIs17Character,thisIs16Characte,thisIsAVeryLongNationalityWhichWilltakeUsOver50Characterslong,Afghan,Albanian,Algerian,American,Andorran,Angolan,Anguillan,Citizen of Antigua and Barbuda,Argentine,Armenian,Australian,Austrian,Azerbaijani,Bahamian,Bahraini,Bangladeshi,Barbadian,Belarusian,Belgian,Belizean,Beninese,Bermudian,Bhutanese,Bolivian,Citizen of Bosnia and Herzegovina,Botswanan,Brazilian,British,British Virgin Islander,Bruneian,Bulgarian,Burkinan,Burmese,Burundian,Cambodian,Cameroonian,Canadian,Cape Verdean,Cayman Islander,Central African,Chadian,Chilean,Chinese,Colombian,Comoran,Congolese (Congo),Congolese (DRC),Cook Islander,Costa Rican,Croatian,Cuban,Cymraes,Cymro,Cypriot,Czech,Danish,Djiboutian,Dominican,Citizen of the Dominican Republic,Dutch,East Timorese\tEcuadorean\tEgyptian\tEmirati,English,Equatorial Guinean,Eritrean,Estonian,Ethiopian,Faroese,Fijian,Filipino,Finnish,French,Gabonese,Gambian,Georgian,German,Ghanaian,Gibraltarian,Greek,Greenlandic,Grenadian,Guamanian,Guatemalan,Citizen of Guinea-Bissau,Guinean,Guyanese,Haitian,Honduran,Hong Konger,Hungarian,Icelandic,Indian,Indonesian,Iranian,Iraqi,Irish,Israeli,Italian,Ivorian,Jamaican,Japanese,Jordanian,Kazakh,Kenyan,Kittitian,Citizen of Kiribati,Kosovan,Kuwaiti,Kyrgyz,Lao,Latvian,Lebanese,Liberian,Libyan,Liechtenstein citizen,Lithuanian,Luxembourger,Macanese,Macedonian,Malagasy,Malawian,Malaysian,Maldivian,Malian,Maltese,Marshallese,Martiniquais,Mauritanian,Mauritian,Mexican,Micronesian,Moldovan,Monegasque,Mongolian,Montenegrin,Montserratian,Moroccan,Mosotho,Mozambican,Namibian,Nauruan,Nepalese,New Zealander,Nicaraguan,Nigerian,Nigerien,Niuean,North Korean,Northern Irish,Norwegian,Omani,Pakistani,Palauan,Palestinian,Panamanian,Papua New Guinean,Paraguayan,Peruvian,Pitcairn Islander,Polish,Portuguese,Prydeinig,Puerto Rican,Qatari,Romanian,Russian,Rwandan,Salvadorean,Sammarinese,Samoan,Sao Tomean,Saudi Arabian,Scottish,Senegalese,Serbian,Citizen of Seychelles,Sierra Leonean,Singaporean,Slovak,Slovenian,Solomon Islander,Somali,South African,South Korean,South Sudanese,Spanish,Sri Lankan,St Helenian,St Lucian,Stateless,Sudanese,Surinamese,Swazi,Swedish,Swiss,Syrian,Taiwanese,Tajik,Tanzanian,Thai,Togolese,Tongan,Trinidadian,Tristanian,Tunisian,Turkish,Turkmen,Turks and Caicos Islander,Tuvaluan,Ugandan,Ukrainian,Uruguayan,Uzbek,Vatican citizen,Citizen of Vanuatu,Venezuelan,Vietnamese,Vincentian,Wallisian,Welsh,Yemeni,Zambian,Zimbabwean";
+
     private OfficerAppointmentValidator officerAppointmentValidator;
     private List<ApiError> apiErrorsList;
 
@@ -70,9 +72,8 @@ class OfficerAppointmentValidatorTest {
 
     @BeforeEach
     void setUp() {
-        String allowedNationalities = "A very long nationality indeed so long in fact that it breaks the legal length for nationalities,thisIs25Characterslongggh,thisIs25Characterslongggg,thisIs16Charactz,thisIs17Character,thisIs16Characte,thisIsAVeryLongNationalityWhichWilltakeUsOver50Characterslong,Afghan,Albanian,Algerian,American,Andorran,Angolan,Anguillan,Citizen of Antigua and Barbuda,Argentine,Armenian,Australian,Austrian,Azerbaijani,Bahamian,Bahraini,Bangladeshi,Barbadian,Belarusian,Belgian,Belizean,Beninese,Bermudian,Bhutanese,Bolivian,Citizen of Bosnia and Herzegovina,Botswanan,Brazilian,British,British Virgin Islander,Bruneian,Bulgarian,Burkinan,Burmese,Burundian,Cambodian,Cameroonian,Canadian,Cape Verdean,Cayman Islander,Central African,Chadian,Chilean,Chinese,Colombian,Comoran,Congolese (Congo),Congolese (DRC),Cook Islander,Costa Rican,Croatian,Cuban,Cymraes,Cymro,Cypriot,Czech,Danish,Djiboutian,Dominican,Citizen of the Dominican Republic,Dutch,East Timorese\tEcuadorean\tEgyptian\tEmirati,English,Equatorial Guinean,Eritrean,Estonian,Ethiopian,Faroese,Fijian,Filipino,Finnish,French,Gabonese,Gambian,Georgian,German,Ghanaian,Gibraltarian,Greek,Greenlandic,Grenadian,Guamanian,Guatemalan,Citizen of Guinea-Bissau,Guinean,Guyanese,Haitian,Honduran,Hong Konger,Hungarian,Icelandic,Indian,Indonesian,Iranian,Iraqi,Irish,Israeli,Italian,Ivorian,Jamaican,Japanese,Jordanian,Kazakh,Kenyan,Kittitian,Citizen of Kiribati,Kosovan,Kuwaiti,Kyrgyz,Lao,Latvian,Lebanese,Liberian,Libyan,Liechtenstein citizen,Lithuanian,Luxembourger,Macanese,Macedonian,Malagasy,Malawian,Malaysian,Maldivian,Malian,Maltese,Marshallese,Martiniquais,Mauritanian,Mauritian,Mexican,Micronesian,Moldovan,Monegasque,Mongolian,Montenegrin,Montserratian,Moroccan,Mosotho,Mozambican,Namibian,Nauruan,Nepalese,New Zealander,Nicaraguan,Nigerian,Nigerien,Niuean,North Korean,Northern Irish,Norwegian,Omani,Pakistani,Palauan,Palestinian,Panamanian,Papua New Guinean,Paraguayan,Peruvian,Pitcairn Islander,Polish,Portuguese,Prydeinig,Puerto Rican,Qatari,Romanian,Russian,Rwandan,Salvadorean,Sammarinese,Samoan,Sao Tomean,Saudi Arabian,Scottish,Senegalese,Serbian,Citizen of Seychelles,Sierra Leonean,Singaporean,Slovak,Slovenian,Solomon Islander,Somali,South African,South Korean,South Sudanese,Spanish,Sri Lankan,St Helenian,St Lucian,Stateless,Sudanese,Surinamese,Swazi,Swedish,Swiss,Syrian,Taiwanese,Tajik,Tanzanian,Thai,Togolese,Tongan,Trinidadian,Tristanian,Tunisian,Turkish,Turkmen,Turks and Caicos Islander,Tuvaluan,Ugandan,Ukrainian,Uruguayan,Uzbek,Vatican citizen,Citizen of Vanuatu,Venezuelan,Vietnamese,Vincentian,Wallisian,Welsh,Yemeni,Zambian,Zimbabwean";
-        officerAppointmentValidator = new OfficerAppointmentValidator(logger, companyProfileService, apiEnumerations, allowedNationalities,List.of ("England", "Wales", "Scotland", "Northern Ireland", "France"), List.of ("England", "Wales", "Scotland", "Northern Ireland"));
-         apiErrorsList = new ArrayList<>();
+        officerAppointmentValidator = new OfficerAppointmentValidator(logger, companyProfileService, apiEnumerations, ALLOWED_NATIONALITIES, List.of("England", "Wales", "Scotland", "Northern Ireland", "France"), List.of("England", "Wales", "Scotland", "Northern Ireland"));
+        apiErrorsList = new ArrayList<>();
     }
 
     @Test
@@ -146,7 +147,7 @@ class OfficerAppointmentValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(apiEnumerations.getValidation(ValidationEnum.SERVICE_UNAVAILABLE)).thenReturn("Sorry, this service is unavailable. You will be able to use the service later");
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenThrow(
-            new ServiceUnavailableException());
+                new ServiceUnavailableException());
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
@@ -158,10 +159,10 @@ class OfficerAppointmentValidatorTest {
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-            .as("An error should be produced when the Company Profile Service is unavailable")
-            .hasSize(1)
-            .extracting(ApiError::getError)
-            .contains("Sorry, this service is unavailable. You will be able to use the service later");
+                .as("An error should be produced when the Company Profile Service is unavailable")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Sorry, this service is unavailable. You will be able to use the service later");
     }
 
     @Test
@@ -169,7 +170,7 @@ class OfficerAppointmentValidatorTest {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(companyProfileService.getCompanyProfile(transaction.getId(), COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenThrow(
-            new CompanyProfileServiceException("Error Retrieving company"));
+                new CompanyProfileServiceException("Error Retrieving company"));
         when(apiEnumerations.getValidation(ValidationEnum.CANNOT_FIND_COMPANY)).thenReturn("We cannot find the company");
         when(dto.getFirstName()).thenReturn("John");
         when(dto.getLastName()).thenReturn("Smith");
@@ -182,10 +183,10 @@ class OfficerAppointmentValidatorTest {
 
         final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
-            .as("An error should be produced when a Company cannot be found")
-            .hasSize(1)
-            .extracting(ApiError::getError)
-            .contains("We cannot find the company");
+                .as("An error should be produced when a Company cannot be found")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("We cannot find the company");
     }
 
     @Test
@@ -300,7 +301,7 @@ class OfficerAppointmentValidatorTest {
         when(dto.getLastName()).thenReturn("Smith");
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
         when(dto.getNationality1()).thenReturn("British");
-         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
+        when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_BLANK)).thenReturn(
                 "Enter the director’s full first name");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
@@ -627,7 +628,7 @@ class OfficerAppointmentValidatorTest {
                 "You can only appoint a person as a director if they are at least 16 years old on their appointment date");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(LocalDate.now().getYear()-15, 1, 1));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(LocalDate.now().getYear() - 15, 1, 1));
         when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getConsentToAct()).thenReturn(true);
@@ -651,7 +652,7 @@ class OfficerAppointmentValidatorTest {
                 "You can only appoint a person as a director if they are under 110 years old");
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
-        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(LocalDate.now().getYear()-110, 1, 1));
+        when(dto.getDateOfBirth()).thenReturn(LocalDate.of(LocalDate.now().getYear() - 110, 1, 1));
         when(dto.getNationality1()).thenReturn("British");
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getConsentToAct()).thenReturn(true);
@@ -798,6 +799,7 @@ class OfficerAppointmentValidatorTest {
                 .extracting(ApiError::getError)
                 .contains("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters");
     }
+
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {""})
@@ -855,6 +857,7 @@ class OfficerAppointmentValidatorTest {
                 .extracting(ApiError::getError)
                 .contains("For technical reasons, we are currently unable to accept multiple nationalities with a total of more than 48 characters");
     }
+
     @Test
     void validateNationality1PlusNationality2PlusNationality3GreaterThan50Length() {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
@@ -908,6 +911,7 @@ class OfficerAppointmentValidatorTest {
                 .extracting(ApiError::getError)
                 .contains("Select a nationality from the list");
     }
+
     @Test
     void validateNationality2FromAllowedList() {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
@@ -933,6 +937,7 @@ class OfficerAppointmentValidatorTest {
                 .extracting(ApiError::getError)
                 .contains("Select a nationality from the list");
     }
+
     @Test
     void validateNationality3FromAllowedList() {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
@@ -985,6 +990,7 @@ class OfficerAppointmentValidatorTest {
                 .extracting(ApiError::getError)
                 .contains("Enter the director’s nationality");
     }
+
     @Test
     void validateNationality1And2NotDuplicates() {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
@@ -1011,6 +1017,7 @@ class OfficerAppointmentValidatorTest {
                 .extracting(ApiError::getError)
                 .contains("Enter a different second nationality");
     }
+
     @Test
     void validateNationality1And3NotDuplicates() {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
@@ -1038,6 +1045,7 @@ class OfficerAppointmentValidatorTest {
                 .extracting(ApiError::getError)
                 .contains("Enter a different third nationality");
     }
+
     @Test
     void validateNationality2And3NotDuplicates() {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
@@ -2364,8 +2372,8 @@ class OfficerAppointmentValidatorTest {
     }
 
     /**
-     @see uk.gov.companieshouse.officerfiling.api.error.ApiErrors#ApiErrors()
-     return a HashSet of errors which removes the duplicate errors from the list of Errors, hence the size is expected to be 1.
+     * @see uk.gov.companieshouse.officerfiling.api.error.ApiErrors#ApiErrors()
+     * return a HashSet of errors which removes the duplicate errors from the list of Errors, hence the size is expected to be 1.
      */
     @Test
     void validationWhenUKCountryCaseInsensitiveWithMissingResidentialAndOrCorrespondencePostalCode() {
