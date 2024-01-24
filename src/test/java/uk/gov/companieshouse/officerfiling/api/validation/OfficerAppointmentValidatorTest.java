@@ -30,7 +30,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class OfficerAppointmentValidatorTest {
@@ -2362,7 +2363,6 @@ class OfficerAppointmentValidatorTest {
     void validationShouldSkipCorrespondenceAddressValidationIfCorrespondenceSameAsROAFlagSet() {
         setupDefaultParamaters();
         when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
-        lenient().when(dto.getServiceAddress()).thenReturn(AddressDto.builder(validCorrespondenceAddressInUK).postalCode(null).build());
 
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
         when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(false);
@@ -2372,8 +2372,8 @@ class OfficerAppointmentValidatorTest {
         assertThat(apiErrors.getErrors())
                 .as("No errors for an invalid correspondence address when ServiceAddressSameAsROAFlag set")
                 .isEmpty();
+        verify(dto, never()).getServiceAddress();
     }
-
 
     @Test
     void validationWithCaseInsensitivityForResidentialAndCorrespondenceCountry() {
