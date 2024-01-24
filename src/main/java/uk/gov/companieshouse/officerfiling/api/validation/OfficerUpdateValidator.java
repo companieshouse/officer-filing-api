@@ -159,9 +159,20 @@ public class OfficerUpdateValidator extends OfficerValidator {
             return false;
         }
         final String[] chipsNationalities = appointment.getNationality().split(",");
-        return matchesChipsField(dto.getNationality1(), chipsNationalities[0]) &&
-                (chipsNationalities.length < 2 || matchesChipsField(dto.getNationality2(), chipsNationalities[1])) &&
-                (chipsNationalities.length < 3 || matchesChipsField(dto.getNationality3(), chipsNationalities[2]));
+
+        if (!matchesChipsField(dto.getNationality1(), chipsNationalities[0])) {
+            return false;
+        }
+        if (chipsNationalities.length < 2 && dto.getNationality2() != null) {
+            return false;
+        }
+        if (chipsNationalities.length >= 2 && !matchesChipsField(dto.getNationality2(), chipsNationalities[1])) {
+            return false;
+        }
+        if (chipsNationalities.length < 3 && dto.getNationality3() != null) {
+            return false;
+        }
+        return chipsNationalities.length < 3 || matchesChipsField(dto.getNationality3(), chipsNationalities[2]);
     }
 
     private boolean matchesChipsField(String field, String chipsField) {

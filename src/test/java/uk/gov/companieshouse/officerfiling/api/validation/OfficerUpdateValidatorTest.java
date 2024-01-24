@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
@@ -26,9 +28,11 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
@@ -534,65 +538,36 @@ class OfficerUpdateValidatorTest {
         Mockito.verify(officerUpdateValidator).validateNationalityLength(any(), any(), any());
     }
 
-    @Test
-    void doesNationalityMatchChipsDataWhenNoChipsData() {
-        when(companyAppointment.getNationality()).thenReturn(null);
+    @ParameterizedTest
+    @MethodSource()
+    void doesNationalityMatchChipsData(String chipsNationality, String dtoNationality1, String dtoNationality2, String dtoNationality3, boolean matches) {
+        lenient().when(companyAppointment.getNationality()).thenReturn(chipsNationality);
+        lenient().when(dto.getNationality1()).thenReturn(dtoNationality1);
+        lenient().when(dto.getNationality2()).thenReturn(dtoNationality2);
+        lenient().when(dto.getNationality3()).thenReturn(dtoNationality3);
+
         final var result = officerUpdateValidator.doesNationalityMatchChipsData(dto, companyAppointment);
-        assertThat(result).isFalse();
+
+        if (matches) {
+            assertThat(result).isTrue();
+        } else {
+            assertThat(result).isFalse();
+        }
     }
 
-    @Test
-    void doesNationalityMatchChipsDataWhenOneFieldSuppliedAndMatches() {
-        when(companyAppointment.getNationality()).thenReturn("British");
-        when(dto.getNationality1()).thenReturn("BRITISH");
-        final var result = officerUpdateValidator.doesNationalityMatchChipsData(dto, companyAppointment);
-        assertThat(result).isTrue();
+    private static Stream<Arguments> doesNationalityMatchChipsData() {
+        return Stream.of(
+                Arguments.of("British", "British", null, null, true),
+                Arguments.of("British , AFGHAN", "BRITISH", "Afghan", null, true),
+                Arguments.of("British , AFGHAN,german", "BRITISH", "Afghan", "German", true),
+                Arguments.of(null, "British", "Afghan", "German", false),
+                Arguments.of("english", "BRITISH", null, null, false),
+                Arguments.of("British, AFGHAN, test", "BRITISH", "Afghan", "German", false),
+                Arguments.of("British, test, german", "BRITISH", "Afghan", null, false),
+                Arguments.of("British", "BRITISH", "Afghan", null, false),
+                Arguments.of("British , afghan", "BRITISH", null, null, false),
+                Arguments.of("British,AFGHAN", "British", "Afghan", "GERMAN", false),
+                Arguments.of("British , afghan,GERMAN", "British", "Afghan", null, false)
+        );
     }
-
-    @Test
-    void doesNationalityMatchChipsDataWhenTwoFieldsSuppliedAndAllMatch() {
-        when(companyAppointment.getNationality()).thenReturn("British, AFGHAN");
-        when(dto.getNationality1()).thenReturn("BRITISH");
-        when(dto.getNationality2()).thenReturn("AFGHAN");
-        final var result = officerUpdateValidator.doesNationalityMatchChipsData(dto, companyAppointment);
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    void doesNationalityMatchChipsDataWhenThreeFieldsSuppliedAndAllMatch() {
-        when(companyAppointment.getNationality()).thenReturn("British, AFGHAN, ARABIAN");
-        when(dto.getNationality1()).thenReturn("BRITISH");
-        when(dto.getNationality2()).thenReturn("Afghan");
-        when(dto.getNationality3()).thenReturn("arabian");
-        final var result = officerUpdateValidator.doesNationalityMatchChipsData(dto, companyAppointment);
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    void doesNationalityMatchChipsDataWhenOneFieldSuppliedAndDoesntMatch() {
-        when(companyAppointment.getNationality()).thenReturn("english");
-        when(dto.getNationality1()).thenReturn("BRITISH");
-        final var result = officerUpdateValidator.doesNationalityMatchChipsData(dto, companyAppointment);
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    void doesNationalityMatchChipsDataWhenThreeFieldsSuppliedAndThirdDoesntMatch() {
-        when(companyAppointment.getNationality()).thenReturn("British, AFGHAN, test");
-        when(dto.getNationality1()).thenReturn("BRITISH");
-        when(dto.getNationality2()).thenReturn("Afghan");
-        when(dto.getNationality3()).thenReturn("arabian");
-        final var result = officerUpdateValidator.doesNationalityMatchChipsData(dto, companyAppointment);
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    void doesNationalityMatchChipsDataWhenThreeFieldsSuppliedAndSecondDoesntMatch() {
-        when(companyAppointment.getNationality()).thenReturn("British, test, Arabian");
-        when(dto.getNationality1()).thenReturn("BRITISH");
-        when(dto.getNationality2()).thenReturn("Afghan");
-        final var result = officerUpdateValidator.doesNationalityMatchChipsData(dto, companyAppointment);
-        assertThat(result).isFalse();
-    }
-
 }
