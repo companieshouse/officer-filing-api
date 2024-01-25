@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import io.micrometer.core.instrument.util.StringUtils;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
@@ -118,6 +120,9 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         final var officerFiling = saveData.getRight();
         final var resourceMap = buildResourceMap(links);
 
+        if (!StringUtils.isBlank(dto.getDescription())) {
+            transaction.setDescription(dto.getDescription());
+        }
         transaction.setResources(resourceMap);
         if(preExistingFilingId == null) {
             transactionService.updateTransaction(transaction, passthroughHeader);

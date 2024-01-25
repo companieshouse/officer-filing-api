@@ -220,6 +220,31 @@ class OfficerFilingControllerImplTest {
         assertThat(filingResponse.getId(), is(FILING_ID));
     }
 
+
+    @Test
+    void createFilingWhenDescriptionNotBlank() {
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(filingMapper.map(dto)).thenReturn(filing);
+        final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
+                .build();
+        final var withLinks = OfficerFiling.builder(withFilingId).links(links)
+                .build();
+        when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
+        when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
+        when(dto.getDescription()).thenReturn("XYX a company director");
+
+        final var response = testController.createFiling(transaction, dto, result, request);
+
+        verify(transaction).setDescription("XYX a company director");
+        verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
+        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
+        final OfficerFiling filingResponse = (OfficerFiling) response.getBody();
+        assertThat(filingResponse.getId(), is(FILING_ID));
+    }
+
     @ParameterizedTest(name = "[{index}] null binding result={0}")
     @ValueSource(booleans = {true, false})
     void patchFiling(final boolean nullBindingResult) {
