@@ -69,7 +69,8 @@ public class OfficerUpdateValidator extends OfficerValidator {
         validateChangeDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
         validateChangeDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
         validateNationalitySection(request, errorList, dto, companyAppointment.get());
-
+        validateOccupationSection(request, errorList, dto, companyAppointment.get());
+        
         return new ApiErrors(errorList);
     }
 
@@ -154,6 +155,20 @@ public class OfficerUpdateValidator extends OfficerValidator {
         validateNationalityLength(request, errorList, dto);
     }
 
+    private void validateOccupationSection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+        if (Boolean.FALSE.equals(dto.getOccupationHasBeenUpdated())) {
+            return;
+        }
+        if (dto.getOccupation() == null) {
+            return;
+        }
+        if (doesOccupationMatchChipsData(dto, appointmentFullRecordAPI)) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.OCCUPATION_MATCHES_CHIPS_DATA));
+            return;
+        }
+        validateOccupation(request, errorList, dto);
+    }
+
     public boolean doesNationalityMatchChipsData(OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
         if (appointment.getNationality() == null) {
             return false;
@@ -162,6 +177,14 @@ public class OfficerUpdateValidator extends OfficerValidator {
         return matchesChipsField(dto.getNationality1(), chipsNationalities[0]) &&
                 (chipsNationalities.length < 2 || matchesChipsField(dto.getNationality2(), chipsNationalities[1])) &&
                 (chipsNationalities.length < 3 || matchesChipsField(dto.getNationality3(), chipsNationalities[2]));
+    }
+
+    public boolean doesOccupationMatchChipsData(OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+        if (appointmentFullRecordAPI.getOccupation() == null) {
+            return false;
+        }
+        final String chipsOccupation = appointmentFullRecordAPI.getOccupation();
+        return matchesChipsField(dto.getOccupation(), chipsOccupation);
     }
 
     private boolean matchesChipsField(String field, String chipsField) {

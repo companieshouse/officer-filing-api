@@ -192,6 +192,10 @@ public class FilingDataServiceImpl implements FilingDataService {
                     .nationality3(data.getNationality3());
         }
 
+        if (data.getOccupationHasBeenUpdated() == null || data.getOccupationHasBeenUpdated()) {
+            dataBuilder = dataBuilder.occupation(data.getOccupation());
+        }
+
         final var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
                 .createdAt(officerFiling.getCreatedAt())
                 .updatedAt(officerFiling.getUpdatedAt())
@@ -202,7 +206,6 @@ public class FilingDataServiceImpl implements FilingDataService {
         logger.debugContext(transactionId, "Created update filing data for submission", new LogHelper.Builder(transaction)
                 .withFilingId(filingId)
                 .build());
-
         filing.setData(dataMap);
         setCh01DescriptionFields(filing, enhancedOfficerFiling.getData(), appointment);
     }

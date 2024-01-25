@@ -197,19 +197,6 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         }
     }
 
-    private void validateOccupation(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
-        if (dto.getOccupation() != null) {
-            if (!validateDtoFieldLength(dto.getOccupation(), 100)) {
-                createValidationError(request, errorList,
-                        apiEnumerations.getValidation(ValidationEnum.OCCUPATION_LENGTH));
-            }
-            if (!isValidCharacters(dto.getOccupation())) {
-                createValidationError(request, errorList,
-                        apiEnumerations.getValidation(ValidationEnum.OCCUPATION_CHARACTERS));
-            }
-        }
-    }
-
     private void validateRequiredResidentialAddressFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         if (dto.getResidentialAddress() != null) {
             validateResidentialPremises(request, errorList, dto.getResidentialAddress().getPremises());
