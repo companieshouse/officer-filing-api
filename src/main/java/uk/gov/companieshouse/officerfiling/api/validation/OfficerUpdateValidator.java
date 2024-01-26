@@ -180,7 +180,8 @@ public class OfficerUpdateValidator extends OfficerValidator {
     }
 
     public boolean doesOccupationMatchChipsData(OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
-        if (appointmentFullRecordAPI.getOccupation() == null || appointmentFullRecordAPI.getOccupation().equalsIgnoreCase("none")) {
+        if (appointmentFullRecordAPI.getOccupation() == null ||
+                appointmentFullRecordAPI.getOccupation().equalsIgnoreCase("none") && !dto.getOccupation().equalsIgnoreCase("none")) {
             return false;
         }
         final String chipsOccupation = appointmentFullRecordAPI.getOccupation();
