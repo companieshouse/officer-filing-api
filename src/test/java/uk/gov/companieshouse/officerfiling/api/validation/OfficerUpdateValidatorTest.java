@@ -509,6 +509,7 @@ class OfficerUpdateValidatorTest {
         when(dto.getOccupationHasBeenUpdated()).thenReturn(hasBeenUpdated);
         when(dto.getOccupation()).thenReturn("NONE");
         when(companyAppointment.getOccupation()).thenReturn("NONE");
+        when(apiEnumerations.getValidation(ValidationEnum.OCCUPATION_MATCHES_CHIPS_DATA)).thenReturn("The occupation data submitted cannot pass validation as it is not an update from the previously submitted data");
 
         officerUpdateValidator.validateOccupationSection(request, apiErrorsList, dto, companyAppointment);
 
