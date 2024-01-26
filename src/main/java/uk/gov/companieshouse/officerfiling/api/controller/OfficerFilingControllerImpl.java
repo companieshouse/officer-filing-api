@@ -129,7 +129,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
 
         transaction.setResources(resourceMap);
         if(preExistingFilingId == null || updateDescription) {
-            logger.debug("update transaction for: " + transaction.getDescription());
+            logger.debug("Update transaction for: " + transaction.getDescription());
             transactionService.updateTransaction(transaction, passthroughHeader);
         }
 
