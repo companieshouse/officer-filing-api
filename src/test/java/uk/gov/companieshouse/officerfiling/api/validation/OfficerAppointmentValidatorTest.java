@@ -30,6 +30,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class OfficerAppointmentValidatorTest {
@@ -2335,7 +2337,6 @@ class OfficerAppointmentValidatorTest {
     @Test
     void validationWhenBothAddressFlagAreSetAsTrue() {
         setupDefaultParamaters();
-        when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
         when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
 
@@ -2348,6 +2349,38 @@ class OfficerAppointmentValidatorTest {
                 .hasSize(1)
                 .extracting(ApiError::getError)
                 .contains("The maximum number of address links that can be established is one");
+    }
+
+    @Test
+    void validationShouldSkipHomeAddressValidationIfHomeSameAsCorrespondenceFlagSet() {
+        setupDefaultParamaters();
+        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).postalCode(null).build());
+        when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
+
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(false);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("No errors for an invalid home address when HomeSameAsCorrespondenceFlag set")
+                .isEmpty();
+    }
+
+    @Test
+    void validationShouldSkipCorrespondenceAddressValidationIfCorrespondenceSameAsROAFlagSet() {
+        setupDefaultParamaters();
+        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
+
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(false);
+
+        final var apiErrors = officerAppointmentValidator.validate(request, dto, transaction,
+                PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("No errors for an invalid correspondence address when ServiceAddressSameAsROAFlag set")
+                .isEmpty();
+        verify(dto, never()).getServiceAddress();
     }
 
     @Test
