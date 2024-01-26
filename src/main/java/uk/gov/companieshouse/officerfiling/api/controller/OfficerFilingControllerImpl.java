@@ -121,11 +121,15 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         final var officerFiling = saveData.getRight();
         final var resourceMap = buildResourceMap(links);
 
-        if (!StringUtils.isBlank(dto.getDescription())) {
+        boolean updateDescription = false;
+        if (!StringUtils.isBlank(dto.getDescription()) && !dto.getDescription().equals(transaction.getDescription())) {
             transaction.setDescription(dto.getDescription());
+            updateDescription = true;
         }
+
         transaction.setResources(resourceMap);
-        if(preExistingFilingId == null) {
+        if(preExistingFilingId == null || updateDescription) {
+            logger.debug("update transaction for: " + transaction.getDescription());
             transactionService.updateTransaction(transaction, passthroughHeader);
         }
 
