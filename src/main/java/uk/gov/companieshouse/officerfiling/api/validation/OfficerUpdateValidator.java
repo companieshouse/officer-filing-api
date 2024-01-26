@@ -155,9 +155,9 @@ public class OfficerUpdateValidator extends OfficerValidator {
         validateNationalityLength(request, errorList, dto);
     }
 
-    private void validateOccupationSection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+    public void validateOccupationSection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
         if (Boolean.FALSE.equals(dto.getOccupationHasBeenUpdated())) {
-            return;
+                return;
         }
         if (dto.getOccupation() == null) {
             return;
@@ -180,7 +180,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
     }
 
     public boolean doesOccupationMatchChipsData(OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
-        if (appointmentFullRecordAPI.getOccupation() == null) {
+        if (appointmentFullRecordAPI.getOccupation() == null || appointmentFullRecordAPI.getOccupation().equalsIgnoreCase("none")) {
             return false;
         }
         final String chipsOccupation = appointmentFullRecordAPI.getOccupation();

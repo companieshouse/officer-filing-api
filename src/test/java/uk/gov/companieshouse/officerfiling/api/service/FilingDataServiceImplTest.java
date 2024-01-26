@@ -56,10 +56,12 @@ class FilingDataServiceImplTest {
     public static final String DATE_OF_BIRTH_STR = "2000-10-20";
     private static final String PASSTHROUGH_HEADER = "passthrough";
     private static final String COMPANY_NUMBER = null;
+    public static final String OCCUPATION = "TEST ANALYST";
 
     private static final Instant DATE_OF_BIRTH_INS = Instant.parse("2000-10-20T00:00:00Z");
     private static final LocalDate DUMMY_DATE = LocalDate.of(2023, 3, 16);
     public static final Instant DIRECTOR_DETAILS_CHANGED_DATE = Instant.parse("2023-10-01T18:35:24Z");
+
     @Mock
     private OfficerFilingService officerFilingService;
     @Mock
@@ -372,7 +374,7 @@ class FilingDataServiceImplTest {
                 .nationality1(NATIONALITY_1)
                 .nationality2(NATIONALITY_2)
                 .nationality3(NATIONALITY_3)
-                .occupation(null)
+                .occupation(OCCUPATION)
                 .serviceAddress(null)
                 .residentialAddress(null)
                 .build();
@@ -576,6 +578,77 @@ class FilingDataServiceImplTest {
         assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
     }
 
+    @Test
+    void generateUpdateOfficerFilingWhenOccupationHasBeenUpdated() {
+        final var originalData = testOfficerFilingDataBuilder()
+                .nameHasBeenUpdated(false)
+                .nationalityHasBeenUpdated(false)
+                .occupationHasBeenUpdated(true)
+                .residentialAddressHasBeenUpdated(false)
+                .correspondenceAddressHasBeenUpdated(false)
+                .build();
+        final var originalOfficerFiling = OfficerFiling.builder()
+                .createdAt(clock.instant())
+                .updatedAt(clock.instant())
+                .data(originalData)
+                .build();
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(originalOfficerFiling));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
+
+        testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        verify(filingAPIMapper).map(officerFilingCaptor.capture());
+        var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
+        var expectedOfficerFilingData = OfficerFilingData.builder()
+                .occupation(OCCUPATION)
+                .build();
+        assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
+    }
+
+    @Test
+    void generateUpdateOfficerFilingWhenOccupationHasNotBeenUpdated() {
+        final var originalData = testOfficerFilingDataBuilder()
+                .nameHasBeenUpdated(false)
+                .nationalityHasBeenUpdated(false)
+                .occupationHasBeenUpdated(false)
+                .residentialAddressHasBeenUpdated(false)
+                .correspondenceAddressHasBeenUpdated(false)
+                .build();
+        final var originalOfficerFiling = OfficerFiling.builder()
+                .createdAt(clock.instant())
+                .updatedAt(clock.instant())
+                .data(originalData)
+                .build();
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(originalOfficerFiling));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
+
+        testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        verify(filingAPIMapper).map(officerFilingCaptor.capture());
+        var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
+        var expectedOfficerFilingData = OfficerFilingData.builder()
+                .occupation(null)
+                .build();
+        assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
+    }
+
+
     private static OfficerFilingData.Builder testOfficerFilingDataBuilder() {
         return OfficerFilingData.builder()
                 .referenceAppointmentId(REF_APPOINTMENT_ID)
@@ -590,7 +663,7 @@ class FilingDataServiceImplTest {
                 .nationality1(NATIONALITY_1)
                 .nationality2(NATIONALITY_2)
                 .nationality3(NATIONALITY_3)
-                .occupation("occupation")
+                .occupation(OCCUPATION)
                 .serviceAddress(Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build())
                 .isServiceAddressSameAsRegisteredOfficeAddress(false)
                 .residentialAddress(Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build())
