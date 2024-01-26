@@ -633,6 +633,34 @@ class FilingDataServiceImplTest {
     }
 
     @Test
+    void testSetTm01DescriptionFieldsWithFirstNameLastNameAndEMPTYTitleWHITESPACEDMiddleName() {
+        // Prepare test data
+        final Instant resignedOn = Instant.parse("2022-10-05T00:00:00Z");
+        final String formattedResignationDate = "5 October 2022";
+        final OfficerFilingData officerFilingData = OfficerFilingData.builder()
+                .resignedOn(resignedOn)
+                .build();
+        final FilingApi filing = new FilingApi();
+
+        // when
+        when(companyAppointment.getTitle()).thenReturn("");
+        when(companyAppointment.getSurname()).thenReturn("Bloggs");
+        when(companyAppointment.getOtherForenames()).thenReturn("  ");
+        when(companyAppointment.getForename()).thenReturn("Joe");
+
+        // under test
+        testService.setTm01DescriptionFields(filing, officerFilingData, companyAppointment);
+
+        // then
+        Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("director name", "JOE BLOGGS");
+        expectedValues.put("termination date", formattedResignationDate);
+
+        assertThat(filing.getDescription(), is("(TM01) Termination of appointment of a director. Terminating appointment of JOE BLOGGS on 5 October 2022"));
+        assertThat(expectedValues, is(filing.getDescriptionValues()));
+    }
+
+    @Test
     void setAp01DescriptionFieldsWithFullName() {
         // Prepare test data
         final String formattedAppointmentDate = "1 January 2023";
@@ -664,6 +692,31 @@ class FilingDataServiceImplTest {
                 .appointedOn(Instant.parse("2023-01-01T00:00:00Z"))
                 .firstName("Joe")
                 .lastName("Bloggs")
+                .build();
+        final FilingApi filing = new FilingApi();
+
+        // under test
+        testService.setAp01DescriptionFields(filing, officerFilingData);
+
+        // then
+        Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("director name", "JOE BLOGGS");
+        expectedValues.put("appointment date", formattedAppointmentDate);
+        assertThat(filing.getDescription(), is("(AP01) Appointment of a director. Appointment of JOE BLOGGS on 1 January 2023"));
+        assertThat(filing.getDescriptionValues(), is(expectedValues));
+    }
+
+
+    @Test
+    void setAp01DescriptionFieldsWithFistNameLastNameAndEMPTYTitleWHITESPACEDMiddleName() {
+        // Prepare test data
+        final String formattedAppointmentDate = "1 January 2023";
+        final OfficerFilingData officerFilingData = OfficerFilingData.builder()
+                .appointedOn(Instant.parse("2023-01-01T00:00:00Z"))
+                .title("")
+                .firstName("Joe")
+                .lastName("Bloggs")
+                .middleNames("  ")
                 .build();
         final FilingApi filing = new FilingApi();
 
@@ -716,6 +769,32 @@ class FilingDataServiceImplTest {
 
         // when
         when(companyAppointment.getSurname()).thenReturn("Bloggs");
+        when(companyAppointment.getForename()).thenReturn("Joe");
+
+        // under test
+        testService.setCh01DescriptionFields(filing, officerFilingData, companyAppointment);
+
+        // then
+        Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("director name", "JOE BLOGGS");
+        expectedValues.put("update date", formattedUpdateDate);
+        assertThat(filing.getDescription(), is("(CH01) Update of a director. Update of JOE BLOGGS on 1 January 2023"));
+        assertThat(filing.getDescriptionValues(), is(expectedValues));
+    }
+
+    @Test
+    void setCh01DescriptionFieldsWithFirstNameLastNameAndEMPTYTitleWHITESPACEDMiddleName() {
+        // Prepare test data
+        final String formattedUpdateDate = "1 January 2023";
+        final OfficerFilingData officerFilingData = OfficerFilingData.builder()
+                .directorsDetailsChangedDate(Instant.parse("2023-01-01T00:00:00Z"))
+                .build();
+        final FilingApi filing = new FilingApi();
+
+        // when
+        when(companyAppointment.getSurname()).thenReturn("");
+        when(companyAppointment.getSurname()).thenReturn("Bloggs");
+        when(companyAppointment.getOtherForenames()).thenReturn("  ");
         when(companyAppointment.getForename()).thenReturn("Joe");
 
         // under test
