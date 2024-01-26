@@ -539,6 +539,11 @@ public class OfficerFilingDto {
             return this;
         }
 
+        public Builder description(final String value) {
+            buildSteps.add(data -> data.description = value);
+            return this;
+        }
+
         public OfficerFilingDto build() {
 
             final var data = new OfficerFilingDto();
