@@ -223,19 +223,21 @@ public class FilingDataServiceImpl implements FilingDataService {
         return false;
     }
 
-    private void setTm01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData, AppointmentFullRecordAPI companyAppointment) {
+    void setTm01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData, AppointmentFullRecordAPI companyAppointment) {
         final String formattedTerminationDate = LocalDate.ofInstant(officerFilingData.getResignedOn(), ZoneOffset.UTC).format(formatter);
         filing.setDescriptionIdentifier(TM01_FILING_DESCRIPTION);
+        var title = "";
         var surname = "";
         var middleNames = "";
         var officerFilingName = "";
         if (companyAppointment.getSurname() != null) {
+            title = companyAppointment.getTitle() != null ? companyAppointment.getTitle().toUpperCase() + " " : "";
             surname = companyAppointment.getSurname().toUpperCase();
-            middleNames = companyAppointment.getOtherForenames();
-            officerFilingName = companyAppointment.getForename() + " " + middleNames + " " + surname;
+            middleNames = companyAppointment.getOtherForenames() != null ? companyAppointment.getOtherForenames().toUpperCase() + " " : "";
+            officerFilingName = title + companyAppointment.getForename().toUpperCase() + " " + middleNames + surname;
         } else {
             // is a corporate director
-            officerFilingName = companyAppointment.getName();
+            officerFilingName = companyAppointment.getName().toUpperCase();
         }
         filing.setDescription(TM01_FILING_DESCRIPTION.replace("{" + DIRECTOR_NAME + "}", officerFilingName)
                 .replace("{termination date}", formattedTerminationDate));
@@ -245,9 +247,11 @@ public class FilingDataServiceImpl implements FilingDataService {
         filing.setDescriptionValues(values);
     }
 
-    private void setAp01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData) {
+        void setAp01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData) {
         final String formattedAppointmentDate = LocalDate.ofInstant(officerFilingData.getAppointedOn(), ZoneOffset.UTC).format(formatter);
-        final String officerFilingName = officerFilingData.getFirstName().toUpperCase() + " " + officerFilingData.getMiddleNames().toUpperCase() + " " + officerFilingData.getLastName().toUpperCase();
+        final String title = officerFilingData.getTitle() != null ? officerFilingData.getTitle().toUpperCase() + " " : "";
+        final String middleNames = officerFilingData.getMiddleNames() != null ? officerFilingData.getMiddleNames().toUpperCase() + " " : "";
+        final String officerFilingName = title + officerFilingData.getFirstName().toUpperCase() + " " + middleNames + officerFilingData.getLastName().toUpperCase();
         filing.setDescriptionIdentifier(AP01_FILING_DESCRIPTION);
         filing.setDescription(AP01_FILING_DESCRIPTION.replace("{" + DIRECTOR_NAME + "}", officerFilingName)
                 .replace("{appointment date}", formattedAppointmentDate));
@@ -257,9 +261,11 @@ public class FilingDataServiceImpl implements FilingDataService {
         ));
     }
 
-    private void setCh01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData, AppointmentFullRecordAPI appointment) {
+        void setCh01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData, AppointmentFullRecordAPI appointment) {
         final String formattedUpdateDate = LocalDate.ofInstant(officerFilingData.getDirectorsDetailsChangedDate(), ZoneOffset.UTC).format(formatter);
-        final String officerFilingName = appointment.getForename().toUpperCase() + " " + appointment.getOtherForenames() + " " + appointment.getSurname().toUpperCase();
+        final String title = appointment.getTitle() != null ? appointment.getTitle().toUpperCase() + " " : "";
+        final String otherForenames = appointment.getOtherForenames() != null ? appointment.getOtherForenames().toUpperCase() + " " : "";
+        final String officerFilingName = title + appointment.getForename().toUpperCase() + " " + otherForenames + appointment.getSurname().toUpperCase();
         filing.setDescriptionIdentifier(CH01_FILING_DESCRIPTION);
         filing.setDescription(CH01_FILING_DESCRIPTION.replace("{" + DIRECTOR_NAME + "}", officerFilingName)
                 .replace("{update date}", formattedUpdateDate));
