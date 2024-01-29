@@ -271,16 +271,4 @@ public class FilingDataServiceImpl implements FilingDataService {
                 DIRECTOR_NAME, officerFilingName
         ));
     }
-
-    private static String getNameFromOfficerFilingData(OfficerFilingData officerFilingData) {
-        final String title = officerFilingData.getTitle() != null && !officerFilingData.getTitle().isBlank() ? officerFilingData.getTitle().toUpperCase() + " " : "";
-        final String middleNames = officerFilingData.getMiddleNames() != null && !officerFilingData.getMiddleNames().isBlank() ? officerFilingData.getMiddleNames().toUpperCase() + " " : "";
-        return title + officerFilingData.getFirstName().toUpperCase() + " " + middleNames + officerFilingData.getLastName().toUpperCase();
-    }
-
-    private static String getNameFromAppointment(AppointmentFullRecordAPI companyAppointment) {
-        String title = companyAppointment.getTitle() != null && !companyAppointment.getTitle().isBlank() ? companyAppointment.getTitle().toUpperCase() + " " : "";
-        String middleNames = companyAppointment.getOtherForenames() != null && !companyAppointment.getOtherForenames().isBlank() ? companyAppointment.getOtherForenames().toUpperCase() + " " : "";
-        return title + companyAppointment.getForename().toUpperCase() + " " + middleNames + companyAppointment.getSurname().toUpperCase();
-    }
 }
