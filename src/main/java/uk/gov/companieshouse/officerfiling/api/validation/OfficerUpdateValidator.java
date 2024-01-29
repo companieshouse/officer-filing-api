@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.validation;
 
+import org.apache.commons.lang.StringUtils;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
@@ -156,8 +157,8 @@ public class OfficerUpdateValidator extends OfficerValidator {
     }
 
     public void validateOccupationSection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
-        if (Boolean.FALSE.equals(dto.getOccupationHasBeenUpdated())) {
-                return;
+        if (Boolean.FALSE.equals(dto.getOccupationHasBeenUpdated()) || dto.getOccupation() == null) {
+            return;
         }
         if (doesOccupationMatchChipsData(dto, appointmentFullRecordAPI)) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.OCCUPATION_MATCHES_CHIPS_DATA));
@@ -188,8 +189,8 @@ public class OfficerUpdateValidator extends OfficerValidator {
     }
 
     public boolean doesOccupationMatchChipsData(OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
-        if (appointmentFullRecordAPI.getOccupation().equalsIgnoreCase("NONE") && !(dto.getOccupation().equalsIgnoreCase("NONE") || dto.getOccupation().isEmpty())) {
-            return false;
+        if (appointmentFullRecordAPI.getOccupation().equalsIgnoreCase("NONE") && ("NONE".equalsIgnoreCase(dto.getOccupation()) || StringUtils.isEmpty(dto.getOccupation()))) {
+            return true;
         }
 
         final String chipsOccupation = appointmentFullRecordAPI.getOccupation();

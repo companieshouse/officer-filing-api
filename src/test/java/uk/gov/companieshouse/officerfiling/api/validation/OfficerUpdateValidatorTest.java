@@ -471,10 +471,23 @@ class OfficerUpdateValidatorTest {
         when(dto.getOccupationHasBeenUpdated()).thenReturn(hasBeenUpdated);
         when(companyAppointment.getOccupation()).thenReturn("none");
         when(dto.getOccupation()).thenReturn("");
+        when(apiEnumerations.getValidation(ValidationEnum.OCCUPATION_MATCHES_CHIPS_DATA)).thenReturn("The occupation data submitted cannot pass validation as it is not an update from the previously submitted data");
 
         officerUpdateValidator.validateOccupationSection(request, apiErrorsList, dto, companyAppointment);
 
-        Mockito.verify(officerUpdateValidator, times(1)).validateOccupation(any(), any(), any());
+        Mockito.verify(officerUpdateValidator, times(0)).validateOccupation(any(), any(), any());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(booleans = {true})
+    void validateOccupationSectionOccupationIsNull(Boolean hasBeenUpdated) {
+        when(dto.getOccupationHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getOccupation()).thenReturn(null);
+
+        officerUpdateValidator.validateOccupationSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(officerUpdateValidator, times(0)).validateOccupation(any(), any(), any());
     }
 
     @ParameterizedTest
@@ -515,6 +528,26 @@ class OfficerUpdateValidatorTest {
         officerUpdateValidator.validateOccupationSection(request, apiErrorsList, dto, companyAppointment);
 
         Mockito.verify(officerUpdateValidator, times(0)).validateOccupation(any(), any(), any());
+        assertThat(apiErrorsList)
+                .as("An error should be produced when occupation data matches chips data")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The occupation data submitted cannot pass validation as it is not an update from the previously submitted data");
+
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(booleans = {true})
+    void validateOccupationSectionWhenBooleanIsTrueAndFieldsUpdatedAsNoneAndChipsDataIsNone1(Boolean hasBeenUpdated) {
+        when(dto.getOccupationHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getOccupation()).thenReturn("");
+        when(companyAppointment.getOccupation()).thenReturn("NONE");
+        when(apiEnumerations.getValidation(ValidationEnum.OCCUPATION_MATCHES_CHIPS_DATA)).thenReturn("The occupation data submitted cannot pass validation as it is not an update from the previously submitted data");
+
+        officerUpdateValidator.validateOccupationSection(request, apiErrorsList, dto, companyAppointment);
+
+//        Mockito.verify(officerUpdateValidator, times(0)).validateOccupation(any(), any(), any());
         assertThat(apiErrorsList)
                 .as("An error should be produced when occupation data matches chips data")
                 .hasSize(1)
