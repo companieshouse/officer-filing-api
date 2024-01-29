@@ -159,6 +159,9 @@ public class OfficerUpdateValidator extends OfficerValidator {
         if (Boolean.FALSE.equals(dto.getOccupationHasBeenUpdated())) {
                 return;
         }
+        if (dto.getOccupation() == null) {
+            return;
+        }
         if (doesOccupationMatchChipsData(dto, appointmentFullRecordAPI)) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.OCCUPATION_MATCHES_CHIPS_DATA));
             return;
@@ -188,10 +191,10 @@ public class OfficerUpdateValidator extends OfficerValidator {
     }
 
     public boolean doesOccupationMatchChipsData(OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
-        if (appointmentFullRecordAPI.getOccupation().equalsIgnoreCase("NONE") && (!dto.getOccupation().equalsIgnoreCase("NONE") || dto.getOccupation().isEmpty())) {
+        if (appointmentFullRecordAPI.getOccupation() == null ||
+                appointmentFullRecordAPI.getOccupation().equalsIgnoreCase("NONE") && !dto.getOccupation().equalsIgnoreCase("NONE")) {
             return false;
         }
-
         final String chipsOccupation = appointmentFullRecordAPI.getOccupation();
         return matchesChipsField(dto.getOccupation(), chipsOccupation);
     }
