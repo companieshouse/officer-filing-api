@@ -223,19 +223,15 @@ public class FilingDataServiceImpl implements FilingDataService {
         return false;
     }
 
-    private void setTm01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData, AppointmentFullRecordAPI companyAppointment) {
+    void setTm01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData, AppointmentFullRecordAPI companyAppointment) {
         final String formattedTerminationDate = LocalDate.ofInstant(officerFilingData.getResignedOn(), ZoneOffset.UTC).format(formatter);
         filing.setDescriptionIdentifier(TM01_FILING_DESCRIPTION);
-        var surname = "";
-        var middleNames = "";
         var officerFilingName = "";
         if (companyAppointment.getSurname() != null) {
-            surname = companyAppointment.getSurname().toUpperCase();
-            middleNames = companyAppointment.getOtherForenames();
-            officerFilingName = companyAppointment.getForename() + " " + middleNames + " " + surname;
+            officerFilingName = getNameFromAppointment(companyAppointment);
         } else {
             // is a corporate director
-            officerFilingName = companyAppointment.getName();
+            officerFilingName = companyAppointment.getName().toUpperCase();
         }
         filing.setDescription(TM01_FILING_DESCRIPTION.replace("{" + DIRECTOR_NAME + "}", officerFilingName)
                 .replace("{termination date}", formattedTerminationDate));
@@ -245,9 +241,9 @@ public class FilingDataServiceImpl implements FilingDataService {
         filing.setDescriptionValues(values);
     }
 
-    private void setAp01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData) {
+    void setAp01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData) {
         final String formattedAppointmentDate = LocalDate.ofInstant(officerFilingData.getAppointedOn(), ZoneOffset.UTC).format(formatter);
-        final String officerFilingName = officerFilingData.getFirstName().toUpperCase() + " " + officerFilingData.getMiddleNames().toUpperCase() + " " + officerFilingData.getLastName().toUpperCase();
+        final String officerFilingName = getNameFromOfficerFilingData(officerFilingData);
         filing.setDescriptionIdentifier(AP01_FILING_DESCRIPTION);
         filing.setDescription(AP01_FILING_DESCRIPTION.replace("{" + DIRECTOR_NAME + "}", officerFilingName)
                 .replace("{appointment date}", formattedAppointmentDate));
@@ -257,9 +253,9 @@ public class FilingDataServiceImpl implements FilingDataService {
         ));
     }
 
-    private void setCh01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData, AppointmentFullRecordAPI appointment) {
+    void setCh01DescriptionFields(FilingApi filing, OfficerFilingData officerFilingData, AppointmentFullRecordAPI appointment) {
         final String formattedUpdateDate = LocalDate.ofInstant(officerFilingData.getDirectorsDetailsChangedDate(), ZoneOffset.UTC).format(formatter);
-        final String officerFilingName = appointment.getForename().toUpperCase() + " " + appointment.getOtherForenames() + " " + appointment.getSurname().toUpperCase();
+        final String officerFilingName = getNameFromAppointment(appointment);
         filing.setDescriptionIdentifier(CH01_FILING_DESCRIPTION);
         filing.setDescription(CH01_FILING_DESCRIPTION.replace("{" + DIRECTOR_NAME + "}", officerFilingName)
                 .replace("{update date}", formattedUpdateDate));
@@ -267,5 +263,17 @@ public class FilingDataServiceImpl implements FilingDataService {
                 "update date", formattedUpdateDate,
                 DIRECTOR_NAME, officerFilingName
         ));
+    }
+
+    private static String getNameFromOfficerFilingData(OfficerFilingData officerFilingData) {
+        final String title = officerFilingData.getTitle() != null && !officerFilingData.getTitle().isBlank() ? officerFilingData.getTitle().toUpperCase() + " " : "";
+        final String middleNames = officerFilingData.getMiddleNames() != null && !officerFilingData.getMiddleNames().isBlank() ? officerFilingData.getMiddleNames().toUpperCase() + " " : "";
+        return title + officerFilingData.getFirstName().toUpperCase() + " " + middleNames + officerFilingData.getLastName().toUpperCase();
+    }
+
+    private static String getNameFromAppointment(AppointmentFullRecordAPI companyAppointment) {
+        String title = companyAppointment.getTitle() != null && !companyAppointment.getTitle().isBlank() ? companyAppointment.getTitle().toUpperCase() + " " : "";
+        String middleNames = companyAppointment.getOtherForenames() != null && !companyAppointment.getOtherForenames().isBlank() ? companyAppointment.getOtherForenames().toUpperCase() + " " : "";
+        return title + companyAppointment.getForename().toUpperCase() + " " + middleNames + companyAppointment.getSurname().toUpperCase();
     }
 }
