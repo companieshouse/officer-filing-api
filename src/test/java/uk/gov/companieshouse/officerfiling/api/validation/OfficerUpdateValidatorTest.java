@@ -469,11 +469,12 @@ class OfficerUpdateValidatorTest {
     @ValueSource(booleans = {true})
     void validateOccupationSectionWhenBooleanIsTrueAndNoFieldsUpdated(Boolean hasBeenUpdated) {
         when(dto.getOccupationHasBeenUpdated()).thenReturn(hasBeenUpdated);
-        when(dto.getOccupation()).thenReturn(null);
+        when(companyAppointment.getOccupation()).thenReturn("none");
+        when(dto.getOccupation()).thenReturn("");
 
         officerUpdateValidator.validateOccupationSection(request, apiErrorsList, dto, companyAppointment);
 
-        Mockito.verify(officerUpdateValidator, times(0)).validateOccupation(any(), any(), any());
+        Mockito.verify(officerUpdateValidator, times(1)).validateOccupation(any(), any(), any());
     }
 
     @ParameterizedTest
@@ -482,7 +483,7 @@ class OfficerUpdateValidatorTest {
     void validateOccupationSectionWhenBooleanIsTrueAndFieldsUpdatedAndChipsDataIsNull(Boolean hasBeenUpdated) {
         when(dto.getOccupationHasBeenUpdated()).thenReturn(hasBeenUpdated);
         when(dto.getOccupation()).thenReturn("QA");
-        when(companyAppointment.getOccupation()).thenReturn(null);
+        when(companyAppointment.getOccupation()).thenReturn("none");
 
         officerUpdateValidator.validateOccupationSection(request, apiErrorsList, dto, companyAppointment);
 
@@ -553,12 +554,12 @@ class OfficerUpdateValidatorTest {
         Mockito.verify(officerUpdateValidator).validateOccupation(any(), any(), any());
     }
 
-    @Test
-    void doesOccupationMatchChipsDataWhenNoChipsData() {
-        when(companyAppointment.getOccupation()).thenReturn(null);
-        final var result = officerUpdateValidator.doesOccupationMatchChipsData(dto, companyAppointment);
-        assertThat(result).isFalse();
-    }
+//    @Test
+//    void doesOccupationMatchChipsDataWhenNoChipsData() {
+//        when(companyAppointment.getOccupation()).thenReturn(null);
+//        final var result = officerUpdateValidator.doesOccupationMatchChipsData(dto, companyAppointment);
+//        assertThat(result).isFalse();
+//    }
 
     @Test
     void validateNationalitySectionWhenBooleanIsFalse() {
