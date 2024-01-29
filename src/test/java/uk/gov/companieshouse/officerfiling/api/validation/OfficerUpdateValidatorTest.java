@@ -539,7 +539,7 @@ class OfficerUpdateValidatorTest {
     @ParameterizedTest
     @NullSource
     @ValueSource(booleans = {true})
-    void validateOccupationSectionWhenBooleanIsTrueAndFieldsUpdatedAsNoneAndChipsDataIsNone1(Boolean hasBeenUpdated) {
+    void validateOccupationSectionWhenOccupationIsEmpty(Boolean hasBeenUpdated) {
         when(dto.getOccupationHasBeenUpdated()).thenReturn(hasBeenUpdated);
         when(dto.getOccupation()).thenReturn("");
         when(companyAppointment.getOccupation()).thenReturn("NONE");
@@ -547,7 +547,6 @@ class OfficerUpdateValidatorTest {
 
         officerUpdateValidator.validateOccupationSection(request, apiErrorsList, dto, companyAppointment);
 
-//        Mockito.verify(officerUpdateValidator, times(0)).validateOccupation(any(), any(), any());
         assertThat(apiErrorsList)
                 .as("An error should be produced when occupation data matches chips data")
                 .hasSize(1)
