@@ -121,7 +121,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         final var officerFiling = saveData.getRight();
         final var resourceMap = buildResourceMap(links);
 
-        boolean updateDescription = false;
+        var updateDescription = false;
         if (!StringUtils.isBlank(dto.getDescription()) && !dto.getDescription().equals(transaction.getDescription())) {
             transaction.setDescription(dto.getDescription());
             updateDescription = true;
