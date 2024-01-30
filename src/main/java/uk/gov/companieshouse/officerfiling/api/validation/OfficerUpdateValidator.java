@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.validation;
 
+import org.apache.commons.lang.StringUtils;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
@@ -69,7 +70,8 @@ public class OfficerUpdateValidator extends OfficerValidator {
         validateChangeDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
         validateChangeDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
         validateNationalitySection(request, errorList, dto, companyAppointment.get());
-
+        validateOccupationSection(request, errorList, dto, companyAppointment.get());
+        
         return new ApiErrors(errorList);
     }
 
@@ -154,6 +156,17 @@ public class OfficerUpdateValidator extends OfficerValidator {
         validateNationalityLength(request, errorList, dto);
     }
 
+    public void validateOccupationSection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+        if (Boolean.FALSE.equals(dto.getOccupationHasBeenUpdated()) || dto.getOccupation() == null) {
+            return;
+        }
+        if (doesOccupationMatchChipsData(dto, appointmentFullRecordAPI)) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.OCCUPATION_MATCHES_CHIPS_DATA));
+            return;
+        }
+        validateOccupation(request, errorList, dto);
+    }
+
     public boolean doesNationalityMatchChipsData(OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
         if (appointment.getNationality() == null) {
             return false;
@@ -173,6 +186,15 @@ public class OfficerUpdateValidator extends OfficerValidator {
             return false;
         }
         return chipsNationalities.length < 3 || matchesChipsField(dto.getNationality3(), chipsNationalities[2]);
+    }
+
+    public boolean doesOccupationMatchChipsData(OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+        if (appointmentFullRecordAPI.getOccupation().equalsIgnoreCase("NONE") && ("NONE".equalsIgnoreCase(dto.getOccupation()) || StringUtils.isEmpty(dto.getOccupation()))) {
+            return true;
+        }
+
+        final String chipsOccupation = appointmentFullRecordAPI.getOccupation();
+        return matchesChipsField(dto.getOccupation(), chipsOccupation);
     }
 
     private boolean matchesChipsField(String field, String chipsField) {
