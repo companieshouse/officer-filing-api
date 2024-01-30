@@ -99,13 +99,6 @@ public class OfficerTerminationValidator extends OfficerValidator {
         }
     }
 
-    @Override
-    public void validateRequiredTransactionFields(HttpServletRequest request, List<ApiError> errorList, Transaction transaction) {
-        if (transaction.getCompanyNumber() == null || transaction.getCompanyNumber().isBlank()) {
-            createValidationError(request, errorList, "The company number cannot be null or blank");
-        }
-    }
-
     public void validateSubmissionInformationInDate(HttpServletRequest request, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment, List<ApiError> errorList) {
         if (companyAppointment.getEtag() == null) {
             logger.errorRequest(request, "null data was found in the Company Appointment API within the etag field");
@@ -147,17 +140,6 @@ public class OfficerTerminationValidator extends OfficerValidator {
     public void validateOfficerIsNotTerminated(HttpServletRequest request, List<ApiError> errorList, AppointmentFullRecordAPI companyAppointment) {
         if (companyAppointment.getResignedOn() != null) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DIRECTOR_ALREADY_REMOVED, getDirectorName(companyAppointment)));
-        }
-    }
-
-    @Override
-    public void validateCompanyNotDissolved(HttpServletRequest request, List<ApiError> errorList, CompanyProfileApi companyProfile) {
-        if (companyProfile.getCompanyStatus() == null) {
-            logger.errorRequest(request, "null data was found in the Company Profile API within the Company Status field");
-            return;
-        }
-        if (Objects.equals(companyProfile.getCompanyStatus(), "dissolved") || companyProfile.getDateOfCessation() != null) {
-            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED));
         }
     }
 

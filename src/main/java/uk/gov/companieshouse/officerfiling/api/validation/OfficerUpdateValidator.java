@@ -54,7 +54,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
                 .withRequest(request)
                 .build());
         final List<ApiError> errorList = new ArrayList<>();
-
+        validateRequiredTransactionFields(request, errorList, transaction);
         validateRequiredDtoFields(request, errorList, dto);
         validateOptionalDtoFields(request, errorList, dto);
 

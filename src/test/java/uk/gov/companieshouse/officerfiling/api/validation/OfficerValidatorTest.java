@@ -9,6 +9,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.error.ApiError;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
@@ -17,6 +19,8 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +32,7 @@ class OfficerValidatorTest {
 
     private OfficerValidator officerValidator;
     private List<ApiError> apiErrorsList;
+    private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
 
     @Mock
     private HttpServletRequest request;
@@ -36,11 +41,15 @@ class OfficerValidatorTest {
     @Mock
     private CompanyProfileServiceImpl companyProfileService;
     @Mock
+    private CompanyProfileApi companyProfile;
+    @Mock
     private CompanyAppointmentService companyAppointmentService;
     @Mock
     private ApiEnumerations apiEnumerations;
     @Mock
     private OfficerFilingDto dto;
+    @Mock
+    private Transaction transaction;
 
     @BeforeEach
     void setUp() {
@@ -49,6 +58,40 @@ class OfficerValidatorTest {
         officerValidator = new OfficerValidator(logger, companyProfileService, companyAppointmentService, allowedNationalities, apiEnumerations) {
             // Anonymous subclass to directly test methods implemented in the abstract class
         };
+    }
+
+    @Test
+    void testValidateRequiredTransactionFields() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        officerValidator.validateRequiredTransactionFields(request, apiErrorsList, transaction);
+
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when all required transaction fields are present")
+                .isEmpty();
+    }
+
+    @Test
+    void testValidateRequiredTransactionFieldsWhenCompanyNumberIsNull() {
+        when(transaction.getCompanyNumber()).thenReturn(null);
+
+        officerValidator.validateRequiredTransactionFields(request, apiErrorsList, transaction);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when company number is null")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The company number cannot be null or blank");
+    }
+
+    @Test
+    void testValidateRequiredTransactionFieldsWhenCompanyNumberIsBlank() {
+        when(transaction.getCompanyNumber()).thenReturn(" ");
+
+        officerValidator.validateRequiredTransactionFields(request, apiErrorsList, transaction);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when company number is null")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The company number cannot be null or blank");
     }
 
     @Test
@@ -361,6 +404,55 @@ class OfficerValidatorTest {
         assertThat(apiErrorsList)
                 .as("An error should not be produced when nationalities 1, 2, and 3 contain exactly 48 characters between them")
                 .isEmpty();
+    }
+
+    @Test
+    void validateCompanyNotDissolvedWhenCompanyActive() {
+        when(companyProfile.getCompanyStatus()).thenReturn("active");
+
+        officerValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced company status is not dissolved")
+                .isEmpty();
+    }
+
+    @Test
+    void validateCompanyNotDissolvedWhenCompanyStatusIsNull() {
+        when(companyProfile.getCompanyStatus()).thenReturn(null);
+
+        officerValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced company status is not dissolved")
+                .isEmpty();
+    }
+
+    @Test
+    void validateCompanyNotDissolvedWhenCompanyStatusIsDissolved() {
+        when(companyProfile.getCompanyStatus()).thenReturn("dissolved");
+        when(apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED)).thenReturn(
+                "You cannot add or remove a director from a company that has been dissolved or is in the process of being dissolved");
+
+        officerValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced company status is dissolved")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("You cannot add or remove a director from a company that has been dissolved or is in the process of being dissolved");
+    }
+
+    @Test
+    void validateCompanyNotDissolvedWhenCompanyStatusIsNotDissolvedButHasDateOfCessation() {
+        when(companyProfile.getCompanyStatus()).thenReturn("active");
+        when(companyProfile.getDateOfCessation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
+        when(apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED)).thenReturn(
+                "You cannot add or remove a director from a company that has been dissolved or is in the process of being dissolved");
+
+        officerValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced company status is dissolved")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("You cannot add or remove a director from a company that has been dissolved or is in the process of being dissolved");
     }
 
 }

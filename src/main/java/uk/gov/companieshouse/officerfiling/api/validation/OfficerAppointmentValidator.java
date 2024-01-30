@@ -16,7 +16,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -26,10 +25,15 @@ import java.util.stream.Collectors;
  */
 public class OfficerAppointmentValidator extends OfficerValidator {
 
-    private Logger logger;
-    private ApiEnumerations apiEnumerations;
+    private final Logger logger;
+    private final ApiEnumerations apiEnumerations;
     private final List<String> countryList;
     private final List<String> ukCountryList;
+    private static final Integer AGE_110 = 110;
+    private static final Integer AGE_16 = 16;
+    private static final Integer LENGTH_20 = 20;
+    private static final Integer LENGTH_50 = 50;
+    private static final Integer LENGTH_200 = 200;
 
     public OfficerAppointmentValidator(final Logger logger,
                                        final CompanyProfileService companyProfileService,
@@ -73,7 +77,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         // Perform validation
         validateCompanyNotDissolved(request, errorList, companyProfile.get());
         validateAllowedCompanyType(request, errorList, companyProfile.get());
-        validateAppointmentDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
+        validateAppointmentDateOnOrBeforeIncorporationDate(request, errorList, dto, companyProfile.get());
 
         return new ApiErrors(errorList);
     }
@@ -119,9 +123,9 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             var officerDateOfBirth = dto.getDateOfBirth();
             var currentDate = LocalDate.now();
             var age = Period.between(officerDateOfBirth, currentDate).getYears();
-            if (age >= 110) {
+            if (age >= AGE_110) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_OVERAGE));
-            } else if (age < 16) {
+            } else if (age < AGE_16) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_UNDERAGE));
             }
         }
@@ -147,9 +151,9 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_BLANK));
         } else {
             var age = Period.between(dto.getDateOfBirth(), dto.getAppointedOn()).getYears();
-            if (age >= 110) {
+            if (age >= AGE_110) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DATE_OF_BIRTH_OVERAGE));
-            } else if (age < 16) {
+            } else if (age < AGE_16) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_UNDERAGE));
             }
         }
@@ -182,24 +186,6 @@ public class OfficerAppointmentValidator extends OfficerValidator {
                 createValidationError(request, errorList,
                         apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_CHARACTERS));
             }
-        }
-    }
-
-    @Override
-    public void validateRequiredTransactionFields(HttpServletRequest request, List<ApiError> errorList, Transaction transaction) {
-        if (transaction.getCompanyNumber() == null || transaction.getCompanyNumber().isBlank()) {
-            createValidationError(request, errorList, "The company number cannot be null or blank");
-        }
-    }
-
-    @Override
-    public void validateCompanyNotDissolved(HttpServletRequest request, List<ApiError> errorList, CompanyProfileApi companyProfile) {
-        if (companyProfile.getCompanyStatus() == null) {
-            logger.errorRequest(request, "null data was found in the Company Profile API within the Company Status field");
-            return;
-        }
-        if (Objects.equals(companyProfile.getCompanyStatus(), "dissolved") || companyProfile.getDateOfCessation() != null) {
-            createValidationError(request, errorList, getApiEnumerations().getValidation(ValidationEnum.COMPANY_DISSOLVED));
         }
     }
 
@@ -252,7 +238,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         if (premises == null || premises.isBlank()) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_PREMISES_BLANK));
         } else {
-            if (!validateDtoFieldLength(premises, 200)) {
+            if (!validateDtoFieldLength(premises, LENGTH_200)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_PREMISES_LENGTH));
             }
             if (!isValidCharacters(premises)) {
@@ -265,7 +251,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         if (premises == null || premises.isBlank()) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_PREMISES_BLANK));
         } else {
-            if (!validateDtoFieldLength(premises, 200)) {
+            if (!validateDtoFieldLength(premises, LENGTH_200)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_PREMISES_LENGTH));
             }
             if (!isValidCharacters(premises)) {
@@ -278,7 +264,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         if (addressLineOne == null || addressLineOne.isBlank()) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_ADDRESS_LINE_ONE_BLANK));
         } else {
-            if (!validateDtoFieldLength(addressLineOne, 50)) {
+            if (!validateDtoFieldLength(addressLineOne, LENGTH_50)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_ADDRESS_LINE_ONE_LENGTH));
             }
             if (!isValidCharacters(addressLineOne)) {
@@ -291,7 +277,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         if (addressLineOne == null || addressLineOne.isBlank()) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_LINE_ONE_BLANK));
         } else {
-            if (!validateDtoFieldLength(addressLineOne, 50)) {
+            if (!validateDtoFieldLength(addressLineOne, LENGTH_50)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_LINE_ONE_LENGTH));
             }
             if (!isValidCharacters(addressLineOne)) {
@@ -302,7 +288,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
 
     private void validateResidentialAddressLine2(HttpServletRequest request, List<ApiError> errorList, String addressLineTwo) {
         if (addressLineTwo != null && !addressLineTwo.isBlank()) {
-            if (!validateDtoFieldLength(addressLineTwo, 50)) {
+            if (!validateDtoFieldLength(addressLineTwo, LENGTH_50)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_ADDRESS_LINE_TWO_LENGTH));
             }
             if (!isValidCharacters(addressLineTwo)) {
@@ -313,7 +299,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
 
     private void validateCorrespondenceAddressLine2(HttpServletRequest request, List<ApiError> errorList, String addressLineTwo) {
         if (addressLineTwo != null && !addressLineTwo.isBlank()) {
-            if (!validateDtoFieldLength(addressLineTwo, 50)) {
+            if (!validateDtoFieldLength(addressLineTwo, LENGTH_50)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_LINE_TWO_LENGTH));
             }
             if (!isValidCharacters(addressLineTwo)) {
@@ -324,7 +310,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
 
     private void validateResidentialRegion(HttpServletRequest request, List<ApiError> errorList, String region) {
         if (region != null && !region.isBlank()) {
-            if (!validateDtoFieldLength(region, 50)) {
+            if (!validateDtoFieldLength(region, LENGTH_50)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_REGION_LENGTH));
             }
             if (!isValidCharacters(region)) {
@@ -335,7 +321,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
 
     private void validateCorrespondenceRegion(HttpServletRequest request, List<ApiError> errorList, String region) {
         if (region != null && !region.isBlank()) {
-            if (!validateDtoFieldLength(region, 50)) {
+            if (!validateDtoFieldLength(region, LENGTH_50)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_REGION_LENGTH));
             }
             if (!isValidCharacters(region)) {
@@ -348,7 +334,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         if (locality == null || locality.isBlank()) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_LOCALITY_BLANK));
         } else {
-            if (!validateDtoFieldLength(locality, 50)) {
+            if (!validateDtoFieldLength(locality, LENGTH_50)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_LOCALITY_LENGTH));
             }
             if (!isValidCharacters(locality)) {
@@ -361,7 +347,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         if (locality == null || locality.isBlank()) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_LOCALITY_BLANK));
         } else {
-            if (!validateDtoFieldLength(locality, 50)) {
+            if (!validateDtoFieldLength(locality, LENGTH_50)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_LOCALITY_LENGTH));
             }
             if (!isValidCharacters(locality)) {
@@ -377,7 +363,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             if (!countryList.stream().map(String::toLowerCase).collect(Collectors.toList()).contains(country.toLowerCase())) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_COUNTRY_INVALID));
             }
-            if (!validateDtoFieldLength(country, 50)) {
+            if (!validateDtoFieldLength(country, LENGTH_50)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_COUNTRY_LENGTH));
             }
             if (!isValidCharacters(country)) {
@@ -393,7 +379,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             if (!countryList.stream().map(String::toLowerCase).collect(Collectors.toList()).contains(country.toLowerCase())) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_COUNTRY_INVALID));
             }
-            if (!validateDtoFieldLength(country, 50)) {
+            if (!validateDtoFieldLength(country, LENGTH_50)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_COUNTRY_LENGTH));
             }
             if (!isValidCharacters(country)) {
@@ -407,7 +393,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             if (!isValidCharacters(postalCode)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_CHARACTERS));
             }
-            if (!validateDtoFieldLength(postalCode, 20)) {
+            if (!validateDtoFieldLength(postalCode, LENGTH_20)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_POSTAL_CODE_LENGTH));
             }
         }
@@ -423,7 +409,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
             if (!isValidCharacters(postalCode)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_CHARACTERS));
             }
-            if (!validateDtoFieldLength(postalCode, 20)) {
+            if (!validateDtoFieldLength(postalCode, LENGTH_20)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_POSTAL_CODE_LENGTH));
             }
         }
@@ -434,7 +420,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         }
     }
 
-    public void validateAppointmentDateAfterIncorporationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, CompanyProfileApi companyProfile) {
+    public void validateAppointmentDateOnOrBeforeIncorporationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, CompanyProfileApi companyProfile) {
         if (companyProfile.getDateOfCreation() == null) {
             logger.errorRequest(request, "null data was found in the Company Profile API within the Date Of Creation field");
             return;

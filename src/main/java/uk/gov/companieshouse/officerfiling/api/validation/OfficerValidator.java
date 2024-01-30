@@ -41,6 +41,8 @@ public abstract class OfficerValidator {
 
     private static final String REG_EXP_FOR_UK_POSTCODE = "^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$";
 
+    private static final String DISSOLVED = "dissolved";
+
     private Logger logger;
 
     public ApiEnumerations getApiEnumerations() {
@@ -103,8 +105,10 @@ public abstract class OfficerValidator {
         // specific to the sub-classes so no need for code in the super class.
     }
 
-    public void validateRequiredTransactionFields(HttpServletRequest request, List<ApiError> errorList, Transaction transaction) {
-        // specific to the sub-classes so no need for code in the super class.
+    protected void validateRequiredTransactionFields(HttpServletRequest request, List<ApiError> errorList, Transaction transaction) {
+        if (transaction.getCompanyNumber() == null || transaction.getCompanyNumber().isBlank()) {
+            createValidationError(request, errorList, "The company number cannot be null or blank");
+        }
     }
 
     public Optional<CompanyProfileApi> getCompanyProfile(HttpServletRequest request,
@@ -121,12 +125,12 @@ public abstract class OfficerValidator {
         return Optional.empty();
     }
 
-    public void validateCompanyNotDissolved(HttpServletRequest request, List<ApiError> errorList, CompanyProfileApi companyProfile) {
+    protected void validateCompanyNotDissolved(HttpServletRequest request, List<ApiError> errorList, CompanyProfileApi companyProfile) {
         if (companyProfile.getCompanyStatus() == null) {
             logger.errorRequest(request, "null data was found in the Company Profile API within the Company Status field");
             return;
         }
-        if (Objects.equals(companyProfile.getCompanyStatus(), "dissolved") || companyProfile.getDateOfCessation() != null) {
+        if (Objects.equals(companyProfile.getCompanyStatus(), DISSOLVED) || companyProfile.getDateOfCessation() != null) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED));
         }
     }
