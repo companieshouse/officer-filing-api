@@ -9,6 +9,8 @@ import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
@@ -118,8 +121,15 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         final var officerFiling = saveData.getRight();
         final var resourceMap = buildResourceMap(links);
 
+        var updateDescription = false;
+        if (!StringUtils.isBlank(dto.getDescription()) && !dto.getDescription().equals(transaction.getDescription())) {
+            transaction.setDescription(dto.getDescription());
+            updateDescription = true;
+        }
+
         transaction.setResources(resourceMap);
-        if(preExistingFilingId == null) {
+        if(preExistingFilingId == null || updateDescription) {
+            logger.debug("Update transaction" + (StringUtils.isBlank(transaction.getDescription()) ? "" :  ": " + transaction.getDescription()));
             transactionService.updateTransaction(transaction, passthroughHeader);
         }
 

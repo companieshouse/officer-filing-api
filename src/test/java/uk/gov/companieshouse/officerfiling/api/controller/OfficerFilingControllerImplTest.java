@@ -64,6 +64,7 @@ class OfficerFilingControllerImplTest {
     private static final String COMPANY_TYPE = "ltd";
     private static final String OFFICER_ROLE = "director";
     private static final String APPOINTMENT_ID = "12345678";
+    private static final String FILING_DESCRIPTION = "xyz a company director";
 
     private OfficerFilingControllerImpl testController;
     @Mock
@@ -173,6 +174,40 @@ class OfficerFilingControllerImplTest {
     }
 
     @Test
+    void createFilingWithExistingSubmissionAndDescription() {
+        final var resources = new HashMap<String,Resource>();
+        final var resource = new Resource();
+        final Map <String,String> resourcesMap = new HashMap<>();
+        resourcesMap.put("resource","/transactions/115025-478816-868338/officers/648b0b3a246067277f8dcb70");
+        resource.setLinks(resourcesMap);
+        resources.put("/transactions/115025-478816-868338/officers/648b0b3a246067277f8dcb70", resource);
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(transaction.getResources()).thenReturn(resources);
+        when(filingMapper.map(dto)).thenReturn(filing);
+        when(dto.getDescription()).thenReturn(FILING_DESCRIPTION);
+        final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
+                .build();
+        final var withLinks = OfficerFiling.builder(withFilingId).links(links)
+                .build();
+        when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
+        when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
+
+        final var response =
+                testController.createFiling(transaction, dto, result,
+                        request);
+
+        // refEq needed to compare Map value objects; Resource does not override equals()
+        verify(transaction).setResources(refEq(resourceMap));
+        verify(transaction).setDescription(FILING_DESCRIPTION);
+        verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
+        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
+
+    }
+
+    @Test
     void createFilingWhenReferenceAppointmentIdNull() {
         when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
         when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
@@ -214,6 +249,56 @@ class OfficerFilingControllerImplTest {
 
         // refEq needed to compare Map value objects; Resource does not override equals()
         verify(transaction).setResources(refEq(resourceMap));
+        verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
+        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
+        final OfficerFiling filingResponse = (OfficerFiling) response.getBody();
+        assertThat(filingResponse.getId(), is(FILING_ID));
+    }
+
+
+    @Test
+    void createFilingWhenDescriptionNotBlank() {
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(filingMapper.map(dto)).thenReturn(filing);
+        final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
+                .build();
+        final var withLinks = OfficerFiling.builder(withFilingId).links(links)
+                .build();
+        when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
+        when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
+        when(dto.getDescription()).thenReturn(FILING_DESCRIPTION);
+
+        final var response = testController.createFiling(transaction, dto, result, request);
+
+        verify(transaction).setDescription(FILING_DESCRIPTION);
+        verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
+        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
+        final OfficerFiling filingResponse = (OfficerFiling) response.getBody();
+        assertThat(filingResponse.getId(), is(FILING_ID));
+    }
+
+    @Test
+    void createFilingWhenDescriptionSameAsOnTransaction() {
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
+        when(clock.instant()).thenReturn(FIRST_INSTANT);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(filingMapper.map(dto)).thenReturn(filing);
+        final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
+                .build();
+        final var withLinks = OfficerFiling.builder(withFilingId).links(links)
+                .build();
+        when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
+        when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
+        when(dto.getDescription()).thenReturn(FILING_DESCRIPTION);
+        when(transaction.getDescription()).thenReturn(FILING_DESCRIPTION);
+
+        final var response = testController.createFiling(transaction, dto, result, request);
+
+        verify(transaction, never()).setDescription(FILING_DESCRIPTION);
         verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
         final OfficerFiling filingResponse = (OfficerFiling) response.getBody();
