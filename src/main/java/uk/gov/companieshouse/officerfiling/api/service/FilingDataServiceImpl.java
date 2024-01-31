@@ -13,7 +13,6 @@ import uk.gov.companieshouse.officerfiling.api.model.mapper.FilingAPIMapper;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.officerfiling.api.utils.MapHelper;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -38,7 +37,6 @@ public class FilingDataServiceImpl implements FilingDataService {
     private static final String TM01_FILING_DESCRIPTION = "(TM01) Termination of appointment of a director. Terminating appointment of {director name} on {termination date}";
     private static final String AP01_FILING_DESCRIPTION = "(AP01) Appointment of a director. Appointment of {director name} on {appointment date}";
     private static final String CH01_FILING_DESCRIPTION = "(CH01) Update of a director. Update of {director name} on {update date}";
-    private final Supplier<LocalDate> dateNowSupplier;
 
     public FilingDataServiceImpl(OfficerFilingService officerFilingService,
                                  FilingAPIMapper filingAPIMapper, Logger logger, TransactionService transactionService,
@@ -49,7 +47,6 @@ public class FilingDataServiceImpl implements FilingDataService {
         this.logger = logger;
         this.transactionService = transactionService;
         this.companyAppointmentService = companyAppointmentService;
-        this.dateNowSupplier = dateNowSupplier;
     }
 
     /**
@@ -119,8 +116,8 @@ public class FilingDataServiceImpl implements FilingDataService {
 
         // For non-corporate Directors
         if (companyAppointment.getDateOfBirth() != null) {
-            LocalDate date = LocalDate.of(companyAppointment.getDateOfBirth().getYear(), companyAppointment.getDateOfBirth().getMonth(), companyAppointment.getDateOfBirth().getDay());
-            Instant dobInstant = date.atStartOfDay().toInstant(ZoneOffset.UTC);
+            var date = LocalDate.of(companyAppointment.getDateOfBirth().getYear(), companyAppointment.getDateOfBirth().getMonth(), companyAppointment.getDateOfBirth().getDay());
+            var dobInstant = date.atStartOfDay().toInstant(ZoneOffset.UTC);
             dataBuilder = dataBuilder
                     .dateOfBirth(dobInstant);
         }
