@@ -67,6 +67,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
         }
 
         // Perform validation
+        validateCompanyNotDissolved(request, errorList, companyProfile.get());
         validateChangeDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
         validateChangeDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
         validateNationalitySection(request, errorList, dto, companyAppointment.get());

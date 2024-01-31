@@ -97,6 +97,20 @@ class OfficerUpdateValidatorTest {
     }
 
     @Test
+    void validateCH01WhenStatusIsDissolved() {
+        when(companyProfile.getCompanyStatus()).thenReturn("dissolved");
+        when(apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED)).thenReturn("You cannot add, remove or update a director from a company that has been dissolved or is in the process of being dissolved");
+        when(dto.getDirectorsDetailsChangedDate()).thenReturn(LocalDate.now().minusDays(1));
+        when(companyProfileService.getCompanyProfile(any(), any(), any())).thenReturn(companyProfile);
+        when(companyAppointmentService.getCompanyAppointment(any(), any(), any(), any())).thenReturn(companyAppointment);
+        var apiErrors = officerUpdateValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("An error should be produced when the company has a status of 'dissolved'")
+                .extracting(ApiError::getError)
+                .contains("You cannot add, remove or update a director from a company that has been dissolved or is in the process of being dissolved");
+    }
+
+    @Test
     void validateWhenMissingChangeDate() {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);

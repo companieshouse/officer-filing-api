@@ -497,25 +497,25 @@ class OfficerTerminationValidatorTest {
     void validateCompanyNotDissolvedWhenDissolvedDateExists() {
         when(companyProfile.getCompanyStatus()).thenReturn("active");
         when(companyProfile.getDateOfCessation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
-        when(apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED)).thenReturn("You cannot remove a director from a company that has been dissolved or is in the process of being dissolved");
+        when(apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED)).thenReturn("You cannot add, remove or update a director from a company that has been dissolved or is in the process of being dissolved");
         officerTerminationValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
         assertThat(apiErrorsList)
                 .as("An error should be produced when dissolved date exists")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("You cannot remove a director from a company that has been dissolved or is in the process of being dissolved");
+                .contains("You cannot add, remove or update a director from a company that has been dissolved or is in the process of being dissolved");
     }
 
     @Test
     void validateCompanyNotDissolvedWhenStatusIsDissolved() {
         when(companyProfile.getCompanyStatus()).thenReturn("dissolved");
-        when(apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED)).thenReturn("You cannot remove a director from a company that has been dissolved or is in the process of being dissolved");
+        when(apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED)).thenReturn("You cannot add, remove or update a director from a company that has been dissolved or is in the process of being dissolved");
         officerTerminationValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
         assertThat(apiErrorsList)
                 .as("An error should be produced when the company has a status of 'dissolved'")
                 .hasSize(1)
                 .extracting(ApiError::getError)
-                .contains("You cannot remove a director from a company that has been dissolved or is in the process of being dissolved");
+                .contains("You cannot add, remove or update a director from a company that has been dissolved or is in the process of being dissolved");
     }
 
     @Test
