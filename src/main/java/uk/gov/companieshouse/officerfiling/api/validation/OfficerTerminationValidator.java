@@ -1,11 +1,5 @@
 package uk.gov.companieshouse.officerfiling.api.validation;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
@@ -19,6 +13,13 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
+import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 /**
  * Provides all validation that should be carried out when an officer is terminated. Fetches all data necessary to complete
  * the validation and generates a list of errors that can be sent back to the caller.
@@ -27,26 +28,29 @@ public class OfficerTerminationValidator extends OfficerValidator {
 
     private Logger logger;
     private ApiEnumerations apiEnumerations;
+
     public OfficerTerminationValidator(final Logger logger,
                                        final CompanyProfileService companyProfileService,
                                        final CompanyAppointmentService companyAppointmentService,
+                                       final String inputAllowedNationalities,
                                        final ApiEnumerations apiEnumerations) {
-        super(logger, companyProfileService, companyAppointmentService, apiEnumerations);
+        super(logger, companyProfileService, companyAppointmentService, inputAllowedNationalities, apiEnumerations);
         this.logger = logger;
         this.apiEnumerations = getApiEnumerations();
     }
 
     /**
      * Main validation method to fetch the required data and validate the request. This should be the point of call when terminating an officer.
-     * @param request The servlet request used in logging
-     * @param dto Data Object containing details of the termination
-     * @param transaction the transaction for this termination
+     *
+     * @param request           The servlet request used in logging
+     * @param dto               Data Object containing details of the termination
+     * @param transaction       the transaction for this termination
      * @param passthroughHeader ERIC pass through header for authorisation
      * @return An object containing a list of any validation errors that have been raised
      */
     @Override
     public ApiErrors validate(HttpServletRequest request, OfficerFilingDto dto, Transaction transaction, String passthroughHeader) {
-            logger.debugContext(transaction.getId(), "Beginning officer termination validation", new LogHelper.Builder(transaction)
+        logger.debugContext(transaction.getId(), "Beginning officer termination validation", new LogHelper.Builder(transaction)
                 .withRequest(request)
                 .build());
         final List<ApiError> errorList = new ArrayList<>();
@@ -73,7 +77,7 @@ public class OfficerTerminationValidator extends OfficerValidator {
         validateTerminationDateAfterIncorporationDate(request, errorList, dto, companyProfile.get(), companyAppointment.get());
         validateTerminationDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
         validateAllowedCompanyType(request, errorList, companyProfile.get());
-        validateOfficerIsNotTerminated(request,errorList,companyAppointment.get());
+        validateOfficerIsNotTerminated(request, errorList, companyAppointment.get());
         validateOfficerRole(request, errorList, companyAppointment.get());
 
         return new ApiErrors(errorList);
@@ -108,7 +112,7 @@ public class OfficerTerminationValidator extends OfficerValidator {
             return;
         }
         // If submission information is not out-of-date, the ETAG retrieved from the Company Appointments API and the ETAG passed from the request will match
-        if(!Objects.equals(dto.getReferenceEtag(), companyAppointment.getEtag())) {
+        if (!Objects.equals(dto.getReferenceEtag(), companyAppointment.getEtag())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ETAG_INVALID));
         }
     }
@@ -121,7 +125,7 @@ public class OfficerTerminationValidator extends OfficerValidator {
 
     public void validateMinResignationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         // Earliest ever possible date that a director can have been removed that is valid on the CH system is the 1st of october 2009.
-        if(dto.getResignedOn().isBefore(MIN_RESIGNATION_DATE)) {
+        if (dto.getResignedOn().isBefore(MIN_RESIGNATION_DATE)) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_AFTER_2009));
         }
     }
@@ -140,8 +144,8 @@ public class OfficerTerminationValidator extends OfficerValidator {
      * Check to ensure a request isn't being filed for an officer who has already resigned.
      * Used for Validation rules D19_9A/D19_9
      */
-    public void validateOfficerIsNotTerminated(HttpServletRequest request, List<ApiError> errorList, AppointmentFullRecordAPI companyAppointment){
-        if(companyAppointment.getResignedOn() != null){
+    public void validateOfficerIsNotTerminated(HttpServletRequest request, List<ApiError> errorList, AppointmentFullRecordAPI companyAppointment) {
+        if (companyAppointment.getResignedOn() != null) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.DIRECTOR_ALREADY_REMOVED, getDirectorName(companyAppointment)));
         }
     }
@@ -184,26 +188,6 @@ public class OfficerTerminationValidator extends OfficerValidator {
         if (!ALLOWED_OFFICER_ROLES.contains(companyAppointment.getOfficerRole())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.OFFICER_ROLE));
         }
-    }
-
-    public Optional<LocalDate> getAppointmentDate(HttpServletRequest request, AppointmentFullRecordAPI companyAppointment) {
-        var isPre1992 = companyAppointment.getIsPre1992Appointment();
-        if (isPre1992 == null) {
-            logger.errorRequest(request, "null data was found in the Company Appointment API within the Pre-1992 Appointment field");
-            return Optional.empty();
-        }
-        // If pre-1992 then set as appointedBefore field
-        if (isPre1992) {
-            return Optional.ofNullable(companyAppointment.getAppointedBefore()).or(() -> {
-                logger.errorRequest(request, "null data was found in the Company Appointment API within the Appointed Before field");
-                return Optional.empty();
-            });
-        }
-        // Else set as appointedOn field
-        return Optional.ofNullable(companyAppointment.getAppointedOn()).or(() -> {
-            logger.errorRequest(request, "null data was found in the Company Appointment API within the Appointed On field");
-            return Optional.empty();
-        });
     }
 
 

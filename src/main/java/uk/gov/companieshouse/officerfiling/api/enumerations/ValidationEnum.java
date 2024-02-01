@@ -13,6 +13,7 @@ public enum ValidationEnum {
     CHANGE_DATE_MISSING("change-date-missing"),
     CHANGE_DATE_BEFORE_2009("change-date-before-2009"),
     CHANGE_DATE_IN_PAST("change-date-in-past"),
+    CHANGE_DATE_BEFORE_OFFICER_APPOINTMENT_DATE("change-date-before-officer-appointment-date"),
     CHANGE_DATE_AFTER_INCORPORATION_DATE("change-date-after-incorporation-date"),
     DIRECTOR_ALREADY_REMOVED("director-already-removed"),
     REMOVAL_DATE_AFTER_APPOINTMENT_DATE("removal-date-after-appointment-date"),
@@ -96,9 +97,12 @@ public enum ValidationEnum {
     CORRESPONDENCE_REGION_CHARACTERS("correspondence-region-characters"),
     CORRESPONDENCE_REGION_LENGTH("correspondence-region-length"),
     PROTECTED_DETAILS_MISSING("protected-details-missing"),
-    CONSENT_TO_ACT_MISSING ("consent-to-act-missing"),
-    CONSENT_TO_ACT_FALSE ("consent-to-act-false"),
-    ADDRESS_LINKS_MULTIPLE_FLAGS ("address-links-multiple-flags");
+    CONSENT_TO_ACT_MISSING("consent-to-act-missing"),
+    CONSENT_TO_ACT_FALSE("consent-to-act-false"),
+    ADDRESS_LINKS_MULTIPLE_FLAGS("address-links-multiple-flags"),
+    NATIONALITY_MATCHES_CHIPS_DATA("nationality-matches-chips-data"),
+    OCCUPATION_MATCHES_CHIPS_DATA("occupation-matches-chips-data");
+
     private final String key;
 
     ValidationEnum(String key) {
