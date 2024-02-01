@@ -97,13 +97,9 @@ public abstract class OfficerValidator {
         return new ApiErrors(errorList);
     }
 
-    public void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
-        // specific to the sub-classes so no need for code in the super class.
-    }
+    public abstract void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto);
 
-    public void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
-        // specific to the sub-classes so no need for code in the super class.
-    }
+    public abstract void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto);
 
     protected void validateRequiredTransactionFields(HttpServletRequest request, List<ApiError> errorList, Transaction transaction) {
         if (transaction.getCompanyNumber() == null || transaction.getCompanyNumber().isBlank()) {

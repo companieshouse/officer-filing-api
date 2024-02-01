@@ -99,6 +99,11 @@ public class OfficerTerminationValidator extends OfficerValidator {
         }
     }
 
+    @Override
+    public void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
+        // No optional fields for termination
+    }
+
     public void validateSubmissionInformationInDate(HttpServletRequest request, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment, List<ApiError> errorList) {
         if (companyAppointment.getEtag() == null) {
             logger.errorRequest(request, "null data was found in the Company Appointment API within the etag field");
