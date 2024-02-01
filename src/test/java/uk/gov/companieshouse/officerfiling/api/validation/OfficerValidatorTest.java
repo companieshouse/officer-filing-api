@@ -9,6 +9,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.error.ApiError;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
@@ -17,6 +19,8 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +32,7 @@ class OfficerValidatorTest {
 
     private OfficerValidator officerValidator;
     private List<ApiError> apiErrorsList;
+    private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
 
     @Mock
     private HttpServletRequest request;
@@ -36,19 +41,62 @@ class OfficerValidatorTest {
     @Mock
     private CompanyProfileServiceImpl companyProfileService;
     @Mock
+    private CompanyProfileApi companyProfile;
+    @Mock
     private CompanyAppointmentService companyAppointmentService;
     @Mock
     private ApiEnumerations apiEnumerations;
     @Mock
     private OfficerFilingDto dto;
+    @Mock
+    private Transaction transaction;
 
     @BeforeEach
     void setUp() {
         final String allowedNationalities = "A very long nationality indeed so long in fact that it breaks the legal length for nationalities,thisIs25Characterslongggh,thisIs25Characterslongggg,thisIs16Charactz,thisIs17Character,thisIs16Characte,thisIsAVeryLongNationalityWhichWilltakeUsOver50Characterslong,Afghan,Albanian,Algerian,American,Andorran,Angolan,Anguillan,Citizen of Antigua and Barbuda,Argentine,Armenian,Australian,Austrian,Azerbaijani,Bahamian,Bahraini,Bangladeshi,Barbadian,Belarusian,Belgian,Belizean,Beninese,Bermudian,Bhutanese,Bolivian,Citizen of Bosnia and Herzegovina,Botswanan,Brazilian,British,British Virgin Islander,Bruneian,Bulgarian,Burkinan,Burmese,Burundian,Cambodian,Cameroonian,Canadian,Cape Verdean,Cayman Islander,Central African,Chadian,Chilean,Chinese,Colombian,Comoran,Congolese (Congo),Congolese (DRC),Cook Islander,Costa Rican,Croatian,Cuban,Cymraes,Cymro,Cypriot,Czech,Danish,Djiboutian,Dominican,Citizen of the Dominican Republic,Dutch,East Timorese\tEcuadorean\tEgyptian\tEmirati,English,Equatorial Guinean,Eritrean,Estonian,Ethiopian,Faroese,Fijian,Filipino,Finnish,French,Gabonese,Gambian,Georgian,German,Ghanaian,Gibraltarian,Greek,Greenlandic,Grenadian,Guamanian,Guatemalan,Citizen of Guinea-Bissau,Guinean,Guyanese,Haitian,Honduran,Hong Konger,Hungarian,Icelandic,Indian,Indonesian,Iranian,Iraqi,Irish,Israeli,Italian,Ivorian,Jamaican,Japanese,Jordanian,Kazakh,Kenyan,Kittitian,Citizen of Kiribati,Kosovan,Kuwaiti,Kyrgyz,Lao,Latvian,Lebanese,Liberian,Libyan,Liechtenstein citizen,Lithuanian,Luxembourger,Macanese,Macedonian,Malagasy,Malawian,Malaysian,Maldivian,Malian,Maltese,Marshallese,Martiniquais,Mauritanian,Mauritian,Mexican,Micronesian,Moldovan,Monegasque,Mongolian,Montenegrin,Montserratian,Moroccan,Mosotho,Mozambican,Namibian,Nauruan,Nepalese,New Zealander,Nicaraguan,Nigerian,Nigerien,Niuean,North Korean,Northern Irish,Norwegian,Omani,Pakistani,Palauan,Palestinian,Panamanian,Papua New Guinean,Paraguayan,Peruvian,Pitcairn Islander,Polish,Portuguese,Prydeinig,Puerto Rican,Qatari,Romanian,Russian,Rwandan,Salvadorean,Sammarinese,Samoan,Sao Tomean,Saudi Arabian,Scottish,Senegalese,Serbian,Citizen of Seychelles,Sierra Leonean,Singaporean,Slovak,Slovenian,Solomon Islander,Somali,South African,South Korean,South Sudanese,Spanish,Sri Lankan,St Helenian,St Lucian,Stateless,Sudanese,Surinamese,Swazi,Swedish,Swiss,Syrian,Taiwanese,Tajik,Tanzanian,Thai,Togolese,Tongan,Trinidadian,Tristanian,Tunisian,Turkish,Turkmen,Turks and Caicos Islander,Tuvaluan,Ugandan,Ukrainian,Uruguayan,Uzbek,Vatican citizen,Citizen of Vanuatu,Venezuelan,Vietnamese,Vincentian,Wallisian,Welsh,Yemeni,Zambian,Zimbabwean";
         apiErrorsList = new ArrayList<>();
         officerValidator = new OfficerValidator(logger, companyProfileService, companyAppointmentService, allowedNationalities, apiEnumerations) {
+            @Override
+            public void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) { }
+
+            @Override
+            public void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) { }
             // Anonymous subclass to directly test methods implemented in the abstract class
         };
+    }
+
+    @Test
+    void testValidateRequiredTransactionFields() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        officerValidator.validateRequiredTransactionFields(request, apiErrorsList, transaction);
+
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when all required transaction fields are present")
+                .isEmpty();
+    }
+
+    @Test
+    void testValidateRequiredTransactionFieldsWhenCompanyNumberIsNull() {
+        when(transaction.getCompanyNumber()).thenReturn(null);
+
+        officerValidator.validateRequiredTransactionFields(request, apiErrorsList, transaction);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when company number is null")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The company number cannot be null or blank");
+    }
+
+    @Test
+    void testValidateRequiredTransactionFieldsWhenCompanyNumberIsBlank() {
+        when(transaction.getCompanyNumber()).thenReturn(" ");
+
+        officerValidator.validateRequiredTransactionFields(request, apiErrorsList, transaction);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when company number is null")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The company number cannot be null or blank");
     }
 
     @Test
@@ -361,6 +409,55 @@ class OfficerValidatorTest {
         assertThat(apiErrorsList)
                 .as("An error should not be produced when nationalities 1, 2, and 3 contain exactly 48 characters between them")
                 .isEmpty();
+    }
+
+    @Test
+    void validateCompanyNotDissolvedWhenCompanyActive() {
+        when(companyProfile.getCompanyStatus()).thenReturn("active");
+
+        officerValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced company status is not dissolved")
+                .isEmpty();
+    }
+
+    @Test
+    void validateCompanyNotDissolvedWhenCompanyStatusIsNull() {
+        when(companyProfile.getCompanyStatus()).thenReturn(null);
+
+        officerValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced company status is not dissolved")
+                .isEmpty();
+    }
+
+    @Test
+    void validateCompanyNotDissolvedWhenCompanyStatusIsDissolved() {
+        when(companyProfile.getCompanyStatus()).thenReturn("dissolved");
+        when(apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED)).thenReturn(
+                "You cannot add or remove a director from a company that has been dissolved or is in the process of being dissolved");
+
+        officerValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced company status is dissolved")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("You cannot add or remove a director from a company that has been dissolved or is in the process of being dissolved");
+    }
+
+    @Test
+    void validateCompanyNotDissolvedWhenCompanyStatusIsNotDissolvedButHasDateOfCessation() {
+        when(companyProfile.getCompanyStatus()).thenReturn("active");
+        when(companyProfile.getDateOfCessation()).thenReturn(LocalDate.of(2023, Month.JANUARY, 4));
+        when(apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED)).thenReturn(
+                "You cannot add or remove a director from a company that has been dissolved or is in the process of being dissolved");
+
+        officerValidator.validateCompanyNotDissolved(request, apiErrorsList, companyProfile);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced company status is dissolved")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("You cannot add or remove a director from a company that has been dissolved or is in the process of being dissolved");
     }
 
 }

@@ -54,7 +54,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
                 .withRequest(request)
                 .build());
         final List<ApiError> errorList = new ArrayList<>();
-
+        validateRequiredTransactionFields(request, errorList, transaction);
         validateRequiredDtoFields(request, errorList, dto);
         validateOptionalDtoFields(request, errorList, dto);
 
@@ -67,6 +67,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
         }
 
         // Perform validation
+        validateCompanyNotDissolved(request, errorList, companyProfile.get());
         validateChangeDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
         validateChangeDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
         validateNationalitySection(request, errorList, dto, companyAppointment.get());

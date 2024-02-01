@@ -316,7 +316,7 @@ class ValidationStatusControllerImplIT {
                 .andExpect(jsonPath("$.errors[0].location_type", is("json-path")))
                 .andExpect(jsonPath("$.errors[0].location", is("$./transactions/4f56fdf78b357bfc/officers/632c8e65105b1b4a9f0d1f5e/validation_status")))
                 .andExpect(jsonPath("$.errors[0].error",
-                        is("You cannot remove a director from a company that has been dissolved or is in the process of being dissolved")));
+                        is("You cannot add, remove or update a director from a company that has been dissolved or is in the process of being dissolved")));
     }
 
     @Test
