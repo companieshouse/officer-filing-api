@@ -4,9 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
-import uk.gov.companieshouse.officerfiling.api.exception.NotImplementedException;
 import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
-import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.validation.error.AddressErrorProvider;
 
@@ -30,16 +28,6 @@ public class AddressValidator extends OfficerValidator {
         super(logger, companyProfileService, inputAllowedNationalities, apiEnumerations);
         this.countryList = countryList;
         this.ukCountryList = ukCountryList;
-    }
-
-    @Override
-    public void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
-        throw new NotImplementedException();
     }
 
     /**

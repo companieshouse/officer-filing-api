@@ -72,12 +72,11 @@ public class OfficerUpdateValidator extends OfficerValidator {
         validateChangeDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
         validateNationalitySection(request, errorList, dto, companyAppointment.get());
         validateOccupationSection(request, errorList, dto, companyAppointment.get());
-        
+
         return new ApiErrors(errorList);
     }
 
-    @Override
-    public void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
+    private void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         validateChangeDate(request, errorList, dto);
     }
 
@@ -90,8 +89,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
         }
     }
 
-    @Override
-    public void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
+    private void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         final boolean anyNameFieldsExistInDto = (dto.getTitle() != null || dto.getFirstName() != null || dto.getLastName() != null || dto.getMiddleNames() != null);
         final boolean nameHasBeenUpdated = (dto.getNameHasBeenUpdated() == null && anyNameFieldsExistInDto) || (dto.getNameHasBeenUpdated() != null && dto.getNameHasBeenUpdated());
 

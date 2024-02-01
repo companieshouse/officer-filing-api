@@ -18,7 +18,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -81,8 +80,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         return new ApiErrors(errorList);
     }
 
-    @Override
-    public void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
+    private void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         validateFirstName(request, errorList, dto);
         validateLastName(request, errorList, dto);
         validateDateOfBirth(request, errorList, dto);
@@ -95,8 +93,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         validateConsentToAct(request, errorList, dto);
     }
 
-    @Override
-    public void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
+    private void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         validateTitle(request, errorList, dto);
         validateMiddleNames(request, errorList, dto);
         validateFormerNames(request, errorList, dto);
@@ -183,24 +180,6 @@ public class OfficerAppointmentValidator extends OfficerValidator {
                 createValidationError(request, errorList,
                         apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_CHARACTERS));
             }
-        }
-    }
-
-    @Override
-    public void validateRequiredTransactionFields(HttpServletRequest request, List<ApiError> errorList, Transaction transaction) {
-        if (transaction.getCompanyNumber() == null || transaction.getCompanyNumber().isBlank()) {
-            createValidationError(request, errorList, "The company number cannot be null or blank");
-        }
-    }
-
-    @Override
-    public void validateCompanyNotDissolved(HttpServletRequest request, List<ApiError> errorList, CompanyProfileApi companyProfile) {
-        if (companyProfile.getCompanyStatus() == null) {
-            logger.errorRequest(request, "null data was found in the Company Profile API within the Company Status field");
-            return;
-        }
-        if (Objects.equals(companyProfile.getCompanyStatus(), "dissolved") || companyProfile.getDateOfCessation() != null) {
-            createValidationError(request, errorList, getApiEnumerations().getValidation(ValidationEnum.COMPANY_DISSOLVED));
         }
     }
 
