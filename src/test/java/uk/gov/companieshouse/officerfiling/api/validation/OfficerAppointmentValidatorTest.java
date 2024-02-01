@@ -1827,7 +1827,7 @@ class OfficerAppointmentValidatorTest {
                 .referenceAppointmentId(FILING_ID)
                 .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
-        officerAppointmentValidator.validateAppointmentDateOnOrBeforeIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        officerAppointmentValidator.validateAppointmentDateBeforeIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
         assertThat(apiErrorsList)
                 .as("An error should not be produced when appointment date is after incorporation date")
                 .isEmpty();
@@ -1842,7 +1842,7 @@ class OfficerAppointmentValidatorTest {
                 .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
         when(apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_AFTER_INCORPORATION_DATE)).thenReturn("The date you enter must be after the company's incorporation date");
-        officerAppointmentValidator.validateAppointmentDateOnOrBeforeIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        officerAppointmentValidator.validateAppointmentDateBeforeIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
         assertThat(apiErrorsList)
                 .as("An error should be produced when appointment date is before incorporation date")
                 .hasSize(1)
@@ -1858,7 +1858,7 @@ class OfficerAppointmentValidatorTest {
                 .referenceAppointmentId(FILING_ID)
                 .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
-        officerAppointmentValidator.validateAppointmentDateOnOrBeforeIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        officerAppointmentValidator.validateAppointmentDateBeforeIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
         assertThat(apiErrorsList)
                 .as("An error should not be produced when appointment date is the incorporation date")
                 .isEmpty();
@@ -1872,7 +1872,7 @@ class OfficerAppointmentValidatorTest {
                 .referenceAppointmentId(FILING_ID)
                 .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))
                 .build();
-        officerAppointmentValidator.validateAppointmentDateOnOrBeforeIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        officerAppointmentValidator.validateAppointmentDateBeforeIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
         assertThat(apiErrorsList)
                 .as("Validation should be skipped when incorporation date is null")
                 .isEmpty();
@@ -1888,7 +1888,7 @@ class OfficerAppointmentValidatorTest {
                 .build();
         when(apiEnumerations.getValidation(ValidationEnum.APPOINTMENT_DATE_MISSING)).thenReturn(
                 "Enter the date the director was appointed");
-        officerAppointmentValidator.validateAppointmentDateOnOrBeforeIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
+        officerAppointmentValidator.validateAppointmentDateBeforeIncorporationDate(request, apiErrorsList, officerFilingDto, companyProfile);
         assertThat(apiErrorsList)
                 .as("An error should be produced when appointment date is missing")
                 .hasSize(1)

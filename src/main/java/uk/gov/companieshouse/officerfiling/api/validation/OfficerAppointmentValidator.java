@@ -77,7 +77,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         // Perform validation
         validateCompanyNotDissolved(request, errorList, companyProfile.get());
         validateAllowedCompanyType(request, errorList, companyProfile.get());
-        validateAppointmentDateOnOrBeforeIncorporationDate(request, errorList, dto, companyProfile.get());
+        validateAppointmentDateBeforeIncorporationDate(request, errorList, dto, companyProfile.get());
 
         return new ApiErrors(errorList);
     }
@@ -420,7 +420,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
         }
     }
 
-    public void validateAppointmentDateOnOrBeforeIncorporationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, CompanyProfileApi companyProfile) {
+    public void validateAppointmentDateBeforeIncorporationDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, CompanyProfileApi companyProfile) {
         if (companyProfile.getDateOfCreation() == null) {
             logger.errorRequest(request, "null data was found in the Company Profile API within the Date Of Creation field");
             return;
