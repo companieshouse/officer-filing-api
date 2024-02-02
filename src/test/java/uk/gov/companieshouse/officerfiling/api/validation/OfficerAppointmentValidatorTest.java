@@ -29,9 +29,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class OfficerAppointmentValidatorTest {
@@ -1286,7 +1287,6 @@ class OfficerAppointmentValidatorTest {
                 .contains("Property name or number must be 200 characters or less");
     }
 
-
     @Test
     void validationWhenMissingResidentialAddressLineOne() {
 
@@ -1969,8 +1969,8 @@ class OfficerAppointmentValidatorTest {
         when(dto.getDateOfBirth()).thenReturn(LocalDate.of(1993, 1, 25));
         when(dto.getAppointedOn()).thenReturn(LocalDate.of(2023, 5, 14));
         when(dto.getNationality1()).thenReturn("British");
-        when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
         when(dto.getConsentToAct()).thenReturn(true);
+        lenient().when(dto.getResidentialAddress()).thenReturn(validResidentialAddress);
     }
 
     @Test
@@ -2354,7 +2354,6 @@ class OfficerAppointmentValidatorTest {
     @Test
     void validationShouldSkipHomeAddressValidationIfHomeSameAsCorrespondenceFlagSet() {
         setupDefaultParamaters();
-        when(dto.getResidentialAddress()).thenReturn(AddressDto.builder(validResidentialAddress).postalCode(null).build());
         when(dto.getServiceAddress()).thenReturn(validCorrespondenceAddressInUK);
 
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(false);

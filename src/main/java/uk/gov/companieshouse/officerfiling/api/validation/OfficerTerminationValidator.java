@@ -83,7 +83,6 @@ public class OfficerTerminationValidator extends OfficerValidator {
         return new ApiErrors(errorList);
     }
 
-    @Override
     public void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         // check for blank officer id, eTag and termination date
         if (dto.getReferenceAppointmentId() == null || dto.getReferenceAppointmentId().isBlank()) {
@@ -97,11 +96,6 @@ public class OfficerTerminationValidator extends OfficerValidator {
         if (dto.getResignedOn() == null) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.REMOVAL_DATE_MISSING, getDirectorName(null)));
         }
-    }
-
-    @Override
-    public void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
-        // No optional fields for termination
     }
 
     public void validateSubmissionInformationInDate(HttpServletRequest request, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment, List<ApiError> errorList) {

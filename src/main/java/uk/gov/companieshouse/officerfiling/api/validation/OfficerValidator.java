@@ -97,10 +97,6 @@ public abstract class OfficerValidator {
         return new ApiErrors(errorList);
     }
 
-    public abstract void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto);
-
-    public abstract void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto);
-
     protected void validateRequiredTransactionFields(HttpServletRequest request, List<ApiError> errorList, Transaction transaction) {
         if (transaction.getCompanyNumber() == null || transaction.getCompanyNumber().isBlank()) {
             createValidationError(request, errorList, "The company number cannot be null or blank");
