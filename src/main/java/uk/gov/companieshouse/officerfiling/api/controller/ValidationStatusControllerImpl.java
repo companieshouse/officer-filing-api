@@ -118,7 +118,7 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
                     .validate(request, officerFiling, transaction, passthroughHeader);
         }
         if (isCh01Enabled) {
-            return new OfficerUpdateValidator(logger, companyAppointmentService, companyProfileService, inputAllowedNationalities, apiEnumerations)
+            return new OfficerUpdateValidator(logger, companyAppointmentService, companyProfileService, inputAllowedNationalities, apiEnumerations, countryList, ukCountryList)
                     .validate(request, officerFiling, transaction, passthroughHeader);
         }
 

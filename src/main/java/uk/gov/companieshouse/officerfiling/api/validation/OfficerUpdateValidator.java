@@ -3,16 +3,19 @@ package uk.gov.companieshouse.officerfiling.api.validation;
 import org.apache.commons.lang.StringUtils;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
+import uk.gov.companieshouse.api.model.delta.officers.AddressAPI;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
 import uk.gov.companieshouse.officerfiling.api.error.ApiErrors;
+import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
+import uk.gov.companieshouse.officerfiling.api.validation.error.CorrespondenceAddressErrorProvider;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
@@ -27,16 +30,18 @@ import java.util.Optional;
 public class OfficerUpdateValidator extends OfficerValidator {
 
     private final Logger logger;
-    private ApiEnumerations apiEnumerations;
+    private final AddressValidator addressValidator;
 
     public OfficerUpdateValidator(final Logger logger,
                                   final CompanyAppointmentService companyAppointmentService,
                                   final CompanyProfileService companyProfileService,
                                   final String inputAllowedNationalities,
-                                  final ApiEnumerations apiEnumerations) {
+                                  final ApiEnumerations apiEnumerations,
+                                  final List<String> countryList,
+                                  final List<String> ukCountryList) {
         super(logger, companyProfileService, companyAppointmentService, inputAllowedNationalities, apiEnumerations);
         this.logger = logger;
-        this.apiEnumerations = apiEnumerations;
+        this.addressValidator = new AddressValidator(logger, companyProfileService, inputAllowedNationalities, apiEnumerations, countryList, ukCountryList);
     }
 
     /**
@@ -61,7 +66,6 @@ public class OfficerUpdateValidator extends OfficerValidator {
         // Retrieve data objects required for the validation process
         final Optional<CompanyProfileApi> companyProfile = getCompanyProfile(request, errorList, transaction, passthroughHeader);
         final Optional<AppointmentFullRecordAPI> companyAppointment = getOfficerAppointment(request, errorList, dto, transaction, passthroughHeader);
-
         if (companyProfile.isEmpty() || companyAppointment.isEmpty()) {
             return new ApiErrors(errorList);
         }
@@ -72,6 +76,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
         validateChangeDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
         validateNationalitySection(request, errorList, dto, companyAppointment.get());
         validateOccupationSection(request, errorList, dto, companyAppointment.get());
+        validateCorrespondenceAddressSection(request, errorList, dto, companyAppointment.get());
 
         return new ApiErrors(errorList);
     }
@@ -166,6 +171,26 @@ public class OfficerUpdateValidator extends OfficerValidator {
         validateOccupation(request, errorList, dto);
     }
 
+    public void validateCorrespondenceAddressSection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
+        // If hasBeenUpdated boolean is true or null then continue
+        if (Boolean.FALSE.equals(dto.getCorrespondenceAddressHasBeenUpdated())) {
+            return;
+        }
+        // If address isn't null and any field within this section has been provided then continue
+        final AddressDto address = dto.getServiceAddress();
+        if (address == null || (address.getPremises() == null && address.getAddressLine1() == null && address.getAddressLine2() == null && address.getLocality() == null && address.getRegion() == null && address.getPostalCode() == null && address.getCountry() == null)) {
+            // TODO: Needs to include link field?
+            return;
+        }
+        // If the section matches the current chips data then throw a validation error and don't continue
+        if (doesCorrespondenceAddressMatchChipsData(address, appointment)) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_MATCHES_CHIPS_DATA));
+            return;
+        }
+        // Perform validation
+        addressValidator.validate(new CorrespondenceAddressErrorProvider(apiEnumerations), request, errorList, dto.getServiceAddress());
+    }
+
     public boolean doesNationalityMatchChipsData(OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
         if (appointment.getNationality() == null) {
             return false;
@@ -194,6 +219,21 @@ public class OfficerUpdateValidator extends OfficerValidator {
 
         final String chipsOccupation = appointmentFullRecordAPI.getOccupation();
         return matchesChipsField(dto.getOccupation(), chipsOccupation);
+    }
+
+    private boolean doesCorrespondenceAddressMatchChipsData(AddressDto address, AppointmentFullRecordAPI appointment) {
+        final AddressAPI chipsAddress = appointment.getServiceAddress();
+        if (chipsAddress == null) {
+            return false;
+        }
+        // TODO: Needs to include link field?
+        return matchesChipsField(address.getPremises(), chipsAddress.getPremises()) &&
+                matchesChipsField(address.getAddressLine1(), chipsAddress.getAddressLine1()) &&
+                matchesChipsField(address.getAddressLine2(), chipsAddress.getAddressLine2()) &&
+                matchesChipsField(address.getLocality(), chipsAddress.getLocality()) &&
+                matchesChipsField(address.getRegion(), chipsAddress.getRegion()) &&
+                matchesChipsField(address.getPostalCode(), chipsAddress.getPostcode()) &&
+                matchesChipsField(address.getCountry(), chipsAddress.getCountry());
     }
 
     private boolean matchesChipsField(String field, String chipsField) {
