@@ -96,6 +96,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
         return new RequestLoggingInterceptor();
     }
 
+    @Bean
     public OfficersCRUDAuthenticationInterceptor officersCRUDAuthenticationInterceptor() {
         return new OfficersCRUDAuthenticationInterceptor();
     }
