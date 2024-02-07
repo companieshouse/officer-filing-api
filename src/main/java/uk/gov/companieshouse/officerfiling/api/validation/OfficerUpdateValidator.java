@@ -37,11 +37,10 @@ public class OfficerUpdateValidator extends OfficerValidator {
                                   final CompanyProfileService companyProfileService,
                                   final String inputAllowedNationalities,
                                   final ApiEnumerations apiEnumerations,
-                                  final List<String> countryList,
-                                  final List<String> ukCountryList) {
+                                  final AddressValidator addressValidator) {
         super(logger, companyProfileService, companyAppointmentService, inputAllowedNationalities, apiEnumerations);
         this.logger = logger;
-        this.addressValidator = new AddressValidator(logger, companyProfileService, inputAllowedNationalities, apiEnumerations, countryList, ukCountryList);
+        this.addressValidator = addressValidator;
     }
 
     /**
@@ -177,18 +176,27 @@ public class OfficerUpdateValidator extends OfficerValidator {
             return;
         }
         // If address isn't null and any field within this section has been provided then continue
-        final AddressDto address = dto.getServiceAddress();
-        if (address == null || (address.getPremises() == null && address.getAddressLine1() == null && address.getAddressLine2() == null && address.getLocality() == null && address.getRegion() == null && address.getPostalCode() == null && address.getCountry() == null)) {
-            // TODO: Needs to include link field?
+        if (isAddressNull(dto.getServiceAddress()) && dto.getIsServiceAddressSameAsRegisteredOfficeAddress() == null) {
             return;
         }
         // If the section matches the current chips data then throw a validation error and don't continue
-        if (doesCorrespondenceAddressMatchChipsData(address, appointment)) {
+        if (doesAddressMatchChipsData(dto.getServiceAddress(), dto.getIsServiceAddressSameAsRegisteredOfficeAddress(), appointment.getServiceAddress(), appointment.getServiceAddressIsSameAsRegisteredOfficeAddress())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_MATCHES_CHIPS_DATA));
             return;
         }
         // Perform validation
         addressValidator.validate(new CorrespondenceAddressErrorProvider(apiEnumerations), request, errorList, dto.getServiceAddress());
+    }
+
+    private boolean isAddressNull(AddressDto address) {
+        return address == null || (
+                address.getPremises() == null &&
+                        address.getAddressLine1() == null &&
+                        address.getAddressLine2() == null &&
+                        address.getLocality() == null &&
+                        address.getRegion() == null &&
+                        address.getPostalCode() == null &&
+                        address.getCountry() == null);
     }
 
     public boolean doesNationalityMatchChipsData(OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
@@ -221,29 +229,31 @@ public class OfficerUpdateValidator extends OfficerValidator {
         return matchesChipsField(dto.getOccupation(), chipsOccupation);
     }
 
-    private boolean doesCorrespondenceAddressMatchChipsData(AddressDto address, AppointmentFullRecordAPI appointment) {
-        final AddressAPI chipsAddress = appointment.getServiceAddress();
+    public boolean doesAddressMatchChipsData(AddressDto filingAddress, Boolean filingSameAsLink, AddressAPI chipsAddress, Boolean chipsSameAsLink) {
         if (chipsAddress == null) {
             return false;
         }
-        // TODO: Needs to include link field?
-        return matchesChipsField(address.getPremises(), chipsAddress.getPremises()) &&
-                matchesChipsField(address.getAddressLine1(), chipsAddress.getAddressLine1()) &&
-                matchesChipsField(address.getAddressLine2(), chipsAddress.getAddressLine2()) &&
-                matchesChipsField(address.getLocality(), chipsAddress.getLocality()) &&
-                matchesChipsField(address.getRegion(), chipsAddress.getRegion()) &&
-                matchesChipsField(address.getPostalCode(), chipsAddress.getPostcode()) &&
-                matchesChipsField(address.getCountry(), chipsAddress.getCountry());
+        return matchesChipsField(filingAddress.getPremises(), chipsAddress.getPremises()) &&
+                matchesChipsField(filingAddress.getAddressLine1(), chipsAddress.getAddressLine1()) &&
+                matchesChipsField(filingAddress.getAddressLine2(), chipsAddress.getAddressLine2()) &&
+                matchesChipsField(filingAddress.getLocality(), chipsAddress.getLocality()) &&
+                matchesChipsField(filingAddress.getRegion(), chipsAddress.getRegion()) &&
+                matchesChipsField(filingAddress.getPostalCode(), chipsAddress.getPostcode()) &&
+                matchesChipsField(filingAddress.getCountry(), chipsAddress.getCountry()) &&
+                matchesChipsField(filingSameAsLink, chipsSameAsLink);
     }
 
-    private boolean matchesChipsField(String field, String chipsField) {
+    private boolean matchesChipsField(Object field, Object chipsField) {
         if (field == null && chipsField == null) {
             return true;
         } else if (field == null || chipsField == null) {
             return false;
-        } else {
-            return field.trim().equalsIgnoreCase(chipsField.trim());
+        } else if (field instanceof String && chipsField instanceof String) {
+            var fieldString = ((String) field).trim();
+            var chipsFieldString = ((String) chipsField).trim();
+            return fieldString.equalsIgnoreCase(chipsFieldString);
         }
+        return field.equals(chipsField);
     }
 
 }

@@ -194,6 +194,12 @@ public class FilingDataServiceImpl implements FilingDataService {
         if (data.getOccupationHasBeenUpdated() == null || data.getOccupationHasBeenUpdated()) {
             dataBuilder = dataBuilder.occupation(data.getOccupation());
         }
+        if (data.getCorrespondenceAddressHasBeenUpdated() == null || data.getCorrespondenceAddressHasBeenUpdated()) {
+            dataBuilder = dataBuilder.isServiceAddressSameAsRegisteredOfficeAddress(data.getIsServiceAddressSameAsRegisteredOfficeAddress());
+            if (!Boolean.TRUE.equals(data.getIsServiceAddressSameAsRegisteredOfficeAddress())) {
+                dataBuilder = dataBuilder.serviceAddress(data.getServiceAddress());
+            }
+        }
 
         final var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
                 .createdAt(officerFiling.getCreatedAt())

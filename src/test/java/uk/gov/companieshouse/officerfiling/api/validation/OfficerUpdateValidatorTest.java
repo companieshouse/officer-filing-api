@@ -13,14 +13,17 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
+import uk.gov.companieshouse.api.model.delta.officers.AddressAPI;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ValidationEnum;
+import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
+import uk.gov.companieshouse.officerfiling.api.validation.error.CorrespondenceAddressErrorProvider;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
@@ -45,8 +48,6 @@ class OfficerUpdateValidatorTest {
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     private static final String ETAG = "etag";
     private static final String ALLOWED_NATIONALITIES = "A very long nationality indeed so long in fact that it breaks the legal length for nationalities,thisIs25Characterslongggh,thisIs25Characterslongggg,thisIs16Charactz,thisIs17Character,thisIs16Characte,thisIsAVeryLongNationalityWhichWilltakeUsOver50Characterslong,Afghan,Albanian,Algerian,American,Andorran,Angolan,Anguillan,Citizen of Antigua and Barbuda,Argentine,Armenian,Australian,Austrian,Azerbaijani,Bahamian,Bahraini,Bangladeshi,Barbadian,Belarusian,Belgian,Belizean,Beninese,Bermudian,Bhutanese,Bolivian,Citizen of Bosnia and Herzegovina,Botswanan,Brazilian,British,British Virgin Islander,Bruneian,Bulgarian,Burkinan,Burmese,Burundian,Cambodian,Cameroonian,Canadian,Cape Verdean,Cayman Islander,Central African,Chadian,Chilean,Chinese,Colombian,Comoran,Congolese (Congo),Congolese (DRC),Cook Islander,Costa Rican,Croatian,Cuban,Cymraes,Cymro,Cypriot,Czech,Danish,Djiboutian,Dominican,Citizen of the Dominican Republic,Dutch,East Timorese\tEcuadorean\tEgyptian\tEmirati,English,Equatorial Guinean,Eritrean,Estonian,Ethiopian,Faroese,Fijian,Filipino,Finnish,French,Gabonese,Gambian,Georgian,German,Ghanaian,Gibraltarian,Greek,Greenlandic,Grenadian,Guamanian,Guatemalan,Citizen of Guinea-Bissau,Guinean,Guyanese,Haitian,Honduran,Hong Konger,Hungarian,Icelandic,Indian,Indonesian,Iranian,Iraqi,Irish,Israeli,Italian,Ivorian,Jamaican,Japanese,Jordanian,Kazakh,Kenyan,Kittitian,Citizen of Kiribati,Kosovan,Kuwaiti,Kyrgyz,Lao,Latvian,Lebanese,Liberian,Libyan,Liechtenstein citizen,Lithuanian,Luxembourger,Macanese,Macedonian,Malagasy,Malawian,Malaysian,Maldivian,Malian,Maltese,Marshallese,Martiniquais,Mauritanian,Mauritian,Mexican,Micronesian,Moldovan,Monegasque,Mongolian,Montenegrin,Montserratian,Moroccan,Mosotho,Mozambican,Namibian,Nauruan,Nepalese,New Zealander,Nicaraguan,Nigerian,Nigerien,Niuean,North Korean,Northern Irish,Norwegian,Omani,Pakistani,Palauan,Palestinian,Panamanian,Papua New Guinean,Paraguayan,Peruvian,Pitcairn Islander,Polish,Portuguese,Prydeinig,Puerto Rican,Qatari,Romanian,Russian,Rwandan,Salvadorean,Sammarinese,Samoan,Sao Tomean,Saudi Arabian,Scottish,Senegalese,Serbian,Citizen of Seychelles,Sierra Leonean,Singaporean,Slovak,Slovenian,Solomon Islander,Somali,South African,South Korean,South Sudanese,Spanish,Sri Lankan,St Helenian,St Lucian,Stateless,Sudanese,Surinamese,Swazi,Swedish,Swiss,Syrian,Taiwanese,Tajik,Tanzanian,Thai,Togolese,Tongan,Trinidadian,Tristanian,Tunisian,Turkish,Turkmen,Turks and Caicos Islander,Tuvaluan,Ugandan,Ukrainian,Uruguayan,Uzbek,Vatican citizen,Citizen of Vanuatu,Venezuelan,Vietnamese,Vincentian,Wallisian,Welsh,Yemeni,Zambian,Zimbabwean";
-    private static final List<String> COUNTRY_LIST = List.of("England", "Wales", "Scotland", "Northern Ireland", "France", "VeryLongCountryVeryLongCountryVeryLongCountryVeryLongCountryVeryLongCountry", "England§");
-    private static final List<String> UK_COUNTRY_LIST = List.of("England", "Wales", "Scotland", "Northern Ireland");
 
     private OfficerUpdateValidator officerUpdateValidator;
     private List<ApiError> apiErrorsList;
@@ -69,10 +70,16 @@ class OfficerUpdateValidatorTest {
     private ApiEnumerations apiEnumerations;
     @Mock
     private OfficerFilingDto dto;
+    @Mock
+    private AddressValidator addressValidator;
+    @Mock
+    private AddressDto mockDtoAddress;
+    @Mock
+    private AddressAPI mockChipsAddress;
 
     @BeforeEach
     void setUp() {
-        officerUpdateValidator = spy(new OfficerUpdateValidator(logger, companyAppointmentService, companyProfileService, ALLOWED_NATIONALITIES, apiEnumerations, COUNTRY_LIST, UK_COUNTRY_LIST));
+        officerUpdateValidator = spy(new OfficerUpdateValidator(logger, companyAppointmentService, companyProfileService, ALLOWED_NATIONALITIES, apiEnumerations, addressValidator));
         apiErrorsList = new ArrayList<>();
     }
 
@@ -705,6 +712,138 @@ class OfficerUpdateValidatorTest {
                 Arguments.of("British , afghan", "BRITISH", null, null, false),
                 Arguments.of("British,AFGHAN", "British", "Afghan", "GERMAN", false),
                 Arguments.of("British , afghan,GERMAN", "British", "Afghan", null, false)
+        );
+    }
+
+    @Test
+    void validateCorrespondenceAddressSectionWhenBooleanIsFalse() {
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(false);
+
+        officerUpdateValidator.validateCorrespondenceAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(addressValidator, times(0)).validate(any(CorrespondenceAddressErrorProvider.class), any(), any(), any());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(booleans = {true})
+    void validateCorrespondenceAddressSectionWhenBooleanIsTrueAndAddressIsNull(Boolean hasBeenUpdated) {
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getServiceAddress()).thenReturn(null);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
+
+        officerUpdateValidator.validateCorrespondenceAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(addressValidator, times(0)).validate(any(CorrespondenceAddressErrorProvider.class), any(), any(), any());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(booleans = {true})
+    void validateCorrespondenceAddressSectionWhenBooleanIsTrueAndAddressFieldsNotUpdated(Boolean hasBeenUpdated) {
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getServiceAddress()).thenReturn(mockDtoAddress);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
+
+        officerUpdateValidator.validateCorrespondenceAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(addressValidator, times(0)).validate(any(CorrespondenceAddressErrorProvider.class), any(), any(), any());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(booleans = {true})
+    void validateCorrespondenceAddressSectionSectionWhenBooleanIsTrueAndFieldsUpdatedAndChipsDataIsNull(Boolean hasBeenUpdated) {
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getServiceAddress()).thenReturn(mockDtoAddress);
+        when(companyAppointment.getServiceAddress()).thenReturn(null);
+        when(mockDtoAddress.getPremises()).thenReturn("11");
+
+        officerUpdateValidator.validateCorrespondenceAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(addressValidator).validate(any(CorrespondenceAddressErrorProvider.class), any(), any(), any());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(booleans = {true})
+    void validateCorrespondenceAddressSectionWhenBooleanIsTrueAndFieldsUpdatedAndFieldsMatchChipsData(Boolean hasBeenUpdated) {
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getServiceAddress()).thenReturn(mockDtoAddress);
+        when(officerUpdateValidator.doesAddressMatchChipsData(any(), any(), any(), any())).thenReturn(true);
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_MATCHES_CHIPS_DATA)).thenReturn("The correspondence address data submitted cannot pass validation as it is not an update from the previously submitted data");
+
+        officerUpdateValidator.validateCorrespondenceAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(addressValidator, times(0)).validate(any(CorrespondenceAddressErrorProvider.class), any(), any(), any());
+        assertThat(apiErrorsList)
+                .as("An error should be produced when correspondence address data matches chips data")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The correspondence address data submitted cannot pass validation as it is not an update from the previously submitted data");
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(booleans = {true})
+    void validateCorrespondenceAddressSectionWhenBooleanIsTrueAndFieldsUpdatedAndFieldsDoNotMatchChipsData(Boolean hasBeenUpdated) {
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getServiceAddress()).thenReturn(mockDtoAddress);
+        when(officerUpdateValidator.doesAddressMatchChipsData(any(), any(), any(), any())).thenReturn(false);
+
+        officerUpdateValidator.validateCorrespondenceAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(addressValidator).validate(any(CorrespondenceAddressErrorProvider.class), any(), any(), any());
+    }
+
+    @ParameterizedTest
+    @MethodSource()
+    void doesAddressMatchChipsData(AddressDto filingAddress, Boolean filingSameAsLink, AddressAPI chipsAddress, Boolean chipsSameAsLink, boolean matches) {
+        final var result = officerUpdateValidator.doesAddressMatchChipsData(filingAddress, filingSameAsLink, chipsAddress, chipsSameAsLink);
+        if (matches) {
+            assertThat(result).isTrue();
+        } else {
+            assertThat(result).isFalse();
+        }
+    }
+
+
+    private static Stream<Arguments> doesAddressMatchChipsData() {
+        AddressDto testDtoAddress = AddressDto.builder()
+                .premises("11")
+                .addressLine1("One Street")
+                .addressLine2("Two Lane")
+                .region("Region")
+                .locality("locality")
+                .country("England")
+                .postalCode("TE1 3ST")
+                .build();
+        AddressAPI testChipsAddress = AddressAPI.builder()
+                .withPremises("11")
+                .withAddressLine1("One Street")
+                .withAddressLine2("Two Lane")
+                .withRegion("Region")
+                .withLocality("locality")
+                .withCountry("England")
+                .withPostcode("TE1 3ST")
+                .build();
+        return Stream.of(
+                Arguments.of(testDtoAddress, false, testChipsAddress, false, true),
+                Arguments.of(testDtoAddress, true, testChipsAddress, true, true),
+                Arguments.of(testDtoAddress, false, testChipsAddress, true, false),
+                Arguments.of(testDtoAddress, true, testChipsAddress, false, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).premises("test").build(), true, testChipsAddress, true, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).premises("test").build(), false, testChipsAddress, false, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).addressLine1("test").build(), false, testChipsAddress, false, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).addressLine2("test").build(), false, testChipsAddress, false, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).region("test").build(), false, testChipsAddress, false, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).locality("test").build(), false, testChipsAddress, false, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).country("test").build(), false, testChipsAddress, false, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).postalCode("test").build(), false, testChipsAddress, false, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).postalCode(null).build(), false, AddressAPI.builder().withPremises("11").withAddressLine1("One Street").withAddressLine2("Two Lane").withRegion("Region").withLocality("locality").withCountry("England").withPostcode(null).build(), false, true),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).postalCode("test").build(), false, AddressAPI.builder().withPremises("11").withAddressLine1("One Street").withAddressLine2("Two Lane").withRegion("Region").withLocality("locality").withCountry("England").withPostcode(null).build(), false, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).postalCode(null).build(), false, AddressAPI.builder().withPremises("11").withAddressLine1("One Street").withAddressLine2("Two Lane").withRegion("Region").withLocality("locality").withCountry("England").withPostcode("test").build(), false, false)
+
         );
     }
 }

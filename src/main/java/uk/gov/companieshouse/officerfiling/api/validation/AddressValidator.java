@@ -24,7 +24,7 @@ public class AddressValidator extends OfficerValidator {
     private final List<String> countryList;
     private final List<String> ukCountryList;
 
-    protected AddressValidator(Logger logger, CompanyProfileService companyProfileService, String inputAllowedNationalities, ApiEnumerations apiEnumerations, List<String> countryList, List<String> ukCountryList) {
+    public AddressValidator(Logger logger, CompanyProfileService companyProfileService, String inputAllowedNationalities, ApiEnumerations apiEnumerations, List<String> countryList, List<String> ukCountryList) {
         super(logger, companyProfileService, inputAllowedNationalities, apiEnumerations);
         this.countryList = countryList;
         this.ukCountryList = ukCountryList;

@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -63,6 +65,15 @@ class FilingDataServiceImplTest {
     private static final Instant DATE_OF_BIRTH_INS = Instant.parse("2000-10-20T00:00:00Z");
     private static final LocalDate DUMMY_DATE = LocalDate.of(2023, 3, 16);
     public static final Instant DIRECTOR_DETAILS_CHANGED_DATE = Instant.parse("2023-10-01T18:35:24Z");
+    public static final Address SERVICE_ADDRESS = Address.builder()
+            .premises("11")
+            .addressLine1("One Street")
+            .addressLine2("Two Lane")
+            .region("Region")
+            .locality("locality")
+            .country("England")
+            .postalCode("TE1 3ST")
+            .build();
     @Mock
     private OfficerFilingService officerFilingService;
     @Mock
@@ -376,7 +387,8 @@ class FilingDataServiceImplTest {
                 .nationality2(NATIONALITY_2)
                 .nationality3(NATIONALITY_3)
                 .occupation(OCCUPATION)
-                .serviceAddress(null)
+                .serviceAddress(SERVICE_ADDRESS)
+                .isServiceAddressSameAsRegisteredOfficeAddress(false)
                 .residentialAddress(null)
                 .build();
         assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
@@ -649,6 +661,119 @@ class FilingDataServiceImplTest {
         assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
     }
 
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(booleans = {false})
+    void generateUpdateOfficerFilingWhenCorrespondenceAddressHasBeenUpdatedAndSameAsLinkIsFalse(Boolean sameAsLink) {
+        final var originalData = testOfficerFilingDataBuilder()
+                .nameHasBeenUpdated(false)
+                .nationalityHasBeenUpdated(false)
+                .occupationHasBeenUpdated(false)
+                .residentialAddressHasBeenUpdated(false)
+                .correspondenceAddressHasBeenUpdated(true)
+                .isServiceAddressSameAsRegisteredOfficeAddress(sameAsLink)
+                .build();
+        final var originalOfficerFiling = OfficerFiling.builder()
+                .createdAt(clock.instant())
+                .updatedAt(clock.instant())
+                .data(originalData)
+                .build();
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(originalOfficerFiling));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
+
+        testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        verify(filingAPIMapper).map(officerFilingCaptor.capture());
+        var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
+        var expectedOfficerFilingData = OfficerFilingData.builder()
+                .serviceAddress(SERVICE_ADDRESS)
+                .isServiceAddressSameAsRegisteredOfficeAddress(sameAsLink)
+                .build();
+        assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
+    }
+
+    @Test
+    void generateUpdateOfficerFilingWhenCorrespondenceAddressHasBeenUpdatedAndSameAsLinkIsTrue() {
+        final var originalData = testOfficerFilingDataBuilder()
+                .nameHasBeenUpdated(false)
+                .nationalityHasBeenUpdated(false)
+                .occupationHasBeenUpdated(false)
+                .residentialAddressHasBeenUpdated(false)
+                .correspondenceAddressHasBeenUpdated(true)
+                .isServiceAddressSameAsRegisteredOfficeAddress(true)
+                .build();
+        final var originalOfficerFiling = OfficerFiling.builder()
+                .createdAt(clock.instant())
+                .updatedAt(clock.instant())
+                .data(originalData)
+                .build();
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(originalOfficerFiling));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
+
+        testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        verify(filingAPIMapper).map(officerFilingCaptor.capture());
+        var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
+        var expectedOfficerFilingData = OfficerFilingData.builder()
+                .serviceAddress(null)
+                .isServiceAddressSameAsRegisteredOfficeAddress(true)
+                .build();
+        assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void generateUpdateOfficerFilingWhenCorrespondenceAddressHasNotBeenUpdated(boolean sameAsLink) {
+        final var originalData = testOfficerFilingDataBuilder()
+                .nameHasBeenUpdated(false)
+                .nationalityHasBeenUpdated(false)
+                .occupationHasBeenUpdated(false)
+                .residentialAddressHasBeenUpdated(false)
+                .correspondenceAddressHasBeenUpdated(false)
+                .isServiceAddressSameAsRegisteredOfficeAddress(sameAsLink)
+                .build();
+        final var originalOfficerFiling = OfficerFiling.builder()
+                .createdAt(clock.instant())
+                .updatedAt(clock.instant())
+                .data(originalData)
+                .build();
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(originalOfficerFiling));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
+
+        testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        verify(filingAPIMapper).map(officerFilingCaptor.capture());
+        var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
+        var expectedOfficerFilingData = OfficerFilingData.builder()
+                .serviceAddress(null)
+                .isServiceAddressSameAsRegisteredOfficeAddress(null)
+                .build();
+        assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
+    }
 
     @Test
     void testSetTm01DescriptionFieldsWithFullName() {
@@ -895,7 +1020,7 @@ class FilingDataServiceImplTest {
                 .nationality2(NATIONALITY_2)
                 .nationality3(NATIONALITY_3)
                 .occupation(OCCUPATION)
-                .serviceAddress(Address.builder().premises("11").addressLine1("One Street").country("England").postalCode("TE1 3ST").build())
+                .serviceAddress(SERVICE_ADDRESS)
                 .isServiceAddressSameAsRegisteredOfficeAddress(false)
                 .residentialAddress(Address.builder().premises("12").addressLine1("Two Street").country("Wales").postalCode("TE2 4ST").build())
                 .isHomeAddressSameAsServiceAddress(false)

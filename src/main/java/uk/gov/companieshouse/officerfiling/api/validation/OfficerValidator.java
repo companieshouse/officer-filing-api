@@ -154,15 +154,6 @@ public abstract class OfficerValidator {
         return Optional.empty();
     }
 
-    public ApiEnumerations getApiEnumerations() {
-        return apiEnumerations;
-    }
-
-    public void setApiEnumerations(
-            ApiEnumerations apiEnumerations) {
-        this.apiEnumerations = apiEnumerations;
-    }
-
     public void createServiceError(HttpServletRequest request, List<ApiError> errorList) {
         final var apiError = new ApiError(apiEnumerations.getValidation(ValidationEnum.SERVICE_UNAVAILABLE), request.getRequestURI(),
                 LocationType.JSON_PATH.getValue(), ErrorType.SERVICE.getType());
