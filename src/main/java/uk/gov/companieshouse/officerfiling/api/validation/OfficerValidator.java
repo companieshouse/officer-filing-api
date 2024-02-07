@@ -19,6 +19,7 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Provides all validation that should be carried out when an officer is terminated. Fetches all data necessary to complete
@@ -326,18 +328,26 @@ public abstract class OfficerValidator {
     }
 
     protected void validateNationalityLength(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
-        if (!StringUtils.isEmpty(dto.getNationality3()) && !StringUtils.isEmpty(
-                dto.getNationality2()) && !StringUtils.isEmpty(dto.getNationality1())) {
-            if (!validateDtoFieldLength(dto.getNationality1() + "," + dto.getNationality2() + "," + dto.getNationality3(), 50)) {
-                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH48));
+       var nationatities = Arrays.asList(dto.getNationality1(), dto.getNationality2(), dto.getNationality3())
+            .stream()
+            .filter(Objects::nonNull)
+            .map(s -> s.replace(",", ""))
+            .map(String::trim)
+            .filter(s -> StringUtils.isNotEmpty(s))
+            .collect(Collectors.joining(","));
+       
+        if (!validateDtoFieldLength(nationatities, 50)) {
+            String errorMessage;
+            if (StringUtils.isEmpty(dto.getNationality2()) && StringUtils.isEmpty(dto.getNationality3())) {
+                errorMessage = apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH);
+            } else {
+                if (StringUtils.isEmpty(dto.getNationality2()) || StringUtils.isEmpty(dto.getNationality3())) {
+                    errorMessage = apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH49);
+                } else {
+                    errorMessage = apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH48);
+                }
             }
-        } else if (!StringUtils.isEmpty(dto.getNationality2()) && !StringUtils.isEmpty(
-                dto.getNationality1())) {
-            if (!validateDtoFieldLength(dto.getNationality1() + "," + dto.getNationality2(), 50)) {
-                createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH49));
-            }
-        } else if (!StringUtils.isEmpty(dto.getNationality1()) && !validateDtoFieldLength(dto.getNationality1(), 50)) {
-            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH));
+            createValidationError(request, errorList, errorMessage);
         }
     }
 

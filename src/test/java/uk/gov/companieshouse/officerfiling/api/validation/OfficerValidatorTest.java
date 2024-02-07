@@ -324,11 +324,6 @@ class OfficerValidatorTest {
                 .contains("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters");
     }
 
-    /**
-     * This test case is failing, in CHIPS we just pass all the nationalities as 1 string with comma seperated value,
-     * with that in mind user can choose to pass nationality 1 and 3 and bypass the rule of 49 characters.
-     * The request can make a way to CHIPS and go to query handling, to avoid we need to fix the scenario where we check 1 and 3 too for 49 characters.
-     */
     @Test
     void validateNationality1And3LengthWhen50Exactly() {
         when(dto.getNationality1()).thenReturn("Abcdefghijklmnopqrstuvwxyz");
