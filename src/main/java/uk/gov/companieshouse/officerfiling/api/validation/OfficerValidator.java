@@ -333,7 +333,7 @@ public abstract class OfficerValidator {
             .filter(Objects::nonNull)
             .map(s -> s.replace(",", ""))
             .map(String::trim)
-            .filter(s -> StringUtils.isNotEmpty(s))
+            .filter(StringUtils::isNotEmpty)
             .collect(Collectors.joining(","));
        
         if (!validateDtoFieldLength(nationatities, 50)) {
