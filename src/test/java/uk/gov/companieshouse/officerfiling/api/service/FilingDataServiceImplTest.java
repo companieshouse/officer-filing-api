@@ -101,7 +101,7 @@ class FilingDataServiceImplTest {
     @BeforeEach
     void setUp() {
         testService = new FilingDataServiceImpl(officerFilingService, filingAPIMapper, logger, transactionService,
-                companyAppointmentService, dateNowSupplier);
+                companyAppointmentService);
     }
 
     @Test
