@@ -827,6 +827,14 @@ class OfficerUpdateValidatorTest {
                 .withPostcode("TE1 3ST")
                 .build();
         return Stream.of(
+                Arguments.of(null, false, testChipsAddress, false, true),
+                Arguments.of(null, false, testChipsAddress, true, false),
+                Arguments.of(null, true, testChipsAddress, false, false),
+                Arguments.of(null, true, testChipsAddress, true, true),
+                Arguments.of(testDtoAddress, false, null, false, false),
+                Arguments.of(testDtoAddress, false, null, true, false),
+                Arguments.of(testDtoAddress, true, null, false, false),
+                Arguments.of(testDtoAddress, true, null, true, false),
                 Arguments.of(testDtoAddress, false, testChipsAddress, false, true),
                 Arguments.of(testDtoAddress, true, testChipsAddress, true, true),
                 Arguments.of(testDtoAddress, false, testChipsAddress, true, false),
