@@ -40,8 +40,7 @@ public class FilingDataServiceImpl implements FilingDataService {
 
     public FilingDataServiceImpl(OfficerFilingService officerFilingService,
                                  FilingAPIMapper filingAPIMapper, Logger logger, TransactionService transactionService,
-                                 CompanyAppointmentService companyAppointmentService,
-                                 Supplier<LocalDate> dateNowSupplier) {
+                                 CompanyAppointmentService companyAppointmentService) {
         this.officerFilingService = officerFilingService;
         this.filingAPIMapper = filingAPIMapper;
         this.logger = logger;
