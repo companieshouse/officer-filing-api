@@ -233,14 +233,17 @@ public class OfficerUpdateValidator extends OfficerValidator {
         if (chipsAddress == null) {
             return false;
         }
-        return matchesChipsField(filingAddress.getPremises(), chipsAddress.getPremises()) &&
+        // When comparing the address linking fields, null and false are treated as equal
+        var linksMatch = matchesChipsField(filingSameAsLink, chipsSameAsLink) ||
+                ((filingSameAsLink == null || !filingSameAsLink) && (chipsSameAsLink == null || !chipsSameAsLink));
+        return linksMatch &&
+                matchesChipsField(filingAddress.getPremises(), chipsAddress.getPremises()) &&
                 matchesChipsField(filingAddress.getAddressLine1(), chipsAddress.getAddressLine1()) &&
                 matchesChipsField(filingAddress.getAddressLine2(), chipsAddress.getAddressLine2()) &&
                 matchesChipsField(filingAddress.getLocality(), chipsAddress.getLocality()) &&
                 matchesChipsField(filingAddress.getRegion(), chipsAddress.getRegion()) &&
                 matchesChipsField(filingAddress.getPostalCode(), chipsAddress.getPostcode()) &&
-                matchesChipsField(filingAddress.getCountry(), chipsAddress.getCountry()) &&
-                matchesChipsField(filingSameAsLink, chipsSameAsLink);
+                matchesChipsField(filingAddress.getCountry(), chipsAddress.getCountry());
     }
 
     private boolean matchesChipsField(Object field, Object chipsField) {

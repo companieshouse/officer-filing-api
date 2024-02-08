@@ -807,7 +807,6 @@ class OfficerUpdateValidatorTest {
         }
     }
 
-
     private static Stream<Arguments> doesAddressMatchChipsData() {
         AddressDto testDtoAddress = AddressDto.builder()
                 .premises("11")
@@ -832,6 +831,11 @@ class OfficerUpdateValidatorTest {
                 Arguments.of(testDtoAddress, true, testChipsAddress, true, true),
                 Arguments.of(testDtoAddress, false, testChipsAddress, true, false),
                 Arguments.of(testDtoAddress, true, testChipsAddress, false, false),
+                Arguments.of(testDtoAddress, true, testChipsAddress, null, false),
+                Arguments.of(testDtoAddress, null, testChipsAddress, true, false),
+                Arguments.of(testDtoAddress, null, testChipsAddress, null, true),
+                Arguments.of(testDtoAddress, null, testChipsAddress, false, true),
+                Arguments.of(testDtoAddress, false, testChipsAddress, null, true),
                 Arguments.of(new AddressDto.Builder(testDtoAddress).premises("test").build(), true, testChipsAddress, true, false),
                 Arguments.of(new AddressDto.Builder(testDtoAddress).premises("test").build(), false, testChipsAddress, false, false),
                 Arguments.of(new AddressDto.Builder(testDtoAddress).addressLine1("test").build(), false, testChipsAddress, false, false),
