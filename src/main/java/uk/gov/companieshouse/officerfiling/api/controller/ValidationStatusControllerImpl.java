@@ -21,6 +21,7 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
+import uk.gov.companieshouse.officerfiling.api.validation.AddressValidator;
 import uk.gov.companieshouse.officerfiling.api.validation.OfficerAppointmentValidator;
 import uk.gov.companieshouse.officerfiling.api.validation.OfficerTerminationValidator;
 import uk.gov.companieshouse.officerfiling.api.validation.OfficerUpdateValidator;
@@ -109,6 +110,7 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
      * @return All validation errors raised during the validation
      */
     private ApiErrors validate(HttpServletRequest request, OfficerFilingDto officerFiling, Transaction transaction, String passthroughHeader) {
+        final var addressValidator = new AddressValidator(logger, companyProfileService, inputAllowedNationalities, apiEnumerations, countryList, ukCountryList);
         if (isTm01Enabled && officerFiling.getResignedOn() != null) {
             return new OfficerTerminationValidator(logger, companyProfileService, companyAppointmentService, inputAllowedNationalities, apiEnumerations)
                     .validate(request, officerFiling, transaction, passthroughHeader);
@@ -118,7 +120,7 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
                     .validate(request, officerFiling, transaction, passthroughHeader);
         }
         if (isCh01Enabled) {
-            return new OfficerUpdateValidator(logger, companyAppointmentService, companyProfileService, inputAllowedNationalities, apiEnumerations)
+            return new OfficerUpdateValidator(logger, companyAppointmentService, companyProfileService, inputAllowedNationalities, apiEnumerations, addressValidator)
                     .validate(request, officerFiling, transaction, passthroughHeader);
         }
 

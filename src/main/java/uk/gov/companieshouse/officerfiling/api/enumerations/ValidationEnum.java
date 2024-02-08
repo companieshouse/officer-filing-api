@@ -101,7 +101,8 @@ public enum ValidationEnum {
     CONSENT_TO_ACT_FALSE("consent-to-act-false"),
     ADDRESS_LINKS_MULTIPLE_FLAGS("address-links-multiple-flags"),
     NATIONALITY_MATCHES_CHIPS_DATA("nationality-matches-chips-data"),
-    OCCUPATION_MATCHES_CHIPS_DATA("occupation-matches-chips-data");
+    OCCUPATION_MATCHES_CHIPS_DATA("occupation-matches-chips-data"),
+    CORRESPONDENCE_ADDRESS_MATCHES_CHIPS_DATA("correspondence-matches-chips-data");
 
     private final String key;
 

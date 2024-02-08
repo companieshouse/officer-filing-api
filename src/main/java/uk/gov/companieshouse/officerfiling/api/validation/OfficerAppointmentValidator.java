@@ -29,7 +29,6 @@ public class OfficerAppointmentValidator extends OfficerValidator {
     private static final Integer AGE_16 = 16;
     private static final Integer AGE_110 = 110;
     private final Logger logger;
-    private final ApiEnumerations apiEnumerations;
     private final AddressValidator addressValidator;
 
     public OfficerAppointmentValidator(final Logger logger,
@@ -40,7 +39,6 @@ public class OfficerAppointmentValidator extends OfficerValidator {
                                        final List<String> ukCountryList) {
         super(logger, companyProfileService, inputAllowedNationalities, apiEnumerations);
         this.logger = logger;
-        this.apiEnumerations = getApiEnumerations();
         this.addressValidator = new AddressValidator(logger, companyProfileService, inputAllowedNationalities, apiEnumerations, countryList, ukCountryList);
     }
 

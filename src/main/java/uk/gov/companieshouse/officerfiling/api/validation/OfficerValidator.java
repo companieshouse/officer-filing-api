@@ -38,29 +38,14 @@ public abstract class OfficerValidator {
             "private-limited-guarant-nsc", "private-unlimited-nsc", "private-limited-shares-section-30-exemption");
     public static final List<String> ALLOWED_OFFICER_ROLES = List.of("director", "corporate-director", "nominee-director", "corporate-nominee-director");
     private static final String REG_EXP_FOR_VALID_CHARACTERS = "^[-,.:; 0-9A-Z&@$£¥€'\"«»?!/\\\\()\\[\\]{}<>*=#%+ÀÁÂÃÄÅĀĂĄÆǼÇĆĈĊČÞĎÐÈÉÊËĒĔĖĘĚĜĞĠĢĤĦÌÍÎÏĨĪĬĮİĴĶĹĻĽĿŁÑŃŅŇŊÒÓÔÕÖØŌŎŐǾŒŔŖŘŚŜŞŠŢŤŦÙÚÛÜŨŪŬŮŰŲŴẀẂẄỲÝŶŸŹŻŽa-zſƒǺàáâãäåāăąæǽçćĉċčþďðèéêëēĕėęěĝģğġĥħìíîïĩīĭįĵķĺļľŀłñńņňŋòóôõöøōŏőǿœŕŗřśŝşšţťŧùúûüũūŭůűųŵẁẃẅỳýŷÿźżž]*$";
-
     private static final String REG_EXP_FOR_UK_POSTCODE = "^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$";
-
     private static final String DISSOLVED = "dissolved";
 
-    private Logger logger;
-
-    public ApiEnumerations getApiEnumerations() {
-        return apiEnumerations;
-    }
-
-    public void setApiEnumerations(
-            ApiEnumerations apiEnumerations) {
-        this.apiEnumerations = apiEnumerations;
-    }
-
-    private ApiEnumerations apiEnumerations;
-
-    private String inputAllowedNationalities;
-
+    private final Logger logger;
+    private final String inputAllowedNationalities;
     private final CompanyProfileService companyProfileService;
-
     private CompanyAppointmentService companyAppointmentService;
+    protected ApiEnumerations apiEnumerations;
 
     protected OfficerValidator(final Logger logger, final CompanyProfileService companyProfileService,
                                final CompanyAppointmentService companyAppointmentService, final String inputAllowedNationalities,

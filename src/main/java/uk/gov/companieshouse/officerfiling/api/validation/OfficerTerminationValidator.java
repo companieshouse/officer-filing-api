@@ -26,8 +26,7 @@ import java.util.Optional;
  */
 public class OfficerTerminationValidator extends OfficerValidator {
 
-    private Logger logger;
-    private ApiEnumerations apiEnumerations;
+    private final Logger logger;
 
     public OfficerTerminationValidator(final Logger logger,
                                        final CompanyProfileService companyProfileService,
@@ -36,7 +35,6 @@ public class OfficerTerminationValidator extends OfficerValidator {
                                        final ApiEnumerations apiEnumerations) {
         super(logger, companyProfileService, companyAppointmentService, inputAllowedNationalities, apiEnumerations);
         this.logger = logger;
-        this.apiEnumerations = getApiEnumerations();
     }
 
     /**
