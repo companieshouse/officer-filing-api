@@ -184,8 +184,10 @@ public class OfficerUpdateValidator extends OfficerValidator {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_MATCHES_CHIPS_DATA));
             return;
         }
-        // Perform validation
-        addressValidator.validate(new CorrespondenceAddressErrorProvider(apiEnumerations), request, errorList, dto.getServiceAddress());
+        // Perform validation if link is false or null
+        if (!Boolean.TRUE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress())) {
+            addressValidator.validate(new CorrespondenceAddressErrorProvider(apiEnumerations), request, errorList, dto.getServiceAddress());
+        }
     }
 
     private boolean isAddressNull(AddressDto address) {
@@ -230,35 +232,39 @@ public class OfficerUpdateValidator extends OfficerValidator {
     }
 
     public boolean doesAddressMatchChipsData(AddressDto filingAddress, Boolean filingSameAsLink, AddressAPI chipsAddress, Boolean chipsSameAsLink) {
-        if (chipsAddress == null) {
+        // If sameAs link is true in the filing then the address can be ignored
+        if (Boolean.TRUE.equals(filingSameAsLink)) {
+            return Boolean.TRUE.equals(chipsSameAsLink);
+        }
+        if (Boolean.TRUE.equals(chipsSameAsLink)) {
             return false;
         }
-        // Null and false are treated the same when comparing links
-        var linksMatch = matchesChipsField(filingSameAsLink, chipsSameAsLink) ||
-                ((filingSameAsLink == null || !filingSameAsLink) && (chipsSameAsLink == null || !chipsSameAsLink));
-        // A null address in the dto will not cause the match to fail
-        var addressesDoNotMatch = filingAddress != null && (
-                !matchesChipsField(filingAddress.getPremises(), chipsAddress.getPremises()) ||
-                        !matchesChipsField(filingAddress.getAddressLine1(), chipsAddress.getAddressLine1()) ||
-                        !matchesChipsField(filingAddress.getAddressLine2(), chipsAddress.getAddressLine2()) ||
-                        !matchesChipsField(filingAddress.getLocality(), chipsAddress.getLocality()) ||
-                        !matchesChipsField(filingAddress.getRegion(), chipsAddress.getRegion()) ||
-                        !matchesChipsField(filingAddress.getPostalCode(), chipsAddress.getPostcode()) ||
-                        !matchesChipsField(filingAddress.getCountry(), chipsAddress.getCountry()));
-        return linksMatch && !addressesDoNotMatch;
+        return compareAddresses(filingAddress, chipsAddress);
     }
 
-    private boolean matchesChipsField(Object field, Object chipsField) {
+    private boolean compareAddresses(AddressDto filingAddress, AddressAPI chipsAddress) {
+        if (filingAddress == null && chipsAddress == null) {
+            return true;
+        }
+        if (filingAddress == null || chipsAddress == null) {
+            return false;
+        }
+        return matchesChipsField(filingAddress.getPremises(), chipsAddress.getPremises()) &&
+                matchesChipsField(filingAddress.getAddressLine1(), chipsAddress.getAddressLine1()) &&
+                matchesChipsField(filingAddress.getAddressLine2(), chipsAddress.getAddressLine2()) &&
+                matchesChipsField(filingAddress.getLocality(), chipsAddress.getLocality()) &&
+                matchesChipsField(filingAddress.getRegion(), chipsAddress.getRegion()) &&
+                matchesChipsField(filingAddress.getPostalCode(), chipsAddress.getPostcode()) &&
+                matchesChipsField(filingAddress.getCountry(), chipsAddress.getCountry());
+    }
+
+    private boolean matchesChipsField(String field, String chipsField) {
         if (field == null && chipsField == null) {
             return true;
         } else if (field == null || chipsField == null) {
             return false;
-        } else if (field instanceof String && chipsField instanceof String) {
-            var fieldString = ((String) field).trim();
-            var chipsFieldString = ((String) chipsField).trim();
-            return fieldString.equalsIgnoreCase(chipsFieldString);
         }
-        return field.equals(chipsField);
+        return field.trim().equalsIgnoreCase(chipsField.trim());
     }
 
 }

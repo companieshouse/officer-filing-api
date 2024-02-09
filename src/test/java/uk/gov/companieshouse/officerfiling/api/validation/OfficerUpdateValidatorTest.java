@@ -796,6 +796,39 @@ class OfficerUpdateValidatorTest {
         Mockito.verify(addressValidator).validate(any(CorrespondenceAddressErrorProvider.class), any(), any(), any());
     }
 
+    @Test
+    void validateCorrespondenceAddressSectionWhenLinkIsTrueAndAddressIsNullAndChipsLinkIsTrue() {
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(companyAppointment.getServiceAddressIsSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_MATCHES_CHIPS_DATA)).thenReturn("The correspondence address data submitted cannot pass validation as it is not an update from the previously submitted data");
+
+        officerUpdateValidator.validateCorrespondenceAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(officerUpdateValidator).doesAddressMatchChipsData(any(), any(), any(), any());
+        Mockito.verify(addressValidator, times(0)).validate(any(CorrespondenceAddressErrorProvider.class), any(), any(), any());
+        assertThat(apiErrorsList)
+                .as("An error should be produced when correspondence address links are both true regardless of the address")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The correspondence address data submitted cannot pass validation as it is not an update from the previously submitted data");
+    }
+
+    @Test
+    void validateCorrespondenceAddressSectionWhenLinkIsTrueAndAddressIsNullAndChipsLinkIsFalse() {
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(companyAppointment.getServiceAddressIsSameAsRegisteredOfficeAddress()).thenReturn(false);
+
+        officerUpdateValidator.validateCorrespondenceAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(officerUpdateValidator).doesAddressMatchChipsData(any(), any(), any(), any());
+        Mockito.verify(addressValidator, times(0)).validate(any(CorrespondenceAddressErrorProvider.class), any(), any(), any());
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when correspondence address links do not match regardless of the address")
+                .isEmpty();
+    }
+
     @ParameterizedTest
     @MethodSource()
     void doesAddressMatchChipsData(AddressDto filingAddress, Boolean filingSameAsLink, AddressAPI chipsAddress, Boolean chipsSameAsLink, boolean matches) {
@@ -827,14 +860,18 @@ class OfficerUpdateValidatorTest {
                 .withPostcode("TE1 3ST")
                 .build();
         return Stream.of(
-                Arguments.of(null, false, testChipsAddress, false, true),
+                Arguments.of(null, false, null, false, true),
+                Arguments.of(null, false, null, true, false),
+                Arguments.of(null, true, null, false, false),
+                Arguments.of(null, true, null, true, true),
+                Arguments.of(null, false, testChipsAddress, false, false),
                 Arguments.of(null, false, testChipsAddress, true, false),
                 Arguments.of(null, true, testChipsAddress, false, false),
                 Arguments.of(null, true, testChipsAddress, true, true),
                 Arguments.of(testDtoAddress, false, null, false, false),
                 Arguments.of(testDtoAddress, false, null, true, false),
                 Arguments.of(testDtoAddress, true, null, false, false),
-                Arguments.of(testDtoAddress, true, null, true, false),
+                Arguments.of(testDtoAddress, true, null, true, true),
                 Arguments.of(testDtoAddress, false, testChipsAddress, false, true),
                 Arguments.of(testDtoAddress, true, testChipsAddress, true, true),
                 Arguments.of(testDtoAddress, false, testChipsAddress, true, false),
@@ -844,7 +881,7 @@ class OfficerUpdateValidatorTest {
                 Arguments.of(testDtoAddress, null, testChipsAddress, null, true),
                 Arguments.of(testDtoAddress, null, testChipsAddress, false, true),
                 Arguments.of(testDtoAddress, false, testChipsAddress, null, true),
-                Arguments.of(new AddressDto.Builder(testDtoAddress).premises("test").build(), true, testChipsAddress, true, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).premises("test").build(), true, testChipsAddress, true, true),
                 Arguments.of(new AddressDto.Builder(testDtoAddress).premises("test").build(), false, testChipsAddress, false, false),
                 Arguments.of(new AddressDto.Builder(testDtoAddress).addressLine1("test").build(), false, testChipsAddress, false, false),
                 Arguments.of(new AddressDto.Builder(testDtoAddress).addressLine2("test").build(), false, testChipsAddress, false, false),
