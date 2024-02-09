@@ -770,7 +770,7 @@ class OfficerUpdateValidatorTest {
     void validateCorrespondenceAddressSectionWhenBooleanIsTrueAndFieldsUpdatedAndFieldsMatchChipsData(Boolean hasBeenUpdated) {
         when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
         when(dto.getServiceAddress()).thenReturn(mockDtoAddress);
-        when(officerUpdateValidator.doesAddressMatchChipsData(any(), any(), any(), any())).thenReturn(true);
+        when(officerUpdateValidator.doesAddressMatchChipsData(any(),any())).thenReturn(true);
         when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_MATCHES_CHIPS_DATA)).thenReturn("The correspondence address data submitted cannot pass validation as it is not an update from the previously submitted data");
 
         officerUpdateValidator.validateCorrespondenceAddressSection(request, apiErrorsList, dto, companyAppointment);
@@ -789,7 +789,8 @@ class OfficerUpdateValidatorTest {
     void validateCorrespondenceAddressSectionWhenBooleanIsTrueAndFieldsUpdatedAndFieldsDoNotMatchChipsData(Boolean hasBeenUpdated) {
         when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
         when(dto.getServiceAddress()).thenReturn(mockDtoAddress);
-        when(officerUpdateValidator.doesAddressMatchChipsData(any(), any(), any(), any())).thenReturn(false);
+        when(officerUpdateValidator.doesAddressMatchChipsData(any(), any())).thenReturn(false);
+        when(officerUpdateValidator.doesAddressFlagsMatchesChipsData(any(), any())).thenReturn(false);
 
         officerUpdateValidator.validateCorrespondenceAddressSection(request, apiErrorsList, dto, companyAppointment);
 
@@ -800,17 +801,25 @@ class OfficerUpdateValidatorTest {
     void validateCorrespondenceAddressSectionWhenLinkIsTrueAndAddressIsNull() {
         when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(companyAppointment.getServiceAddressIsSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_MATCHES_CHIPS_DATA)).thenReturn("The correspondence address data submitted cannot pass validation as it is not an update from the previously submitted data");
+
 
         officerUpdateValidator.validateCorrespondenceAddressSection(request, apiErrorsList, dto, companyAppointment);
 
-        Mockito.verify(officerUpdateValidator).doesAddressMatchChipsData(any(), any(), any(), any());
+        Mockito.verify(officerUpdateValidator).doesAddressFlagsMatchesChipsData(any(), any());
         Mockito.verify(addressValidator, times(0)).validate(any(CorrespondenceAddressErrorProvider.class), any(), any(), any());
+        assertThat(apiErrorsList)
+                .as("An error should be produced when correspondence address data matches chips data")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The correspondence address data submitted cannot pass validation as it is not an update from the previously submitted data");
     }
 
     @ParameterizedTest
     @MethodSource()
-    void doesAddressMatchChipsData(AddressDto filingAddress, Boolean filingSameAsLink, AddressAPI chipsAddress, Boolean chipsSameAsLink, boolean matches) {
-        final var result = officerUpdateValidator.doesAddressMatchChipsData(filingAddress, filingSameAsLink, chipsAddress, chipsSameAsLink);
+    void doesAddressMatchChipsData(AddressDto filingAddress, AddressAPI chipsAddress, boolean matches) {
+        final var result = officerUpdateValidator.doesAddressMatchChipsData(filingAddress, chipsAddress);
         if (matches) {
             assertThat(result).isTrue();
         } else {
@@ -838,35 +847,43 @@ class OfficerUpdateValidatorTest {
                 .withPostcode("TE1 3ST")
                 .build();
         return Stream.of(
-                Arguments.of(null, false, testChipsAddress, false, true),
-                Arguments.of(null, false, testChipsAddress, true, false),
-                Arguments.of(null, true, testChipsAddress, false, false),
-                Arguments.of(null, true, testChipsAddress, true, true),
-                Arguments.of(testDtoAddress, false, null, false, false),
-                Arguments.of(testDtoAddress, false, null, true, false),
-                Arguments.of(testDtoAddress, true, null, false, false),
-                Arguments.of(testDtoAddress, true, null, true, false),
-                Arguments.of(testDtoAddress, false, testChipsAddress, false, true),
-                Arguments.of(testDtoAddress, true, testChipsAddress, true, true),
-                Arguments.of(testDtoAddress, false, testChipsAddress, true, false),
-                Arguments.of(testDtoAddress, true, testChipsAddress, false, false),
-                Arguments.of(testDtoAddress, true, testChipsAddress, null, false),
-                Arguments.of(testDtoAddress, null, testChipsAddress, true, false),
-                Arguments.of(testDtoAddress, null, testChipsAddress, null, true),
-                Arguments.of(testDtoAddress, null, testChipsAddress, false, true),
-                Arguments.of(testDtoAddress, false, testChipsAddress, null, true),
-                Arguments.of(new AddressDto.Builder(testDtoAddress).premises("test").build(), true, testChipsAddress, true, false),
-                Arguments.of(new AddressDto.Builder(testDtoAddress).premises("test").build(), false, testChipsAddress, false, false),
-                Arguments.of(new AddressDto.Builder(testDtoAddress).addressLine1("test").build(), false, testChipsAddress, false, false),
-                Arguments.of(new AddressDto.Builder(testDtoAddress).addressLine2("test").build(), false, testChipsAddress, false, false),
-                Arguments.of(new AddressDto.Builder(testDtoAddress).region("test").build(), false, testChipsAddress, false, false),
-                Arguments.of(new AddressDto.Builder(testDtoAddress).locality("test").build(), false, testChipsAddress, false, false),
-                Arguments.of(new AddressDto.Builder(testDtoAddress).country("test").build(), false, testChipsAddress, false, false),
-                Arguments.of(new AddressDto.Builder(testDtoAddress).postalCode("test").build(), false, testChipsAddress, false, false),
-                Arguments.of(new AddressDto.Builder(testDtoAddress).postalCode(null).build(), false, AddressAPI.builder().withPremises("11").withAddressLine1("One Street").withAddressLine2("Two Lane").withRegion("Region").withLocality("locality").withCountry("England").withPostcode(null).build(), false, true),
-                Arguments.of(new AddressDto.Builder(testDtoAddress).postalCode("test").build(), false, AddressAPI.builder().withPremises("11").withAddressLine1("One Street").withAddressLine2("Two Lane").withRegion("Region").withLocality("locality").withCountry("England").withPostcode(null).build(), false, false),
-                Arguments.of(new AddressDto.Builder(testDtoAddress).postalCode(null).build(), false, AddressAPI.builder().withPremises("11").withAddressLine1("One Street").withAddressLine2("Two Lane").withRegion("Region").withLocality("locality").withCountry("England").withPostcode("test").build(), false, false)
+                Arguments.of(null, testChipsAddress, true),
+                Arguments.of(testDtoAddress, null, false),
+                Arguments.of(testDtoAddress, testChipsAddress, true),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).premises("test").build(), testChipsAddress, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).premises("test").build(), testChipsAddress, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).addressLine1("test").build(), testChipsAddress, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).addressLine2("test").build(), testChipsAddress, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).region("test").build(), testChipsAddress, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).locality("test").build(), testChipsAddress, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).country("test").build(), testChipsAddress, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).postalCode("test").build(), testChipsAddress, false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).postalCode(null).build(), AddressAPI.builder().withPremises("11").withAddressLine1("One Street").withAddressLine2("Two Lane").withRegion("Region").withLocality("locality").withCountry("England").withPostcode(null).build(), true),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).postalCode("test").build(), AddressAPI.builder().withPremises("11").withAddressLine1("One Street").withAddressLine2("Two Lane").withRegion("Region").withLocality("locality").withCountry("England").withPostcode(null).build(), false),
+                Arguments.of(new AddressDto.Builder(testDtoAddress).postalCode(null).build(), AddressAPI.builder().withPremises("11").withAddressLine1("One Street").withAddressLine2("Two Lane").withRegion("Region").withLocality("locality").withCountry("England").withPostcode("test").build(), false)
 
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource()
+    void doesAddressFlagMatchChipsData(Boolean filingSameAsLink, Boolean chipsSameAsLink, boolean matches) {
+        final var result = officerUpdateValidator.doesAddressFlagsMatchesChipsData(filingSameAsLink, chipsSameAsLink);
+        if (matches) {
+            assertThat(result).isTrue();
+        } else {
+            assertThat(result).isFalse();
+        }
+    }
+    private static Stream<Arguments> doesAddressFlagMatchChipsData() {
+        return Stream.of(
+                Arguments.of(true, true, true),
+                Arguments.of(true, false, false),
+                Arguments.of(false, false, false),
+                Arguments.of(false, true, false),
+                Arguments.of(null, true, false),
+                Arguments.of(null, false, false),
+                Arguments.of(null, null, false)
         );
     }
 }

@@ -179,8 +179,14 @@ public class OfficerUpdateValidator extends OfficerValidator {
         if (isAddressNull(dto.getServiceAddress()) && dto.getIsServiceAddressSameAsRegisteredOfficeAddress() == null) {
             return;
         }
+
+        if(doesAddressFlagsMatchesChipsData(dto.getIsServiceAddressSameAsRegisteredOfficeAddress(), appointment.getServiceAddressIsSameAsRegisteredOfficeAddress())) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_MATCHES_CHIPS_DATA));
+            return;
+        }
+
         // If the section matches the current chips data then throw a validation error and don't continue
-        if (doesAddressMatchChipsData(dto.getServiceAddress(), dto.getIsServiceAddressSameAsRegisteredOfficeAddress(), appointment.getServiceAddress(), appointment.getServiceAddressIsSameAsRegisteredOfficeAddress())) {
+        if (doesAddressMatchChipsData(dto.getServiceAddress(), appointment.getServiceAddress())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_MATCHES_CHIPS_DATA));
             return;
         }
@@ -231,13 +237,18 @@ public class OfficerUpdateValidator extends OfficerValidator {
         return matchesChipsField(dto.getOccupation(), chipsOccupation);
     }
 
-    public boolean doesAddressMatchChipsData(AddressDto filingAddress, Boolean filingSameAsLink, AddressAPI chipsAddress, Boolean chipsSameAsLink) {
+    public boolean doesAddressFlagsMatchesChipsData(Boolean filingSameAsLink, Boolean chipsSameAsLink) {
+        if ((filingSameAsLink == null && chipsSameAsLink == null) || Boolean.FALSE.equals(filingSameAsLink) && Boolean.FALSE.equals(chipsSameAsLink)) {
+            return false;
+        }
+
+        return matchesChipsField(filingSameAsLink, chipsSameAsLink);
+    }
+
+    public boolean doesAddressMatchChipsData(AddressDto filingAddress, AddressAPI chipsAddress) {
         if (chipsAddress == null) {
             return false;
         }
-        // Null and false are treated the same when comparing links
-        var linksMatch = matchesChipsField(filingSameAsLink, chipsSameAsLink) ||
-                ((filingSameAsLink == null || !filingSameAsLink) && (chipsSameAsLink == null || !chipsSameAsLink));
         // A null address in the dto will not cause the match to fail
         var addressesDoNotMatch = filingAddress != null && (
                 !matchesChipsField(filingAddress.getPremises(), chipsAddress.getPremises()) ||
@@ -247,7 +258,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
                         !matchesChipsField(filingAddress.getRegion(), chipsAddress.getRegion()) ||
                         !matchesChipsField(filingAddress.getPostalCode(), chipsAddress.getPostcode()) ||
                         !matchesChipsField(filingAddress.getCountry(), chipsAddress.getCountry()));
-        return linksMatch && !addressesDoNotMatch;
+        return !addressesDoNotMatch;
     }
 
     private boolean matchesChipsField(Object field, Object chipsField) {
