@@ -796,6 +796,17 @@ class OfficerUpdateValidatorTest {
         Mockito.verify(addressValidator).validate(any(CorrespondenceAddressErrorProvider.class), any(), any(), any());
     }
 
+    @Test
+    void validateCorrespondenceAddressSectionWhenLinkIsTrueAndAddressIsNull() {
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
+
+        officerUpdateValidator.validateCorrespondenceAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(officerUpdateValidator).doesAddressMatchChipsData(any(), any(), any(), any());
+        Mockito.verify(addressValidator, times(0)).validate(any(CorrespondenceAddressErrorProvider.class), any(), any(), any());
+    }
+
     @ParameterizedTest
     @MethodSource()
     void doesAddressMatchChipsData(AddressDto filingAddress, Boolean filingSameAsLink, AddressAPI chipsAddress, Boolean chipsSameAsLink, boolean matches) {

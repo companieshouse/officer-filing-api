@@ -184,8 +184,10 @@ public class OfficerUpdateValidator extends OfficerValidator {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_MATCHES_CHIPS_DATA));
             return;
         }
-        // Perform validation
-        addressValidator.validate(new CorrespondenceAddressErrorProvider(apiEnumerations), request, errorList, dto.getServiceAddress());
+        // Perform validation if link is false or null
+        if (!Boolean.TRUE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress())) {
+            addressValidator.validate(new CorrespondenceAddressErrorProvider(apiEnumerations), request, errorList, dto.getServiceAddress());
+        }
     }
 
     private boolean isAddressNull(AddressDto address) {
