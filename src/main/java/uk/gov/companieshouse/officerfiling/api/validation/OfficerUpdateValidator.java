@@ -233,14 +233,19 @@ public class OfficerUpdateValidator extends OfficerValidator {
         if (chipsAddress == null) {
             return false;
         }
-        return matchesChipsField(filingAddress.getPremises(), chipsAddress.getPremises()) &&
-                matchesChipsField(filingAddress.getAddressLine1(), chipsAddress.getAddressLine1()) &&
-                matchesChipsField(filingAddress.getAddressLine2(), chipsAddress.getAddressLine2()) &&
-                matchesChipsField(filingAddress.getLocality(), chipsAddress.getLocality()) &&
-                matchesChipsField(filingAddress.getRegion(), chipsAddress.getRegion()) &&
-                matchesChipsField(filingAddress.getPostalCode(), chipsAddress.getPostcode()) &&
-                matchesChipsField(filingAddress.getCountry(), chipsAddress.getCountry()) &&
-                matchesChipsField(filingSameAsLink, chipsSameAsLink);
+        // Null and false are treated the same when comparing links
+        var linksMatch = matchesChipsField(filingSameAsLink, chipsSameAsLink) ||
+                ((filingSameAsLink == null || !filingSameAsLink) && (chipsSameAsLink == null || !chipsSameAsLink));
+        // A null address in the dto will not cause the match to fail
+        var addressesDoNotMatch = filingAddress != null && (
+                !matchesChipsField(filingAddress.getPremises(), chipsAddress.getPremises()) ||
+                        !matchesChipsField(filingAddress.getAddressLine1(), chipsAddress.getAddressLine1()) ||
+                        !matchesChipsField(filingAddress.getAddressLine2(), chipsAddress.getAddressLine2()) ||
+                        !matchesChipsField(filingAddress.getLocality(), chipsAddress.getLocality()) ||
+                        !matchesChipsField(filingAddress.getRegion(), chipsAddress.getRegion()) ||
+                        !matchesChipsField(filingAddress.getPostalCode(), chipsAddress.getPostcode()) ||
+                        !matchesChipsField(filingAddress.getCountry(), chipsAddress.getCountry()));
+        return linksMatch && !addressesDoNotMatch;
     }
 
     private boolean matchesChipsField(Object field, Object chipsField) {
