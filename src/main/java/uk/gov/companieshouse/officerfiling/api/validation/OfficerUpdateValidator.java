@@ -16,6 +16,7 @@ import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.officerfiling.api.validation.error.CorrespondenceAddressErrorProvider;
+import uk.gov.companieshouse.officerfiling.api.validation.error.ResidentialAddressErrorProvider;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
@@ -76,6 +77,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
         validateNationalitySection(request, errorList, dto, companyAppointment.get());
         validateOccupationSection(request, errorList, dto, companyAppointment.get());
         validateCorrespondenceAddressSection(request, errorList, dto, companyAppointment.get());
+        validateResidentialAddressSection(request, errorList, dto, companyAppointment.get());
 
         return new ApiErrors(errorList);
     }
@@ -187,6 +189,26 @@ public class OfficerUpdateValidator extends OfficerValidator {
         // Perform validation if link is false or null
         if (!Boolean.TRUE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress())) {
             addressValidator.validate(new CorrespondenceAddressErrorProvider(apiEnumerations), request, errorList, dto.getServiceAddress());
+        }
+    }
+
+    public void validateResidentialAddressSection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
+        // If hasBeenUpdated boolean is true or null then continue
+        if (Boolean.FALSE.equals(dto.getResidentialAddressHasBeenUpdated())) {
+            return;
+        }
+        // If address isn't null and any field within this section has been provided then continue
+        if (isAddressNull(dto.getResidentialAddress()) && dto.getIsHomeAddressSameAsServiceAddress() == null) {
+            return;
+        }
+        // If the section matches the current chips data then throw a validation error and don't continue
+        if (doesAddressMatchChipsData(dto.getResidentialAddress(), dto.getIsHomeAddressSameAsServiceAddress(), appointment.getUsualResidentialAddress(), appointment.getResidentialAddressIsSameAsServiceAddress())) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_ADDRESS_MATCHES_CHIPS_DATA));
+            return;
+        }
+        // Perform validation if link is false or null
+        if (!Boolean.TRUE.equals(dto.getIsHomeAddressSameAsServiceAddress())) {
+            addressValidator.validate(new ResidentialAddressErrorProvider(apiEnumerations), request, errorList, dto.getResidentialAddress());
         }
     }
 
