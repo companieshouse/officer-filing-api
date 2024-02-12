@@ -41,6 +41,16 @@
             ${project.build.directory}/site/jacoco-it/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
         <sonar.jacoco.reports>${project.build.directory}/site</sonar.jacoco.reports>
+        <sonar.jacoco.reportPath>target/site/jacoco/jacoco.xml</sonar.jacoco.reportPath>
+        <sonar.dependencyCheck.htmlReportPath>
+            ${project.basedir}/target/dependency-check-report.html
+        </sonar.dependencyCheck.htmlReportPath>
+        <sonar.java.binaries>
+            ${project.basedir}/target
+        </sonar.java.binaries>
+
+        <!-- OWASP dependency checker -->
+        <dependency-check-plugin.version>8.4.0</dependency-check-plugin.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -235,6 +245,26 @@
                             <!-- Sets the output directory for the code coverage report. -->
                             <outputDirectory>${sonar.jacoco.reports}/jacoco-it</outputDirectory>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>${dependency-check-plugin.version}</version>
+                <configuration>
+                    <formats>
+                        <format>html</format>
+                    </formats>
+                    <suppressionFiles>
+                        <suppressionFile>suppress.xml</suppressionFile>
+                    </suppressionFiles>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
