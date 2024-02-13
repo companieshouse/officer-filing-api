@@ -24,6 +24,7 @@ import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileServiceImpl;
 import uk.gov.companieshouse.officerfiling.api.validation.error.CorrespondenceAddressErrorProvider;
+import uk.gov.companieshouse.officerfiling.api.validation.error.ResidentialAddressErrorProvider;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
@@ -826,6 +827,120 @@ class OfficerUpdateValidatorTest {
         Mockito.verify(addressValidator, times(0)).validate(any(CorrespondenceAddressErrorProvider.class), any(), any(), any());
         assertThat(apiErrorsList)
                 .as("An error should not be produced when correspondence address links do not match regardless of the address")
+                .isEmpty();
+    }
+
+    @Test
+    void validateResidentialAddressSectionWhenBooleanIsFalse() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(false);
+
+        officerUpdateValidator.validateResidentialAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(addressValidator, times(0)).validate(any(ResidentialAddressErrorProvider.class), any(), any(), any());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(booleans = {true})
+    void validateResidentialAddressSectionWhenBooleanIsTrueAndAddressIsNull(Boolean hasBeenUpdated) {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getResidentialAddress()).thenReturn(null);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(null);
+
+        officerUpdateValidator.validateResidentialAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(addressValidator, times(0)).validate(any(ResidentialAddressErrorProvider.class), any(), any(), any());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(booleans = {true})
+    void validateResidentialAddressSectionWhenBooleanIsTrueAndAddressFieldsNotUpdated(Boolean hasBeenUpdated) {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getResidentialAddress()).thenReturn(mockDtoAddress);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(null);
+
+        officerUpdateValidator.validateResidentialAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(addressValidator, times(0)).validate(any(ResidentialAddressErrorProvider.class), any(), any(), any());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(booleans = {true})
+    void validateResidentialAddressSectionSectionWhenBooleanIsTrueAndFieldsUpdatedAndChipsDataIsNull(Boolean hasBeenUpdated) {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getResidentialAddress()).thenReturn(mockDtoAddress);
+        when(companyAppointment.getUsualResidentialAddress()).thenReturn(null);
+        when(mockDtoAddress.getPremises()).thenReturn("11");
+
+        officerUpdateValidator.validateResidentialAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(addressValidator).validate(any(ResidentialAddressErrorProvider.class), any(), any(), any());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(booleans = {true})
+    void validateResidentialAddressSectionWhenBooleanIsTrueAndFieldsUpdatedAndFieldsMatchChipsData(Boolean hasBeenUpdated) {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getResidentialAddress()).thenReturn(mockDtoAddress);
+        when(officerUpdateValidator.doesAddressMatchChipsData(any(), any(), any(), any())).thenReturn(true);
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_ADDRESS_MATCHES_CHIPS_DATA)).thenReturn("The residential address data submitted cannot pass validation as it is not an update from the previously submitted data");
+
+        officerUpdateValidator.validateResidentialAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(addressValidator, times(0)).validate(any(ResidentialAddressErrorProvider.class), any(), any(), any());
+        assertThat(apiErrorsList)
+                .as("An error should be produced when residential address data matches chips data")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The residential address data submitted cannot pass validation as it is not an update from the previously submitted data");
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(booleans = {true})
+    void validateResidentialAddressSectionWhenBooleanIsTrueAndFieldsUpdatedAndFieldsDoNotMatchChipsData(Boolean hasBeenUpdated) {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getResidentialAddress()).thenReturn(mockDtoAddress);
+        when(officerUpdateValidator.doesAddressMatchChipsData(any(), any(), any(), any())).thenReturn(false);
+
+        officerUpdateValidator.validateResidentialAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(addressValidator).validate(any(ResidentialAddressErrorProvider.class), any(), any(), any());
+    }
+
+    @Test
+    void validateResidentialAddressSectionWhenLinkIsTrueAndAddressIsNullAndChipsLinkIsTrue() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
+        when(companyAppointment.getResidentialAddressIsSameAsServiceAddress()).thenReturn(true);
+        when(apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_ADDRESS_MATCHES_CHIPS_DATA)).thenReturn("The residential address data submitted cannot pass validation as it is not an update from the previously submitted data");
+
+        officerUpdateValidator.validateResidentialAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(officerUpdateValidator).doesAddressMatchChipsData(any(), any(), any(), any());
+        Mockito.verify(addressValidator, times(0)).validate(any(ResidentialAddressErrorProvider.class), any(), any(), any());
+        assertThat(apiErrorsList)
+                .as("An error should be produced when residential address links are both true regardless of the address")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The residential address data submitted cannot pass validation as it is not an update from the previously submitted data");
+    }
+
+    @Test
+    void validateResidentialAddressSectionWhenLinkIsTrueAndAddressIsNullAndChipsLinkIsFalse() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
+        when(companyAppointment.getResidentialAddressIsSameAsServiceAddress()).thenReturn(false);
+
+        officerUpdateValidator.validateResidentialAddressSection(request, apiErrorsList, dto, companyAppointment);
+
+        Mockito.verify(officerUpdateValidator).doesAddressMatchChipsData(any(), any(), any(), any());
+        Mockito.verify(addressValidator, times(0)).validate(any(ResidentialAddressErrorProvider.class), any(), any(), any());
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when residential address links do not match regardless of the address")
                 .isEmpty();
     }
 

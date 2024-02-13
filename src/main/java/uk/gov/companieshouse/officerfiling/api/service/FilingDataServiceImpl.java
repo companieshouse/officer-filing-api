@@ -19,7 +19,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 /**
  * Produces Filing Data format for consumption as JSON by filing-resource-handler external service.
@@ -194,6 +193,12 @@ public class FilingDataServiceImpl implements FilingDataService {
             dataBuilder = dataBuilder.isServiceAddressSameAsRegisteredOfficeAddress(data.getIsServiceAddressSameAsRegisteredOfficeAddress());
             if (!Boolean.TRUE.equals(data.getIsServiceAddressSameAsRegisteredOfficeAddress())) {
                 dataBuilder = dataBuilder.serviceAddress(data.getServiceAddress());
+            }
+        }
+        if (data.getResidentialAddressHasBeenUpdated() == null || data.getResidentialAddressHasBeenUpdated()) {
+            dataBuilder = dataBuilder.isHomeAddressSameAsServiceAddress(data.getIsHomeAddressSameAsServiceAddress());
+            if (!Boolean.TRUE.equals(data.getIsHomeAddressSameAsServiceAddress())) {
+                dataBuilder = dataBuilder.residentialAddress(data.getResidentialAddress());
             }
         }
 
