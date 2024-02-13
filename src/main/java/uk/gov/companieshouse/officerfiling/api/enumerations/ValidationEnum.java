@@ -103,7 +103,7 @@ public enum ValidationEnum {
     NATIONALITY_MATCHES_CHIPS_DATA("nationality-matches-chips-data"),
     OCCUPATION_MATCHES_CHIPS_DATA("occupation-matches-chips-data"),
     CORRESPONDENCE_ADDRESS_MATCHES_CHIPS_DATA("correspondence-matches-chips-data"),
-    RESIDENTIAL_ADDRESS_MATCHES_CHIPS_DATA("residential-matches-chips-data");
+    RESIDENTIAL_ADDRESS_MATCHES_CHIPS_DATA("residential-address-matches-chips-data");
 
     private final String key;
 
