@@ -1010,4 +1010,46 @@ class OfficerUpdateValidatorTest {
 
         );
     }
+
+    @Test
+    void validationWhenBothAddressFlagsInJsonAreSetAsTrue() {
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
+        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS)).thenReturn(
+                "The maximum number of address links that can be established is one");
+        officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("Errors when both address flags sent as true")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The maximum number of address links that can be established is one");
+    }
+
+    @Test
+    void validationWhenHASameAsCAFlagInJsonAndROASameAsCAFlagInCHIPSAreSetAsTrue() {
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
+        when(companyAppointment.getServiceAddressIsSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS)).thenReturn(
+                "The maximum number of address links that can be established is one");
+        officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("Errors when both address flags sent as true")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The maximum number of address links that can be established is one");
+    }
+
+    @Test
+    void validationWhenROASameAsCAFlagInJsonAndHASameAsCAFlagInCHIPSAreSetAsTrue() {
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(companyAppointment.getResidentialAddressIsSameAsServiceAddress()).thenReturn(true);
+        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS)).thenReturn(
+                "The maximum number of address links that can be established is one");
+        officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("Errors when both address flags sent as true")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The maximum number of address links that can be established is one");
+    }
 }

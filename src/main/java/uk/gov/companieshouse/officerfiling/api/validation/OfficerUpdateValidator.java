@@ -76,6 +76,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
         validateChangeDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
         validateNationalitySection(request, errorList, dto, companyAppointment.get());
         validateOccupationSection(request, errorList, dto, companyAppointment.get());
+        validateAddressesMultipleFlagsUpdate(request, errorList, dto, companyAppointment.get());
         validateCorrespondenceAddressSection(request, errorList, dto, companyAppointment.get());
         validateResidentialAddressSection(request, errorList, dto, companyAppointment.get());
 
@@ -289,4 +290,18 @@ public class OfficerUpdateValidator extends OfficerValidator {
         return field.trim().equalsIgnoreCase(chipsField.trim());
     }
 
+    public void validateAddressesMultipleFlagsUpdate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+        if (Boolean.TRUE.equals(dto.getIsHomeAddressSameAsServiceAddress()) && Boolean.TRUE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress())) {
+            logger.errorRequest(request, "The maximum number of address links that can be established is one");
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS));
+        }
+        if (Boolean.TRUE.equals(dto.getIsHomeAddressSameAsServiceAddress()) && Boolean.TRUE.equals(appointmentFullRecordAPI.getServiceAddressIsSameAsRegisteredOfficeAddress())) {
+            logger.errorRequest(request, "The maximum number of address links that can be established is one");
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS));
+        }
+        if (Boolean.TRUE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()) && Boolean.TRUE.equals(appointmentFullRecordAPI.getResidentialAddressIsSameAsServiceAddress())) {
+            logger.errorRequest(request, "The maximum number of address links that can be established is one");
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS));
+        }
+    }
 }
