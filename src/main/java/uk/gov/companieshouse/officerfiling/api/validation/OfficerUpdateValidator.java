@@ -291,13 +291,16 @@ public class OfficerUpdateValidator extends OfficerValidator {
     }
 
     public void validateAddressesMultipleFlagsUpdate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+        if (Boolean.FALSE.equals(dto.getResidentialAddressHasBeenUpdated()) && Boolean.FALSE.equals(dto.getCorrespondenceAddressHasBeenUpdated())) {
+            return;
+        }
         if (Boolean.TRUE.equals(dto.getIsHomeAddressSameAsServiceAddress()) && Boolean.TRUE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS));
         }
-        if (Boolean.TRUE.equals(dto.getIsHomeAddressSameAsServiceAddress()) && Boolean.TRUE.equals(appointmentFullRecordAPI.getServiceAddressIsSameAsRegisteredOfficeAddress())) {
+        if (Boolean.TRUE.equals(dto.getIsHomeAddressSameAsServiceAddress()) && Boolean.FALSE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()) && Boolean.TRUE.equals(appointmentFullRecordAPI.getServiceAddressIsSameAsRegisteredOfficeAddress())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS));
         }
-        if (Boolean.TRUE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()) && Boolean.TRUE.equals(appointmentFullRecordAPI.getResidentialAddressIsSameAsServiceAddress())) {
+        if (Boolean.TRUE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()) && Boolean.FALSE.equals(dto.getIsHomeAddressSameAsServiceAddress()) && Boolean.TRUE.equals(appointmentFullRecordAPI.getResidentialAddressIsSameAsServiceAddress())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS));
         }
     }

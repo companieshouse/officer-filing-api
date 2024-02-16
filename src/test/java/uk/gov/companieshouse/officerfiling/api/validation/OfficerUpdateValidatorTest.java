@@ -1014,6 +1014,7 @@ class OfficerUpdateValidatorTest {
 
     @Test
     void validationWhenBothAddressFlagsInJsonAreSetAsTrue() {
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
         when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS)).thenReturn(
@@ -1028,7 +1029,9 @@ class OfficerUpdateValidatorTest {
 
     @Test
     void validationWhenHASameAsCAFlagInJsonAndROASameAsCAFlagInCHIPSAreSetAsTrue() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
         when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(false);
         when(companyAppointment.getServiceAddressIsSameAsRegisteredOfficeAddress()).thenReturn(true);
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS)).thenReturn(
                 "The maximum number of address links that can be established is one");
@@ -1042,7 +1045,9 @@ class OfficerUpdateValidatorTest {
 
     @Test
     void validationWhenROASameAsCAFlagInJsonAndHASameAsCAFlagInCHIPSAreSetAsTrue() {
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(false);
         when(companyAppointment.getResidentialAddressIsSameAsServiceAddress()).thenReturn(true);
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS)).thenReturn(
                 "The maximum number of address links that can be established is one");
