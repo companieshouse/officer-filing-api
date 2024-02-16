@@ -206,6 +206,7 @@ class ValidationStatusControllerImplTest {
     @Test
     void validateWhenFilingCH01FoundAndNoValidationErrors() {
         ReflectionTestUtils.setField(testController, "isCh01Enabled", true);
+        when(dto.getReferenceEtag()).thenReturn(ETAG);
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(officerFilingMapper.map(filing)).thenReturn(dto);
         when(transaction.getId()).thenReturn(TRANS_ID);
