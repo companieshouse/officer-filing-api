@@ -42,7 +42,7 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.when;
 
@@ -206,6 +206,7 @@ class ValidationStatusControllerImplTest {
     @Test
     void validateWhenFilingCH01FoundAndNoValidationErrors() {
         ReflectionTestUtils.setField(testController, "isCh01Enabled", true);
+        when(dto.getReferenceEtag()).thenReturn(ETAG);
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(officerFilingMapper.map(filing)).thenReturn(dto);
         when(transaction.getId()).thenReturn(TRANS_ID);
@@ -218,5 +219,37 @@ class ValidationStatusControllerImplTest {
         final var response = testController.validate(transaction, FILING_ID, request);
         assertThat(response.getValidationStatusError(), is(nullValue()));
         assertThat(response.isValid(), is(true));
+    }
+
+    @Test
+    void validateWhenFilingHasTerminationDateButFeatureTM01IsDisabled() {
+        ReflectionTestUtils.setField(testController, "isTm01Enabled", false);
+        when(dto.getResignedOn()).thenReturn(LocalDate.of(2009, 10, 1));
+
+        Exception exception = assertThrows(FeatureNotEnabledException.class,
+                () -> testController.validate(request, dto, transaction, PASSTHROUGH_HEADER));
+
+        assertEquals(exception.getClass(), FeatureNotEnabledException.class);
+    }
+
+    @Test
+    void validateWhenFilingHasReferenceETagButFeatureAP01IsDisabled() {
+        ReflectionTestUtils.setField(testController, "isAp01Enabled", false);
+        when(dto.getReferenceEtag()).thenReturn(ETAG);
+
+        Exception exception = assertThrows(FeatureNotEnabledException.class,
+                () -> testController.validate(request, dto, transaction, PASSTHROUGH_HEADER));
+
+        assertEquals(exception.getClass(), FeatureNotEnabledException.class);
+    }
+
+    @Test
+    void validateWhenFilingIsNeitherTM01orAP01ButFeatureCH01IsDisabled() {
+        ReflectionTestUtils.setField(testController, "isCh01Enabled", false);
+
+        Exception exception = assertThrows(FeatureNotEnabledException.class,
+                () -> testController.validate(request, dto, transaction, PASSTHROUGH_HEADER));
+
+        assertEquals(exception.getClass(), FeatureNotEnabledException.class);
     }
 }

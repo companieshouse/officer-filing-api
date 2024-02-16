@@ -109,21 +109,31 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
      *
      * @return All validation errors raised during the validation
      */
-    private ApiErrors validate(HttpServletRequest request, OfficerFilingDto officerFiling, Transaction transaction, String passthroughHeader) {
+    ApiErrors validate(HttpServletRequest request, OfficerFilingDto officerFiling, Transaction transaction, String passthroughHeader) {
         final var addressValidator = new AddressValidator(logger, companyProfileService, inputAllowedNationalities, apiEnumerations, countryList, ukCountryList);
-        if (isTm01Enabled && officerFiling.getResignedOn() != null) {
-            return new OfficerTerminationValidator(logger, companyProfileService, companyAppointmentService, inputAllowedNationalities, apiEnumerations)
-                    .validate(request, officerFiling, transaction, passthroughHeader);
+        if (officerFiling.getResignedOn() != null) {
+            if (isTm01Enabled) {
+                return new OfficerTerminationValidator(logger, companyProfileService, companyAppointmentService, inputAllowedNationalities, apiEnumerations)
+                        .validate(request, officerFiling, transaction, passthroughHeader);
+            } else {
+                throw new FeatureNotEnabledException();
+            }
         }
-        if (isAp01Enabled && officerFiling.getReferenceEtag() == null) {
-            return new OfficerAppointmentValidator(logger, companyProfileService, apiEnumerations, inputAllowedNationalities, countryList, ukCountryList)
-                    .validate(request, officerFiling, transaction, passthroughHeader);
+
+        if (officerFiling.getReferenceEtag() == null) {
+            if (isAp01Enabled) {
+                return new OfficerAppointmentValidator(logger, companyProfileService, apiEnumerations, inputAllowedNationalities, countryList, ukCountryList)
+                        .validate(request, officerFiling, transaction, passthroughHeader);
+            } else {
+                throw new FeatureNotEnabledException();
+            }
         }
+
         if (isCh01Enabled) {
             return new OfficerUpdateValidator(logger, companyAppointmentService, companyProfileService, inputAllowedNationalities, apiEnumerations, addressValidator)
                     .validate(request, officerFiling, transaction, passthroughHeader);
+        } else {
+            throw new FeatureNotEnabledException();
         }
-
-        return new ApiErrors();
     }
 }
