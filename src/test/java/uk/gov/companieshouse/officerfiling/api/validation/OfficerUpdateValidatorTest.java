@@ -301,6 +301,22 @@ class OfficerUpdateValidatorTest {
     }
 
     @Test
+    void validateChangeDateAfterAppointmentDateWhenNull() {
+        when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 6));
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .build();
+        when(apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_MISSING)).thenReturn("Enter the date the director’s details changed");
+        officerUpdateValidator.validateChangeDateAfterAppointmentDate(request, apiErrorsList, officerFilingDto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when change date is before appointment date")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Enter the date the director’s details changed");
+    }
+
+    @Test
     void validateChangeDateAndAppointmentDateWhenSameDay() {
         when(companyAppointment.getAppointedOn()).thenReturn(LocalDate.of(2023, Month.JANUARY, 5));
         final var officerFilingDto = OfficerFilingDto.builder()
@@ -434,6 +450,40 @@ class OfficerUpdateValidatorTest {
 
         // expect
         assertThat(result).isFalse();
+    }
+
+    @Test
+    void testValidateNameSectionWhenMatchedChipsDataShouldReturnValidationError() {
+        // Given
+        when(companyAppointment.getTitle()).thenReturn("Mr");
+        when(companyAppointment.getForename()).thenReturn("John");
+        when(companyAppointment.getOtherForenames()).thenReturn("Doe");
+        when(companyAppointment.getSurname()).thenReturn("Smith");
+
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .title("Mr")
+                .firstName("John")
+                .middleNames("Doe")
+                .lastName("Smith")
+                .build();
+
+        when(apiEnumerations.getValidation(ValidationEnum.NAME_MATCHES_CHIPS_DATA)).thenReturn(
+                "The name data submitted cannot pass validation as it is not an update from the previously submitted data");
+        // under test
+        boolean result = officerUpdateValidator.validateNameSection(request, apiErrorsList, officerFilingDto, companyAppointment);
+
+        assertThat(result).isTrue();
+        assertThat(apiErrorsList)
+                .as("An error should be produced when name matched the chips data")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The name data submitted cannot pass validation as it is not an update from the previously submitted data");
+        Mockito.verify(officerUpdateValidator, times(0)).validateTitle(any(), any(), any());
+        Mockito.verify(officerUpdateValidator, times(0)).validateFirstName(any(), any(), any());
+        Mockito.verify(officerUpdateValidator, times(0)).validateMiddleNames(any(), any(), any());
+        Mockito.verify(officerUpdateValidator, times(0)).validateLastName(any(), any(), any());
     }
 
     @Test
