@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -96,13 +97,39 @@ class OfficerUpdateValidatorTest {
                 .isEmpty();
     }
 
+
+    @Test
+    void validationWhenBlankCh01IsSubmitted() {
+        final var dto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .directorsDetailsChangedDate(LocalDate.now().minusDays(1))
+                .build();
+        when(companyProfileService.getCompanyProfile(any(), any(), any())).thenReturn(companyProfile);
+        when(companyAppointmentService.getCompanyAppointment(any(), any(), any(), any())).thenReturn(companyAppointment);
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(apiEnumerations.getValidation(ValidationEnum.BLANK_CH01_SUBMISSION)).thenReturn("Submit a change to the officer details before submitting");
+
+        final var apiErrors = officerUpdateValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Should raise error when blank CH01 filing is submitted")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Submit a change to the officer details before submitting");
+    }
+
     @Test
     void validateCH01WhenStatusIsDissolved() {
-        when(companyProfile.getCompanyStatus()).thenReturn("dissolved");
         when(apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED)).thenReturn("You cannot add, remove or update a director from a company that has been dissolved or is in the process of being dissolved");
         when(dto.getDirectorsDetailsChangedDate()).thenReturn(LocalDate.now().minusDays(1));
         when(companyProfileService.getCompanyProfile(any(), any(), any())).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(any(), any(), any(), any())).thenReturn(companyAppointment);
+        when(companyProfile.getCompanyStatus()).thenReturn("dissolved");
+
+        when(apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED)).thenReturn("You cannot add, remove or update a director from a company that has been dissolved or is in the process of being dissolved");
+        when(apiEnumerations.getValidation(ValidationEnum.BLANK_CH01_SUBMISSION)).thenReturn("Submit a change to the officer details before submitting");
+
         var apiErrors = officerUpdateValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
                 .as("An error should be produced when the company has a status of 'dissolved'")
@@ -368,9 +395,53 @@ class OfficerUpdateValidatorTest {
     }
 
     @Test
+    void testDoesNameMatchChipsDataWhenItMatchesChipsData() {
+
+        // Given
+        when(companyAppointment.getTitle()).thenReturn("Mr");
+        when(companyAppointment.getForename()).thenReturn("John");
+        when(companyAppointment.getOtherForenames()).thenReturn("Doe");
+        when(companyAppointment.getSurname()).thenReturn("Smith");
+
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .title("Mr")
+                .firstName("John")
+                .middleNames("Doe")
+                .lastName("Smith")
+                .build();
+
+        // under test
+        boolean result = officerUpdateValidator.doesNameMatchChipsData(officerFilingDto, companyAppointment);
+
+        // expect
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void testDoesNameMatchChipsDataWhenItDoesNotMatchesChipsData() {
+        // Given
+        when(companyAppointment.getForename()).thenReturn("John");
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .referenceAppointmentId(FILING_ID)
+                .firstName("James")
+                .build();
+
+        // under test
+        boolean result = officerUpdateValidator.doesNameMatchChipsData(officerFilingDto, companyAppointment);
+
+        // expect
+        assertThat(result).isFalse();
+    }
+
+    @Test
     void validateCH01ValidationForDirectorNameMandatoryFieldsWhenNameHasBeenUpdatedIsTrue() {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
+        when(companyProfileService.getCompanyProfile(any(), any(), any())).thenReturn(companyProfile);
+        when(companyAppointmentService.getCompanyAppointment(any(), any(), any(), any())).thenReturn(companyAppointment);
 
         final var officerFilingDto = OfficerFilingDto.builder()
                 .referenceEtag(ETAG)
@@ -396,6 +467,8 @@ class OfficerUpdateValidatorTest {
     void validateCH01ValidationForDirectorNameMandatoryFieldsWhenNameHasBeenUpdatedIsNull() {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
+        when(companyProfileService.getCompanyProfile(any(), any(), any())).thenReturn(companyProfile);
+        when(companyAppointmentService.getCompanyAppointment(any(), any(), any(), any())).thenReturn(companyAppointment);
 
         final var officerFilingDto = OfficerFilingDto.builder()
                 .referenceEtag(ETAG)
@@ -422,6 +495,8 @@ class OfficerUpdateValidatorTest {
     void validateCH01ValidationForDirectorNameOptionalFieldsWhenNameHasBeenUpdatedIsTrue() {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
+        when(companyProfileService.getCompanyProfile(any(), any(), any())).thenReturn(companyProfile);
+        when(companyAppointmentService.getCompanyAppointment(any(), any(), any(), any())).thenReturn(companyAppointment);
 
         final var officerFilingDto = OfficerFilingDto.builder()
                 .referenceEtag(ETAG)
@@ -1009,5 +1084,52 @@ class OfficerUpdateValidatorTest {
                 Arguments.of(new AddressDto.Builder(testDtoAddress).postalCode(null).build(), false, AddressAPI.builder().withPremises("11").withAddressLine1("One Street").withAddressLine2("Two Lane").withRegion("Region").withLocality("locality").withCountry("England").withPostcode("test").build(), false, false)
 
         );
+    }
+
+    /**
+     * Tests for isSectionEmpty()
+     * Utility tests for completeness
+     * 1. When flag is null and array is empty
+     * 2. When flag is false and array is empty
+     * 3. When flag is null and array is non-empty
+     * 4. When flag is true and array is non-empty
+     * 5. When flag is null and array has one element as non-null
+     * 6. When flag is true and array has one element as non-null
+     */
+
+    @Test
+    void testIsSectionEmptyWhenFlagIsNullWithEmptyArray() {
+        boolean result = officerUpdateValidator.isSectionEmpty(null, Arrays.asList(null, null));
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void testIsSectionEmptyWhenFlagIsFalseWithEmptyArray() {
+        boolean result = officerUpdateValidator.isSectionEmpty(false, Arrays.asList(null, null));
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void testIsSectionEmptyWhenFlagIsNullWithNonEmptyArray() {
+        boolean result = officerUpdateValidator.isSectionEmpty(null, Arrays.asList("test", "test1"));
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void testIsSectionEmptyWhenFlagIsTrueWithNonEmptyArray() {
+        boolean result = officerUpdateValidator.isSectionEmpty(true, Arrays.asList("test", "test1"));
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void testIsSectionEmptyWhenFlagIsNullWithOneElementAsNonNull() {
+        boolean result = officerUpdateValidator.isSectionEmpty(null, Arrays.asList(null, "test", null));
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void testIsSectionEmptyWhenFlagIsTrueWithOneElementAsNonNull() {
+        boolean result = officerUpdateValidator.isSectionEmpty(true, Arrays.asList(null, "test", null));
+        assertThat(result).isFalse();
     }
 }

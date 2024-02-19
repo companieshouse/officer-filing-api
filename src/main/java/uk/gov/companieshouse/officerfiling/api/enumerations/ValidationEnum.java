@@ -6,6 +6,7 @@ package uk.gov.companieshouse.officerfiling.api.enumerations;
 public enum ValidationEnum {
 
     DIRECTOR_NOT_FOUND("director-not-found"),
+    BLANK_CH01_SUBMISSION("ch01-blank-submission"),
     REMOVAL_DATE_IN_PAST("removal-date-in-past"),
     APPOINTMENT_DATE_IN_PAST("appointment-date-in-past"),
     REMOVAL_DATE_MISSING("removal-date-missing"),
@@ -100,6 +101,7 @@ public enum ValidationEnum {
     CONSENT_TO_ACT_MISSING("consent-to-act-missing"),
     CONSENT_TO_ACT_FALSE("consent-to-act-false"),
     ADDRESS_LINKS_MULTIPLE_FLAGS("address-links-multiple-flags"),
+    NAME_MATCHES_CHIPS_DATA("name-matches-chips-data"),
     NATIONALITY_MATCHES_CHIPS_DATA("nationality-matches-chips-data"),
     OCCUPATION_MATCHES_CHIPS_DATA("occupation-matches-chips-data"),
     CORRESPONDENCE_ADDRESS_MATCHES_CHIPS_DATA("correspondence-matches-chips-data"),

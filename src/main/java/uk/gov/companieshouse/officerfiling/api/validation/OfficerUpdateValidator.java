@@ -20,9 +20,7 @@ import uk.gov.companieshouse.officerfiling.api.validation.error.ResidentialAddre
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Provides all validation that should be carried out when an officer is updated. Fetches all data necessary to complete
@@ -61,7 +59,6 @@ public class OfficerUpdateValidator extends OfficerValidator {
         final List<ApiError> errorList = new ArrayList<>();
         validateRequiredTransactionFields(request, errorList, transaction);
         validateRequiredDtoFields(request, errorList, dto);
-        validateOptionalDtoFields(request, errorList, dto);
 
         // Retrieve data objects required for the validation process
         final Optional<CompanyProfileApi> companyProfile = getCompanyProfile(request, errorList, transaction, passthroughHeader);
@@ -74,10 +71,17 @@ public class OfficerUpdateValidator extends OfficerValidator {
         validateCompanyNotDissolved(request, errorList, companyProfile.get());
         validateChangeDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
         validateChangeDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
-        validateNationalitySection(request, errorList, dto, companyAppointment.get());
-        validateOccupationSection(request, errorList, dto, companyAppointment.get());
-        validateCorrespondenceAddressSection(request, errorList, dto, companyAppointment.get());
-        validateResidentialAddressSection(request, errorList, dto, companyAppointment.get());
+        Boolean nonEmptyNameSection = validateNameSection(request, errorList, dto, companyAppointment.get());
+        Boolean nonEmptyNationalitySection = validateNationalitySection(request, errorList, dto, companyAppointment.get());
+        Boolean nonEmptyOccupationSection = validateOccupationSection(request, errorList, dto, companyAppointment.get());
+        Boolean nonEmptyCorrespondenceAddressSection = validateCorrespondenceAddressSection(request, errorList, dto, companyAppointment.get());
+        Boolean nonEmptyResidentialAddressSection = validateResidentialAddressSection(request, errorList, dto, companyAppointment.get());
+
+        if (Boolean.FALSE.equals(nonEmptyNameSection) && Boolean.FALSE.equals(nonEmptyNationalitySection)
+                && Boolean.FALSE.equals(nonEmptyOccupationSection) && Boolean.FALSE.equals(nonEmptyCorrespondenceAddressSection)
+                && Boolean.FALSE.equals(nonEmptyResidentialAddressSection)) {
+           createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.BLANK_CH01_SUBMISSION));
+        }
 
         return new ApiErrors(errorList);
     }
@@ -92,18 +96,6 @@ public class OfficerUpdateValidator extends OfficerValidator {
         } else {
             validateChangeDatePastOrPresent(request, errorList, dto);
             validateMinChangeDate(request, errorList, dto);
-        }
-    }
-
-    private void validateOptionalDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
-        final boolean anyNameFieldsExistInDto = (dto.getTitle() != null || dto.getFirstName() != null || dto.getLastName() != null || dto.getMiddleNames() != null);
-        final boolean nameHasBeenUpdated = (dto.getNameHasBeenUpdated() == null && anyNameFieldsExistInDto) || (dto.getNameHasBeenUpdated() != null && dto.getNameHasBeenUpdated());
-
-        if (nameHasBeenUpdated) {
-            validateTitle(request, errorList, dto);
-            validateFirstName(request, errorList, dto);
-            validateLastName(request, errorList, dto);
-            validateMiddleNames(request, errorList, dto);
         }
     }
 
@@ -140,76 +132,133 @@ public class OfficerUpdateValidator extends OfficerValidator {
         }
     }
 
-    public void validateNationalitySection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
-        // If hasBeenUpdated boolean is true or null then continue
-        if (Boolean.FALSE.equals(dto.getNationalityHasBeenUpdated())) {
-            return;
+    /**
+     * Validates the name section of the officer update request
+     * @param request the servlet request
+     * @param errorList the list of errors
+     * @param dto the officer filing dto
+     * @param appointment the appointment full record api
+     * @return false if section is empty, returns true otherwise
+     */
+    public Boolean validateNameSection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
+        if (isSectionEmpty(dto.getNameHasBeenUpdated(), Arrays.asList(dto.getTitle(), dto.getFirstName(), dto.getMiddleNames(), dto.getLastName()))) {
+            return false;
         }
-        // If any of the fields within this section have been provided then continue
-        if (dto.getNationality1() == null && dto.getNationality2() == null && dto.getNationality3() == null) {
-            return;
+
+        // If the section matches the current chips data then throw a validation error and don't continue
+        if (doesNameMatchChipsData(dto, appointment)) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.NAME_MATCHES_CHIPS_DATA));
+            return true;
+        }
+        // Perform validation
+        validateTitle(request, errorList, dto);
+        validateFirstName(request, errorList, dto);
+        validateLastName(request, errorList, dto);
+        validateMiddleNames(request, errorList, dto);
+        return true;
+    }
+
+    /**
+     * Validates the nationality section of the officer update request
+     * @param request the servlet request
+     * @param errorList the list of errors
+     * @param dto the officer filing dto
+     * @param appointment the appointment full record api
+     * @return false if section is empty, returns true otherwise
+     */
+    public Boolean validateNationalitySection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
+        if (isSectionEmpty(dto.getNationalityHasBeenUpdated(), Arrays.asList(dto.getNationality1(), dto.getNationality2(), dto.getNationality3()))) {
+            return false;
         }
         // If the section matches the current chips data then throw a validation error and don't continue
         if (doesNationalityMatchChipsData(dto, appointment)) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.NATIONALITY_MATCHES_CHIPS_DATA));
-            return;
+            return true;
         }
         // Perform validation
         validateNationality1(request, errorList, dto);
         validateNationality2(request, errorList, dto);
         validateNationality3(request, errorList, dto);
         validateNationalityLength(request, errorList, dto);
+        return true;
     }
 
-    public void validateOccupationSection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
-        if (Boolean.FALSE.equals(dto.getOccupationHasBeenUpdated()) || dto.getOccupation() == null) {
-            return;
+    /**
+     * Validates the occupation section of the officer update request
+     * @param request the servlet request
+     * @param errorList the list of errors
+     * @param dto the officer filing dto
+     * @param appointmentFullRecordAPI the appointment full record api
+     * @return false if section is empty, returns true otherwise
+     */
+    public Boolean validateOccupationSection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+        if(isSectionEmpty(dto.getOccupationHasBeenUpdated(), Collections.singletonList(dto.getOccupation()))){
+            return false;
         }
+
+        // If the section matches the current chips data then throw a validation error and don't continue
         if (doesOccupationMatchChipsData(dto, appointmentFullRecordAPI)) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.OCCUPATION_MATCHES_CHIPS_DATA));
-            return;
+            return true;
         }
         validateOccupation(request, errorList, dto);
+        return true;
     }
 
-    public void validateCorrespondenceAddressSection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
-        // If hasBeenUpdated boolean is true or null then continue
+    /**
+     * Validates the correspondence address section of the officer update request
+     * @param request the servlet request
+     * @param errorList the list of errors
+     * @param dto the officer filing dto
+     * @param appointment the appointment full record api
+     * @return false if the hasBeenUpdated flag is false, address is null and sameAs flag is null; returns true otherwise
+     */
+    public Boolean validateCorrespondenceAddressSection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
         if (Boolean.FALSE.equals(dto.getCorrespondenceAddressHasBeenUpdated())) {
-            return;
+            return false;
         }
         // If address isn't null and any field within this section has been provided then continue
         if (isAddressNull(dto.getServiceAddress()) && dto.getIsServiceAddressSameAsRegisteredOfficeAddress() == null) {
-            return;
+            return false;
         }
         // If the section matches the current chips data then throw a validation error and don't continue
         if (doesAddressMatchChipsData(dto.getServiceAddress(), dto.getIsServiceAddressSameAsRegisteredOfficeAddress(), appointment.getServiceAddress(), appointment.getServiceAddressIsSameAsRegisteredOfficeAddress())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_MATCHES_CHIPS_DATA));
-            return;
+            return true;
         }
         // Perform validation if link is false or null
         if (!Boolean.TRUE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress())) {
             addressValidator.validate(new CorrespondenceAddressErrorProvider(apiEnumerations), request, errorList, dto.getServiceAddress());
         }
+        return true;
     }
 
-    public void validateResidentialAddressSection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
-        // If hasBeenUpdated boolean is true or null then continue
+    /**
+     * Validates the residential address section of the officer update request
+     * @param request the servlet request
+     * @param errorList the list of errors
+     * @param dto the officer filing dto
+     * @param appointment the appointment full record api
+     * @return false if the hasBeenUpdated flag is false, address is null and sameAs flag is null; returns true otherwise
+     */
+    public Boolean validateResidentialAddressSection(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
         if (Boolean.FALSE.equals(dto.getResidentialAddressHasBeenUpdated())) {
-            return;
+            return false;
         }
         // If address isn't null and any field within this section has been provided then continue
         if (isAddressNull(dto.getResidentialAddress()) && dto.getIsHomeAddressSameAsServiceAddress() == null) {
-            return;
+            return false;
         }
         // If the section matches the current chips data then throw a validation error and don't continue
         if (doesAddressMatchChipsData(dto.getResidentialAddress(), dto.getIsHomeAddressSameAsServiceAddress(), appointment.getUsualResidentialAddress(), appointment.getResidentialAddressIsSameAsServiceAddress())) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.RESIDENTIAL_ADDRESS_MATCHES_CHIPS_DATA));
-            return;
+            return true;
         }
         // Perform validation if link is false or null
         if (!Boolean.TRUE.equals(dto.getIsHomeAddressSameAsServiceAddress())) {
             addressValidator.validate(new ResidentialAddressErrorProvider(apiEnumerations), request, errorList, dto.getResidentialAddress());
         }
+        return true;
     }
 
     private boolean isAddressNull(AddressDto address) {
@@ -221,6 +270,26 @@ public class OfficerUpdateValidator extends OfficerValidator {
                         address.getRegion() == null &&
                         address.getPostalCode() == null &&
                         address.getCountry() == null);
+    }
+
+    /**
+     * Util method to validate if a section has been updated and if the section is empty
+     * @param hasSectionBeenUpdated boolean to indicate if the section has been updated
+     * @param sectionValues list of values within the section
+     * @return true if the all sectionValues are null, false if flag is false or any one value is non-null.
+     */
+    boolean isSectionEmpty(Boolean hasSectionBeenUpdated, List<String> sectionValues) {
+        if (Boolean.FALSE.equals(hasSectionBeenUpdated)) {
+            return true;
+        }
+        var isEmpty = true;
+        for (String value : sectionValues) {
+            if (value != null) {
+                isEmpty = false;
+                break;
+            }
+        }
+        return isEmpty;
     }
 
     public boolean doesNationalityMatchChipsData(OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
@@ -242,6 +311,13 @@ public class OfficerUpdateValidator extends OfficerValidator {
             return false;
         }
         return chipsNationalities.length < 3 || matchesChipsField(dto.getNationality3(), chipsNationalities[2]);
+    }
+
+    public boolean doesNameMatchChipsData(OfficerFilingDto dto, AppointmentFullRecordAPI appointment) {
+        return matchesChipsField(dto.getTitle(), appointment.getTitle()) &&
+                matchesChipsField(dto.getFirstName(), appointment.getForename()) &&
+                matchesChipsField(dto.getMiddleNames(), appointment.getOtherForenames()) &&
+                matchesChipsField(dto.getLastName(), appointment.getSurname());
     }
 
     public boolean doesOccupationMatchChipsData(OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
