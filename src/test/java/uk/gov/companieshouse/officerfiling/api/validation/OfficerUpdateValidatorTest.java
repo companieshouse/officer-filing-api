@@ -1240,8 +1240,7 @@ class OfficerUpdateValidatorTest {
         when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(null);
         when(dto.getResidentialAddress()).thenReturn(mockDtoAddress);
         officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
-        assertThat(apiErrorsList)
-                .hasSize(0);
+        assertThat(apiErrorsList).isEmpty();
     }
 
     @Test
@@ -1252,7 +1251,6 @@ class OfficerUpdateValidatorTest {
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
         when(dto.getServiceAddress()).thenReturn(mockDtoAddress);
         officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
-        assertThat(apiErrorsList)
-                .hasSize(0);
+        assertThat(apiErrorsList).isEmpty();
     }
 }
