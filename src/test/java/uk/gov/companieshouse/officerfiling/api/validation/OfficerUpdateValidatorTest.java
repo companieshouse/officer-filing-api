@@ -1231,4 +1231,28 @@ class OfficerUpdateValidatorTest {
                 .extracting(ApiError::getError)
                 .contains(multipleFlagsErrorMessage);
     }
+
+    @Test
+    void noErrorWhenROASameAsCAFlagIsSetAsTrueAndHASameAsCAFlagIsClearedInJson() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(null);
+        when(dto.getResidentialAddress()).thenReturn(mockDtoAddress);
+        officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList)
+                .hasSize(0);
+    }
+
+    @Test
+    void noErrorWhenHASameAsCAFlagIsSetAsTrueAndROASameAsCAFlagIsClearedInJson() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
+        when(dto.getServiceAddress()).thenReturn(mockDtoAddress);
+        officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList)
+                .hasSize(0);
+    }
 }
