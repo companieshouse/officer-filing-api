@@ -1237,6 +1237,26 @@ class OfficerUpdateValidatorTest {
         when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
         when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(false);
+        officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList).isEmpty();
+    }
+
+    @Test
+    void noErrorWhenHASameAsCAFlagIsSetAsTrueAndROASameAsCAFlagIsClearedInJson() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(false);
+        officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList).isEmpty();
+    }
+
+    @Test
+    void noErrorWhenROASameAsCAFlagIsSetAsTrueAndHASameAsCAFlagIsClearedWithNotNullHAInJson() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
         when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(null);
         when(dto.getResidentialAddress()).thenReturn(mockDtoAddress);
         officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
@@ -1244,7 +1264,7 @@ class OfficerUpdateValidatorTest {
     }
 
     @Test
-    void noErrorWhenHASameAsCAFlagIsSetAsTrueAndROASameAsCAFlagIsClearedInJson() {
+    void noErrorWhenHASameAsCAFlagIsSetAsTrueAndROASameAsCAFlagIsClearedWithNotNullCAInJson() {
         when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
         when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
         when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);

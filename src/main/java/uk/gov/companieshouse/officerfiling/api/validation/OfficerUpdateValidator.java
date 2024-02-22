@@ -367,7 +367,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
     }
 
     public void validateAddressesMultipleFlagsUpdate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
-        // validate we are not settting both flags to true
+        // validate we are not setting both flags to true
         if ((!Boolean.FALSE.equals(dto.getResidentialAddressHasBeenUpdated()) && Boolean.TRUE.equals(dto.getIsHomeAddressSameAsServiceAddress())) && 
             (!Boolean.FALSE.equals(dto.getCorrespondenceAddressHasBeenUpdated()) && Boolean.TRUE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()))) {
             createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS));
