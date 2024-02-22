@@ -1273,4 +1273,12 @@ class OfficerUpdateValidatorTest {
         officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
         assertThat(apiErrorsList).isEmpty();
     }
+
+    @Test
+    void noErrorWhenAllFlagsCleared() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(false);
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(false);
+        officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList).isEmpty();
+    }
 }
