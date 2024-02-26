@@ -368,6 +368,21 @@ class OfficerValidatorTest {
     }
 
     @Test
+    void validateNationality1And3LengthWhen50Exactly() {
+        when(dto.getNationality1()).thenReturn("Abcdefghijklmnopqrstuvwxyz");
+        when(dto.getNationality3()).thenReturn("Abcdefghijklmnopqrstuvwx");
+        when(apiEnumerations.getValidation(ValidationEnum.NATIONALITY_LENGTH49)).thenReturn(
+                "For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters");
+
+        officerValidator.validateNationalityLength(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when nationality1 and 2 contain more than 49 characters between them")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("For technical reasons, we are currently unable to accept dual nationalities with a total of more than 49 characters");
+    }
+
+    @Test
     void validateNationality1And2LengthWhen49Exactly() {
         when(dto.getNationality1()).thenReturn("Abcdefghijklmnopqrstuvwxyz");
         when(dto.getNationality2()).thenReturn("Abcdefghijklmnopqrstuvw");
