@@ -50,6 +50,7 @@ class OfficerUpdateValidatorTest {
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     private static final String ETAG = "etag";
     private static final String ALLOWED_NATIONALITIES = "A very long nationality indeed so long in fact that it breaks the legal length for nationalities,thisIs25Characterslongggh,thisIs25Characterslongggg,thisIs16Charactz,thisIs17Character,thisIs16Characte,thisIsAVeryLongNationalityWhichWilltakeUsOver50Characterslong,Afghan,Albanian,Algerian,American,Andorran,Angolan,Anguillan,Citizen of Antigua and Barbuda,Argentine,Armenian,Australian,Austrian,Azerbaijani,Bahamian,Bahraini,Bangladeshi,Barbadian,Belarusian,Belgian,Belizean,Beninese,Bermudian,Bhutanese,Bolivian,Citizen of Bosnia and Herzegovina,Botswanan,Brazilian,British,British Virgin Islander,Bruneian,Bulgarian,Burkinan,Burmese,Burundian,Cambodian,Cameroonian,Canadian,Cape Verdean,Cayman Islander,Central African,Chadian,Chilean,Chinese,Colombian,Comoran,Congolese (Congo),Congolese (DRC),Cook Islander,Costa Rican,Croatian,Cuban,Cymraes,Cymro,Cypriot,Czech,Danish,Djiboutian,Dominican,Citizen of the Dominican Republic,Dutch,East Timorese\tEcuadorean\tEgyptian\tEmirati,English,Equatorial Guinean,Eritrean,Estonian,Ethiopian,Faroese,Fijian,Filipino,Finnish,French,Gabonese,Gambian,Georgian,German,Ghanaian,Gibraltarian,Greek,Greenlandic,Grenadian,Guamanian,Guatemalan,Citizen of Guinea-Bissau,Guinean,Guyanese,Haitian,Honduran,Hong Konger,Hungarian,Icelandic,Indian,Indonesian,Iranian,Iraqi,Irish,Israeli,Italian,Ivorian,Jamaican,Japanese,Jordanian,Kazakh,Kenyan,Kittitian,Citizen of Kiribati,Kosovan,Kuwaiti,Kyrgyz,Lao,Latvian,Lebanese,Liberian,Libyan,Liechtenstein citizen,Lithuanian,Luxembourger,Macanese,Macedonian,Malagasy,Malawian,Malaysian,Maldivian,Malian,Maltese,Marshallese,Martiniquais,Mauritanian,Mauritian,Mexican,Micronesian,Moldovan,Monegasque,Mongolian,Montenegrin,Montserratian,Moroccan,Mosotho,Mozambican,Namibian,Nauruan,Nepalese,New Zealander,Nicaraguan,Nigerian,Nigerien,Niuean,North Korean,Northern Irish,Norwegian,Omani,Pakistani,Palauan,Palestinian,Panamanian,Papua New Guinean,Paraguayan,Peruvian,Pitcairn Islander,Polish,Portuguese,Prydeinig,Puerto Rican,Qatari,Romanian,Russian,Rwandan,Salvadorean,Sammarinese,Samoan,Sao Tomean,Saudi Arabian,Scottish,Senegalese,Serbian,Citizen of Seychelles,Sierra Leonean,Singaporean,Slovak,Slovenian,Solomon Islander,Somali,South African,South Korean,South Sudanese,Spanish,Sri Lankan,St Helenian,St Lucian,Stateless,Sudanese,Surinamese,Swazi,Swedish,Swiss,Syrian,Taiwanese,Tajik,Tanzanian,Thai,Togolese,Tongan,Trinidadian,Tristanian,Tunisian,Turkish,Turkmen,Turks and Caicos Islander,Tuvaluan,Ugandan,Ukrainian,Uruguayan,Uzbek,Vatican citizen,Citizen of Vanuatu,Venezuelan,Vietnamese,Vincentian,Wallisian,Welsh,Yemeni,Zambian,Zimbabwean";
+    private static final String multipleFlagsErrorMessage = "The maximum number of address links that can be established is one";
 
     private OfficerUpdateValidator officerUpdateValidator;
     private List<ApiError> apiErrorsList;
@@ -1181,5 +1182,103 @@ class OfficerUpdateValidatorTest {
     void testIsSectionEmptyWhenFlagIsTrueWithOneElementAsNonNull() {
         boolean result = officerUpdateValidator.isSectionEmpty(true, Arrays.asList(null, "test", null));
         assertThat(result).isFalse();
+    }
+
+    @Test
+    void validationWhenBothAddressFlagsInJsonAreSetAsTrue() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
+        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS)).thenReturn(
+                "The maximum number of address links that can be established is one");
+        officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("Errors when both address flags sent as true")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains(multipleFlagsErrorMessage);
+    }
+
+    @Test
+    void validationWhenHASameAsCAFlagInJsonAndROASameAsCAFlagInCHIPSAreSetAsTrue() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(false);
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(companyAppointment.getResidentialAddressIsSameAsServiceAddress()).thenReturn(true);
+        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS)).thenReturn(
+                "The maximum number of address links that can be established is one");
+        officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("Errors when both address flags sent as true")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains(multipleFlagsErrorMessage);
+    }
+
+    @Test
+    void validationWhenROASameAsCAFlagInJsonAndHASameAsCAFlagInCHIPSAreSetAsTrue() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(false);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
+        when(companyAppointment.getServiceAddressIsSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS)).thenReturn(
+                "The maximum number of address links that can be established is one");
+        officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList)
+                .as("Errors when both address flags sent as true")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains(multipleFlagsErrorMessage);
+    }
+
+    @Test
+    void noErrorWhenROASameAsCAFlagIsSetAsTrueAndHASameAsCAFlagIsClearedInJson() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(false);
+        officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList).isEmpty();
+    }
+
+    @Test
+    void noErrorWhenHASameAsCAFlagIsSetAsTrueAndROASameAsCAFlagIsClearedInJson() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(false);
+        officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList).isEmpty();
+    }
+
+    @Test
+    void noErrorWhenROASameAsCAFlagIsSetAsTrueAndHASameAsCAFlagIsClearedWithNotNullHAInJson() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(null);
+        when(dto.getResidentialAddress()).thenReturn(mockDtoAddress);
+        officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList).isEmpty();
+    }
+
+    @Test
+    void noErrorWhenHASameAsCAFlagIsSetAsTrueAndROASameAsCAFlagIsClearedWithNotNullCAInJson() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
+        when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
+        when(dto.getServiceAddress()).thenReturn(mockDtoAddress);
+        officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList).isEmpty();
+    }
+
+    @Test
+    void noErrorWhenAllFlagsCleared() {
+        when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(false);
+        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(false);
+        officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
+        assertThat(apiErrorsList).isEmpty();
     }
 }

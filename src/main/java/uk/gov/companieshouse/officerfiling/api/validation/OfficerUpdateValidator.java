@@ -71,6 +71,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
         validateCompanyNotDissolved(request, errorList, companyProfile.get());
         validateChangeDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
         validateChangeDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
+        validateAddressesMultipleFlagsUpdate(request, errorList, dto, companyAppointment.get());
         Boolean nonEmptyNameSection = validateNameSection(request, errorList, dto, companyAppointment.get());
         Boolean nonEmptyNationalitySection = validateNationalitySection(request, errorList, dto, companyAppointment.get());
         Boolean nonEmptyOccupationSection = validateOccupationSection(request, errorList, dto, companyAppointment.get());
@@ -365,4 +366,29 @@ public class OfficerUpdateValidator extends OfficerValidator {
         return field.trim().equalsIgnoreCase(chipsField.trim());
     }
 
+    public void validateAddressesMultipleFlagsUpdate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+        // validate we are not setting both flags to true
+        if ((!Boolean.FALSE.equals(dto.getResidentialAddressHasBeenUpdated()) && Boolean.TRUE.equals(dto.getIsHomeAddressSameAsServiceAddress())) && 
+            (!Boolean.FALSE.equals(dto.getCorrespondenceAddressHasBeenUpdated()) && Boolean.TRUE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()))) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS));
+        }
+
+        // validate we are not only setting service address same are registered office address to true when home address is already same as service address
+        if (!Boolean.FALSE.equals(dto.getCorrespondenceAddressHasBeenUpdated()) && Boolean.TRUE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()) &&
+            !(!Boolean.FALSE.equals(dto.getResidentialAddressHasBeenUpdated()) &&
+              (Boolean.FALSE.equals(dto.getIsHomeAddressSameAsServiceAddress()) || (dto.getIsHomeAddressSameAsServiceAddress() ==  null && dto.getResidentialAddress() != null)) // not clearing home address
+            ) &&
+            Boolean.TRUE.equals(appointmentFullRecordAPI.getResidentialAddressIsSameAsServiceAddress())) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS));
+        }
+
+        // validate we are not only setting home address same as service address to true when service address is already same as registered office address
+        if (!Boolean.FALSE.equals(dto.getResidentialAddressHasBeenUpdated()) && Boolean.TRUE.equals(dto.getIsHomeAddressSameAsServiceAddress()) &&
+            !(!Boolean.FALSE.equals(dto.getCorrespondenceAddressHasBeenUpdated()) &&
+              (Boolean.FALSE.equals(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()) || (dto.getIsServiceAddressSameAsRegisteredOfficeAddress() == null && dto.getServiceAddress() != null)) // not clearing correspondence address
+            ) &&
+            Boolean.TRUE.equals(appointmentFullRecordAPI.getServiceAddressIsSameAsRegisteredOfficeAddress())) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS));
+        }
+    }
 }
