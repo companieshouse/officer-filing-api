@@ -4,6 +4,8 @@ import java.io.File;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +18,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -176,6 +179,9 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         // If it does, then update it with the patch data
         if(officerFilingOptional.isPresent()){
             // Update the existing filing
+
+            validateTransactionLinkedToFiling(transaction, filingResourceId);
+
             officerFiling = officerFilingOptional.get();
             officerFiling = officerFilingService.mergeFilings(officerFiling, filingMapper.map(dto), transaction);
         }
@@ -205,14 +211,16 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     @Override
     @GetMapping(value = "/{filingResourceId}", produces = {"application/json"})
     public ResponseEntity<OfficerFilingDto> getFilingForReview(
-            @PathVariable("transactionId") final String transId,
-            @PathVariable("filingResourceId") final String filingResource) {
+            @RequestAttribute("transaction") Transaction transaction,
+            @PathVariable("filingResourceId") final String filingResourceId) {
 
         if(!isTm01Enabled){
             throw new FeatureNotEnabledException();
         }
 
-        var maybeOfficerFiling = officerFilingService.get(filingResource, transId);
+        validateTransactionLinkedToFiling(transaction, filingResourceId);
+
+        var maybeOfficerFiling = officerFilingService.get(filingResourceId, transaction.getId());
 
         var maybeDto = maybeOfficerFiling.map(filingMapper::map);
 
@@ -290,5 +298,36 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             filingId = resourcePath.getName();
         }
         return filingId;
+    }
+
+    private void validateTransactionLinkedToFiling(Transaction transaction, String filingResourceId) {
+        List<FieldError> errors = new ArrayList<>();
+
+        if (transaction == null) {
+            errors.add(new FieldError("OfficerFiling", "transaction", "Transaction not found"));
+            throw new InvalidFilingException(errors);
+        }
+        if (transaction.getResources() == null) {
+            errors.add(new FieldError("OfficerFiling", "transaction", "Transaction resources not found"));
+            throw new InvalidFilingException(errors);
+        }
+        if (transaction.getResources().isEmpty()) {
+            errors.add(new FieldError("OfficerFiling", "transaction", "Transaction resources empty"));
+            throw new InvalidFilingException(errors);
+        }
+
+        String path = "/transactions/" + transaction.getId() + "/officers/" + filingResourceId; 
+        logger.debug("Validate transaction linked to: " + path);
+
+        for (Resource resource : transaction.getResources().values()) {
+            if (resource.getKind().equals("officer-filing")) {
+                if (resource.getLinks().containsKey("resource") && path.equals(resource.getLinks().get("resource"))) {
+                    return;
+                }
+            }
+        }
+
+        errors.add(new FieldError("OfficerFiling", "filingResourceId", "Filing resource does not match request"));
+        throw new InvalidFilingException(errors);
     }
 }

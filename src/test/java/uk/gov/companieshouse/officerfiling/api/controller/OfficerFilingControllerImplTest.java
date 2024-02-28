@@ -313,6 +313,7 @@ class OfficerFilingControllerImplTest {
         when(clock.instant()).thenReturn(FIRST_INSTANT);
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
+        when(transaction.getResources()).thenReturn(getResourcesForFiling());
         when(filingMapper.map(dto)).thenReturn(filing);
         final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
                 .build();
@@ -322,7 +323,7 @@ class OfficerFilingControllerImplTest {
         when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
 
         final var response =
-                testController.patchFiling(transaction, dto, "12345", nullBindingResult ? null : result,
+                testController.patchFiling(transaction, dto, FILING_ID, nullBindingResult ? null : result,
                         request);
 
         // refEq needed to compare Map value objects; Resource does not override equals()
@@ -331,12 +332,25 @@ class OfficerFilingControllerImplTest {
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
 
         final var filingOptional = Optional.of(withFilingId);
-        when(officerFilingService.get("12345", TRANS_ID)).thenReturn(filingOptional);
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(filingOptional);
         when(officerFilingService.mergeFilings(withFilingId, filingOptional.get(), transaction)).thenReturn(filingOptional.get());
         final var mergeResponse =
-                testController.patchFiling(transaction, dto, "12345", nullBindingResult ? null : result,
+                testController.patchFiling(transaction, dto, FILING_ID, nullBindingResult ? null : result,
                         request);
         assertThat(mergeResponse.getStatusCode(), is(HttpStatus.OK));
+    }
+
+    @Test
+    void patchFilingWithInvalidSubmissionId() {
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(transaction.getResources()).thenReturn(getResourcesForFiling("some-other-filing-id"));
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
+       
+        assertThrows(InvalidFilingException.class,
+               () -> testController.patchFiling(transaction, dto, FILING_ID, null, request));
     }
 
     @Test
@@ -361,42 +375,61 @@ class OfficerFilingControllerImplTest {
         assertThat(patchException.getFieldErrors(), contains(fieldErrorWithRejectedValue));
     }
 
-
-    private Map<String, Resource> createResources() {
-        final Map<String, Resource> resourceMap = new HashMap<>();
-        final var resource = new Resource();
-        final var self = REQUEST_URI + "/" + FILING_ID;
-        final var linksMap = Map.of("resource", self, VALIDATION_STATUS,
-                PREFIX_PRIVATE + "/" + REQUEST_URI + "/" + FILING_ID + "/" + VALIDATION_STATUS);
-
-        resource.setKind("officer-filing");
-        resource.setLinks(linksMap);
-        resource.setUpdatedAt(FIRST_INSTANT.atZone(ZoneId.systemDefault()).toLocalDateTime());
-        resourceMap.put(self, resource);
-
-        return resourceMap;
-    }
-
     @Test
     void getFilingForReviewWhenFound() {
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(transaction.getResources()).thenReturn(getResourcesForFiling());
         when(filingMapper.map(filing)).thenReturn(dto);
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
 
         final var response =
-            testController.getFilingForReview(TRANS_ID, FILING_ID);
+            testController.getFilingForReview(transaction, FILING_ID);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         assertThat(response.getBody(), is(dto));
     }
 
     @Test
+    void getFilingWhenNoTransaction() {
+        assertThrows(InvalidFilingException.class,
+            () -> testController.getFilingForReview(null, FILING_ID));
+    }
+
+    @Test
     void getFilingForReviewNotFound() {
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(transaction.getResources()).thenReturn(getResourcesForFiling());
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
 
         final var response =
-            testController.getFilingForReview(TRANS_ID, FILING_ID);
+            testController.getFilingForReview(transaction, FILING_ID);
 
         assertThat(response.getStatusCode(), is(HttpStatus.NOT_FOUND));
+    }
+
+    @Test
+    void getFilingWhenNoResource() {
+        when(transaction.getResources()).thenReturn(null);
+       
+        assertThrows(InvalidFilingException.class,
+            () -> testController.getFilingForReview(transaction, FILING_ID));
+    }
+
+    @Test
+    void getFilingWhenEmptyResources() {
+        when(transaction.getResources()).thenReturn(new HashMap<>());
+       
+        assertThrows(InvalidFilingException.class,
+            () -> testController.getFilingForReview(transaction, FILING_ID));
+    }
+
+    @Test
+    void getFilingForReviewWhenInvalidSubmissionId() {
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(transaction.getResources()).thenReturn(getResourcesForFiling("some-other-filing-id"));
+       
+        assertThrows(InvalidFilingException.class,
+        () -> testController.getFilingForReview(transaction, FILING_ID));
     }
 
     @Test
@@ -407,8 +440,7 @@ class OfficerFilingControllerImplTest {
         assertThrows(FeatureNotEnabledException.class,
                 () -> testController.patchFiling(transaction, dto, null, result, request));
         assertThrows(FeatureNotEnabledException.class,
-            () -> testController.getFilingForReview(TRANS_ID, FILING_ID));
-
+            () -> testController.getFilingForReview(transaction, FILING_ID));
     }
 
     @Test
@@ -425,5 +457,35 @@ class OfficerFilingControllerImplTest {
         buildLinks = ReflectionTestUtils.invokeMethod(testController, "buildLinks", idFiling.getId(),
                 request);
         assertThat(buildLinks.getSelf(), is(new URI("/transactions/027314-549816-769801/officers/63f4afcf5cd8192a09d6a9e8")));
+    }
+
+    private Map<String, Resource> getResourcesForFiling() {
+        return getResourcesForFiling(FILING_ID);
+    }
+
+    private Map<String, Resource> getResourcesForFiling(String filingId) {
+        var resource = new Resource();
+        resource.setKind("officer-filing");
+        Map<String, String> links = new HashMap<>();
+        links.put("resource", "/transactions/" + TRANS_ID + "/officers/" + filingId);
+        resource.setLinks(links);
+        Map<String, Resource> resources = new HashMap<>();
+        resources.put("resource", resource);
+        return resources;
+    }
+
+    private Map<String, Resource> createResources() {
+        final Map<String, Resource> resourceMap = new HashMap<>();
+        final var resource = new Resource();
+        final var self = REQUEST_URI + "/" + FILING_ID;
+        final var linksMap = Map.of("resource", self, VALIDATION_STATUS,
+                PREFIX_PRIVATE + "/" + REQUEST_URI + "/" + FILING_ID + "/" + VALIDATION_STATUS);
+
+        resource.setKind("officer-filing");
+        resource.setLinks(linksMap);
+        resource.setUpdatedAt(FIRST_INSTANT.atZone(ZoneId.systemDefault()).toLocalDateTime());
+        resourceMap.put(self, resource);
+
+        return resourceMap;
     }
 }

@@ -35,6 +35,6 @@ class OfficerFilingControllerTest {
     @Test
     void getFilingForReview() {
         assertThrows(NotImplementedException.class,
-                () -> testController.getFilingForReview("trans-id", "filing-resource"));
+                () -> testController.getFilingForReview(transaction, "filing-resource"));
     }
 }
