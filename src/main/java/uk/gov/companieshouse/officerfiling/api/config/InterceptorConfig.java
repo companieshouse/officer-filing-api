@@ -24,7 +24,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
     private static final String[] TRANSACTIONS_LIST = {TRANSACTIONS, PRIVATE};
 
     private static final String GET_VALIDATION = "/**/validation_status";
-
+    private static final String FILINGS = "/transactions/*/officers/*";
+    
     /**
      * Setup the interceptors to run against endpoints when the endpoints are called
      * Interceptors are executed in the order they are added to the registry
@@ -47,7 +48,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     private void addValidTransactionInterceptor(InterceptorRegistry registry){
         registry.addInterceptor(validTransactionInterceptor())
-                .addPathPatterns(GET_VALIDATION);
+                .addPathPatterns(new String[] { GET_VALIDATION, FILINGS });
     }
 
     /**
