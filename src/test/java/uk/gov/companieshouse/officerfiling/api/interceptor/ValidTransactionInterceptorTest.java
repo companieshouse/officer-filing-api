@@ -105,4 +105,14 @@ class ValidTransactionInterceptorTest {
                 .errorRequest(mockRequest, "Filing resource does not match request");
         verify(mockResponse, times(1)).setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
+
+    @Test
+    void requestWithNoFilingIdReturnsTrue() {
+        ((HashMap<Object, Object>) mockRequest.getAttribute("")).put("filingResourceId", null);
+        when(mockRequest.getAttribute(any())).thenReturn(pathVariablesMap);
+
+        var response = validTransactionInterceptor.preHandle(mockRequest, mockResponse, handler);
+
+        assertThat(response, is(true));
+    }
 }

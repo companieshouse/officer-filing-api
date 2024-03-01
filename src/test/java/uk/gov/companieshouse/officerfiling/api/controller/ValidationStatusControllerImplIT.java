@@ -3,7 +3,6 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -118,7 +117,6 @@ class ValidationStatusControllerImplIT {
         when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
         when(transactionGetMock.execute()).thenReturn(apiResponse);
         when(apiResponse.getData()).thenReturn(transaction);
-        when(officerFilingService.requestUriContainsFilingSelfLink(any(), any())).thenReturn(true);
     }
 
     @Test
