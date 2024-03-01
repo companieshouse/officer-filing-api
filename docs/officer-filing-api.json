@@ -817,8 +817,9 @@
         "service_address": {
           "$ref": "#/definitions/AddressDto"
         },
-        "address": {
-          "$ref": "#/definitions/AddressDto"
+        "service_address_has_been_updated": {
+          "type": "string",
+          "description": "Indicates that the directors service address has been updated"
         },
         "is_service_address_same_as_registered_office_address": {
           "type": "boolean",
@@ -847,6 +848,26 @@
           "type": "string",
           "description": "Name"
         },
+        "title": {
+          "type": "string",
+          "description": "Title"
+        },
+        "first_name": {
+          "type": "string",
+          "description": "First name"
+        },
+        "middle_names": {
+          "type": "string",
+          "description": "Middle names"
+        },
+        "last_name": {
+          "type": "string",
+          "description": "Last name"
+        },
+        "name_has_been_updated": {
+          "type": "string",
+          "description": "Indicates that the directors name has been updated"
+        },
         "nationality1": {
           "type": "string",
           "description": "Nationality"
@@ -859,11 +880,19 @@
           "type": "string",
           "description": "Nationality3"
         },
+        "nationality_has_been_updated": {
+          "type": "string",
+          "description": "Indicates that the directors nationality has been updated"
+        },
         "occupation": {
           "type": "string",
           "description": "Occupation"
         },
-        "officerRole": {
+        "occupation_has_been_updated": {
+          "type": "string",
+          "description": "Indicates that the directors occupation has been updated"
+        },
+        "officer_role": {
           "type": "string",
           "description": "The officers role"
         },
@@ -882,9 +911,13 @@
         "residential_address": {
           "$ref": "#/definitions/AddressDto"
         },
-        "is_service_address_same_as_home_address": {
+        "residential_address_has_been_updated": {
+          "type": "string",
+          "description": "Indicates that the directors residential address has been updated"
+        },
+        "is_home_address_same_as_service_address": {
           "type": "boolean",
-          "description": "Correspondence address same as home address"
+          "description": "Home address same as service address"
         },
         "corporate_director": {
           "type": "boolean",
@@ -903,7 +936,7 @@
           "type": "boolean",
           "description": "Indicates the nationality 3 link has been clicked"
         },
-        "directorAppliedToProtectDetails": {
+        "director_applied_to_protect_details": {
           "type": "boolean",
           "description": "Indicates the director has applied to protect their details"
         },
@@ -922,6 +955,15 @@
         "director_service_address_choice": {
           "type": "string",
           "description": "The radio button selected on the officer correspondence address page"
+        },
+        "directors_details_changed_date": {
+          "format": "date",
+          "type": "string",
+          "description": "The date the directors details were changed"
+        },
+        "description": {
+          "type": "string",
+          "description": "The description for the transaction"
         }
       },
       "type": "object",
