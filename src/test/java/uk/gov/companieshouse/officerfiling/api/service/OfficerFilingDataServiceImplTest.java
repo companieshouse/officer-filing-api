@@ -151,47 +151,4 @@ class OfficerFilingDataServiceImplTest {
 
         return filing;
     }
-    @Test
-    void testRequestUriContainsFilingSelfLinkPassesWithValidTransaction() throws URISyntaxException {
-        filing = setUpFiling();
-
-        String validRequestURI = "/transactions/012345-67891-01112/officers/abcd";
-        when(request.getRequestURI()).thenReturn(validRequestURI);
-
-        Boolean result = testService.requestUriContainsFilingSelfLink(request, filing);
-        assertThat(result, is(true));
-    }
-
-    @Test
-    void testRequestUriContainsFilingSelfLinkPassesWithValidTransactionAndAppendedGetValidation() throws URISyntaxException {
-        filing = setUpFiling();
-
-        String validRequestURIWithAppendedPath = "/transactions/012345-67891-01112/officers/abcd/validation_status";
-        when(request.getRequestURI()).thenReturn(validRequestURIWithAppendedPath);
-
-        Boolean result = testService.requestUriContainsFilingSelfLink(request, filing);
-        assertThat(result, is(true));
-    }
-
-    @Test
-    void testRequestUriContainsFilingSelfLinkFailsWithInValidTransaction() throws URISyntaxException {
-        filing = setUpFiling();
-
-        String invalidRequestURI = "/transactions/98765-67891-12345/officers/abcd";
-        when(request.getRequestURI()).thenReturn(invalidRequestURI);
-
-        Boolean result = testService.requestUriContainsFilingSelfLink(request, filing);
-        assertThat(result, is(false));
-    }
-
-    @Test
-    void testRequestUriContainsFilingSelfLinkFailsWithInValidTransactionAndAppendedPath() throws URISyntaxException {
-        filing = setUpFiling();
-
-        String invalidRequestURIWithAppendedPath = "/transactions/98765-67891-12345/officers/abcd/validation_status";
-        when(request.getRequestURI()).thenReturn(invalidRequestURIWithAppendedPath);
-
-        Boolean result = testService.requestUriContainsFilingSelfLink(request, filing);
-        assertThat(result, is(false));
-    }
 }

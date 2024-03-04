@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 
@@ -14,6 +13,4 @@ public interface OfficerFilingService {
     Optional<OfficerFiling> get(String officerFilingId, String transactionId);
 
     OfficerFiling mergeFilings(OfficerFiling original, OfficerFiling patch, Transaction transaction);
-
-    boolean requestUriContainsFilingSelfLink(HttpServletRequest request, OfficerFiling filing);
 }

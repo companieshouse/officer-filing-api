@@ -8,7 +8,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
@@ -111,11 +110,5 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
         // These will be added to the record on load and cause issues when converting from JSON
         fieldMap.remove("class");
         fieldMap.remove("links");
-    }
-
-    @Override
-    public boolean requestUriContainsFilingSelfLink(final HttpServletRequest request, final OfficerFiling filing) {
-        final var selfLinkString = filing.getLinks().getSelf().toString();
-        return request.getRequestURI().contains(selfLinkString);
     }
 }
