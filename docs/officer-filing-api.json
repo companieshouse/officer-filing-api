@@ -156,7 +156,7 @@
     "/transactions/{transactionId}/officers": {
       "post": {
         "summary": "POST an officer filing",
-        "description": "POST an officer filing for a company.",
+        "description": "POST an officer filing for a company. Please note that if a CH01 filing is sent, optional fields for a name (middle names), address (region, address line 2) or nationality (nationality2, nationality3) update must be provided even if the value is unchanged. A blank value will otherwise be used for the change.",
         "consumes": [
           "application/json"
         ],
@@ -319,7 +319,7 @@
       },
       "patch": {
         "summary": "PATCH an existing officer filing",
-        "description": "PATCH an existing officer filing. Data provided in the PATCH will overwrite existing input where it exists.",
+        "description": "PATCH an existing officer filing. Data provided in the PATCH will overwrite existing input where it exists. Please note that if a CH01 filing is sent, optional fields for a name (middle names), address (region, address line 2) or nationality (nationality2, nationality3) update must be provided even if the value is unchanged. A blank value will otherwise be used for the change.",
         "consumes": [
           "application/json"
         ],
@@ -858,7 +858,7 @@
         },
         "middle_names": {
           "type": "string",
-          "description": "Middle names"
+          "description": "Middle names."
         },
         "last_name": {
           "type": "string",
