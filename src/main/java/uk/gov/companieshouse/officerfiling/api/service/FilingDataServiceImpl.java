@@ -143,7 +143,7 @@ public class FilingDataServiceImpl implements FilingDataService {
                 .createdAt(officerFiling.getCreatedAt())
                 .updatedAt(officerFiling.getUpdatedAt())
                 .data(OfficerFilingData.builder(officerFiling.getData())
-                        .countryOfResidence(getCountryOfResidence(officerFiling.getData(), null, true, true))
+                        .countryOfResidence(getChangedCountryOfResidence(officerFiling.getData(), null, true, true))
                         .build())
                 .build();
 
@@ -229,12 +229,12 @@ public class FilingDataServiceImpl implements FilingDataService {
                 dataBuilder = dataBuilder.residentialAddress(data.getResidentialAddress());
             }
         }
-        dataBuilder = dataBuilder.countryOfResidence(getCountryOfResidence(data, appointment, residentialAddressHasBeenUpdated, correspondenceAddressHasBeenUpdated));
+        dataBuilder = dataBuilder.countryOfResidence(getChangedCountryOfResidence(data, appointment, residentialAddressHasBeenUpdated, correspondenceAddressHasBeenUpdated));
 
         return dataBuilder;
     }
 
-    private String getCountryOfResidence(OfficerFilingData data, AppointmentFullRecordAPI appointment, boolean residentialAddressHasBeenUpdated, boolean correspondenceAddressHasBeenUpdated) {
+    private String getChangedCountryOfResidence(OfficerFilingData data, AppointmentFullRecordAPI appointment, boolean residentialAddressHasBeenUpdated, boolean correspondenceAddressHasBeenUpdated) {
         if (residentialAddressHasBeenUpdated) {
             if (Boolean.TRUE.equals(data.getIsHomeAddressSameAsServiceAddress())) {
                 if (correspondenceAddressHasBeenUpdated && data.getServiceAddress() != null && data.getServiceAddress().getCountry() != null) {
