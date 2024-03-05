@@ -143,6 +143,7 @@ public class FilingDataServiceImpl implements FilingDataService {
                 .createdAt(officerFiling.getCreatedAt())
                 .updatedAt(officerFiling.getUpdatedAt())
                 .data(OfficerFilingData.builder(officerFiling.getData())
+                        .countryOfResidence(getChangedCountryOfResidence(officerFiling.getData(), null, true, true))
                         .build())
                 .build();
 
@@ -171,36 +172,7 @@ public class FilingDataServiceImpl implements FilingDataService {
                         .build())
                 .directorsDetailsChangedDate(data.getDirectorsDetailsChangedDate());
 
-        // Only the updated sections should be included in the filing
-        // Software filer will only send the data sections that should be updated but not include any hasBeenUpdated booleans
-        // Web filer will send all data sections and all hasBeenUpdated booleans, so we can work out which sections have been updated
-        if (data.getNameHasBeenUpdated() == null || data.getNameHasBeenUpdated()) {
-            dataBuilder = dataBuilder.title(data.getTitle())
-                    .firstName(data.getFirstName())
-                    .middleNames(data.getMiddleNames())
-                    .lastName(data.getLastName())
-                    .formerNames(data.getFormerNames());
-        }
-        if (data.getNationalityHasBeenUpdated() == null || data.getNationalityHasBeenUpdated()) {
-            dataBuilder = dataBuilder.nationality1(data.getNationality1())
-                    .nationality2(data.getNationality2())
-                    .nationality3(data.getNationality3());
-        }
-        if (data.getOccupationHasBeenUpdated() == null || data.getOccupationHasBeenUpdated()) {
-            dataBuilder = dataBuilder.occupation(data.getOccupation());
-        }
-        if (data.getCorrespondenceAddressHasBeenUpdated() == null || data.getCorrespondenceAddressHasBeenUpdated()) {
-            dataBuilder = dataBuilder.isServiceAddressSameAsRegisteredOfficeAddress(data.getIsServiceAddressSameAsRegisteredOfficeAddress());
-            if (!Boolean.TRUE.equals(data.getIsServiceAddressSameAsRegisteredOfficeAddress())) {
-                dataBuilder = dataBuilder.serviceAddress(data.getServiceAddress());
-            }
-        }
-        if (data.getResidentialAddressHasBeenUpdated() == null || data.getResidentialAddressHasBeenUpdated()) {
-            dataBuilder = dataBuilder.isHomeAddressSameAsServiceAddress(data.getIsHomeAddressSameAsServiceAddress());
-            if (!Boolean.TRUE.equals(data.getIsHomeAddressSameAsServiceAddress())) {
-                dataBuilder = dataBuilder.residentialAddress(data.getResidentialAddress());
-            }
-        }
+        dataBuilder = addUpdateSections(dataBuilder, data, appointment);
 
         final var enhancedOfficerFiling = OfficerFiling.builder(officerFiling)
                 .createdAt(officerFiling.getCreatedAt())
@@ -215,6 +187,69 @@ public class FilingDataServiceImpl implements FilingDataService {
 
         filing.setData(dataMap);
         setCh01DescriptionFields(filing, enhancedOfficerFiling.getData(), appointment);
+    }
+
+    /**
+     * Go through each section of an update filing - calculate whether the section has been updated and add the data to the Builder if so.
+     * Only the updated sections should be included in the filing:<br>
+     * 1. Software filer will only send the data sections that should be updated but not include any hasBeenUpdated booleans<br>
+     * 2. Web filer will send all data sections and all hasBeenUpdated booleans, so we can work out which sections have been updated
+     */
+    private OfficerFilingData.Builder addUpdateSections(OfficerFilingData.Builder dataBuilder, OfficerFilingData data, AppointmentFullRecordAPI appointment) {
+        boolean nameHasBeenUpdated = data.getNameHasBeenUpdated() == null || data.getNameHasBeenUpdated();
+        boolean nationalityHasBeenUpdated = data.getNationalityHasBeenUpdated() == null || data.getNationalityHasBeenUpdated();
+        boolean occupationHasBeenUpdated = data.getOccupationHasBeenUpdated() == null || data.getOccupationHasBeenUpdated();
+        boolean correspondenceAddressHasBeenUpdated = data.getCorrespondenceAddressHasBeenUpdated() == null || data.getCorrespondenceAddressHasBeenUpdated();
+        boolean residentialAddressHasBeenUpdated = data.getResidentialAddressHasBeenUpdated() == null || data.getResidentialAddressHasBeenUpdated();
+
+        if (nameHasBeenUpdated) {
+            dataBuilder = dataBuilder.title(data.getTitle())
+                    .firstName(data.getFirstName())
+                    .middleNames(data.getMiddleNames())
+                    .lastName(data.getLastName())
+                    .formerNames(data.getFormerNames());
+        }
+        if (nationalityHasBeenUpdated) {
+            dataBuilder = dataBuilder.nationality1(data.getNationality1())
+                    .nationality2(data.getNationality2())
+                    .nationality3(data.getNationality3());
+        }
+        if (occupationHasBeenUpdated) {
+            dataBuilder = dataBuilder.occupation(data.getOccupation());
+        }
+        if (correspondenceAddressHasBeenUpdated) {
+            dataBuilder = dataBuilder.isServiceAddressSameAsRegisteredOfficeAddress(data.getIsServiceAddressSameAsRegisteredOfficeAddress());
+            if (!Boolean.TRUE.equals(data.getIsServiceAddressSameAsRegisteredOfficeAddress())) {
+                dataBuilder = dataBuilder.serviceAddress(data.getServiceAddress());
+            }
+        }
+        if (residentialAddressHasBeenUpdated) {
+            dataBuilder = dataBuilder.isHomeAddressSameAsServiceAddress(data.getIsHomeAddressSameAsServiceAddress());
+            if (!Boolean.TRUE.equals(data.getIsHomeAddressSameAsServiceAddress())) {
+                dataBuilder = dataBuilder.residentialAddress(data.getResidentialAddress());
+            }
+        }
+        dataBuilder = dataBuilder.countryOfResidence(getChangedCountryOfResidence(data, appointment, residentialAddressHasBeenUpdated, correspondenceAddressHasBeenUpdated));
+
+        return dataBuilder;
+    }
+
+    private String getChangedCountryOfResidence(OfficerFilingData data, AppointmentFullRecordAPI appointment, boolean residentialAddressHasBeenUpdated, boolean correspondenceAddressHasBeenUpdated) {
+        if (residentialAddressHasBeenUpdated) {
+            if (Boolean.TRUE.equals(data.getIsHomeAddressSameAsServiceAddress())) {
+                if (correspondenceAddressHasBeenUpdated && data.getServiceAddress() != null && data.getServiceAddress().getCountry() != null) {
+                    return data.getServiceAddress().getCountry();
+                } else if (appointment.getServiceAddress() != null && appointment.getServiceAddress().getCountry() != null) {
+                    return appointment.getServiceAddress().getCountry();
+                }
+            } else if (data.getResidentialAddress() != null && data.getResidentialAddress().getCountry() != null) {
+                return data.getResidentialAddress().getCountry();
+            }
+        } else if (correspondenceAddressHasBeenUpdated && Boolean.TRUE.equals(appointment.getResidentialAddressIsSameAsServiceAddress()) &&
+                data.getServiceAddress() != null && data.getServiceAddress().getCountry() != null) {
+            return data.getServiceAddress().getCountry();
+        }
+        return null;
     }
 
     /**

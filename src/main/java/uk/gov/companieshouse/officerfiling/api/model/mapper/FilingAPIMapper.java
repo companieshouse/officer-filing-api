@@ -33,6 +33,7 @@ public interface FilingAPIMapper {
     @Mapping(target = "consentToAct", source = "data.consentToAct")
     @Mapping(target = "corporateDirector", source = "data.corporateDirector")
     @Mapping(target = "officerPreviousDetails", source = "data.officerPreviousDetails")
+    @Mapping(target = "countryOfResidence", source = "data.countryOfResidence")
     FilingData map(OfficerFiling officerFiling);
 
     @Mapping(target = "data.dateOfBirth", source = "dateOfBirth")

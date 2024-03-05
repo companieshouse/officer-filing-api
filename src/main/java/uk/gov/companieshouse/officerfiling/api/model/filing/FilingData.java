@@ -32,6 +32,8 @@ public class FilingData {
     private OfficerPreviousDetails officerPreviousDetails;
     private String directorsDetailsChangedDate;
 
+    private String countryOfResidence;
+
     @JsonCreator
     public FilingData(@JsonProperty("first_name") String firstName,
                       @JsonProperty("middle_names") String middleNames,
@@ -50,26 +52,27 @@ public class FilingData {
     @JsonCreator
     @Default
     public FilingData(@JsonProperty("title") String title,
-                         @JsonProperty("first_name") String firstName,
-                         @JsonProperty("middle_names") String middleNames,
-                         @JsonProperty("last_name") String lastName,
-                         @JsonProperty("former_names") String formerNames,
-                         @JsonProperty("date_of_birth") String dateOfBirth,
-                         @JsonProperty("appointed_on") String appointedOn,
-                         @JsonProperty("resigned_on") String resignedOn,
-                         @JsonProperty("nationality1") String nationality1,
-                         @JsonProperty("nationality2") String nationality2,
-                         @JsonProperty("nationality3") String nationality3,
-                         @JsonProperty("occupation") String occupation,
-                         @JsonProperty("service_address") Address serviceAddress,
-                         @JsonProperty("is_service_address_same_as_registered_office_address") Boolean isServiceAddressSameAsRegisteredOfficeAddress,
-                         @JsonProperty("residential_address") Address residentialAddress,
-                         @JsonProperty("is_home_address_same_as_service_address") Boolean isHomeAddressSameAsServiceAddress,
-                         @JsonProperty("director_applied_to_protect_details") Boolean directorAppliedToProtectDetails,
-                         @JsonProperty("consent_to_act") Boolean consentToAct,
-                         @JsonProperty("is_corporate_director") Boolean corporateDirector,
-                         @JsonProperty("officer_previous_details") OfficerPreviousDetails officerPreviousDetails,
-                         @JsonProperty("directors_details_changed_date") String directorsDetailsChangedDate) {
+                      @JsonProperty("first_name") String firstName,
+                      @JsonProperty("middle_names") String middleNames,
+                      @JsonProperty("last_name") String lastName,
+                      @JsonProperty("former_names") String formerNames,
+                      @JsonProperty("date_of_birth") String dateOfBirth,
+                      @JsonProperty("appointed_on") String appointedOn,
+                      @JsonProperty("resigned_on") String resignedOn,
+                      @JsonProperty("nationality1") String nationality1,
+                      @JsonProperty("nationality2") String nationality2,
+                      @JsonProperty("nationality3") String nationality3,
+                      @JsonProperty("occupation") String occupation,
+                      @JsonProperty("service_address") Address serviceAddress,
+                      @JsonProperty("is_service_address_same_as_registered_office_address") Boolean isServiceAddressSameAsRegisteredOfficeAddress,
+                      @JsonProperty("residential_address") Address residentialAddress,
+                      @JsonProperty("is_home_address_same_as_service_address") Boolean isHomeAddressSameAsServiceAddress,
+                      @JsonProperty("director_applied_to_protect_details") Boolean directorAppliedToProtectDetails,
+                      @JsonProperty("consent_to_act") Boolean consentToAct,
+                      @JsonProperty("is_corporate_director") Boolean corporateDirector,
+                      @JsonProperty("officer_previous_details") OfficerPreviousDetails officerPreviousDetails,
+                      @JsonProperty("directors_details_changed_date") String directorsDetailsChangedDate,
+                      @JsonProperty("country_of_residence") String countryOfResidence) {
         this.title = title;
         this.firstName = firstName;
         this.middleNames = middleNames;
@@ -91,6 +94,7 @@ public class FilingData {
         this.corporateDirector = corporateDirector;
         this.officerPreviousDetails = officerPreviousDetails;
         this.directorsDetailsChangedDate = directorsDetailsChangedDate;
+        this.countryOfResidence = countryOfResidence;
     }
 
     public String getTitle() {
@@ -177,6 +181,10 @@ public class FilingData {
         return directorsDetailsChangedDate;
     }
 
+    public String getCountryOfResidence() {
+        return countryOfResidence;
+    }
+
     @Override
     public String toString() {
         return "FilingData{" +
@@ -201,6 +209,7 @@ public class FilingData {
                 ", corporateDirector=" + corporateDirector +
                 ", officerPreviousDetails=" + officerPreviousDetails +
                 ", directorsDetailsChangedDate='" + directorsDetailsChangedDate + '\'' +
+                ", countryOfResidence='" + countryOfResidence + '\'' +
                 '}';
     }
 }
