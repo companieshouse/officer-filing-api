@@ -6,6 +6,7 @@ import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Address;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.filing.OfficerPreviousDetails;
@@ -16,9 +17,11 @@ import uk.gov.companieshouse.officerfiling.api.utils.MapHelper;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Produces Filing Data format for consumption as JSON by filing-resource-handler external service.
@@ -196,11 +199,11 @@ public class FilingDataServiceImpl implements FilingDataService {
      * 2. Web filer will send all data sections and all hasBeenUpdated booleans, so we can work out which sections have been updated
      */
     private OfficerFilingData.Builder addUpdateSections(OfficerFilingData.Builder dataBuilder, OfficerFilingData data, AppointmentFullRecordAPI appointment) {
-        boolean nameHasBeenUpdated = data.getNameHasBeenUpdated() == null || data.getNameHasBeenUpdated();
-        boolean nationalityHasBeenUpdated = data.getNationalityHasBeenUpdated() == null || data.getNationalityHasBeenUpdated();
-        boolean occupationHasBeenUpdated = data.getOccupationHasBeenUpdated() == null || data.getOccupationHasBeenUpdated();
-        boolean correspondenceAddressHasBeenUpdated = data.getCorrespondenceAddressHasBeenUpdated() == null || data.getCorrespondenceAddressHasBeenUpdated();
-        boolean residentialAddressHasBeenUpdated = data.getResidentialAddressHasBeenUpdated() == null || data.getResidentialAddressHasBeenUpdated();
+        boolean nameHasBeenUpdated = isSectionUpdated(data.getNameHasBeenUpdated(), data.getTitle(), data.getFirstName(), data.getMiddleNames(), data.getLastName(), data.getFormerNames());
+        boolean nationalityHasBeenUpdated = isSectionUpdated(data.getNationalityHasBeenUpdated(), data.getNationality1(), data.getNationality2(), data.getNationality3());
+        boolean occupationHasBeenUpdated = isSectionUpdated(data.getOccupationHasBeenUpdated(), data.getOccupation());
+        boolean correspondenceAddressHasBeenUpdated = isAddressSectionUpdated(data.getCorrespondenceAddressHasBeenUpdated(), data.getServiceAddress());
+        boolean residentialAddressHasBeenUpdated = isAddressSectionUpdated(data.getResidentialAddressHasBeenUpdated(), data.getResidentialAddress());
 
         if (nameHasBeenUpdated) {
             dataBuilder = dataBuilder.title(data.getTitle())
@@ -232,6 +235,25 @@ public class FilingDataServiceImpl implements FilingDataService {
         dataBuilder = dataBuilder.countryOfResidence(getChangedCountryOfResidence(data, appointment, residentialAddressHasBeenUpdated, correspondenceAddressHasBeenUpdated));
 
         return dataBuilder;
+    }
+
+    private boolean isSectionUpdated(Boolean updatedFlag, String... fields) {
+        if (updatedFlag == null) {
+            return doAnyFieldsExist(fields);
+        }
+        return updatedFlag;
+    }
+
+    private boolean isAddressSectionUpdated(Boolean updatedFlag, Address address) {
+        if (updatedFlag == null) {
+            return address != null && doAnyFieldsExist(address.getPremises(), address.getAddressLine1(), address.getAddressLine2(), address.getLocality(), address.getRegion(), address.getPostalCode(), address.getCountry());
+        }
+        return updatedFlag;
+    }
+
+    private boolean doAnyFieldsExist(String... fields) {
+        return Arrays.stream(fields)
+                .anyMatch(Objects::nonNull);
     }
 
     private String getChangedCountryOfResidence(OfficerFilingData data, AppointmentFullRecordAPI appointment, boolean residentialAddressHasBeenUpdated, boolean correspondenceAddressHasBeenUpdated) {

@@ -950,6 +950,88 @@ class FilingDataServiceImplTest {
     }
 
     @Test
+    void genUpdateFilingWhenHANotUpdatedButSameAsCAAndAddressIsNull() {
+        final var originalData = testOfficerFilingDataBuilder()
+                .nameHasBeenUpdated(false)
+                .nationalityHasBeenUpdated(false)
+                .occupationHasBeenUpdated(false)
+                .residentialAddressHasBeenUpdated(null)
+                .residentialAddress(null)
+                .correspondenceAddressHasBeenUpdated(true)
+                .build();
+        final var originalOfficerFiling = OfficerFiling.builder()
+                .createdAt(clock.instant())
+                .updatedAt(clock.instant())
+                .data(originalData)
+                .build();
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(originalOfficerFiling));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointment.getResidentialAddressIsSameAsServiceAddress()).thenReturn(true);
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
+
+        testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        verify(filingAPIMapper).map(officerFilingCaptor.capture());
+        var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
+        var expectedOfficerFilingData = OfficerFilingData.builder()
+                .serviceAddress(SERVICE_ADDRESS)
+                .isServiceAddressSameAsRegisteredOfficeAddress(false)
+                .residentialAddress(null)
+                .isHomeAddressSameAsServiceAddress(null)
+                .countryOfResidence(SERVICE_ADDRESS.getCountry())
+                .build();
+        assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
+    }
+
+    @Test
+    void genUpdateFilingWhenHANotUpdatedButSameAsCAAndAddressFieldsAreNull() {
+        final var originalData = testOfficerFilingDataBuilder()
+                .nameHasBeenUpdated(false)
+                .nationalityHasBeenUpdated(false)
+                .occupationHasBeenUpdated(false)
+                .residentialAddressHasBeenUpdated(null)
+                .residentialAddress(Address.builder().build())
+                .correspondenceAddressHasBeenUpdated(true)
+                .build();
+        final var originalOfficerFiling = OfficerFiling.builder()
+                .createdAt(clock.instant())
+                .updatedAt(clock.instant())
+                .data(originalData)
+                .build();
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(originalOfficerFiling));
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(companyAppointment.getForename()).thenReturn(FIRSTNAME);
+        when(companyAppointment.getOtherForenames()).thenReturn(MIDDLENAMES);
+        when(companyAppointment.getSurname()).thenReturn(LASTNAME);
+        when(companyAppointment.getDateOfBirth()).thenReturn(testSensitiveDateOfBirth());
+        when(companyAppointment.getResidentialAddressIsSameAsServiceAddress()).thenReturn(true);
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
+                .thenReturn(companyAppointment);
+
+        testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+
+        verify(filingAPIMapper).map(officerFilingCaptor.capture());
+        var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
+        var expectedOfficerFilingData = OfficerFilingData.builder()
+                .serviceAddress(SERVICE_ADDRESS)
+                .isServiceAddressSameAsRegisteredOfficeAddress(false)
+                .residentialAddress(null)
+                .isHomeAddressSameAsServiceAddress(null)
+                .countryOfResidence(SERVICE_ADDRESS.getCountry())
+                .build();
+        assertThat(builtOfficerFilingData, samePropertyValuesAs(expectedOfficerFilingData, "officerPreviousDetails", "directorsDetailsChangedDate"));
+        assertThat(builtOfficerFilingData.getOfficerPreviousDetails(), samePropertyValuesAs(testOfficerPreviousDetails()));
+        assertThat(builtOfficerFilingData.getDirectorsDetailsChangedDate(), is(DIRECTOR_DETAILS_CHANGED_DATE));
+    }
+
+    @Test
     void genUpdateFilingWhenHAUpdatedButSameAsCAAndCaUpdated() {
         final var originalData = testOfficerFilingDataBuilder()
                 .nameHasBeenUpdated(false)
