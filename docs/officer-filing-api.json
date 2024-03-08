@@ -819,7 +819,7 @@
         },
         "service_address_has_been_updated": {
           "type": "string",
-          "description": "Indicates that the directors service address has been updated"
+          "description": "Indicates that the directors service address has been updated (Private)"
         },
         "is_service_address_same_as_registered_office_address": {
           "type": "boolean",
@@ -866,7 +866,7 @@
         },
         "name_has_been_updated": {
           "type": "string",
-          "description": "Indicates that the directors name has been updated"
+          "description": "Indicates that the directors name has been updated (Private)"
         },
         "nationality1": {
           "type": "string",
@@ -882,7 +882,7 @@
         },
         "nationality_has_been_updated": {
           "type": "string",
-          "description": "Indicates that the directors nationality has been updated"
+          "description": "Indicates that the directors nationality has been updated (Private)"
         },
         "occupation": {
           "type": "string",
@@ -890,7 +890,7 @@
         },
         "occupation_has_been_updated": {
           "type": "string",
-          "description": "Indicates that the directors occupation has been updated"
+          "description": "Indicates that the directors occupation has been updated (Private)"
         },
         "officer_role": {
           "type": "string",
@@ -898,22 +898,18 @@
         },
         "reference_appointment_id": {
           "type": "string",
-          "description": "The officers appointment ID"
+          "description": "Required for a TM01 or CH01. Refers to the officer being terminated or updated "
         },
         "reference_etag": {
           "type": "string",
-          "description": "ETAG for the officer data"
-        },
-        "reference_officer_list_etag": {
-          "type": "string",
-          "description": "Reference officer list etag"
+          "description": "Required for a TM01 or CH01. A hash of the existing officer data."
         },
         "residential_address": {
           "$ref": "#/definitions/AddressDto"
         },
         "residential_address_has_been_updated": {
           "type": "string",
-          "description": "Indicates that the directors residential address has been updated"
+          "description": "Indicates that the directors residential address has been updated (Private)"
         },
         "is_home_address_same_as_service_address": {
           "type": "boolean",
@@ -921,7 +917,7 @@
         },
         "corporate_director": {
           "type": "boolean",
-          "description": "Indicates the director is corporate"
+          "description": "Indicates the director is corporate (Private)"
         },
         "resigned_on": {
           "format": "date",
@@ -930,11 +926,11 @@
         },
         "nationality2_link": {
           "type": "boolean",
-          "description": "Indicates the nationality 2 link has been clicked"
+          "description": "Indicates the nationality 2 link has been clicked (Private)"
         },
         "nationality3_link": {
           "type": "boolean",
-          "description": "Indicates the nationality 3 link has been clicked"
+          "description": "Indicates the nationality 3 link has been clicked (Private)"
         },
         "director_applied_to_protect_details": {
           "type": "boolean",
@@ -946,15 +942,15 @@
         },
         "check_your_answers_link": {
           "type": "string",
-          "description": "The link to return to when change has been selected on the check your answers page"
+          "description": "The link to return to when change has been selected on the check your answers page (Private)"
         },
         "director_residential_address_choice": {
           "type": "string",
-          "description": "The radio button selected on the officer home address page"
+          "description": "The radio button selected on the officer home address page (Private)"
         },
         "director_service_address_choice": {
           "type": "string",
-          "description": "The radio button selected on the officer correspondence address page"
+          "description": "The radio button selected on the officer correspondence address page (Private)"
         },
         "directors_details_changed_date": {
           "format": "date",
