@@ -174,7 +174,7 @@ public class OfficerAppointmentValidator extends OfficerValidator {
                 createValidationError(request, errorList,
                         apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_LENGTH));
             }
-            if (!isValidCharacters(dto.getFormerNames())) {
+            if (!isValidNameCharacters(dto.getFormerNames())) {
                 createValidationError(request, errorList,
                         apiEnumerations.getValidation(ValidationEnum.FORMER_NAMES_CHARACTERS));
             }
