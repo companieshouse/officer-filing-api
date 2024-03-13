@@ -371,7 +371,7 @@ class OfficerFilingControllerImplTest {
     @Test
     void patchFilingWithNoResourceLink() {
         var resources = getResourcesForFiling();
-        resources.remove("resource");
+        resources.get("resource").getLinks().remove("resource");
         when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
         when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
