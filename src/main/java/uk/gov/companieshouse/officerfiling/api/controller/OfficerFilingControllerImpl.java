@@ -50,6 +50,10 @@ import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 @RequestMapping("/transactions/{transactionId}/officers")
 public class OfficerFilingControllerImpl implements OfficerFilingController {
     public static final String VALIDATION_STATUS = "validation_status";
+    public static final String RESOURCE = "resource";
+    public static final String OFFICER_FILING = "officer-filing";
+    public static final String TRANSACTION = "transaction";
+    public static final String FILING_RESOURCE_ID = "filingResourceId";
     private final TransactionService transactionService;
     private final OfficerFilingService officerFilingService;
     private final CompanyProfileService companyProfileService;
@@ -86,7 +90,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
      */
     @Override
     @PostMapping(produces = {"application/json"}, consumes = {"application/json"})
-    public ResponseEntity<Object> createFiling(@RequestAttribute("transaction") Transaction transaction,
+    public ResponseEntity<Object> createFiling(@RequestAttribute(TRANSACTION) Transaction transaction,
             @RequestBody @Valid @NotNull final OfficerFilingDto dto,
             final BindingResult bindingResult, final HttpServletRequest request) {
 
@@ -152,9 +156,9 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     @Override
     @PatchMapping(value = "/{filingResourceId}", produces = {"application/json"}, consumes = {"application/json"})
     public ResponseEntity<Object> patchFiling(
-            @RequestAttribute("transaction") Transaction transaction,
+            @RequestAttribute(TRANSACTION) Transaction transaction,
             @RequestBody @Valid @NotNull final OfficerFilingDto dto,
-            @PathVariable("filingResourceId") final String filingResourceId,
+            @PathVariable(FILING_RESOURCE_ID) final String filingResourceId,
             final BindingResult bindingResult, final HttpServletRequest request) {
 
         if(!isTm01Enabled){
@@ -211,8 +215,8 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     @Override
     @GetMapping(value = "/{filingResourceId}", produces = {"application/json"})
     public ResponseEntity<OfficerFilingDto> getFilingForReview(
-            @RequestAttribute("transaction") Transaction transaction,
-            @PathVariable("filingResourceId") final String filingResourceId) {
+            @RequestAttribute(TRANSACTION) Transaction transaction,
+            @PathVariable(FILING_RESOURCE_ID) final String filingResourceId) {
 
         if(!isTm01Enabled){
             throw new FeatureNotEnabledException();
@@ -233,10 +237,10 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         final Map<String, Resource> resourceMap = new HashMap<>();
         final var resource = new Resource();
         final var linksMap = new HashMap<>(
-                Map.of("resource", links.getSelf().toString(), VALIDATION_STATUS,
+                Map.of(RESOURCE, links.getSelf().toString(), VALIDATION_STATUS,
                         links.getValidationStatus().toString()));
 
-        resource.setKind("officer-filing");
+        resource.setKind(OFFICER_FILING);
         resource.setLinks(linksMap);
         resource.setUpdatedAt(clock.instant().atZone(ZoneId.systemDefault()).toLocalDateTime());
         resourceMap.put(links.getSelf().toString(), resource);
@@ -293,7 +297,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         if(resources != null && !resources.isEmpty()){
             // There should only be one resource.
             Resource entry = (Resource) resources.values().toArray()[0];
-            var resource = entry.getLinks().get("resource");
+            var resource = entry.getLinks().get(RESOURCE);
             var resourcePath = new File(resource);
             filingId = resourcePath.getName();
         }
@@ -304,15 +308,15 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         List<FieldError> errors = new ArrayList<>();
 
         if (transaction == null) {
-            errors.add(new FieldError("OfficerFiling", "transaction", "Transaction not found"));
+            errors.add(new FieldError("OfficerFiling", TRANSACTION, "Transaction not found"));
             throw new InvalidFilingException(errors);
         }
         if (transaction.getResources() == null) {
-            errors.add(new FieldError("OfficerFiling", "transaction", "Transaction resources not found"));
+            errors.add(new FieldError("OfficerFiling", TRANSACTION, "Transaction resources not found"));
             throw new InvalidFilingException(errors);
         }
         if (transaction.getResources().isEmpty()) {
-            errors.add(new FieldError("OfficerFiling", "transaction", "Transaction resources empty"));
+            errors.add(new FieldError("OfficerFiling", TRANSACTION, "Transaction resources empty"));
             throw new InvalidFilingException(errors);
         }
 
@@ -320,14 +324,14 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         logger.debug("Validate transaction linked to: " + path);
 
         for (Resource resource : transaction.getResources().values()) {
-            if (resource.getKind().equals("officer-filing")) {
-                if (resource.getLinks().containsKey("resource") && path.equals(resource.getLinks().get("resource"))) {
-                    return;
-                }
+            if (resource.getKind().equals(OFFICER_FILING) &&
+                resource.getLinks().containsKey(RESOURCE) && 
+                path.equals(resource.getLinks().get(RESOURCE))) {
+                return;
             }
         }
 
-        errors.add(new FieldError("OfficerFiling", "filingResourceId", "Filing resource does not match request"));
+        errors.add(new FieldError("OfficerFiling", FILING_RESOURCE_ID, "Filing resource does not match request"));
         throw new InvalidFilingException(errors);
     }
 }
