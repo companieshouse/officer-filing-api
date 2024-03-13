@@ -354,6 +354,37 @@ class OfficerFilingControllerImplTest {
     }
 
     @Test
+    void patchFilingWithSomeOtherFiling() {
+        var resources = getResourcesForFiling();
+        resources.get("resource").setKind("no-an-officer-filing");
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(transaction.getResources()).thenReturn(resources);
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
+       
+        assertThrows(InvalidFilingException.class,
+               () -> testController.patchFiling(transaction, dto, FILING_ID, null, request));
+    }
+
+    @Test
+    void patchFilingWithNoResourceLink() {
+        var resources = getResourcesForFiling();
+        resources.remove("resource");
+        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
+        when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(transaction.getResources()).thenReturn(resources);
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
+       
+        assertThrows(InvalidFilingException.class,
+               () -> testController.patchFiling(transaction, dto, FILING_ID, null, request));
+    }
+
+
+    @Test
     void createFilingWhenRequestHasBindingError() {
         final var codes = new String[]{"code1", "code2.name", "code3"};
         final var fieldErrorWithRejectedValue =
