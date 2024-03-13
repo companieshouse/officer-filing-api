@@ -41,6 +41,7 @@ public abstract class OfficerValidator {
     public static final List<String> ALLOWED_OFFICER_ROLES = List.of("director", "corporate-director", "nominee-director", "corporate-nominee-director");
     private static final String REG_EXP_FOR_VALID_CHARACTERS = "^[-,.:; 0-9A-Z&@$£¥€'\"«»?!/\\\\()\\[\\]{}<>*=#%+ÀÁÂÃÄÅĀĂĄÆǼÇĆĈĊČÞĎÐÈÉÊËĒĔĖĘĚĜĞĠĢĤĦÌÍÎÏĨĪĬĮİĴĶĹĻĽĿŁÑŃŅŇŊÒÓÔÕÖØŌŎŐǾŒŔŖŘŚŜŞŠŢŤŦÙÚÛÜŨŪŬŮŰŲŴẀẂẄỲÝŶŸŹŻŽa-zſƒǺàáâãäåāăąæǽçćĉċčþďðèéêëēĕėęěĝģğġĥħìíîïĩīĭįĵķĺļľŀłñńņňŋòóôõöøōŏőǿœŕŗřśŝşšţťŧùúûüũūŭůűųŵẁẃẅỳýŷÿźżž]*$";
     private static final String REG_EXP_FOR_UK_POSTCODE = "^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$";
+    private static final String REG_EXP_FOR_NAME = "^[ÀÁÂÃÄÅĀĂĄÆǼÇĆĈĊČÞĎÐÈÉÊËĒĔĖĘĚĜĞĠĢĤĦÌÍÎÏĨĪĬĮİĴĶĹĻĽĿŁÑŃŅŇŊÒÓÔÕÖØŌŎŐǾŒŔŖŘŚŜŞŠŢŤŦÙÚÛÜŨŪŬŮŰŲŴẀẂẄỲÝŶŸŹŻŽ'A-za-zÀÖØſƒǺẀỲàáâãäåāăąæǽçćĉċčþďðèéêëēĕėęěĝģğġĥħìíîïĩīĭįĵķĺļľŀłñńņňŋòóôõöøōŏőǿœŕŗřśŝşšţťŧùúûüũūŭůűųŵẁẃẅỳýŷÿźżž -]*$";
     private static final String DISSOLVED = "dissolved";
 
     private final Logger logger;
@@ -182,6 +183,12 @@ public abstract class OfficerValidator {
         return matcher.matches();
     }
 
+    public static boolean isValidNameCharacters(String field) {
+        var pattern = Pattern.compile(REG_EXP_FOR_NAME);
+        var matcher = pattern.matcher(field);
+        return matcher.matches();
+    }
+
     public static boolean isValidCharactersForUkPostcode(String field) {
         if (field == null) return false;
         var pattern = Pattern.compile(REG_EXP_FOR_UK_POSTCODE);
@@ -226,7 +233,7 @@ public abstract class OfficerValidator {
                 createValidationError(request, errorList,
                         apiEnumerations.getValidation(ValidationEnum.TITLE_LENGTH));
             }
-            if (!isValidCharacters(dto.getTitle())) {
+            if (!isValidNameCharacters(dto.getTitle())) {
                 createValidationError(request, errorList,
                         apiEnumerations.getValidation(ValidationEnum.TITLE_CHARACTERS));
             }
@@ -240,7 +247,7 @@ public abstract class OfficerValidator {
             if (!validateDtoFieldLength(dto.getFirstName(), 50)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_LENGTH));
             }
-            if (!isValidCharacters(dto.getFirstName())) {
+            if (!isValidNameCharacters(dto.getFirstName())) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_CHARACTERS));
             }
         }
@@ -253,7 +260,7 @@ public abstract class OfficerValidator {
             if (!validateDtoFieldLength(dto.getLastName(), 160)) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LAST_NAME_LENGTH));
             }
-            if (!isValidCharacters(dto.getLastName())) {
+            if (!isValidNameCharacters(dto.getLastName())) {
                 createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.LAST_NAME_CHARACTERS));
             }
         }
@@ -265,7 +272,7 @@ public abstract class OfficerValidator {
                 createValidationError(request, errorList,
                         apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_LENGTH));
             }
-            if (!isValidCharacters(dto.getMiddleNames())) {
+            if (!isValidNameCharacters(dto.getMiddleNames())) {
                 createValidationError(request, errorList,
                         apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_CHARACTERS));
             }
