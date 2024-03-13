@@ -52,6 +52,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     public static final String VALIDATION_STATUS = "validation_status";
     public static final String RESOURCE = "resource";
     public static final String OFFICER_FILING = "officer-filing";
+    public static final String OFFICER_FILING_NAME = "OfficerFiling";
     public static final String TRANSACTION = "transaction";
     public static final String FILING_RESOURCE_ID = "filingResourceId";
     private final TransactionService transactionService;
@@ -308,15 +309,15 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
         List<FieldError> errors = new ArrayList<>();
 
         if (transaction == null) {
-            errors.add(new FieldError("OfficerFiling", TRANSACTION, "Transaction not found"));
+            errors.add(new FieldError(OFFICER_FILING_NAME, TRANSACTION, "Transaction not found"));
             throw new InvalidFilingException(errors);
         }
         if (transaction.getResources() == null) {
-            errors.add(new FieldError("OfficerFiling", TRANSACTION, "Transaction resources not found"));
+            errors.add(new FieldError(OFFICER_FILING_NAME, TRANSACTION, "Transaction resources not found"));
             throw new InvalidFilingException(errors);
         }
         if (transaction.getResources().isEmpty()) {
-            errors.add(new FieldError("OfficerFiling", TRANSACTION, "Transaction resources empty"));
+            errors.add(new FieldError(OFFICER_FILING_NAME, TRANSACTION, "Transaction resources empty"));
             throw new InvalidFilingException(errors);
         }
 
@@ -331,7 +332,7 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
             }
         }
 
-        errors.add(new FieldError("OfficerFiling", FILING_RESOURCE_ID, "Filing resource does not match request"));
+        errors.add(new FieldError(OFFICER_FILING_NAME, FILING_RESOURCE_ID, "Filing resource does not match request"));
         throw new InvalidFilingException(errors);
     }
 }
