@@ -68,6 +68,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
         }
 
         // Perform validation
+        validateSubmissionInformationInDate(request, dto, companyAppointment.get(), errorList);
         validateCompanyNotDissolved(request, errorList, companyProfile.get());
         validateChangeDateAfterAppointmentDate(request, errorList, dto, companyAppointment.get());
         validateChangeDateAfterIncorporationDate(request, errorList, dto, companyProfile.get());
@@ -89,6 +90,7 @@ public class OfficerUpdateValidator extends OfficerValidator {
 
     private void validateRequiredDtoFields(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {
         validateChangeDate(request, errorList, dto);
+        validateEtagPresent(request, dto, errorList);
     }
 
     public void validateChangeDate(HttpServletRequest request, List<ApiError> errorList, OfficerFilingDto dto) {

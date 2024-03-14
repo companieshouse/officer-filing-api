@@ -345,4 +345,25 @@ public abstract class OfficerValidator {
         }
     }
 
+    public void validateSubmissionInformationInDate(HttpServletRequest request, OfficerFilingDto dto, AppointmentFullRecordAPI companyAppointment, List<ApiError> errorList) {
+        if (companyAppointment.getEtag() == null) {
+            logger.errorRequest(request, "null data was found in the Company Appointment API within the etag field");
+            return;
+        }
+        if(dto.getReferenceEtag() == null || dto.getReferenceEtag().isBlank()){
+            // Caught by mandatory field checks
+            return;
+        }
+        // If submission information is not out-of-date, the ETAG retrieved from the Company Appointments API and the ETAG passed from the request will match
+        if (!Objects.equals(dto.getReferenceEtag(), companyAppointment.getEtag())) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ETAG_INVALID));
+        }
+    }
+
+    public void validateEtagPresent(HttpServletRequest request, OfficerFilingDto dto, List<ApiError> errorList){
+        if (dto.getReferenceEtag() == null || dto.getReferenceEtag().isBlank()) {
+            createValidationError(request, errorList, apiEnumerations.getValidation(ValidationEnum.ETAG_BLANK));
+        }
+    }
+
 }

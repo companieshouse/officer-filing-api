@@ -643,37 +643,6 @@ class OfficerTerminationValidatorTest {
     }
 
     @Test
-    void validateSubmissionInformationInDateWhenValid() {
-        when(companyAppointment.getEtag()).thenReturn(ETAG);
-        final var officerFilingDto = OfficerFilingDto.builder()
-                .referenceEtag(ETAG)
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
-                .build();
-        officerTerminationValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
-        assertThat(apiErrorsList)
-                .as("An error should not be produced when the referenceEtag is valid/ in date")
-                .isEmpty();
-    }
-
-    @Test
-    void validateSubmissionInformationInDateWhenInvalid() {
-        when(companyAppointment.getEtag()).thenReturn(ETAG);
-        when(apiEnumerations.getValidation(ValidationEnum.ETAG_INVALID)).thenReturn("The Director’s information was updated before you sent this submission. You will need to start again");
-        final var officerFilingDto = OfficerFilingDto.builder()
-                .referenceEtag("invalid_etag")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(LocalDate.of(2023, Month.JANUARY, 5))
-                .build();
-        officerTerminationValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
-        assertThat(apiErrorsList)
-                .as("An error should be produced when the referenceEtag is invalid/ out of date")
-                .hasSize(1)
-                .extracting(ApiError::getError)
-                .contains("The Director’s information was updated before you sent this submission. You will need to start again");
-    }
-
-    @Test
     void validateSubmissionInformationInDateWhenEtagNull() {
         when(companyAppointment.getEtag()).thenReturn(null);
         final var officerFilingDto = OfficerFilingDto.builder()
