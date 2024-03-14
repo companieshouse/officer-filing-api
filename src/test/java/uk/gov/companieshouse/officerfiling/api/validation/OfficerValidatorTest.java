@@ -123,6 +123,20 @@ class OfficerValidatorTest {
     }
 
     @Test
+    void validateTitleNumbers() {
+        when(dto.getTitle()).thenReturn("Ms123");
+        when(apiEnumerations.getValidation(ValidationEnum.TITLE_CHARACTERS)).thenReturn(
+                "Title must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        officerValidator.validateTitle(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when title name contains numbers")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Title must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
     void validateFirstNameBlank() {
         when(dto.getFirstName()).thenReturn("");
         when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_BLANK)).thenReturn(
@@ -159,6 +173,20 @@ class OfficerValidatorTest {
         officerValidator.validateFirstName(request, apiErrorsList, dto);
         assertThat(apiErrorsList)
                 .as("An error should be produced when first name contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("First name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
+    void validateFirstNameNumbers() {
+        when(dto.getFirstName()).thenReturn("John123");
+        when(apiEnumerations.getValidation(ValidationEnum.FIRST_NAME_CHARACTERS)).thenReturn(
+                "First name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        officerValidator.validateFirstName(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when first name contains numbers")
                 .hasSize(1)
                 .extracting(ApiError::getError)
                 .contains("First name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
@@ -207,6 +235,20 @@ class OfficerValidatorTest {
     }
 
     @Test
+    void validateLastNameNumbers() {
+        when(dto.getLastName()).thenReturn("Smith123");
+        when(apiEnumerations.getValidation(ValidationEnum.LAST_NAME_CHARACTERS)).thenReturn(
+                "Last name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        officerValidator.validateLastName(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when last name contains numbers")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Last name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
     void validateMiddleNameLength() {
         when(dto.getMiddleNames()).thenReturn("DoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoeDoe");
         when(apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_LENGTH)).thenReturn(
@@ -229,6 +271,20 @@ class OfficerValidatorTest {
         officerValidator.validateMiddleNames(request, apiErrorsList, dto);
         assertThat(apiErrorsList)
                 .as("An error should be produced when Middle name contains illegal characters")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("Middle name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+    }
+
+    @Test
+    void validateMiddleNameNumbers() {
+        when(dto.getMiddleNames()).thenReturn("Doe123");
+        when(apiEnumerations.getValidation(ValidationEnum.MIDDLE_NAME_CHARACTERS)).thenReturn(
+                "Middle name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
+
+        officerValidator.validateMiddleNames(request, apiErrorsList, dto);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when Middle name contains numbers")
                 .hasSize(1)
                 .extracting(ApiError::getError)
                 .contains("Middle name must only include letters a to z, and common special characters such as hyphens, spaces and apostrophes");
