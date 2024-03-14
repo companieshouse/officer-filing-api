@@ -509,7 +509,7 @@ class OfficerValidatorTest {
         officerValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
         assertThat(apiErrorsList)
                 .as("No error should be raised when dto etag is not provided")
-                .hasSize(0);
+                .isEmpty();
 
     }
 
@@ -522,7 +522,7 @@ class OfficerValidatorTest {
         officerValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
         assertThat(apiErrorsList)
                 .as("No error should be raised when dto etag is blank")
-                .hasSize(0);
+                .isEmpty();
 
     }
 
