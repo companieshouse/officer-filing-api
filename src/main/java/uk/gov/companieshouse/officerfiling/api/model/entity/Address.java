@@ -20,7 +20,6 @@ public class Address {
     @Field("address_line_2")
     @JsonProperty ("address_line_2")
     private String addressLine2;
-    private String careOf;
     private String country;
     private String locality;
     private String poBox;
@@ -39,10 +38,6 @@ public class Address {
 
     public String getAddressLine2() {
         return addressLine2;
-    }
-
-    public String getCareOf() {
-        return careOf;
     }
 
     public String getCountry() {
@@ -80,7 +75,6 @@ public class Address {
         final var address = (Address) o;
         return getAddressLine1().equals(address.getAddressLine1())
                 && Objects.equals(getAddressLine2(), address.getAddressLine2())
-                && Objects.equals(getCareOf(), address.getCareOf())
                 && getCountry().equals(address.getCountry())
                 && Objects.equals(getLocality(), address.getLocality())
                 && Objects.equals(getPoBox(), address.getPoBox())
@@ -91,7 +85,7 @@ public class Address {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAddressLine1(), getAddressLine2(), getCareOf(), getCountry(),
+        return Objects.hash(getAddressLine1(), getAddressLine2(), getCountry(),
                 getLocality(), getPoBox(), getPostalCode(), getPremises(), getRegion());
     }
 
@@ -117,7 +111,6 @@ public class Address {
             this();
             this.addressLine1(other.getAddressLine1())
                     .addressLine2(other.getAddressLine2())
-                    .careOf(other.getCareOf())
                     .country(other.getCountry())
                     .locality(other.getLocality())
                     .poBox(other.getPoBox())
@@ -136,12 +129,6 @@ public class Address {
         public Builder addressLine2(final String value) {
 
             buildSteps.add(data -> data.addressLine2 = value);
-            return this;
-        }
-
-        public Builder careOf(final String value) {
-
-            buildSteps.add(data -> data.careOf = value);
             return this;
         }
 
