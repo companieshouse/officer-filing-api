@@ -91,6 +91,7 @@ class OfficerUpdateValidatorTest {
         when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(dto.getDirectorsDetailsChangedDate()).thenReturn(LocalDate.now().minusDays(1));
+        when(dto.getReferenceEtag()).thenReturn(ETAG);
 
         final var apiErrors = officerUpdateValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
         assertThat(apiErrors.getErrors())
@@ -98,6 +99,20 @@ class OfficerUpdateValidatorTest {
                 .isEmpty();
     }
 
+    @Test
+    void validationWhenMissingEtag() {
+        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
+        when(transaction.getId()).thenReturn(TRANS_ID);
+        when(dto.getDirectorsDetailsChangedDate()).thenReturn(LocalDate.now().minusDays(1));
+        when(apiEnumerations.getValidation(ValidationEnum.ETAG_BLANK)).thenReturn("ETag must be completed");
+
+        final var apiErrors = officerUpdateValidator.validate(request, dto, transaction, PASSTHROUGH_HEADER);
+        assertThat(apiErrors.getErrors())
+                .as("Should raise error when etag is missing")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("ETag must be completed");
+    }
 
     @Test
     void validationWhenBlankCh01IsSubmitted() {
@@ -124,6 +139,7 @@ class OfficerUpdateValidatorTest {
     void validateCH01WhenStatusIsDissolved() {
         when(apiEnumerations.getValidation(ValidationEnum.COMPANY_DISSOLVED)).thenReturn("You cannot add, remove or update a director from a company that has been dissolved or is in the process of being dissolved");
         when(dto.getDirectorsDetailsChangedDate()).thenReturn(LocalDate.now().minusDays(1));
+        when(dto.getReferenceEtag()).thenReturn(ETAG);
         when(companyProfileService.getCompanyProfile(any(), any(), any())).thenReturn(companyProfile);
         when(companyAppointmentService.getCompanyAppointment(any(), any(), any(), any())).thenReturn(companyAppointment);
         when(companyProfile.getCompanyStatus()).thenReturn("dissolved");
@@ -144,6 +160,7 @@ class OfficerUpdateValidatorTest {
         when(transaction.getId()).thenReturn(TRANS_ID);
         when(apiEnumerations.getValidation(ValidationEnum.CHANGE_DATE_MISSING)).thenReturn(
                 "Enter the date the director’s details changed");
+        when(dto.getReferenceEtag()).thenReturn(ETAG);
 
         var apiErrors = officerUpdateValidator.validate(request, dto, transaction,
                 PASSTHROUGH_HEADER);

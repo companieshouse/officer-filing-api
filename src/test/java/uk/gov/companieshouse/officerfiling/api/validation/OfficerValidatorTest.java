@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
+import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.enumerations.ApiEnumerations;
@@ -33,6 +34,7 @@ class OfficerValidatorTest {
     private OfficerValidator officerValidator;
     private List<ApiError> apiErrorsList;
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
+    private static final String ETAG = "etag";
 
     @Mock
     private HttpServletRequest request;
@@ -50,6 +52,8 @@ class OfficerValidatorTest {
     private OfficerFilingDto dto;
     @Mock
     private Transaction transaction;
+    @Mock
+    private AppointmentFullRecordAPI companyAppointment;
 
     @BeforeEach
     void setUp() {
@@ -524,6 +528,58 @@ class OfficerValidatorTest {
                 .hasSize(1)
                 .extracting(ApiError::getError)
                 .contains("You cannot add or remove a director from a company that has been dissolved or is in the process of being dissolved");
+    }
+
+    @Test
+    void validateSubmissionInformationInDateWhenValid() {
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag(ETAG)
+                .build();
+        officerValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
+        assertThat(apiErrorsList)
+                .as("An error should not be produced when the referenceEtag is valid/ in date")
+                .isEmpty();
+    }
+
+    @Test
+    void validateSubmissionInformationInDateWhenInvalid() {
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
+        when(apiEnumerations.getValidation(ValidationEnum.ETAG_INVALID)).thenReturn("The Director’s information was updated before you sent this submission. You will need to start again");
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag("invalid_etag")
+                .build();
+        officerValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
+        assertThat(apiErrorsList)
+                .as("An error should be produced when the referenceEtag is invalid/ out of date")
+                .hasSize(1)
+                .extracting(ApiError::getError)
+                .contains("The Director’s information was updated before you sent this submission. You will need to start again");
+    }
+
+    @Test
+    void validateSubmissionInformationInDateWhenNullEtag() {
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .build();
+        officerValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
+        assertThat(apiErrorsList)
+                .as("No error should be raised when dto etag is not provided")
+                .isEmpty();
+
+    }
+
+    @Test
+    void validateSubmissionInformationInDateWhenBlankEtag() {
+        when(companyAppointment.getEtag()).thenReturn(ETAG);
+        final var officerFilingDto = OfficerFilingDto.builder()
+                .referenceEtag("")
+                .build();
+        officerValidator.validateSubmissionInformationInDate(request, officerFilingDto, companyAppointment, apiErrorsList);
+        assertThat(apiErrorsList)
+                .as("No error should be raised when dto etag is blank")
+                .isEmpty();
+
     }
 
 }
