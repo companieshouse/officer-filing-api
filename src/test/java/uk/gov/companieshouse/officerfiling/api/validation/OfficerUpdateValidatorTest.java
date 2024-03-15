@@ -861,7 +861,7 @@ class OfficerUpdateValidatorTest {
 
     @Test
     void validateCorrespondenceAddressSectionWhenBooleanIsFalse() {
-        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(false);
+        when(dto.getServiceAddressHasBeenUpdated()).thenReturn(false);
 
         officerUpdateValidator.validateCorrespondenceAddressSection(request, apiErrorsList, dto, companyAppointment);
 
@@ -872,7 +872,7 @@ class OfficerUpdateValidatorTest {
     @NullSource
     @ValueSource(booleans = {true})
     void validateCorrespondenceAddressSectionWhenBooleanIsTrueAndAddressIsNull(Boolean hasBeenUpdated) {
-        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getServiceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
         when(dto.getServiceAddress()).thenReturn(null);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
 
@@ -885,7 +885,7 @@ class OfficerUpdateValidatorTest {
     @NullSource
     @ValueSource(booleans = {true})
     void validateCorrespondenceAddressSectionWhenBooleanIsTrueAndAddressFieldsNotUpdated(Boolean hasBeenUpdated) {
-        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getServiceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
         when(dto.getServiceAddress()).thenReturn(mockDtoAddress);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
 
@@ -898,7 +898,7 @@ class OfficerUpdateValidatorTest {
     @NullSource
     @ValueSource(booleans = {true})
     void validateCorrespondenceAddressSectionSectionWhenBooleanIsTrueAndFieldsUpdatedAndChipsDataIsNull(Boolean hasBeenUpdated) {
-        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getServiceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
         when(dto.getServiceAddress()).thenReturn(mockDtoAddress);
         when(companyAppointment.getServiceAddress()).thenReturn(null);
         when(mockDtoAddress.getPremises()).thenReturn("11");
@@ -912,7 +912,7 @@ class OfficerUpdateValidatorTest {
     @NullSource
     @ValueSource(booleans = {true})
     void validateCorrespondenceAddressSectionWhenBooleanIsTrueAndFieldsUpdatedAndFieldsMatchChipsData(Boolean hasBeenUpdated) {
-        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getServiceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
         when(dto.getServiceAddress()).thenReturn(mockDtoAddress);
         when(officerUpdateValidator.doesAddressMatchChipsData(any(), any(), any(), any())).thenReturn(true);
         when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_MATCHES_CHIPS_DATA)).thenReturn("The correspondence address data submitted cannot pass validation as it is not an update from the previously submitted data");
@@ -931,7 +931,7 @@ class OfficerUpdateValidatorTest {
     @NullSource
     @ValueSource(booleans = {true})
     void validateCorrespondenceAddressSectionWhenBooleanIsTrueAndFieldsUpdatedAndFieldsDoNotMatchChipsData(Boolean hasBeenUpdated) {
-        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
+        when(dto.getServiceAddressHasBeenUpdated()).thenReturn(hasBeenUpdated);
         when(dto.getServiceAddress()).thenReturn(mockDtoAddress);
         when(officerUpdateValidator.doesAddressMatchChipsData(any(), any(), any(), any())).thenReturn(false);
 
@@ -942,7 +942,7 @@ class OfficerUpdateValidatorTest {
 
     @Test
     void validateCorrespondenceAddressSectionWhenLinkIsTrueAndAddressIsNullAndChipsLinkIsTrue() {
-        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getServiceAddressHasBeenUpdated()).thenReturn(true);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
         when(companyAppointment.getServiceAddressIsSameAsRegisteredOfficeAddress()).thenReturn(true);
         when(apiEnumerations.getValidation(ValidationEnum.CORRESPONDENCE_ADDRESS_MATCHES_CHIPS_DATA)).thenReturn("The correspondence address data submitted cannot pass validation as it is not an update from the previously submitted data");
@@ -960,7 +960,7 @@ class OfficerUpdateValidatorTest {
 
     @Test
     void validateCorrespondenceAddressSectionWhenLinkIsTrueAndAddressIsNullAndChipsLinkIsFalse() {
-        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getServiceAddressHasBeenUpdated()).thenReturn(true);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
         when(companyAppointment.getServiceAddressIsSameAsRegisteredOfficeAddress()).thenReturn(false);
 
@@ -1204,7 +1204,7 @@ class OfficerUpdateValidatorTest {
     @Test
     void validationWhenBothAddressFlagsInJsonAreSetAsTrue() {
         when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
-        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getServiceAddressHasBeenUpdated()).thenReturn(true);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
         when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS)).thenReturn(
@@ -1220,7 +1220,7 @@ class OfficerUpdateValidatorTest {
     @Test
     void validationWhenHASameAsCAFlagInJsonAndROASameAsCAFlagInCHIPSAreSetAsTrue() {
         when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(false);
-        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getServiceAddressHasBeenUpdated()).thenReturn(true);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
         when(companyAppointment.getResidentialAddressIsSameAsServiceAddress()).thenReturn(true);
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS)).thenReturn(
@@ -1236,7 +1236,7 @@ class OfficerUpdateValidatorTest {
     @Test
     void validationWhenROASameAsCAFlagInJsonAndHASameAsCAFlagInCHIPSAreSetAsTrue() {
         when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
-        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(false);
+        when(dto.getServiceAddressHasBeenUpdated()).thenReturn(false);
         when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
         when(companyAppointment.getServiceAddressIsSameAsRegisteredOfficeAddress()).thenReturn(true);
         when(apiEnumerations.getValidation(ValidationEnum.ADDRESS_LINKS_MULTIPLE_FLAGS)).thenReturn(
@@ -1252,7 +1252,7 @@ class OfficerUpdateValidatorTest {
     @Test
     void noErrorWhenROASameAsCAFlagIsSetAsTrueAndHASameAsCAFlagIsClearedInJson() {
         when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
-        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getServiceAddressHasBeenUpdated()).thenReturn(true);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
         when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(false);
         officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
@@ -1262,7 +1262,7 @@ class OfficerUpdateValidatorTest {
     @Test
     void noErrorWhenHASameAsCAFlagIsSetAsTrueAndROASameAsCAFlagIsClearedInJson() {
         when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
-        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getServiceAddressHasBeenUpdated()).thenReturn(true);
         when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(false);
         officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
@@ -1272,7 +1272,7 @@ class OfficerUpdateValidatorTest {
     @Test
     void noErrorWhenROASameAsCAFlagIsSetAsTrueAndHASameAsCAFlagIsClearedWithNotNullHAInJson() {
         when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
-        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getServiceAddressHasBeenUpdated()).thenReturn(true);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(true);
         when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(null);
         when(dto.getResidentialAddress()).thenReturn(mockDtoAddress);
@@ -1283,7 +1283,7 @@ class OfficerUpdateValidatorTest {
     @Test
     void noErrorWhenHASameAsCAFlagIsSetAsTrueAndROASameAsCAFlagIsClearedWithNotNullCAInJson() {
         when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(true);
-        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(true);
+        when(dto.getServiceAddressHasBeenUpdated()).thenReturn(true);
         when(dto.getIsHomeAddressSameAsServiceAddress()).thenReturn(true);
         when(dto.getIsServiceAddressSameAsRegisteredOfficeAddress()).thenReturn(null);
         when(dto.getServiceAddress()).thenReturn(mockDtoAddress);
@@ -1294,7 +1294,7 @@ class OfficerUpdateValidatorTest {
     @Test
     void noErrorWhenAllFlagsCleared() {
         when(dto.getResidentialAddressHasBeenUpdated()).thenReturn(false);
-        when(dto.getCorrespondenceAddressHasBeenUpdated()).thenReturn(false);
+        when(dto.getServiceAddressHasBeenUpdated()).thenReturn(false);
         officerUpdateValidator.validateAddressesMultipleFlagsUpdate(request, apiErrorsList, dto, companyAppointment);
         assertThat(apiErrorsList).isEmpty();
     }
