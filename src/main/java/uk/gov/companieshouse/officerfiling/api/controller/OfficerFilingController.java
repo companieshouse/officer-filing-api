@@ -58,7 +58,7 @@ public interface OfficerFilingController {
      */
     @GetMapping
     default ResponseEntity<OfficerFilingDto> getFilingForReview(
-            @PathVariable("transactionId") String transId,
+            @RequestAttribute("transaction") Transaction transaction,
             @PathVariable("filingResource") String filingResource) {
         throw new NotImplementedException();
     }
