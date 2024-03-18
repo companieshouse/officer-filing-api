@@ -1,5 +1,8 @@
 package uk.gov.companieshouse.officerfiling.api.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +14,7 @@ import uk.gov.companieshouse.api.interceptor.InternalUserInterceptor;
 import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
 import uk.gov.companieshouse.api.interceptor.TokenPermissionsInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
+import uk.gov.companieshouse.api.interceptor.UserAuthenticationInterceptor;
 import uk.gov.companieshouse.officerfiling.api.interceptor.OfficersCRUDAuthenticationInterceptor;
 import uk.gov.companieshouse.officerfiling.api.interceptor.RequestLoggingInterceptor;
 import uk.gov.companieshouse.officerfiling.api.interceptor.ValidTransactionInterceptor;
@@ -25,6 +29,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     private static final String GET_VALIDATION = "/**/validation_status";
     private static final String FILINGS = "/transactions/*/officers/*";
+    private static final String OFFICERS = "/officer-filing/**";
     
     /**
      * Setup the interceptors to run against endpoints when the endpoints are called
@@ -40,6 +45,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
         addInternalUserInterceptor(registry);
         addClosedTransactionInterceptor(registry);
         addValidTransactionInterceptor(registry);
+        addUserAuthenticationInterceptor(registry);
     }
 
     private void addRequestLoggingInterceptor(InterceptorRegistry registry) {
@@ -65,7 +71,6 @@ public class InterceptorConfig implements WebMvcConfigurer {
             .addPathPatterns(TRANSACTIONS_LIST);
     }
 
-    
     private void addTokenPermissionInterceptor(InterceptorRegistry registry) {
         registry.addInterceptor(tokenPermissionsInterceptor());
         //Just check the non private endpoints. Private endpoints use API keys rather than OAuth2
@@ -81,6 +86,17 @@ public class InterceptorConfig implements WebMvcConfigurer {
     private void addClosedTransactionInterceptor(InterceptorRegistry registry){
         registry.addInterceptor(closedTransactionInterceptor())
                 .addPathPatterns(PRIVATE);
+    }
+
+    private void addUserAuthenticationInterceptor(InterceptorRegistry registry){
+        List<String> externalMethods = new ArrayList<>();
+        externalMethods.add("GET");
+        List<String> otherAllowedIdentityTypes = new ArrayList<>();
+        otherAllowedIdentityTypes.add("oauth2");
+        InternalUserInterceptor internalUserInterceptor = internalUserInterceptor();
+        UserAuthenticationInterceptor userAuthenticationInterceptor = new UserAuthenticationInterceptor(externalMethods, otherAllowedIdentityTypes, internalUserInterceptor);
+        registry.addInterceptor(userAuthenticationInterceptor)
+                .addPathPatterns(OFFICERS);
     }
 
     @Bean
