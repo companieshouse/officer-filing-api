@@ -89,9 +89,9 @@ public class InterceptorConfig implements WebMvcConfigurer {
     }
 
     private void addUserAuthenticationInterceptor(InterceptorRegistry registry){
-        List<String> externalMethods = new ArrayList<>();
+        var externalMethods = new ArrayList<String>();
         externalMethods.add("GET");
-        List<String> otherAllowedIdentityTypes = new ArrayList<>();
+        var otherAllowedIdentityTypes = new ArrayList<String>();
         otherAllowedIdentityTypes.add("oauth2");
         InternalUserInterceptor internalUserInterceptor = internalUserInterceptor();
         UserAuthenticationInterceptor userAuthenticationInterceptor = new UserAuthenticationInterceptor(externalMethods, otherAllowedIdentityTypes, internalUserInterceptor);
