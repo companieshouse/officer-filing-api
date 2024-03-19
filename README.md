@@ -103,7 +103,7 @@ The API Service, like most other Companies House services, stores its back-end
  package `uk.gov.ch.officerfiling.api.model.entity`.
  
 ### Validation
-Simple field validation for TM01 mandatory fields e.g. date, where resigned on date is not in the future, and IDs. 
-Further validation will be required for other forms.
+The API performs full validation of TM01, AP01 and CH01 submissions as well as field validation when patching a filing.
 
-
+### Outputs
+The API delivers a filing document (JSON) that is inputted to the CHIPS filing consumer.
