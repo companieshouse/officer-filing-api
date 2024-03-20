@@ -76,9 +76,10 @@ To create the officer filing an open transaction is required - see [Companies Ho
 |--------|---------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
 | GET    | /officer-filing/healthcheck                                                                       | System health check                                                  |
 | POST   | /transactions/{transaction_id}/officers                                                     | Creates an officer filing resource, linking it to the transaction    |
-| GET,PATCH | /private/transactions/{transaction_id}/officers/<br/>{filing_resource_id}/filings           | Wraps the filing resource data to produce standard message for CHIPS |
+| GET    | /private/transactions/{transaction_id}/officers/<br/>{filing_resource_id}/filings           | Wraps the filing resource data to produce standard message for CHIPS |
 | GET    | /private/transactions/{transaction_id}/officers/<br/>{filing_resource_id}/validation_status | Final validation when the transaction is closed                      |
 | GET    | /transactions/{transaction_id}/officers/<br/>{filing_resource_id}                           | Retrieves the officer filing data                                    |
+| PATH   | /transactions/{transaction_id}/officers/<br/>{filing_resource_id}                           | Updates (by insert/replace) the officer filing data                                    |
 
 #### Other Environments
 
