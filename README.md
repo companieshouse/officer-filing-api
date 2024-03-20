@@ -79,7 +79,7 @@ To create the officer filing an open transaction is required - see [Companies Ho
 | GET    | /private/transactions/{transaction_id}/officers/<br/>{filing_resource_id}/filings           | Wraps the filing resource data to produce standard message for CHIPS |
 | GET    | /private/transactions/{transaction_id}/officers/<br/>{filing_resource_id}/validation_status | Final validation when the transaction is closed                      |
 | GET    | /transactions/{transaction_id}/officers/<br/>{filing_resource_id}                           | Retrieves the officer filing data                                    |
-| PATH   | /transactions/{transaction_id}/officers/<br/>{filing_resource_id}                           | Updates (by insert/replace) the officer filing data                                    |
+| PATCH  | /transactions/{transaction_id}/officers/<br/>{filing_resource_id}                           | Updates (by insert/replace) the officer filing data                                    |
 
 #### Other Environments
 
