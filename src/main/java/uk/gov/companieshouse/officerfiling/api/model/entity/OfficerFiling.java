@@ -197,7 +197,7 @@ public class OfficerFiling {
                             .nameHasBeenUpdated(v.getNameHasBeenUpdated())
                             .nationalityHasBeenUpdated(v.getNationalityHasBeenUpdated())
                             .occupationHasBeenUpdated(v.getOccupationHasBeenUpdated())
-                            .correspondenceAddressHasBeenUpdated(v.getCorrespondenceAddressHasBeenUpdated())
+                            .serviceAddressHasBeenUpdated(v.getServiceAddressHasBeenUpdated())
                             .residentialAddressHasBeenUpdated(v.getResidentialAddressHasBeenUpdated())
                             .build())
                     .orElse(null));

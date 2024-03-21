@@ -202,7 +202,7 @@ public class FilingDataServiceImpl implements FilingDataService {
         boolean nameHasBeenUpdated = isSectionUpdated(data.getNameHasBeenUpdated(), data.getTitle(), data.getFirstName(), data.getMiddleNames(), data.getLastName(), data.getFormerNames());
         boolean nationalityHasBeenUpdated = isSectionUpdated(data.getNationalityHasBeenUpdated(), data.getNationality1(), data.getNationality2(), data.getNationality3());
         boolean occupationHasBeenUpdated = isSectionUpdated(data.getOccupationHasBeenUpdated(), data.getOccupation());
-        boolean correspondenceAddressHasBeenUpdated = isAddressSectionUpdated(data.getCorrespondenceAddressHasBeenUpdated(), data.getServiceAddress());
+        boolean serviceAddressHasBeenUpdated = isAddressSectionUpdated(data.getServiceAddressHasBeenUpdated(), data.getServiceAddress());
         boolean residentialAddressHasBeenUpdated = isAddressSectionUpdated(data.getResidentialAddressHasBeenUpdated(), data.getResidentialAddress());
 
         if (nameHasBeenUpdated) {
@@ -220,7 +220,7 @@ public class FilingDataServiceImpl implements FilingDataService {
         if (occupationHasBeenUpdated) {
             dataBuilder = dataBuilder.occupation(data.getOccupation());
         }
-        if (correspondenceAddressHasBeenUpdated) {
+        if (serviceAddressHasBeenUpdated) {
             dataBuilder = dataBuilder.isServiceAddressSameAsRegisteredOfficeAddress(data.getIsServiceAddressSameAsRegisteredOfficeAddress());
             if (!Boolean.TRUE.equals(data.getIsServiceAddressSameAsRegisteredOfficeAddress())) {
                 dataBuilder = dataBuilder.serviceAddress(data.getServiceAddress());
@@ -232,7 +232,7 @@ public class FilingDataServiceImpl implements FilingDataService {
                 dataBuilder = dataBuilder.residentialAddress(data.getResidentialAddress());
             }
         }
-        dataBuilder = dataBuilder.countryOfResidence(getChangedCountryOfResidence(data, appointment, residentialAddressHasBeenUpdated, correspondenceAddressHasBeenUpdated));
+        dataBuilder = dataBuilder.countryOfResidence(getChangedCountryOfResidence(data, appointment, residentialAddressHasBeenUpdated, serviceAddressHasBeenUpdated));
 
         return dataBuilder;
     }
@@ -256,10 +256,10 @@ public class FilingDataServiceImpl implements FilingDataService {
                 .anyMatch(Objects::nonNull);
     }
 
-    private String getChangedCountryOfResidence(OfficerFilingData data, AppointmentFullRecordAPI appointment, boolean residentialAddressHasBeenUpdated, boolean correspondenceAddressHasBeenUpdated) {
+    private String getChangedCountryOfResidence(OfficerFilingData data, AppointmentFullRecordAPI appointment, boolean residentialAddressHasBeenUpdated, boolean serviceAddressHasBeenUpdated) {
         if (residentialAddressHasBeenUpdated) {
             if (Boolean.TRUE.equals(data.getIsHomeAddressSameAsServiceAddress())) {
-                if (correspondenceAddressHasBeenUpdated && data.getServiceAddress() != null && data.getServiceAddress().getCountry() != null) {
+                if (serviceAddressHasBeenUpdated && data.getServiceAddress() != null && data.getServiceAddress().getCountry() != null) {
                     return data.getServiceAddress().getCountry();
                 } else if (appointment.getServiceAddress() != null && appointment.getServiceAddress().getCountry() != null) {
                     return appointment.getServiceAddress().getCountry();
@@ -267,7 +267,7 @@ public class FilingDataServiceImpl implements FilingDataService {
             } else if (data.getResidentialAddress() != null && data.getResidentialAddress().getCountry() != null) {
                 return data.getResidentialAddress().getCountry();
             }
-        } else if (correspondenceAddressHasBeenUpdated && Boolean.TRUE.equals(appointment.getResidentialAddressIsSameAsServiceAddress()) &&
+        } else if (serviceAddressHasBeenUpdated && Boolean.TRUE.equals(appointment.getResidentialAddressIsSameAsServiceAddress()) &&
                 data.getServiceAddress() != null && data.getServiceAddress().getCountry() != null) {
             return data.getServiceAddress().getCountry();
         }

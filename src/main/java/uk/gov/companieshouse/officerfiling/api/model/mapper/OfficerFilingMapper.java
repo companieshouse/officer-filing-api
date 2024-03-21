@@ -62,7 +62,7 @@ public interface OfficerFilingMapper {
     @Mapping(target = "data.nameHasBeenUpdated", source = "nameHasBeenUpdated")
     @Mapping(target = "data.nationalityHasBeenUpdated", source = "nationalityHasBeenUpdated")
     @Mapping(target = "data.occupationHasBeenUpdated", source = "occupationHasBeenUpdated")
-    @Mapping(target = "data.correspondenceAddressHasBeenUpdated", source = "correspondenceAddressHasBeenUpdated")
+    @Mapping(target = "data.serviceAddressHasBeenUpdated", source = "serviceAddressHasBeenUpdated")
     @Mapping(target = "data.residentialAddressHasBeenUpdated", source = "residentialAddressHasBeenUpdated")
     @Mapping(target = "data.directorsDetailsChangedDate", source = "directorsDetailsChangedDate")
     OfficerFiling map(OfficerFilingDto officerFilingDto);
@@ -109,7 +109,7 @@ public interface OfficerFilingMapper {
     @Mapping(target = "nameHasBeenUpdated", source = "data.nameHasBeenUpdated")
     @Mapping(target = "nationalityHasBeenUpdated", source = "data.nationalityHasBeenUpdated")
     @Mapping(target = "occupationHasBeenUpdated", source = "data.occupationHasBeenUpdated")
-    @Mapping(target = "correspondenceAddressHasBeenUpdated", source = "data.correspondenceAddressHasBeenUpdated")
+    @Mapping(target = "serviceAddressHasBeenUpdated", source = "data.serviceAddressHasBeenUpdated")
     @Mapping(target = "residentialAddressHasBeenUpdated", source = "data.residentialAddressHasBeenUpdated")
     @Mapping(target = "directorsDetailsChangedDate", source = "data.directorsDetailsChangedDate")
     OfficerFilingDto map(OfficerFiling officerFiling);

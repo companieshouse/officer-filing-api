@@ -418,7 +418,7 @@ class FilingDataServiceImplTest {
                 .nameHasBeenUpdated(false)
                 .nationalityHasBeenUpdated(false)
                 .occupationHasBeenUpdated(false)
-                .correspondenceAddressHasBeenUpdated(false)
+                .serviceAddressHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(false)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
@@ -462,7 +462,7 @@ class FilingDataServiceImplTest {
                 .nationalityHasBeenUpdated(false)
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(false)
-                .correspondenceAddressHasBeenUpdated(false)
+                .serviceAddressHasBeenUpdated(false)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
                 .createdAt(clock.instant())
@@ -501,7 +501,7 @@ class FilingDataServiceImplTest {
                 .nationalityHasBeenUpdated(false)
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(false)
-                .correspondenceAddressHasBeenUpdated(false)
+                .serviceAddressHasBeenUpdated(false)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
                 .createdAt(clock.instant())
@@ -540,7 +540,7 @@ class FilingDataServiceImplTest {
                 .nationalityHasBeenUpdated(true)
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(false)
-                .correspondenceAddressHasBeenUpdated(false)
+                .serviceAddressHasBeenUpdated(false)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
                 .createdAt(clock.instant())
@@ -577,7 +577,7 @@ class FilingDataServiceImplTest {
                 .nationalityHasBeenUpdated(false)
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(false)
-                .correspondenceAddressHasBeenUpdated(false)
+                .serviceAddressHasBeenUpdated(false)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
                 .createdAt(clock.instant())
@@ -614,7 +614,7 @@ class FilingDataServiceImplTest {
                 .nationalityHasBeenUpdated(false)
                 .occupationHasBeenUpdated(true)
                 .residentialAddressHasBeenUpdated(false)
-                .correspondenceAddressHasBeenUpdated(false)
+                .serviceAddressHasBeenUpdated(false)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
                 .createdAt(clock.instant())
@@ -649,7 +649,7 @@ class FilingDataServiceImplTest {
                 .nationalityHasBeenUpdated(false)
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(false)
-                .correspondenceAddressHasBeenUpdated(false)
+                .serviceAddressHasBeenUpdated(false)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
                 .createdAt(clock.instant())
@@ -680,13 +680,13 @@ class FilingDataServiceImplTest {
     @ParameterizedTest
     @NullSource
     @ValueSource(booleans = {false})
-    void generateUpdateOfficerFilingWhenCorrespondenceAddressHasBeenUpdatedAndSameAsLinkIsFalse(Boolean sameAsLink) {
+    void generateUpdateOfficerFilingWhenServiceAddressHasBeenUpdatedAndSameAsLinkIsFalse(Boolean sameAsLink) {
         final var originalData = testOfficerFilingDataBuilder()
                 .nameHasBeenUpdated(false)
                 .nationalityHasBeenUpdated(false)
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(false)
-                .correspondenceAddressHasBeenUpdated(true)
+                .serviceAddressHasBeenUpdated(true)
                 .isServiceAddressSameAsRegisteredOfficeAddress(sameAsLink)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
@@ -717,13 +717,13 @@ class FilingDataServiceImplTest {
     }
 
     @Test
-    void generateUpdateOfficerFilingWhenCorrespondenceAddressHasBeenUpdatedAndSameAsLinkIsTrue() {
+    void generateUpdateOfficerFilingWhenServiceAddressHasBeenUpdatedAndSameAsLinkIsTrue() {
         final var originalData = testOfficerFilingDataBuilder()
                 .nameHasBeenUpdated(false)
                 .nationalityHasBeenUpdated(false)
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(false)
-                .correspondenceAddressHasBeenUpdated(true)
+                .serviceAddressHasBeenUpdated(true)
                 .isServiceAddressSameAsRegisteredOfficeAddress(true)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
@@ -761,7 +761,7 @@ class FilingDataServiceImplTest {
                 .nationalityHasBeenUpdated(false)
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(false)
-                .correspondenceAddressHasBeenUpdated(false)
+                .serviceAddressHasBeenUpdated(false)
                 .isServiceAddressSameAsRegisteredOfficeAddress(sameAsLink)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
@@ -800,7 +800,7 @@ class FilingDataServiceImplTest {
                 .nationalityHasBeenUpdated(false)
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(true)
-                .correspondenceAddressHasBeenUpdated(false)
+                .serviceAddressHasBeenUpdated(false)
                 .isHomeAddressSameAsServiceAddress(sameAsLink)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
@@ -838,7 +838,7 @@ class FilingDataServiceImplTest {
                 .nationalityHasBeenUpdated(false)
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(true)
-                .correspondenceAddressHasBeenUpdated(false)
+                .serviceAddressHasBeenUpdated(false)
                 .isHomeAddressSameAsServiceAddress(true)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
@@ -878,7 +878,7 @@ class FilingDataServiceImplTest {
                 .nationalityHasBeenUpdated(false)
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(false)
-                .correspondenceAddressHasBeenUpdated(false)
+                .serviceAddressHasBeenUpdated(false)
                 .isHomeAddressSameAsServiceAddress(sameAsLink)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
@@ -916,7 +916,7 @@ class FilingDataServiceImplTest {
                 .nationalityHasBeenUpdated(false)
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(false)
-                .correspondenceAddressHasBeenUpdated(true)
+                .serviceAddressHasBeenUpdated(true)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
                 .createdAt(clock.instant())
@@ -957,7 +957,7 @@ class FilingDataServiceImplTest {
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(null)
                 .residentialAddress(null)
-                .correspondenceAddressHasBeenUpdated(true)
+                .serviceAddressHasBeenUpdated(true)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
                 .createdAt(clock.instant())
@@ -998,7 +998,7 @@ class FilingDataServiceImplTest {
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(null)
                 .residentialAddress(Address.builder().build())
-                .correspondenceAddressHasBeenUpdated(true)
+                .serviceAddressHasBeenUpdated(true)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
                 .createdAt(clock.instant())
@@ -1038,7 +1038,7 @@ class FilingDataServiceImplTest {
                 .nationalityHasBeenUpdated(false)
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(true)
-                .correspondenceAddressHasBeenUpdated(true)
+                .serviceAddressHasBeenUpdated(true)
                 .isHomeAddressSameAsServiceAddress(true)
                 .build();
         final var originalOfficerFiling = OfficerFiling.builder()
@@ -1078,7 +1078,7 @@ class FilingDataServiceImplTest {
                 .nationalityHasBeenUpdated(false)
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(true)
-                .correspondenceAddressHasBeenUpdated(false)
+                .serviceAddressHasBeenUpdated(false)
                 .isHomeAddressSameAsServiceAddress(true)
                 .serviceAddress(null)
                 .build();
@@ -1118,7 +1118,7 @@ class FilingDataServiceImplTest {
                 .nationalityHasBeenUpdated(false)
                 .occupationHasBeenUpdated(false)
                 .residentialAddressHasBeenUpdated(true)
-                .correspondenceAddressHasBeenUpdated(false)
+                .serviceAddressHasBeenUpdated(false)
                 .isHomeAddressSameAsServiceAddress(true)
                 .serviceAddress(Address.builder(SERVICE_ADDRESS).country(null).build())
                 .build();
