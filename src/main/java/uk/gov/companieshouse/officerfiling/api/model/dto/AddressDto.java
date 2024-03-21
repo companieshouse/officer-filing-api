@@ -16,7 +16,6 @@ public class AddressDto {
     private String addressLine1;
     @JsonProperty("address_line_2")
     private String addressLine2;
-    private String careOf;
     private String country;
     private String locality;
     private String poBox;
@@ -33,10 +32,6 @@ public class AddressDto {
 
     public String getAddressLine2() {
         return addressLine2;
-    }
-
-    public String getCareOf() {
-        return careOf;
     }
 
     public String getCountry() {
@@ -84,7 +79,6 @@ public class AddressDto {
             this();
             this.addressLine1(other.getAddressLine1())
                     .addressLine2(other.getAddressLine2())
-                    .careOf(other.getCareOf())
                     .country(other.getCountry())
                     .locality(other.getLocality())
                     .poBox(other.getPoBox())
@@ -104,12 +98,6 @@ public class AddressDto {
         public Builder addressLine2(final String value) {
 
             buildSteps.add(data -> data.addressLine2 = value);
-            return this;
-        }
-
-        public Builder careOf(final String value) {
-
-            buildSteps.add(data -> data.careOf = value);
             return this;
         }
 
@@ -169,7 +157,6 @@ public class AddressDto {
         final var that = (AddressDto) o;
         return Objects.equals(getAddressLine1(), that.getAddressLine1())
                 && Objects.equals(getAddressLine2(), that.getAddressLine2())
-                && Objects.equals(getCareOf(), that.getCareOf())
                 && Objects.equals(getCountry(), that.getCountry())
                 && Objects.equals(getLocality(), that.getLocality())
                 && Objects.equals(getPoBox(), that.getPoBox())
@@ -180,7 +167,7 @@ public class AddressDto {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAddressLine1(), getAddressLine2(), getCareOf(), getCountry(),
+        return Objects.hash(getAddressLine1(), getAddressLine2(), getCountry(),
                 getLocality(), getPoBox(), getPostalCode(), getPremises(), getRegion());
     }
 
@@ -189,7 +176,6 @@ public class AddressDto {
         return new StringJoiner(", ", AddressDto.class.getSimpleName() + "[", "]").add(
                         "addressLine1='" + addressLine1 + "'")
                 .add("addressLine2='" + addressLine2 + "'")
-                .add("careOf='" + careOf + "'")
                 .add("country='" + country + "'")
                 .add("locality='" + locality + "'")
                 .add("poBox='" + poBox + "'")

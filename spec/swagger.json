@@ -227,9 +227,6 @@
         "address_line_2": {
           "type": "string"
         },
-        "careOf": {
-          "type": "string"
-        },
         "country": {
           "type": "string"
         },
