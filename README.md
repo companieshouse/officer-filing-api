@@ -1,4 +1,4 @@
-# officer-filing-api 
+# officer-filing-api
 This API is for appointing, changing and terminating director details, supporting the officer-filing-web Web UI.
 
 ## Requirements
@@ -41,7 +41,7 @@ The environment variables necessary to run the API can be found in the chs-confi
 
 #### Docker Support
 
-Pull image from private CH registry by running: 
+Pull image from private CH registry by running:
 ```
 docker pull 169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/officer-filing-api:latest
 
@@ -51,7 +51,7 @@ or run the following steps to build image locally:
 mvn compile -s settings.xml jib:dockerBuild -Dimage=169942020521.dkr.ecr.eu-west-1.amazonaws.com
 /local/officer-filing-api
 ```
-#### docker-chs-development 
+#### docker-chs-development
 To run the officer-filing service locally in docker
 
 1. git clone the companieshouse/docker-chs-development repository and follow the steps in the readme file for docker-chs-development
@@ -63,11 +63,25 @@ To run the officer-filing service locally in docker
     tilt up
     ```
 1. To enable development workflow for the service run the command: `./bin/chs-dev development enable officer-filing
-` 
+   `
 
 1. To disable development workflow for the service run the command: `./bin/chs-dev development disable officer
--filing`
+   -filing`
 
+## Configuration
+System properties for officer-filing-api are defined in application.properties. These are normally configured per environment.
+
+| Variable                                     | Description                                                                           | Example                   | Mandatory |
+|----------------------------------------------|---------------------------------------------------------------------------------------|---------------------------|-----------|
+| MANAGEMENT_ENDPOINTS_ENABLED_BY_DEFAULT      |                                                                                       | false                     | always    |
+| MANAGEMENT_ENDPOINT_HEALTH_ENABLED           |                                                                                       | true                      | always    |
+| MANAGEMENT_ENDPOINTS_WEB_PATH_MAPPING_HEALTH |                                                                                       | healthcheck               | always    |
+| MANAGEMENT_ENDPOINTS_WEB_BASE_PATH           |                                                                                       | /officer-filing-api       | always    |
+| NATIONALITY_LIST                             | List of nationalities                                                                 |                           | always    |
+| MONGODB_URL                                  | The URL of the MongoDB instance where documents and application data should be stored | mongodb://mongohost:27017 | always    |
+| LOGGING_LEVEL                                | Log message granularity                                                               | INFO                      | always    | 
+| WEB_LOGGING_LEVEL:INFO                       | Log web message granularity                                                           | INFO                      |           |
+| REQUEST_LOGGING_LEVEL                        | Request log message granularity                                                       | WARN                      | always    |
 ## Usage
 To create the officer filing an open transaction is required - see [Companies House Transaction API Service.](https://github.com/companieshouse/transactions.api.ch.gov.uk/blob/master/README.md)
 
@@ -99,10 +113,10 @@ The following information will only be accessible from within the Companies Hous
 
 ### Data storage
 The API Service, like most other Companies House services, stores its back-end
- data in MongoDB, and that is not shown here. Each successful POST or PATCH causes
- data to be stored in MongoDB. The model used by the DB can be found in the Java
- package `uk.gov.ch.officerfiling.api.model.entity`.
- 
+data in MongoDB, and that is not shown here. Each successful POST or PATCH causes
+data to be stored in MongoDB. The model used by the DB can be found in the Java
+package `uk.gov.ch.officerfiling.api.model.entity`.
+
 ### Validation
 The API performs full validation of TM01, AP01 and CH01 submissions as well as field validation when patching a filing.
 
