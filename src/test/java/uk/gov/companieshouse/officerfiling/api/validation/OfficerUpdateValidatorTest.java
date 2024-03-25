@@ -473,7 +473,7 @@ class OfficerUpdateValidatorTest {
     @Test
     void testValidateNameSectionWhenMatchedChipsDataShouldReturnValidationError() {
         // Given
-        when(companyAppointment.getTitle()).thenReturn("Mr");
+        when(companyAppointment.getTitle()).thenReturn("Mr.");
         when(companyAppointment.getForename()).thenReturn("John");
         when(companyAppointment.getOtherForenames()).thenReturn("Doe");
         when(companyAppointment.getSurname()).thenReturn("Smith");
@@ -481,7 +481,7 @@ class OfficerUpdateValidatorTest {
         final var officerFilingDto = OfficerFilingDto.builder()
                 .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
-                .title("Mr")
+                .title("Mr.")
                 .firstName("John")
                 .middleNames("Doe")
                 .lastName("Smith")
