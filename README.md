@@ -71,17 +71,17 @@ To run the officer-filing service locally in docker
 ## Configuration
 System properties for officer-filing-api are defined in application.properties. These are normally configured per environment.
 
-| Variable                                     | Description                                                                           | Example                            | Mandatory |
-|----------------------------------------------|---------------------------------------------------------------------------------------|------------------------------------|-----------|
-| MANAGEMENT_ENDPOINTS_ENABLED_BY_DEFAULT      |                                                                                       | false                              | always    |
-| MANAGEMENT_ENDPOINT_HEALTH_ENABLED           |                                                                                       | true                               | always    |
-| MANAGEMENT_ENDPOINTS_WEB_PATH_MAPPING_HEALTH |                                                                                       | healthcheck                        | always    |
-| MANAGEMENT_ENDPOINTS_WEB_BASE_PATH           |                                                                                       | /officer-filing-api                | always    |
-| NATIONALITY_LIST                             | List of nationalities                                                                 | "American; British; French; Irish" | always    |
-| MONGODB_URL                                  | The URL of the MongoDB instance where documents and application data should be stored | mongodb://mongohost:27017          | always    |
-| LOGGING_LEVEL                                | Log message granularity                                                               | INFO                               | always    | 
-| WEB_LOGGING_LEVEL:INFO                       | Log web message granularity                                                           | INFO                               |           |
-| REQUEST_LOGGING_LEVEL                        | Request log message granularity                                                       | WARN                               | always    |
+| Variable                                     | Description                                                                           | Example                         | Mandatory |
+|----------------------------------------------|---------------------------------------------------------------------------------------|---------------------------------|-----------|
+| MANAGEMENT_ENDPOINTS_ENABLED_BY_DEFAULT      |                                                                                       | false                           | always    |
+| MANAGEMENT_ENDPOINT_HEALTH_ENABLED           |                                                                                       | true                            | always    |
+| MANAGEMENT_ENDPOINTS_WEB_PATH_MAPPING_HEALTH |                                                                                       | healthcheck                     | always    |
+| MANAGEMENT_ENDPOINTS_WEB_BASE_PATH           |                                                                                       | /officer-filing-api             | always    |
+| NATIONALITY_LIST                             | List of nationalities                                                                 | "American;British;French;Irish" | always    |
+| MONGODB_URL                                  | The URL of the MongoDB instance where documents and application data should be stored | mongodb://mongohost:27017       | always    |
+| LOGGING_LEVEL                                | Log message granularity                                                               | INFO                            | always    | 
+| WEB_LOGGING_LEVEL:INFO                       | Log web message granularity                                                           | INFO                            |           |
+| REQUEST_LOGGING_LEVEL                        | Request log message granularity                                                       | WARN                            | always    |
 ## Usage
 To create the officer filing an open transaction is required - see [Companies House Transaction API Service.](https://github.com/companieshouse/transactions.api.ch.gov.uk/blob/master/README.md)
 
