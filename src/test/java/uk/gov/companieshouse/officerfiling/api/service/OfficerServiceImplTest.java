@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,7 +64,7 @@ class OfficerServiceImplTest {
         CompanyOfficerApi officer2 = new CompanyOfficerApi();
         officer1.setOfficerRole(OfficerRoleApi.DIRECTOR);
         officer2.setOfficerRole(OfficerRoleApi.NOMINEE_SECRETARY);
-        List officersDetails = new ArrayList<CompanyOfficerApi>();
+        List<CompanyOfficerApi> officersDetails = new ArrayList<>();
         officersDetails.add(officer1);
         officersDetails.add(officer2);
 

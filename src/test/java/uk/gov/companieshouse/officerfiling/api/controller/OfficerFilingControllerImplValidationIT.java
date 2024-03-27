@@ -13,7 +13,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.IOException;
-import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -24,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
@@ -57,7 +57,6 @@ class OfficerFilingControllerImplValidationIT {
     private static final String TM01_FRAGMENT = "\"reference_etag\": \"ETAG\","
             + "\"reference_appointment_id\": \"" + FILING_ID + "\","
             + "\"resigned_on\": \"2022-09-13\"";
-    private static final URI REQUEST_URI = URI.create("/transactions/" + TRANS_ID + "/officers");
     private static final String COMPANY_NUMBER = "123456";
     public static final LocalDate INCORPORATION_DATE = LocalDate.of(2010, Month.OCTOBER, 20);
     public static final LocalDate APPOINTMENT_DATE = LocalDate.of(2010, Month.OCTOBER, 30);

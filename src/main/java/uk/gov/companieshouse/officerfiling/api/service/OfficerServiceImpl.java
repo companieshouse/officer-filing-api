@@ -3,7 +3,6 @@ package uk.gov.companieshouse.officerfiling.api.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.officers.CompanyOfficerApi;
@@ -12,6 +11,9 @@ import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.OfficerServiceException;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 
 @Service
 public class OfficerServiceImpl implements OfficerService {
@@ -37,7 +39,7 @@ public class OfficerServiceImpl implements OfficerService {
 
     @Override
     public List<CompanyOfficerApi> getListOfActiveDirectorsDetails(final HttpServletRequest request, final String transactionId,
-        final String companyNumber, final String ericPassThroughHeader)
+                                                                   final String companyNumber, final String ericPassThroughHeader)
         throws OfficerServiceException {
 
             return getListOfActiveDirectors(
@@ -68,7 +70,7 @@ public class OfficerServiceImpl implements OfficerService {
         }
     }
 
-    private List<CompanyOfficerApi> getListOfActiveDirectors(OfficersApi officersList, HttpServletRequest request) {
+    private List<CompanyOfficerApi> getListOfActiveDirectors(OfficersApi officersList, jakarta.servlet.http.HttpServletRequest request) {
         var directorsList = new ArrayList<CompanyOfficerApi>();
 
         for (CompanyOfficerApi officer : officersList.getItems()) {

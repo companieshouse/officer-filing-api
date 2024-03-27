@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.validation;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.logging.Logger;
@@ -8,7 +9,6 @@ import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.validation.error.AddressErrorProvider;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 

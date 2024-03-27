@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
+
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -53,7 +54,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         this.chLogger = logger;
     }
 
-    @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
             final HttpMessageNotReadableException ex, final HttpHeaders headers,
             final HttpStatus status, final WebRequest request) {
@@ -128,21 +128,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ApiErrors(errorList);
     }
 
-    @Override
-    protected ResponseEntity<Object> handleExceptionInternal(final Exception ex, final Object body,
-            final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
-        logError(request, "INTERNAL ERROR", ex);
-        final var error = new ApiError(ex.getMessage(), getRequestURI(request),
-                LocationType.RESOURCE.getValue(), ErrorType.SERVICE.getType());
-        Optional.ofNullable(ex.getCause())
-                .ifPresent(c -> error.addErrorValue(CAUSE, c.getMessage()));
-
-        final var errorList = List.of(error);
-        logError(request, "Internal error", ex, errorList);
-        return super.handleExceptionInternal(ex, new ApiErrors(errorList), headers, status,
-                request);
-    }
-
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
@@ -157,6 +142,20 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         final var errorList = List.of(error);
         logError(request, "Unknown error", ex, errorList);
         return new ApiErrors(errorList);
+    }
+
+    protected ResponseEntity<Object> handleExceptionInternal(final Exception ex, final Object body,
+                                                             final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
+        logError(request, "INTERNAL ERROR", ex);
+        final var error = new ApiError(ex.getMessage(), getRequestURI(request),
+                LocationType.RESOURCE.getValue(), ErrorType.SERVICE.getType());
+        Optional.ofNullable(ex.getCause())
+                .ifPresent(c -> error.addErrorValue(CAUSE, c.getMessage()));
+
+        final var errorList = List.of(error);
+        logError(request, "Internal error", ex, errorList);
+        return super.handleExceptionInternal(ex, new ApiErrors(errorList), headers, status,
+                request);
     }
 
     private static void addLocationInfo(final ApiError error, final JsonLocation location) {

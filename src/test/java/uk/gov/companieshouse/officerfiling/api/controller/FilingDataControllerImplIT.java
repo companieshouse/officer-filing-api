@@ -50,7 +50,6 @@ class FilingDataControllerImplIT {
     private OpenTransactionInterceptor openTransactionInterceptor;
     @MockBean
     private Logger logger;
-
     private HttpHeaders httpHeaders;
 
     @Autowired

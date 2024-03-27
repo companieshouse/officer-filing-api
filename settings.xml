@@ -8,7 +8,6 @@
             <mirrorOf>external:dummy:*</mirrorOf>
             <name>Pseudo repository to mirror external repositories initially using HTTP.</name>
             <url>http://0.0.0.0/</url>
-            <blocked>true</blocked>
         </mirror>
         <mirror>
             <id>virtual-release</id>

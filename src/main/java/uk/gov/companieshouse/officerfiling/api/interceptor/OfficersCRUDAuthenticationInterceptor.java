@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -52,9 +52,8 @@ public class OfficersCRUDAuthenticationInterceptor implements HandlerInterceptor
      * TODO this will be replaced once the CRUDAuthenticationInterceptor has been updated to fit
      * the officer filing API authorisation model.
      */
-    @Override
     public boolean preHandle(@NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response, @NonNull Object handler) {
+            @NonNull HttpServletResponse response) {
         final Map<String, String> pathVariables =
                 (Map<String, String>) request.getAttribute(
                         HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);

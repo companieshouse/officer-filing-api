@@ -2,7 +2,7 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import uk.gov.companieshouse.api.model.transaction.Transaction;

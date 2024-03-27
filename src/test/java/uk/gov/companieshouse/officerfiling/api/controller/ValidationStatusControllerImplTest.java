@@ -30,7 +30,7 @@ import uk.gov.companieshouse.officerfiling.api.validation.OfficerAppointmentVali
 import uk.gov.companieshouse.officerfiling.api.validation.OfficerTerminationValidator;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;

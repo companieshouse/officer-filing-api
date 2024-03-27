@@ -1,14 +1,15 @@
 package uk.gov.companieshouse.officerfiling.api.interceptor;
 
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
 
-import io.micrometer.core.instrument.util.StringUtils;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 
