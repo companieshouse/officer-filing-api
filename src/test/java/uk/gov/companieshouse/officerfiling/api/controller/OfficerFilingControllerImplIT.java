@@ -17,15 +17,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.companieshouse.officerfiling.api.controller.OfficerFilingControllerImpl.VALIDATION_STATUS;
+import static uk.gov.companieshouse.officerfiling.api.model.entity.Links.PREFIX_PRIVATE;
 
 import java.io.IOException;
 import java.net.URI;
 import java.text.SimpleDateFormat;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.Month;
+import java.time.*;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
@@ -48,11 +48,13 @@ import uk.gov.companieshouse.api.handler.transaction.request.TransactionsGet;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
+import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
@@ -116,6 +118,7 @@ class OfficerFilingControllerImplIT {
     private Transaction transaction;
     private CompanyProfileApi companyProfileApi;
     private AppointmentFullRecordAPI companyAppointment;
+    private Links links;
 
     @Mock
     private HttpServletRequest request;
@@ -131,14 +134,19 @@ class OfficerFilingControllerImplIT {
     @BeforeEach
     void setUp() throws IOException, URIValidationException {
         ReflectionTestUtils.setField(testController, "isTm01Enabled", true);
+
+        links = new Links(URI.create("/transactions/"+TRANS_ID+"/officers/"+FILING_ID), null);
+
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
-        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete,create,update");
+        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_number="+COMPANY_NUMBER+" company_officers=readprotected,delete,create,update");
 
         transaction = new Transaction();
         transaction.setCompanyNumber(COMPANY_NUMBER);
         transaction.setId(TRANS_ID);
         transaction.setStatus(TransactionStatus.OPEN);
+        transaction.setResources(createResources());
+
         companyProfileApi = new CompanyProfileApi();
         companyProfileApi.setDateOfCreation(INCORPORATION_DATE);
         companyProfileApi.setType(COMPANY_TYPE);
@@ -207,13 +215,14 @@ class OfficerFilingControllerImplIT {
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).links(links)
                 .build();
         final var locationUri = UriComponentsBuilder.fromPath("/")
                 .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
                 .build();
 
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
         when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
@@ -221,6 +230,8 @@ class OfficerFilingControllerImplIT {
                                 .build()) // copy of 'filing' with id=FILING_ID
                 .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
                         .build()); // copy of first argument
+        final var filingOptional = Optional.of(filing);
+        when(officerFilingService.mergeFilings(filing, filingOptional.get(), transaction)).thenReturn(filingOptional.get());
         when(clock.instant()).thenReturn(FIRST_INSTANT);
         when(filingMapper.map(dto)).thenReturn(filing);
 
@@ -247,13 +258,14 @@ class OfficerFilingControllerImplIT {
                 FILING_ID,
                 null);
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).links(links)
                 .build();
         final var locationUri = UriComponentsBuilder.fromPath("/")
                 .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
                 .build();
 
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
         when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
@@ -261,6 +273,8 @@ class OfficerFilingControllerImplIT {
                                 .build()) // copy of 'filing' with id=FILING_ID
                 .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
                         .build()); // copy of first argument
+        final var filingOptional = Optional.of(filing);
+        when(officerFilingService.mergeFilings(filing, filingOptional.get(), transaction)).thenReturn(filingOptional.get());
         when(clock.instant()).thenReturn(FIRST_INSTANT);
         when(filingMapper.map(dto)).thenReturn(filing);
 
@@ -287,13 +301,14 @@ class OfficerFilingControllerImplIT {
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).links(links)
                 .build();
         final var locationUri = UriComponentsBuilder.fromPath("/")
                 .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
                 .build();
 
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
         when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
@@ -301,6 +316,8 @@ class OfficerFilingControllerImplIT {
                                 .build()) // copy of 'filing' with id=FILING_ID
                 .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
                         .build()); // copy of first argument
+        final var filingOptional = Optional.of(filing);
+        when(officerFilingService.mergeFilings(filing, filingOptional.get(), transaction)).thenReturn(filingOptional.get());
         when(clock.instant()).thenReturn(FIRST_INSTANT);
         when(filingMapper.map(dto)).thenReturn(filing);
 
@@ -317,6 +334,11 @@ class OfficerFilingControllerImplIT {
 
     @Test
     void createFilingWhenRequestBodyMalformedThenResponse400() throws Exception {
+
+        //setting up the mocks for the interceptors
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+
+
         final var expectedError = createExpectedError(
             "JSON parse error: Cannot coerce empty String (\\\"\\\") to `uk.gov"
                 + ".companieshouse.officerfiling.api.model.dto.OfficerFilingDto$Builder` "
@@ -380,6 +402,9 @@ class OfficerFilingControllerImplIT {
 
     @Test
     void createFilingWhenRequestBodyIncompleteThenResponse400() throws Exception {
+
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+
         final var expectedError = createExpectedError(
             "JSON parse error: Unexpected end-of-input: expected close marker for Object "
                 + "(start marker at [Source: (org.springframework.util"
@@ -417,9 +442,10 @@ class OfficerFilingControllerImplIT {
                 "id",
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).links(links)
                 .build();
 
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(filingMapper.map(filing)).thenReturn(dto);
 
@@ -445,9 +471,9 @@ class OfficerFilingControllerImplIT {
                 "id",
                 Instant.parse("2024-02-29T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).links(links)
                 .build();
-
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(filingMapper.map(filing)).thenReturn(dto);
 
@@ -463,6 +489,7 @@ class OfficerFilingControllerImplIT {
     @Test
     void getFilingForReviewNotFoundThenResponse404() throws Exception {
 
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/transactions/{id}/officers/{filingId}", TRANS_ID, FILING_ID)
@@ -545,6 +572,8 @@ class OfficerFilingControllerImplIT {
     }
 
     private void response400BaseTest(String replacementString) throws Exception {
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
+
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", replacementString) + "}";
         final var expectedError = createExpectedError(
             "JSON parse error:", "$..resigned_on", 1, 75);
@@ -601,5 +630,20 @@ class OfficerFilingControllerImplIT {
         expectedError.addErrorValue("column", String.valueOf(column));
 
         return expectedError;
+    }
+
+    private Map<String, Resource> createResources() {
+        final Map<String, Resource> resourceMap = new HashMap<>();
+        final var resource = new Resource();
+        final var self = REQUEST_URI + "/" + FILING_ID;
+        final var linksMap = Map.of("resource", self, VALIDATION_STATUS,
+                PREFIX_PRIVATE + "/" + REQUEST_URI + "/" + FILING_ID + "/" + VALIDATION_STATUS);
+
+        resource.setKind("officer-filing");
+        resource.setLinks(linksMap);
+        resource.setUpdatedAt(FIRST_INSTANT.atZone(ZoneId.systemDefault()).toLocalDateTime());
+        resourceMap.put(self, resource);
+
+        return resourceMap;
     }
 }

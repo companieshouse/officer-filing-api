@@ -18,6 +18,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -39,6 +41,7 @@ import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
@@ -96,7 +99,6 @@ class OfficerFilingControllerImplValidationIT {
     private Transaction transaction;
     private CompanyProfileApi companyProfileApi;
     private AppointmentFullRecordAPI companyAppointment;
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -104,7 +106,7 @@ class OfficerFilingControllerImplValidationIT {
     void setUp() throws IOException, URIValidationException {
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
-        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete,create,update");
+        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_number="+COMPANY_NUMBER+" company_officers=readprotected,delete,create,update");
 
         transaction = new Transaction();
         transaction.setCompanyNumber(COMPANY_NUMBER);
@@ -141,7 +143,7 @@ class OfficerFilingControllerImplValidationIT {
         final var now = clock.instant();
         final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
                 .build();
-
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(filingMapper.map(dto)).thenReturn(filing);
         when(clock.instant()).thenReturn(FIRST_INSTANT);
         when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
