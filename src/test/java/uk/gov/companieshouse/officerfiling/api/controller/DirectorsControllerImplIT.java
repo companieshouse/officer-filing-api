@@ -1,7 +1,9 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -59,7 +61,11 @@ class DirectorsControllerImplIT {
     private static final String USER ="user";
     private static final String KEY ="key";
     private static final String KEY_ROLE ="*";
-    Instant resignedOn = Instant.parse("2021-12-03T10:15:30.00Z");
+    private Transaction transaction;
+    private Instant resignedOn = Instant.parse("2021-12-03T10:15:30.00Z");
+    private HttpHeaders httpHeaders;
+    private OfficerFilingData officerFilingData;
+    private OfficerFiling officerFiling;
     @MockBean
     private OfficerFilingService officerFilingService;
     @MockBean
@@ -76,16 +82,10 @@ class DirectorsControllerImplIT {
     private OfficerService officerService;
     @Mock
     private HttpServletRequest request;
-    private Transaction transaction;
-
     @Mock
     private TransactionService transactionService;
     @Mock
-    Optional<OfficerFiling> officerFilingOptional;
-    @Mock
     AppointmentFullRecordAPI appointmentFullRecordAPI;
-    @Mock
-    OfficerFiling officerFiling;
     @Mock
     OfficerServiceException serviceException;
     @MockBean
@@ -98,37 +98,21 @@ class DirectorsControllerImplIT {
     private TransactionsGet transactionGetMock;
     @Mock
     private ApiResponse<Transaction> apiResponse;
-    private HttpHeaders httpHeaders;
     @Autowired
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() throws IOException, URIValidationException {
-        httpHeaders = new HttpHeaders();
-        httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
-        httpHeaders.add("ERIC-Identity", USER);
-        httpHeaders.add("ERIC-Identity-Type", KEY);
-        httpHeaders.add("ERIC-Authorised-Key-Roles", KEY_ROLE);
-        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_number="+COMPANY_NUMBER+" company_officers=readprotected,delete,create,update");
+        setupHttpHeader();
+        setupTransaction();
+        setupOfficerFilingData();
+        setupOfficerFiling();
 
-        var offData = new OfficerFilingData(
-                "etag",
-                null,
-                resignedOn);
-
-        transaction = new Transaction();
-        transaction.setCompanyNumber(COMPANY_NUMBER);
-        transaction.setId(TRANS_ID);
-        transaction.setStatus(TransactionStatus.OPEN);
 
         when(transactionInterceptor.preHandle(any(), any(), any())).thenReturn(true);
         when(openTransactionInterceptor.preHandle(any(), any(), any())).thenReturn(true);
-        when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(officerFilingOptional);
-        when(officerFilingOptional.isPresent()).thenReturn(true);
-        when(officerFilingOptional.get()).thenReturn(officerFiling);
-        when(officerFiling.getData()).thenReturn(offData);
-        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, null, PASSTHROUGH_HEADER)).thenReturn(appointmentFullRecordAPI);
 
+        when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, null, PASSTHROUGH_HEADER)).thenReturn(appointmentFullRecordAPI);
         when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
         when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);
         when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
@@ -136,6 +120,8 @@ class DirectorsControllerImplIT {
         when(apiResponse.getData()).thenReturn(transaction);
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
     }
+
+
 
     @Test
     void getListOfActiveDirectorsDetailsWhenFoundThen200() throws Exception {
@@ -170,6 +156,8 @@ class DirectorsControllerImplIT {
 
     @Test
     void getRemoveCheckAnswersDirectorDetailsWhenFoundThen200() throws Exception {
+        when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
+
         mockMvc.perform(get("/transactions/{transactionId}/officers/{filingId}/tm01-check-answers-directors-details", TRANS_ID, SUBMISSION_ID)
                         .headers(httpHeaders).requestAttr("transaction", transaction))
                 .andDo(print())
@@ -181,8 +169,8 @@ class DirectorsControllerImplIT {
 
     @Test
     void getRemoveCheckAnswersDirectorDetailsWhenNotFoundThen500() throws Exception {
+        when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(Optional.ofNullable(null));
 
-        when(officerFilingOptional.isPresent()).thenReturn(false);
         mockMvc.perform(get("/transactions/{transactionId}/officers/{filingId}/tm01-check-answers-directors-details", TRANS_ID, SUBMISSION_ID)
                         .headers(httpHeaders).requestAttr("transaction", transaction))
                 .andDo(print())
@@ -195,11 +183,49 @@ class DirectorsControllerImplIT {
                 "etag",
                 null,
                 null);
-        when(officerFiling.getData()).thenReturn(officerDataNoResignationDate);
+
+        var officerFilingNoResignationDate = OfficerFiling.builder()
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .data(officerDataNoResignationDate)
+                .build();
+
+        when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(Optional.of(officerFilingNoResignationDate));
 
         mockMvc.perform(get("/transactions/{transactionId}/officers/{filingId}/tm01-check-answers-directors-details", TRANS_ID, SUBMISSION_ID)
                         .headers(httpHeaders).requestAttr("transaction", transaction))
                 .andDo(print())
                 .andExpect(status().isInternalServerError());
+    }
+
+    private void setupHttpHeader() {
+        httpHeaders = new HttpHeaders();
+        httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
+        httpHeaders.add("ERIC-Identity", USER);
+        httpHeaders.add("ERIC-Identity-Type", KEY);
+        httpHeaders.add("ERIC-Authorised-Key-Roles", KEY_ROLE);
+        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_number="+COMPANY_NUMBER+" company_officers=readprotected,delete,create,update");
+    }
+
+    private void setupTransaction() {
+        transaction = new Transaction();
+        transaction.setCompanyNumber(COMPANY_NUMBER);
+        transaction.setId(TRANS_ID);
+        transaction.setStatus(TransactionStatus.OPEN);
+    }
+
+    private void setupOfficerFilingData() {
+        officerFilingData = new OfficerFilingData(
+                "etag",
+                null,
+                resignedOn);
+    }
+
+    private void setupOfficerFiling() {
+        officerFiling = OfficerFiling.builder()
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .data(officerFilingData)
+                .build();
     }
 }

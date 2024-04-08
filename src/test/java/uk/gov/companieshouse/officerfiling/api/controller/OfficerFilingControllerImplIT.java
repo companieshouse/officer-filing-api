@@ -23,7 +23,11 @@ import static uk.gov.companieshouse.officerfiling.api.model.entity.Links.PREFIX_
 import java.io.IOException;
 import java.net.URI;
 import java.text.SimpleDateFormat;
-import java.time.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -217,9 +221,6 @@ class OfficerFilingControllerImplIT {
         final var now = clock.instant();
         final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).links(links)
                 .build();
-        final var locationUri = UriComponentsBuilder.fromPath("/")
-                .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
-                .build();
 
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
@@ -230,8 +231,8 @@ class OfficerFilingControllerImplIT {
                                 .build()) // copy of 'filing' with id=FILING_ID
                 .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
                         .build()); // copy of first argument
-        final var filingOptional = Optional.of(filing);
-        when(officerFilingService.mergeFilings(filing, filingOptional.get(), transaction)).thenReturn(filingOptional.get());
+
+        when(officerFilingService.mergeFilings(filing, filing, transaction)).thenReturn(filing);
         when(clock.instant()).thenReturn(FIRST_INSTANT);
         when(filingMapper.map(dto)).thenReturn(filing);
 
@@ -249,34 +250,36 @@ class OfficerFilingControllerImplIT {
     @Test
     void patchFilingWhenMissingResignedOnTM01PayloadOKThenResponse200() throws Exception {
         final var body = "{" + PARTIAL_TM01_FRAGMENT_MISSING_RESIGNED_ON + "}";
+
         final var dto = OfficerFilingDto.builder()
                 .referenceEtag("etag")
                 .referenceAppointmentId(FILING_ID)
                 .build();
-        var offData = new OfficerFilingData(
+
+        var officerDataNoResignationDate = new OfficerFilingData(
                 "etag",
                 FILING_ID,
                 null);
+
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).links(links)
-                .build();
-        final var locationUri = UriComponentsBuilder.fromPath("/")
-                .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
+        final var officerFiling = OfficerFiling.builder()
+                .createdAt(now)
+                .updatedAt(now)
+                .data(officerDataNoResignationDate)
+                .id(FILING_ID)
+                .links(links)
                 .build();
 
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
-        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
-        when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
-                        OfficerFiling.builder(filing).id(FILING_ID)
-                                .build()) // copy of 'filing' with id=FILING_ID
-                .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
-                        .build()); // copy of first argument
-        final var filingOptional = Optional.of(filing);
-        when(officerFilingService.mergeFilings(filing, filingOptional.get(), transaction)).thenReturn(filingOptional.get());
+        when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(officerFiling)
+                .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0)).build()); // copy of first argument
+
+        when(officerFilingService.mergeFilings(officerFiling, officerFiling, transaction)).thenReturn(officerFiling);
         when(clock.instant()).thenReturn(FIRST_INSTANT);
-        when(filingMapper.map(dto)).thenReturn(filing);
+        when(filingMapper.map(dto)).thenReturn(officerFiling);
 
         mockMvc.perform(patch("/transactions/{id}/officers/{filing_id}", TRANS_ID, FILING_ID).content(body)
                         .contentType("application/json")
@@ -292,34 +295,36 @@ class OfficerFilingControllerImplIT {
     @Test
     void patchFilingWhenMissingEtagTM01PayloadOKThenResponse200() throws Exception {
         final var body = "{" + PARTIAL_TM01_FRAGMENT_MISSING_ETAG + "}";
+
         final var dto = OfficerFilingDto.builder()
                 .referenceAppointmentId(FILING_ID)
                 .resignedOn(LocalDate.of(2022, 9, 13))
                 .build();
+
         var offData = new OfficerFilingData(
                 "",
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
+
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).links(links)
-                .build();
-        final var locationUri = UriComponentsBuilder.fromPath("/")
-                .pathSegment("transactions", TRANS_ID, "officers", FILING_ID, FILING_ID)
+        final var officerFiling = OfficerFiling.builder()
+                .createdAt(now)
+                .updatedAt(now)
+                .data(offData)
+                .id(FILING_ID)
+                .links(links)
                 .build();
 
         when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
-        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
+        when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID, PASSTHROUGH_HEADER)).thenReturn(companyAppointment);
         when(companyProfileService.getCompanyProfile(TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(companyProfileApi);
-        when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(
-                        OfficerFiling.builder(filing).id(FILING_ID)
-                                .build()) // copy of 'filing' with id=FILING_ID
-                .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0))
-                        .build()); // copy of first argument
-        final var filingOptional = Optional.of(filing);
-        when(officerFilingService.mergeFilings(filing, filingOptional.get(), transaction)).thenReturn(filingOptional.get());
+        when(officerFilingService.save(any(OfficerFiling.class), eq(TRANS_ID))).thenReturn(officerFiling)
+                .thenAnswer(i -> OfficerFiling.builder(i.getArgument(0)).build()); // copy of first argument
+
+        when(officerFilingService.mergeFilings(officerFiling, officerFiling, transaction)).thenReturn(officerFiling);
         when(clock.instant()).thenReturn(FIRST_INSTANT);
-        when(filingMapper.map(dto)).thenReturn(filing);
+        when(filingMapper.map(dto)).thenReturn(officerFiling);
 
         mockMvc.perform(patch("/transactions/{id}/officers/{filing_id}", TRANS_ID, FILING_ID).content(body)
                         .contentType("application/json")
