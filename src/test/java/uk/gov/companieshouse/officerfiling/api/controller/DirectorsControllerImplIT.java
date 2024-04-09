@@ -2,6 +2,7 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -11,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -26,13 +28,19 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.companieshouse.api.ApiClient;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.handler.transaction.TransactionsResourceHandler;
+import uk.gov.companieshouse.api.handler.transaction.request.TransactionsGet;
 import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
+import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.officers.CompanyOfficerApi;
 import uk.gov.companieshouse.api.model.officers.OfficerRoleApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.OfficerServiceException;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
@@ -40,6 +48,7 @@ import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerService;
+import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
 @Tag("web")
@@ -52,7 +61,11 @@ class DirectorsControllerImplIT {
     private static final String USER ="user";
     private static final String KEY ="key";
     private static final String KEY_ROLE ="*";
-    Instant resignedOn = Instant.parse("2021-12-03T10:15:30.00Z");
+    private Transaction transaction;
+    private Instant resignedOn = Instant.parse("2021-12-03T10:15:30.00Z");
+    private HttpHeaders httpHeaders;
+    private OfficerFilingData officerFilingData;
+    private OfficerFiling officerFiling;
     @MockBean
     private OfficerFilingService officerFilingService;
     @MockBean
@@ -70,44 +83,45 @@ class DirectorsControllerImplIT {
     @Mock
     private HttpServletRequest request;
     @Mock
-    private Transaction transaction;
-    @Mock
-    Optional<OfficerFiling> officerFilingOptional;
+    private TransactionService transactionService;
     @Mock
     AppointmentFullRecordAPI appointmentFullRecordAPI;
     @Mock
-    OfficerFiling officerFiling;
-    @Mock
     OfficerServiceException serviceException;
-    private HttpHeaders httpHeaders;
+    @MockBean
+    private ApiClientService apiClientService;
+    @Mock
+    private ApiClient apiClientMock;
+    @Mock
+    private TransactionsResourceHandler transactionResourceHandlerMock;
+    @Mock
+    private TransactionsGet transactionGetMock;
+    @Mock
+    private ApiResponse<Transaction> apiResponse;
     @Autowired
     private MockMvc mockMvc;
 
     @BeforeEach
-    void setUp() {
-        httpHeaders = new HttpHeaders();
-        httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
-        httpHeaders.add("ERIC-Identity", USER);
-        httpHeaders.add("ERIC-Identity-Type", KEY);
-        httpHeaders.add("ERIC-Authorised-Key-Roles", KEY_ROLE);
-        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete,create,update");
-        var offData = new OfficerFilingData(
-                "etag",
-                null,
-                resignedOn);
+    void setUp() throws IOException, URIValidationException {
+        setupHttpHeader();
+        setupTransaction();
+        setupOfficerFilingData();
+        setupOfficerFiling();
+
+
         when(transactionInterceptor.preHandle(any(), any(), any())).thenReturn(true);
         when(openTransactionInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
-        when(transaction.getCompanyNumber()).thenReturn(COMPANY_NUMBER);
-        when(transaction.getId()).thenReturn(TRANS_ID);
-        when(transaction.getStatus()).thenReturn(TransactionStatus.OPEN);
-        when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(officerFilingOptional);
-        when(officerFilingOptional.isPresent()).thenReturn(true);
-        when(officerFilingOptional.get()).thenReturn(officerFiling);
-        when(officerFiling.getData()).thenReturn(offData);
-
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, null, PASSTHROUGH_HEADER)).thenReturn(appointmentFullRecordAPI);
+        when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
+        when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);
+        when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
+        when(transactionGetMock.execute()).thenReturn(apiResponse);
+        when(apiResponse.getData()).thenReturn(transaction);
+        when(transactionService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER)).thenReturn(transaction);
     }
+
+
 
     @Test
     void getListOfActiveDirectorsDetailsWhenFoundThen200() throws Exception {
@@ -142,6 +156,8 @@ class DirectorsControllerImplIT {
 
     @Test
     void getRemoveCheckAnswersDirectorDetailsWhenFoundThen200() throws Exception {
+        when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(Optional.of(officerFiling));
+
         mockMvc.perform(get("/transactions/{transactionId}/officers/{filingId}/tm01-check-answers-directors-details", TRANS_ID, SUBMISSION_ID)
                         .headers(httpHeaders).requestAttr("transaction", transaction))
                 .andDo(print())
@@ -153,16 +169,63 @@ class DirectorsControllerImplIT {
 
     @Test
     void getRemoveCheckAnswersDirectorDetailsWhenNotFoundThen500() throws Exception {
-        when(officerFiling.getData().getResignedOn()).thenReturn(null);
-        mockMvc.perform(get("/transactions/{transactionId}/officers/{filingId}/tm01-check-answers-directors-details", TRANS_ID, SUBMISSION_ID)
-                        .headers(httpHeaders).requestAttr("transaction", transaction))
-                .andDo(print())
-                .andExpect(status().isInternalServerError());
+        when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(Optional.ofNullable(null));
 
-        when(officerFilingOptional.isPresent()).thenReturn(false);
         mockMvc.perform(get("/transactions/{transactionId}/officers/{filingId}/tm01-check-answers-directors-details", TRANS_ID, SUBMISSION_ID)
                         .headers(httpHeaders).requestAttr("transaction", transaction))
                 .andDo(print())
                 .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void getRemoveCheckAnswersDirectorDetailsWhenResignedOnNotFoundThen500() throws Exception {
+        var officerDataNoResignationDate = new OfficerFilingData(
+                "etag",
+                null,
+                null);
+
+        var officerFilingNoResignationDate = OfficerFiling.builder()
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .data(officerDataNoResignationDate)
+                .build();
+
+        when(officerFilingService.get(SUBMISSION_ID, TRANS_ID)).thenReturn(Optional.of(officerFilingNoResignationDate));
+
+        mockMvc.perform(get("/transactions/{transactionId}/officers/{filingId}/tm01-check-answers-directors-details", TRANS_ID, SUBMISSION_ID)
+                        .headers(httpHeaders).requestAttr("transaction", transaction))
+                .andDo(print())
+                .andExpect(status().isInternalServerError());
+    }
+
+    private void setupHttpHeader() {
+        httpHeaders = new HttpHeaders();
+        httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
+        httpHeaders.add("ERIC-Identity", USER);
+        httpHeaders.add("ERIC-Identity-Type", KEY);
+        httpHeaders.add("ERIC-Authorised-Key-Roles", KEY_ROLE);
+        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_number="+COMPANY_NUMBER+" company_officers=readprotected,delete,create,update");
+    }
+
+    private void setupTransaction() {
+        transaction = new Transaction();
+        transaction.setCompanyNumber(COMPANY_NUMBER);
+        transaction.setId(TRANS_ID);
+        transaction.setStatus(TransactionStatus.OPEN);
+    }
+
+    private void setupOfficerFilingData() {
+        officerFilingData = new OfficerFilingData(
+                "etag",
+                null,
+                resignedOn);
+    }
+
+    private void setupOfficerFiling() {
+        officerFiling = OfficerFiling.builder()
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .data(officerFilingData)
+                .build();
     }
 }

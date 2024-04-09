@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.IOException;
+import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -37,6 +38,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
@@ -91,11 +93,15 @@ class ValidationStatusControllerImplIT {
     @Autowired
     private MockMvc mockMvc;
 
+    private Links links;
+
     @BeforeEach
     void setUp() throws IOException, URIValidationException {
+        links = new Links(URI.create("/transactions/"+TRANS_ID+"/officers/"+FILING_ID), null);
+
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
-        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_officers=readprotected,delete,create,update");
+        httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_number="+COMPANY_NUMBER+" company_officers=readprotected,delete,create,update");
 
         transaction = new Transaction();
         transaction.setCompanyNumber(COMPANY_NUMBER);
@@ -117,6 +123,7 @@ class ValidationStatusControllerImplIT {
         when(transactionResourceHandlerMock.get(anyString())).thenReturn(transactionGetMock);
         when(transactionGetMock.execute()).thenReturn(apiResponse);
         when(apiResponse.getData()).thenReturn(transaction);
+
     }
 
     @Test
@@ -137,7 +144,7 @@ class ValidationStatusControllerImplIT {
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).links(links)
                 .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
@@ -158,7 +165,8 @@ class ValidationStatusControllerImplIT {
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).links(links)
                 .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
@@ -207,7 +215,7 @@ class ValidationStatusControllerImplIT {
                 FILING_ID,
                 Instant.parse("1722-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).id("12345")
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).id("12345").links(links)
                 .build();
 
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
@@ -236,7 +244,7 @@ class ValidationStatusControllerImplIT {
                 FILING_ID,
                 Instant.parse("2008-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).links(links)
                 .build();
         companyProfileApi.setDateOfCreation(LocalDate.of(2000, 1, 1));
         companyAppointment.setAppointedOn(LocalDate.of(2008, 1, 2));
@@ -266,7 +274,7 @@ class ValidationStatusControllerImplIT {
                 FILING_ID,
                 Instant.parse("2018-10-05T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).links(links)
                 .build();
         companyProfileApi.setDateOfCreation(LocalDate.of(2020, 1, 1));
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
@@ -296,7 +304,7 @@ class ValidationStatusControllerImplIT {
                 FILING_ID,
                 Instant.parse("2022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).links(links)
                 .build();
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID,
@@ -324,7 +332,7 @@ class ValidationStatusControllerImplIT {
                 FILING_ID,
                 Instant.parse("3022-09-13T00:00:00Z"));
         final var now = clock.instant();
-        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).id(FILING_ID)
+        final var filing = OfficerFiling.builder().createdAt(now).updatedAt(now).data(offData).id(FILING_ID).links(links)
                 .build();
         when(officerFilingService.get(FILING_ID, TRANS_ID)).thenReturn(Optional.of(filing));
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, FILING_ID,
