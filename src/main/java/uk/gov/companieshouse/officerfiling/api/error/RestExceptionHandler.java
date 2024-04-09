@@ -9,13 +9,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -54,21 +56,20 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
-    protected ResponseEntity<Object> handleHttpMessageNotReadable(
-            final HttpMessageNotReadableException ex, final HttpHeaders headers,
-            final HttpStatus status, final WebRequest request) {
-        final var cause = ex.getCause();
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(@NonNull final HttpMessageNotReadableException ex,
+                                                                  @NonNull final HttpHeaders headers,
+                                                                  @NonNull final HttpStatusCode status,
+                                                                  @NonNull final WebRequest request) {
         final var baseMessage = "JSON parse error: ";
         final ApiError error;
 
-        if (cause instanceof JsonProcessingException) {
-            final var jpe = (JsonProcessingException) cause;
-            final var msg = baseMessage + cause.getMessage();
-            final var location = jpe.getLocation();
+        if (ex.getCause() instanceof JsonProcessingException jsonProcessingException) {
+            final var msg = baseMessage + jsonProcessingException.getMessage();
+            final var location = jsonProcessingException.getLocation();
             var jsonPath = "$";
 
-            if (cause instanceof MismatchedInputException) {
-                final var fieldNameOpt = ((MismatchedInputException) cause).getPath()
+            if (jsonProcessingException instanceof MismatchedInputException) {
+                final var fieldNameOpt = ((MismatchedInputException) ex.getCause()).getPath()
                         .stream()
                         .findFirst()
                         .map(JsonMappingException.Reference::getFieldName);
@@ -88,6 +89,24 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.badRequest().body(new ApiErrors(List.of(error)));
     }
 
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(@NonNull final Exception ex,
+                                                             final Object body,
+                                                             @NonNull final HttpHeaders headers,
+                                                             @NonNull final HttpStatusCode status,
+                                                             @NonNull final WebRequest request) {
+        logError(request, "INTERNAL ERROR", ex);
+        final var error = new ApiError(ex.getMessage(), getRequestURI(request),
+                LocationType.RESOURCE.getValue(), ErrorType.SERVICE.getType());
+        Optional.ofNullable(ex.getCause())
+                .ifPresent(c -> error.addErrorValue(CAUSE, c.getMessage()));
+
+        final var errorList = List.of(error);
+        logError(request, "Internal error", ex, errorList);
+        return super.handleExceptionInternal(ex, new ApiErrors(errorList), headers, status,
+                request);
+    }
+
     @ExceptionHandler(InvalidFilingException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
@@ -98,7 +117,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         final var errorList = fieldErrors.stream()
                 .map(e -> buildRequestBodyError(e.getDefaultMessage(), getJsonPath(e),
                         e.getRejectedValue()))
-                .collect(Collectors.toList());
+                .toList();
 
         logError(request, "Invalid filing data", ex, errorList);
         return new ApiErrors(errorList);
@@ -128,20 +147,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ApiErrors(errorList);
     }
 
-    @Override
-    protected ResponseEntity<Object> handleExceptionInternal(final Exception ex, final Object body,
-            final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
-        logError(request, "INTERNAL ERROR", ex);
-        final var error = new ApiError(ex.getMessage(), getRequestURI(request),
-                LocationType.RESOURCE.getValue(), ErrorType.SERVICE.getType());
-        Optional.ofNullable(ex.getCause())
-                .ifPresent(c -> error.addErrorValue(CAUSE, c.getMessage()));
-
-        final var errorList = List.of(error);
-        logError(request, "Internal error", ex, errorList);
-        return super.handleExceptionInternal(ex, new ApiErrors(errorList), headers, status,
-                request);
-    }
 
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

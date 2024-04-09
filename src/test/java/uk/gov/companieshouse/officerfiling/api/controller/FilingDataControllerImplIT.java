@@ -23,7 +23,6 @@ import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
-import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.officerfiling.api.service.FilingDataService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
@@ -48,8 +47,6 @@ class FilingDataControllerImplIT {
     private TransactionInterceptor transactionInterceptor;
     @MockBean
     private OpenTransactionInterceptor openTransactionInterceptor;
-    @MockBean
-    private Logger logger;
 
     private HttpHeaders httpHeaders;
 

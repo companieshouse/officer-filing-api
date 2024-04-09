@@ -1,24 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -51,6 +33,23 @@ import uk.gov.companieshouse.officerfiling.api.service.OfficerService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
+import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.Optional;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @Tag("web")
 @WebMvcTest(controllers = DirectorsControllerImpl.class)
 class DirectorsControllerImplIT {
@@ -62,7 +61,7 @@ class DirectorsControllerImplIT {
     private static final String KEY ="key";
     private static final String KEY_ROLE ="*";
     private Transaction transaction;
-    private Instant resignedOn = Instant.parse("2021-12-03T10:15:30.00Z");
+    private final Instant resignedOn = Instant.parse("2021-12-03T10:15:30.00Z");
     private HttpHeaders httpHeaders;
     private OfficerFilingData officerFilingData;
     private OfficerFiling officerFiling;
@@ -80,6 +79,8 @@ class DirectorsControllerImplIT {
     private OpenTransactionInterceptor openTransactionInterceptor;
     @MockBean
     private OfficerService officerService;
+    @MockBean
+    private ApiClientService apiClientService;
     @Mock
     private HttpServletRequest request;
     @Mock
@@ -88,8 +89,6 @@ class DirectorsControllerImplIT {
     AppointmentFullRecordAPI appointmentFullRecordAPI;
     @Mock
     OfficerServiceException serviceException;
-    @MockBean
-    private ApiClientService apiClientService;
     @Mock
     private ApiClient apiClientMock;
     @Mock
