@@ -48,7 +48,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     private void addValidTransactionInterceptor(InterceptorRegistry registry){
         registry.addInterceptor(validTransactionInterceptor())
-                .addPathPatterns(new String[] { GET_VALIDATION, FILINGS });
+                .addPathPatterns(GET_VALIDATION, FILINGS);
     }
 
     /**

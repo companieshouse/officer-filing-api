@@ -17,7 +17,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -83,7 +83,6 @@ class ValidationStatusControllerImplIT {
     private ApiResponse<Transaction> apiResponse;
 
     private HttpHeaders httpHeaders;
-    private Transaction transaction;
     private CompanyProfileApi companyProfileApi;
     private AppointmentFullRecordAPI companyAppointment;
 
@@ -103,7 +102,7 @@ class ValidationStatusControllerImplIT {
         httpHeaders.add("ERIC-Access-Token", PASSTHROUGH_HEADER);
         httpHeaders.add("ERIC-Authorised-Token-Permissions", "company_number="+COMPANY_NUMBER+" company_officers=readprotected,delete,create,update");
 
-        transaction = new Transaction();
+        Transaction transaction = new Transaction();
         transaction.setCompanyNumber(COMPANY_NUMBER);
         transaction.setId(TRANS_ID);
         transaction.setStatus(TransactionStatus.OPEN);

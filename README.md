@@ -5,12 +5,12 @@ This API is for appointing, changing and terminating director details, supportin
 
 In order to build this service locally you need:
 
-- [Java 11](https://docs.oracle.com/en/java/javase/11)
-- [corretto-11 JDK](https://docs.aws.amazon.com/corretto/latest/corretto-11-ug/downloads-list.html)
+- [Java 21](https://docs.oracle.com/en/java/javase/11)
+- [Java 21.0.2-amzn JDK](https://docs.aws.amazon.com/corretto/latest/corretto-11-ug/downloads-list.html)
 - [Maven](https://maven.apache.org/download.cgi)
 - [Git](https://git-scm.com/downloads)
 - [MongoDB](https://www.mongodb.com)
-- [Spring Boot 2](https://spring.io/projects/spring-boot)
+- [Spring Boot 3](https://spring.io/projects/spring-boot)
 - [Spring Framework](https://spring.io/projects/spring-framework)
 - [MapStruct](https://mapstruct.org/)
 - [Docker](https://wwww.docker.com)

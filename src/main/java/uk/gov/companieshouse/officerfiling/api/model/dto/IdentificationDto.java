@@ -1,50 +1,10 @@
 package uk.gov.companieshouse.officerfiling.api.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 import java.util.StringJoiner;
 
-public class IdentificationDto {
-
-    private final String identificationType;
-    private final String legalAuthority;
-    private final String legalForm;
-    private final String placeRegistered;
-    private final String registrationNumber;
-
-    @JsonCreator
-    public IdentificationDto(@JsonProperty("identification_type") final String identificationType,
-            @JsonProperty("legal_authority") final String legalAuthority,
-            @JsonProperty("legal_form") final String legalForm,
-            @JsonProperty("place_registered") final String placeRegistered,
-            @JsonProperty("registration_number") final String registrationNumber) {
-        this.identificationType = identificationType;
-        this.legalAuthority = legalAuthority;
-        this.legalForm = legalForm;
-        this.placeRegistered = placeRegistered;
-        this.registrationNumber = registrationNumber;
-    }
-
-    public String getIdentificationType() {
-        return identificationType;
-    }
-
-    public String getLegalAuthority() {
-        return legalAuthority;
-    }
-
-    public String getLegalForm() {
-        return legalForm;
-    }
-
-    public String getPlaceRegistered() {
-        return placeRegistered;
-    }
-
-    public String getRegistrationNumber() {
-        return registrationNumber;
-    }
+public record IdentificationDto(String identificationType, String legalAuthority, String legalForm,
+                                String placeRegistered, String registrationNumber) {
 
     @Override
     public boolean equals(final Object o) {
@@ -55,17 +15,17 @@ public class IdentificationDto {
             return false;
         }
         final IdentificationDto that = (IdentificationDto) o;
-        return Objects.equals(getIdentificationType(), that.getIdentificationType())
-                && Objects.equals(getLegalAuthority(), that.getLegalAuthority())
-                && Objects.equals(getLegalForm(), that.getLegalForm())
-                && Objects.equals(getPlaceRegistered(), that.getPlaceRegistered())
-                && Objects.equals(getRegistrationNumber(), that.getRegistrationNumber());
+        return Objects.equals(identificationType(), that.identificationType())
+                && Objects.equals(legalAuthority(), that.legalAuthority())
+                && Objects.equals(legalForm(), that.legalForm())
+                && Objects.equals(placeRegistered(), that.placeRegistered())
+                && Objects.equals(registrationNumber(), that.registrationNumber());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getIdentificationType(), getLegalAuthority(), getLegalForm(),
-                getPlaceRegistered(), getRegistrationNumber());
+        return Objects.hash(identificationType(), legalAuthority(), legalForm(),
+                placeRegistered(), registrationNumber());
     }
 
     @Override

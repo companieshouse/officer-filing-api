@@ -1,17 +1,8 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import java.io.File;
-import java.time.Clock;
-import java.time.ZoneId;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Objects;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.bson.types.ObjectId;
@@ -28,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
@@ -38,13 +28,20 @@ import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.mapper.OfficerFilingMapper;
-import uk.gov.companieshouse.officerfiling.api.service.CompanyAppointmentService;
-import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper.Builder;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
+
+import java.io.File;
+import java.time.Clock;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/transactions/{transactionId}/officers")
@@ -57,8 +54,6 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     public static final String FILING_RESOURCE_ID = "filingResourceId";
     private final TransactionService transactionService;
     private final OfficerFilingService officerFilingService;
-    private final CompanyProfileService companyProfileService;
-    private final CompanyAppointmentService companyAppointmentService;
     private final OfficerFilingMapper filingMapper;
     private final Clock clock;
     private final Logger logger;
@@ -66,15 +61,11 @@ public class OfficerFilingControllerImpl implements OfficerFilingController {
     private boolean isTm01Enabled;
     public OfficerFilingControllerImpl(final TransactionService transactionService,
                                        final OfficerFilingService officerFilingService,
-                                       final CompanyProfileService companyProfileService,
-                                       final CompanyAppointmentService companyAppointmentService,
                                        final OfficerFilingMapper filingMapper,
                                        final Clock clock,
                                        final Logger logger) {
         this.transactionService = transactionService;
         this.officerFilingService = officerFilingService;
-        this.companyProfileService = companyProfileService;
-        this.companyAppointmentService = companyAppointmentService;
         this.filingMapper = filingMapper;
         this.clock = clock;
         this.logger = logger;

@@ -8,7 +8,7 @@ import uk.gov.companieshouse.officerfiling.api.model.dto.AddressDto;
 import uk.gov.companieshouse.officerfiling.api.service.CompanyProfileService;
 import uk.gov.companieshouse.officerfiling.api.validation.error.AddressErrorProvider;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -125,7 +125,7 @@ public class AddressValidator extends OfficerValidator {
         if (StringUtils.isBlank(country)) {
             createValidationError(request, errorList, addressErrorProvider.getCountryBlank());
         } else {
-            if (!countryList.stream().map(String::toLowerCase).collect(Collectors.toList()).contains(country.toLowerCase())) {
+            if (!countryList.stream().map(String::toLowerCase).toList().contains(country.toLowerCase())) {
                 createValidationError(request, errorList, addressErrorProvider.getCountryInvalid());
             }
             if (!validateDtoFieldLength(country, LENGTH_50)) {
