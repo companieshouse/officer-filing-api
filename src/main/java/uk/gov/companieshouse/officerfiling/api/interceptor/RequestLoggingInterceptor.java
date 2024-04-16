@@ -16,7 +16,7 @@ public class RequestLoggingInterceptor implements HandlerInterceptor, RequestLog
 
     @Autowired
     public RequestLoggingInterceptor() {
-        logger = LoggerFactory.getLogger(OfficerFilingApiApplication.APP_NAMESPACE);
+        logger = LoggerFactory.getLogger(OfficerFilingApiApplication.APPLICATION_NAME_SPACE);
     }
 
     @Override
