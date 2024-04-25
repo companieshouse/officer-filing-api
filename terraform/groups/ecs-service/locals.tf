@@ -9,7 +9,7 @@ locals {
   docker_repo                = "officer-filing-api"
   kms_alias                  = "alias/${var.aws_profile}/environment-services-kms"
   lb_listener_rule_priority  = 61
-  lb_listener_paths          = ["/transactions/.*/officers", "/private/transactions/.*/officers", "/transactions/.*/officers/.*"]
+  lb_listener_paths          = ["/transactions/*/officers", "/private/transactions/*/officers", "/transactions/*/officers/*"]
   healthcheck_path           = "/officer-filing/healthcheck" #healthcheck path for officer filing api
   healthcheck_matcher        = "200"
   vpc_name                   = local.stack_secrets["vpc_name"]
