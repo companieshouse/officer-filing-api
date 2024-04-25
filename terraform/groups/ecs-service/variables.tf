@@ -124,7 +124,7 @@ variable "use_set_environment_files" {
   description = "Toggle default global and shared  environment files"
 }
 
-variable "dissolution_api_version" {
+variable "officer_filing_api_version" {
   type        = string
   description = "The version of the officer-filing-api container to run."
 }
