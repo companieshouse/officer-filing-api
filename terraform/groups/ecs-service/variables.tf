@@ -126,7 +126,7 @@ variable "use_set_environment_files" {
 
 variable "dissolution_api_version" {
   type        = string
-  description = "The version of the dissolution-api container to run."
+  description = "The version of the officer-filing-api container to run."
 }
 
 variable "log_level" {

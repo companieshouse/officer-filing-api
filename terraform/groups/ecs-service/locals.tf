@@ -1,20 +1,20 @@
 # Define all hardcoded local variable and local variables looked up from data resources
 locals {
-  stack_name                 = "filing-close" # this must match the stack name the service deploys into
+  stack_name                 = "filing-maintain" # this must match the stack name the service deploys into
   name_prefix                = "${local.stack_name}-${var.environment}"
   global_prefix              = "global-${var.environment}"
-  service_name               = "dissolution-api"
+  service_name               = "officer-filing-api"
   container_port             = 8080
   eric_port                  = "10000"
-  docker_repo                = "dissolution-api"
+  docker_repo                = "officer-filing-api"
   kms_alias                  = "alias/${var.aws_profile}/environment-services-kms"
-  lb_listener_rule_priority  = 53
-  lb_listener_paths          = ["/dissolution-request/*"]
-  healthcheck_path           = "/dissolution-request/healthcheck" #healthcheck path for dissolution api
+  lb_listener_rule_priority  = 61
+  lb_listener_paths          = ["/transactions/.*/officers", "/private/transactions/.*/officers", "/transactions/.*/officers/.*"]
+  healthcheck_path           = "/officer-filing/healthcheck" #healthcheck path for officer filing api
   healthcheck_matcher        = "200"
   vpc_name                   = local.stack_secrets["vpc_name"]
   s3_config_bucket           = data.vault_generic_secret.shared_s3.data["config_bucket_name"]
-  app_environment_filename   = "dissolution-api.env"
+  app_environment_filename   = "officer-filing-api.env"
   use_set_environment_files  = var.use_set_environment_files
   application_subnet_ids     = data.aws_subnets.application.ids
   application_subnet_pattern = local.stack_secrets["application_subnet_pattern"]
