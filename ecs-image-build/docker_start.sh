@@ -1,5 +1,5 @@
 #!/bin/bash
-#
+# 
 # Start script for officer-filing-api
 
 PORT=8080
