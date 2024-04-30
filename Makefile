@@ -13,6 +13,9 @@ clean:
 submodules:
 	test -f ./api-enumerations/constants.yml || git submodule update --init --recursive -- src/main/resources/api-enumerations
 
+.PHONY: test
+test: test-unit test-integration
+
 .PHONY: test-unit
 test-unit: clean
 	mvn test -Dskip.integration.tests=true
@@ -62,4 +65,5 @@ sonar-pr-analysis:
 
 .PHONY: security-check
 security-check:
-	mvn compile org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=11 -DassemblyAnalyzerEnabled=false
+	mvn org.owasp:dependency-check-maven:update-only
+	mvn org.owasp:dependency-check-maven:check -DassemblyAnalyzerEnabled=false -DfailBuildOnCVSS=4

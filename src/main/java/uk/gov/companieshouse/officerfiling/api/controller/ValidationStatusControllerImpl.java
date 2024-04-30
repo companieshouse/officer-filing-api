@@ -1,11 +1,11 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
@@ -27,7 +27,6 @@ import uk.gov.companieshouse.officerfiling.api.validation.OfficerTerminationVali
 import uk.gov.companieshouse.officerfiling.api.validation.OfficerUpdateValidator;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -76,7 +75,6 @@ public class ValidationStatusControllerImpl implements ValidationStatusControlle
      * @return ValidationResponse of TRUE (provisional)
      */
     @Override
-    @ResponseBody
     @GetMapping(value = "/{filingResourceId}/validation_status", produces = {"application/json"})
     public ValidationStatusResponse validate(
             @RequestAttribute("transaction") Transaction transaction,

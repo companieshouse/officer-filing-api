@@ -2,6 +2,7 @@ package uk.gov.companieshouse.officerfiling.api.enumerations;
 
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,7 +15,7 @@ public class ApiEnumerations {
     private final Map<String, String> companyType;
 
     @Autowired
-    public ApiEnumerations(Map<String, String> validation, Map<String, String> companyType) {
+    public ApiEnumerations(@Qualifier("validation") Map<String, String> validation, @Qualifier("companyType") Map<String, String> companyType) {
         this.validation = validation;
         this.companyType = companyType;
     }

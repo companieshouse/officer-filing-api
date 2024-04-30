@@ -1,7 +1,7 @@
 package uk.gov.companieshouse.officerfiling.api.interceptor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -12,11 +12,11 @@ import uk.gov.companieshouse.officerfiling.api.OfficerFilingApiApplication;
 
 public class RequestLoggingInterceptor implements HandlerInterceptor, RequestLogger {
 
-    private Logger logger;
+    private final Logger logger;
 
     @Autowired
     public RequestLoggingInterceptor() {
-        logger = LoggerFactory.getLogger(OfficerFilingApiApplication.APP_NAMESPACE);
+        logger = LoggerFactory.getLogger(OfficerFilingApiApplication.APPLICATION_NAME_SPACE);
     }
 
     @Override

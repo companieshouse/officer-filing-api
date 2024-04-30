@@ -360,9 +360,9 @@ public class OfficerFilingDto {
         public Builder identification(final IdentificationDto value) {
 
             buildSteps.add(data -> data.identification = Optional.ofNullable(value)
-                    .map(v -> new IdentificationDto(v.getIdentificationType(),
-                            v.getLegalAuthority(), v.getLegalForm(), v.getPlaceRegistered(),
-                            v.getRegistrationNumber()))
+                    .map(v -> new IdentificationDto(v.identificationType(),
+                            v.legalAuthority(), v.legalForm(), v.placeRegistered(),
+                            v.registrationNumber()))
                     .orElse(null));
             return this;
         }

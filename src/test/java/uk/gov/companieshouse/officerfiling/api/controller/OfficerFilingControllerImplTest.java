@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -100,7 +100,7 @@ class OfficerFilingControllerImplTest {
 
     @BeforeEach
     void setUp() {
-        testController = new OfficerFilingControllerImpl(transactionService, officerFilingService, companyProfileService, companyAppointmentService,
+        testController = new OfficerFilingControllerImpl(transactionService, officerFilingService,
                 filingMapper, clock, logger);
         ReflectionTestUtils.setField(testController, "isTm01Enabled", true);
         var offData = new OfficerFilingData(

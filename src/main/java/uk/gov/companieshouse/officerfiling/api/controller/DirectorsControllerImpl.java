@@ -1,19 +1,12 @@
 package uk.gov.companieshouse.officerfiling.api.controller;
 
-import static uk.gov.companieshouse.officerfiling.api.utils.Constants.TRANSACTION_ID_KEY;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.HashMap;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
@@ -24,6 +17,13 @@ import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerService;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper.Builder;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.HashMap;
+
+import static uk.gov.companieshouse.officerfiling.api.utils.Constants.TRANSACTION_ID_KEY;
 
 @RestController
 public class DirectorsControllerImpl implements DirectorsController {
@@ -45,7 +45,6 @@ public class DirectorsControllerImpl implements DirectorsController {
     }
 
     @Override
-    @ResponseBody
     @GetMapping(value = "/transactions/{transactionId}/officers/active-directors-details", produces = {"application/json"})
     public ResponseEntity<Object> getListActiveDirectorsDetails(
         @RequestAttribute("transaction") Transaction transaction,
@@ -80,7 +79,6 @@ public class DirectorsControllerImpl implements DirectorsController {
     }
 
     @Override
-    @ResponseBody
     @GetMapping(value = "/transactions/{transactionId}/officers/{filingId}/tm01-check-answers-directors-details", produces = {"application/json"})
     public ResponseEntity<Object> getRemoveCheckAnswersDirectorDetails(
             @RequestAttribute("transaction") Transaction transaction,

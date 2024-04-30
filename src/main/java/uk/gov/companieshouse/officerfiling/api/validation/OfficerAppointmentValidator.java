@@ -13,7 +13,7 @@ import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 import uk.gov.companieshouse.officerfiling.api.validation.error.CorrespondenceAddressErrorProvider;
 import uk.gov.companieshouse.officerfiling.api.validation.error.ResidentialAddressErrorProvider;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;

@@ -17,7 +17,7 @@ import uk.gov.companieshouse.officerfiling.api.validation.error.AddressErrorProv
 import uk.gov.companieshouse.officerfiling.api.validation.error.CorrespondenceAddressErrorProvider;
 import uk.gov.companieshouse.officerfiling.api.validation.error.ResidentialAddressErrorProvider;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
