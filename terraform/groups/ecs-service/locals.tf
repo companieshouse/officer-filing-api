@@ -4,7 +4,7 @@ locals {
   name_prefix                = "${local.stack_name}-${var.environment}"
   global_prefix              = "global-${var.environment}"
   service_name               = "officer-filing-api"
-  container_port             = 8080
+  container_port             = "8080"
   eric_port                  = "10000"
   docker_repo                = "officer-filing-api"
   kms_alias                  = "alias/${var.aws_profile}/environment-services-kms"
@@ -40,7 +40,7 @@ locals {
 
   ssm_global_version_map = [
     for sec in data.aws_ssm_parameter.global_secret :
-      { "name"  = "GLOBAL_${var.ssm_version_prefix}${replace(upper(basename(sec.name)), "-", "_")}", "value" = "sec.version" }
+      { "name"  = "GLOBAL_${var.ssm_version_prefix}${replace(upper(basename(sec.name)), "-", "_")}", "value" = sec.version }
   ]
 
   service_secrets_arn_map = {
@@ -54,7 +54,7 @@ locals {
 
   ssm_service_version_map = [
     for sec in module.secrets.secrets :
-      { "name"  = "${replace(upper(local.service_name), "-", "_")}_${var.ssm_version_prefix}${replace(upper(basename(sec.name)), "-", "_")}", "value" = "sec.version" }
+      { "name"  = "${replace(upper(local.service_name), "-", "_")}_${var.ssm_version_prefix}${replace(upper(basename(sec.name)), "-", "_")}", "value" = sec.version }
   ]
 
   # secrets to go in list
