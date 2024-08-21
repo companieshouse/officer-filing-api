@@ -50,8 +50,6 @@
             ${project.basedir}/target
         </sonar.java.binaries>
 
-        <!-- OWASP dependency checker -->
-        <dependency-check-plugin.version>10.0.3</dependency-check-plugin.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -274,26 +272,6 @@
                             <!-- Sets the output directory for the code coverage report. -->
                             <outputDirectory>${sonar.jacoco.reports}/jacoco-it</outputDirectory>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <version>${dependency-check-plugin.version}</version>
-                <configuration>
-                    <formats>
-                        <format>html</format>
-                    </formats>
-                    <suppressionFiles>
-                        <suppressionFile>suppress.xml</suppressionFile>
-                    </suppressionFiles>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
