@@ -19,7 +19,7 @@
         <skip.unit.tests>false</skip.unit.tests>
         <!-- Spring -->
         <spring-boot-dependencies.version>3.3.2</spring-boot-dependencies.version>
-        <spring-web.version>6.1.12</spring-web.version>
+        <spring-web.version>6.1.14</spring-web.version>
         <!-- Maven -->
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
