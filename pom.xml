@@ -6,8 +6,8 @@
     <parent>
         <groupId>uk.gov.companieshouse</groupId>
         <artifactId>companies-house-parent</artifactId>
-        <version>2.1.6</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <version>2.1.12</version>
+        <relativePath/>
     </parent>
     <artifactId>officer-filing-api</artifactId>
     <version>unversioned</version>
