@@ -6,8 +6,8 @@
     <parent>
         <groupId>uk.gov.companieshouse</groupId>
         <artifactId>companies-house-parent</artifactId>
-        <version>2.1.6</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <version>2.1.12</version>
+        <relativePath/>
     </parent>
     <artifactId>officer-filing-api</artifactId>
     <version>unversioned</version>
@@ -43,9 +43,6 @@
         </sonar.coverage.jacoco.xmlReportPaths>
         <sonar.jacoco.reports>${project.build.directory}/site</sonar.jacoco.reports>
         <sonar.jacoco.reportPath>target/site/jacoco/jacoco.xml</sonar.jacoco.reportPath>
-        <sonar.dependencyCheck.htmlReportPath>
-            ${project.basedir}/target/dependency-check-report.html
-        </sonar.dependencyCheck.htmlReportPath>
         <sonar.java.binaries>
             ${project.basedir}/target
         </sonar.java.binaries>
