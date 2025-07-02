@@ -34,7 +34,6 @@ public class FilingData {
 
     private String countryOfResidence;
 
-    @JsonCreator
     public FilingData(@JsonProperty("first_name") String firstName,
                       @JsonProperty("middle_names") String middleNames,
                       @JsonProperty("last_name") String lastName,
