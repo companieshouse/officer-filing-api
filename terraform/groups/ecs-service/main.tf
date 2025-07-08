@@ -19,7 +19,7 @@ terraform {
 }
 
 module "secrets" {
-  source = "git@github.com:companieshouse/terraform-modules//aws/ecs/secrets?ref=1.0.296"
+  source = "git@github.com:companieshouse/terraform-modules//aws/ecs/secrets?ref=1.0.336"
 
   environment = var.environment
   kms_key_id  = data.aws_kms_key.kms_key.id
@@ -28,7 +28,7 @@ module "secrets" {
 }
 
 module "ecs-service" {
-  source = "git@github.com:companieshouse/terraform-modules//aws/ecs/ecs-service?ref=1.0.296"
+  source = "git@github.com:companieshouse/terraform-modules//aws/ecs/ecs-service?ref=1.0.336"
 
   # Environmental configuration
   aws_profile             = var.aws_profile
