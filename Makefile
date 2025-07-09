@@ -54,7 +54,7 @@ coverage:
 	mvn verify
 
 .PHONY: sonar
-sonar: security-check
+sonar:
 	mvn sonar:sonar
 
 .PHONY: sonar-pr-analysis
