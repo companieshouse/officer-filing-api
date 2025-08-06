@@ -46,6 +46,10 @@
         <sonar.java.binaries>
             ${project.basedir}/target
         </sonar.java.binaries>
+        <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
+        <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
+        <sonar.login/>
+        <sonar.password/>
 
     </properties>
     <dependencyManagement>
