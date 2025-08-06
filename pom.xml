@@ -50,6 +50,8 @@
         <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
         <sonar.login/>
         <sonar.password/>
+        <sonar.projectKey>uk.gov.companieshouse:officer-filing-api</sonar.projectKey>
+        <sonar.projectName>officer-filing-api</sonar.projectName>
 
     </properties>
     <dependencyManagement>
