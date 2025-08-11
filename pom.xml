@@ -18,7 +18,7 @@
         <skip.integration.tests>false</skip.integration.tests>
         <skip.unit.tests>false</skip.unit.tests>
         <!-- Spring -->
-        <spring-boot-dependencies.version>3.5.3</spring-boot-dependencies.version>
+        <spring-boot-dependencies.version>3.5.4</spring-boot-dependencies.version>
         <!-- Maven -->
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -32,11 +32,11 @@
         <mapstruct.version>1.6.3</mapstruct.version>
         <opentelemetry-instrumentation-bom.version>2.16.0</opentelemetry-instrumentation-bom.version>
         <!--- CH -->
-        <structured-logging.version>3.0.33</structured-logging.version>
-        <private-api-sdk-java.version>4.0.316</private-api-sdk-java.version>
-        <api-sdk-manager-java-library.version>3.0.7</api-sdk-manager-java-library.version>
-        <api-security-java.version>2.0.8</api-security-java.version>
-        <api-helper-java.version>3.0.1</api-helper-java.version>
+        <structured-logging.version>3.0.38</structured-logging.version>
+        <private-api-sdk-java.version>4.0.337</private-api-sdk-java.version>
+        <api-sdk-manager-java-library.version>3.0.10</api-sdk-manager-java-library.version>
+        <api-security-java.version>2.0.11</api-security-java.version>
+        <api-helper-java.version>3.0.2</api-helper-java.version>
         <!--sonar configuration-->
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml,
             ${project.build.directory}/site/jacoco-it/jacoco.xml
@@ -101,6 +101,13 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
+        </dependency>
+        <!--  force use of commons-lang3 version 3.18 to avoid vulnerability in 3.17 that is transitive
+         in several CH dependencies.  Can be removed when those are updated -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.18.0</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>

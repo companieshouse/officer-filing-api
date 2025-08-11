@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.officerfiling.api.validation;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
