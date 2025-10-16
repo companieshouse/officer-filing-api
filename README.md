@@ -14,7 +14,6 @@ In order to build this service locally you need:
 - [Spring Framework](https://spring.io/projects/spring-framework)
 - [MapStruct](https://mapstruct.org/)
 - [Docker](https://wwww.docker.com)
-- [Tilt](https://tilt.dev)
 
 ## Installation
 
@@ -60,7 +59,7 @@ To run the officer-filing service locally in docker
     ```
     ./bin/chs-dev modules enable officer-filing
 
-    tilt up
+    chs-dev up
     ```
 1. To enable development workflow for the service run the command: `./bin/chs-dev development enable officer-filing
 ` 
