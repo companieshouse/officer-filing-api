@@ -39,8 +39,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -92,21 +92,21 @@ class OfficerFilingControllerImplIT {
 
     private static final URI REQUEST_URI = URI.create("/transactions/" + TRANS_ID + "/officers");
 
-    @MockBean
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
     private TransactionService transactionService;
-    @MockBean
+    @MockitoBean
     private OfficerFilingService officerFilingService;
-    @MockBean
+    @MockitoBean
     private OfficerFilingMapper filingMapper;
-    @MockBean
+    @MockitoBean
     private CompanyProfileService companyProfileService;
-    @MockBean
+    @MockitoBean
     private CompanyAppointmentService companyAppointmentService;
-    @MockBean
+    @MockitoBean
     private Clock clock;
-    @MockBean
+    @MockitoBean
     private Logger logger;
-    @MockBean
+    @MockitoBean
     private ApiClientService apiClientService;
 
     @Mock

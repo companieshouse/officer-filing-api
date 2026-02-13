@@ -35,7 +35,7 @@
         <structured-logging.version>3.0.49</structured-logging.version>
         <private-api-sdk-java.version>4.0.451</private-api-sdk-java.version>
         <api-sdk-manager-java-library.version>3.0.15</api-sdk-manager-java-library.version>
-        <api-security-java.version>2.0.18</api-security-java.version>
+        <api-security-java.version>2.0.20</api-security-java.version>
         <api-helper-java.version>3.0.3</api-helper-java.version>
         <!--sonar configuration-->
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml,
