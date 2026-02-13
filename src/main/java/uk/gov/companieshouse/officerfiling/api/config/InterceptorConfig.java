@@ -11,9 +11,12 @@ import uk.gov.companieshouse.api.interceptor.InternalUserInterceptor;
 import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
 import uk.gov.companieshouse.api.interceptor.TokenPermissionsInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
+import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.interceptor.OfficersCRUDAuthenticationInterceptor;
 import uk.gov.companieshouse.officerfiling.api.interceptor.RequestLoggingInterceptor;
 import uk.gov.companieshouse.officerfiling.api.interceptor.ValidTransactionInterceptor;
+import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
+import uk.gov.companieshouse.officerfiling.api.service.TransactionService;
 
 @Configuration
 @ComponentScan(basePackages = {"uk.gov.companieshouse.api", "uk.gov.companieshouse.officerfiling.api"})
@@ -25,9 +28,19 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     private static final String GET_VALIDATION = "/**/validation_status";
     private static final String FILINGS = "/transactions/*/officers/*";
-    
+
+    private final Logger logger;
+    private final TransactionService transactionService;
+    private final OfficerFilingService officerFilingService;
+
+    public InterceptorConfig(Logger logger, TransactionService transactionService, OfficerFilingService officerFilingService) {
+        this.logger = logger;
+        this.transactionService = transactionService;
+        this.officerFilingService = officerFilingService;
+    }
+
     /**
-     * Setup the interceptors to run against endpoints when the endpoints are called
+     * Set up the interceptors to run against endpoints when the endpoints are called
      * Interceptors are executed in the order they are added to the registry
      * @param registry The spring interceptor registry
      */
@@ -68,7 +81,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
     
     private void addTokenPermissionInterceptor(InterceptorRegistry registry) {
         registry.addInterceptor(tokenPermissionsInterceptor());
-        //Just check the non private endpoints. Private endpoints use API keys rather than OAuth2
+        //Just check the non-private endpoints. Private endpoints use API keys rather than OAuth2
         registry.addInterceptor(officersCRUDAuthenticationInterceptor())
             .addPathPatterns(TRANSACTIONS);
     }
@@ -99,7 +112,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     @Bean
     public OfficersCRUDAuthenticationInterceptor officersCRUDAuthenticationInterceptor() {
-        return new OfficersCRUDAuthenticationInterceptor();
+        return new OfficersCRUDAuthenticationInterceptor(logger, transactionService);
     }
 
     public TokenPermissionsInterceptor tokenPermissionsInterceptor() {
@@ -116,6 +129,6 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     @Bean
     public ValidTransactionInterceptor validTransactionInterceptor() {
-        return new ValidTransactionInterceptor();
+        return new ValidTransactionInterceptor(logger, officerFilingService);
     }
 }
