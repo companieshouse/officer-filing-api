@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.api.interceptor.OpenTransactionInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.officerfiling.api.controller.OfficerFilingController;
@@ -24,11 +24,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 class OfficerFilingApiApplicationTests {
     @Autowired
     private OfficerFilingController officerFilingController;
-    @MockBean
-    private TransactionInterceptor TransactionInterceptor;
-    @MockBean
+    @MockitoBean
+    private TransactionInterceptor transactionInterceptor;
+    @MockitoBean
     private OpenTransactionInterceptor openTransactionInterceptor;
-    @MockBean
+    @MockitoBean
     private OfficersCRUDAuthenticationInterceptor officersCRUDAuthenticationInterceptor;
 
     @Test

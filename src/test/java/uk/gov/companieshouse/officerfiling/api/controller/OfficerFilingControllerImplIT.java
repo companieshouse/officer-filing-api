@@ -127,9 +127,6 @@ class OfficerFilingControllerImplIT {
     @Mock
     private HttpServletRequest request;
 
-    @Mock
-    private OfficerFilingDto dto;
-
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -376,8 +373,6 @@ class OfficerFilingControllerImplIT {
     @Test
     void createFilingWhenResignedOnBlankThenResponse201() throws Exception {
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "") + "}";
-        final var expectedError = createExpectedError(
-            "JSON parse error:", "$.resigned_on", 1, 75);
         var offData = new OfficerFilingData(
                 "etag",
                 FILING_ID,
@@ -604,11 +599,6 @@ class OfficerFilingControllerImplIT {
     @Test
     void createFilingWhenTransactionIsNull() throws Exception {
         final var body = "{" + TM01_FRAGMENT + "}";
-        final var dto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(LocalDate.of(2022, 9, 13))
-                .build();
 
         when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
         when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);

@@ -123,7 +123,7 @@ class DirectorsControllerImplTest {
   }
 
   @Test
-  void getRemoveCheckAnswersDirectorDetailsWhenNotFound() throws Exception {
+  void getRemoveCheckAnswersDirectorDetailsWhenNotFound() {
     var offData = new OfficerFilingData(
             "etag",
             null,
