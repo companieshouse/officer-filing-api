@@ -25,7 +25,6 @@ import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 import uk.gov.companieshouse.officerfiling.api.repository.OfficerFilingRepository;
 import uk.gov.companieshouse.officerfiling.api.utils.LogHelper;
 
-
 @ExtendWith(MockitoExtension.class)
 class OfficerFilingDataServiceImplTest {
     public static final String FILING_ID = "6332aa6ed28ad2333c3a520a";
@@ -59,8 +58,7 @@ class OfficerFilingDataServiceImplTest {
 
     @Test
     void getWhenFound() {
-        var filing = OfficerFiling.builder().build();
-        when(repository.findById(FILING_ID)).thenReturn(Optional.of(filing));
+        when(repository.findById(FILING_ID)).thenReturn(Optional.of(OfficerFiling.builder().build()));
         final var officerFiling = testService.get(FILING_ID, TRANS_ID);
 
         assertThat(officerFiling.isPresent(), is(true));
@@ -145,10 +143,8 @@ class OfficerFilingDataServiceImplTest {
         URI validationStatusURI = new URI("");
         Links links = new Links(selfUri, validationStatusURI);
 
-        OfficerFiling filing = OfficerFiling.builder()
+        return OfficerFiling.builder()
                 .links(links)
                 .build();
-
-        return filing;
     }
 }
