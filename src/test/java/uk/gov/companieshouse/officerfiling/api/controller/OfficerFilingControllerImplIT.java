@@ -92,7 +92,7 @@ class OfficerFilingControllerImplIT {
 
     private static final URI REQUEST_URI = URI.create("/transactions/" + TRANS_ID + "/officers");
 
-    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    @MockitoBean
     private TransactionService transactionService;
     @MockitoBean
     private OfficerFilingService officerFilingService;
