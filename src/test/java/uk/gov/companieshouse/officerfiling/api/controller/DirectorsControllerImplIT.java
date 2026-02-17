@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.ApiClient;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
@@ -65,21 +65,21 @@ class DirectorsControllerImplIT {
     private HttpHeaders httpHeaders;
     private OfficerFilingData officerFilingData;
     private OfficerFiling officerFiling;
-    @MockBean
+    @MockitoBean
     private OfficerFilingService officerFilingService;
-    @MockBean
+    @MockitoBean
     private CompanyAppointmentService companyAppointmentService;
-    @MockBean
+    @MockitoBean
     private LogHelper logHelper;
-    @MockBean
+    @MockitoBean
     private Logger logger;
-    @MockBean
+    @MockitoBean
     private TransactionInterceptor transactionInterceptor;
-    @MockBean
+    @MockitoBean
     private OpenTransactionInterceptor openTransactionInterceptor;
-    @MockBean
+    @MockitoBean
     private OfficerService officerService;
-    @MockBean
+    @MockitoBean
     private ApiClientService apiClientService;
     @Mock
     private HttpServletRequest request;

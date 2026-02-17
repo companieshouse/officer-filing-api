@@ -31,15 +31,10 @@ public class OfficersCRUDAuthenticationInterceptor implements HandlerInterceptor
     public static final String COMPANY_NUMBER_KEY = "company_number";
     public static final String ERIC_AUTHORISED_TOKEN_PERMISSIONS = "ERIC-Authorised-Token-Permissions";
 
-    @Autowired
-    private Logger logger;
+    private final Logger logger;
+    private final TransactionService transactionService;
 
     @Autowired
-    private TransactionService transactionService;
-
-    public OfficersCRUDAuthenticationInterceptor() {
-    }
-
     public OfficersCRUDAuthenticationInterceptor(Logger logger, TransactionService transactionService) {
         this.logger = logger;
         this.transactionService = transactionService;

@@ -10,6 +10,7 @@ import uk.gov.companieshouse.officerfiling.api.exception.NotImplementedException
 
 class DirectorsControllerTest {
 
+  private static final String TRANS_ID = "117524-754816-491724";
   @Mock
   private HttpServletRequest request;
   @Mock
@@ -22,6 +23,6 @@ class DirectorsControllerTest {
     var testController = new DirectorsController(){};
 
     assertThrows(NotImplementedException.class,
-        () -> testController.getListActiveDirectorsDetails(transaction, request));
+        () -> testController.getListActiveDirectorsDetails(TRANS_ID, transaction, request));
   }
 }

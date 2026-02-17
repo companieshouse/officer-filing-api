@@ -3,23 +3,21 @@ package uk.gov.companieshouse.officerfiling.api.interceptor;
 import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
 
-import io.micrometer.core.instrument.util.StringUtils;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.service.OfficerFilingService;
 
 public class ValidTransactionInterceptor implements HandlerInterceptor {
-    @Autowired
-    private Logger logger;
-    @Autowired
-    private OfficerFilingService officerFilingService;
 
-    public ValidTransactionInterceptor(){}
+    private final Logger logger;
+    private final OfficerFilingService officerFilingService;
 
+    @Autowired
     public ValidTransactionInterceptor(Logger logger, OfficerFilingService officerFilingService) {
         this.logger = logger;
         this.officerFilingService = officerFilingService;

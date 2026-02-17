@@ -3,6 +3,7 @@ package uk.gov.companieshouse.officerfiling.api.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.officerfiling.api.exception.NotImplementedException;
@@ -18,6 +19,7 @@ public interface DirectorsController {
      */
     @GetMapping
     default ResponseEntity<Object> getListActiveDirectorsDetails(
+        @PathVariable("transactionId") String unusedTransactionId,
         @RequestAttribute("transaction") Transaction transaction,
         HttpServletRequest request) {
         throw new NotImplementedException();
@@ -32,8 +34,9 @@ public interface DirectorsController {
      */
     @GetMapping
     default ResponseEntity<Object> getRemoveCheckAnswersDirectorDetails(
+            @PathVariable("transactionId") String unusedTransactionId,
             @RequestAttribute("transaction") Transaction transaction,
-            @RequestAttribute("filingId") String filingId, HttpServletRequest request) {
+            @PathVariable("filingId") String filingId, HttpServletRequest request) {
         throw new NotImplementedException();
     }
 }

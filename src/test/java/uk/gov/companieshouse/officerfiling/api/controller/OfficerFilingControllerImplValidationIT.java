@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.ApiClient;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
@@ -66,21 +66,21 @@ class OfficerFilingControllerImplValidationIT {
     private static final String COMPANY_TYPE = "ltd";
     private static final String OFFICER_ROLE = "director";
 
-    @MockBean
+    @MockitoBean
     private TransactionService transactionService;
-    @MockBean
+    @MockitoBean
     private OfficerFilingService officerFilingService;
-    @MockBean
+    @MockitoBean
     private CompanyProfileService companyProfileService;
-    @MockBean
+    @MockitoBean
     private CompanyAppointmentService companyAppointmentService;
-    @MockBean
+    @MockitoBean
     private OfficerFilingMapper filingMapper;
-    @MockBean
+    @MockitoBean
     private Clock clock;
-    @MockBean
+    @MockitoBean
     private Logger logger;
-    @MockBean
+    @MockitoBean
     private ApiClientService apiClientService;
 
     @Mock
