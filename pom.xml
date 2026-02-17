@@ -18,7 +18,7 @@
         <skip.integration.tests>false</skip.integration.tests>
         <skip.unit.tests>false</skip.unit.tests>
         <!-- Spring -->
-        <spring-boot-dependencies.version>3.5.4</spring-boot-dependencies.version>
+        <spring-boot-dependencies.version>3.5.10</spring-boot-dependencies.version>
         <!-- Maven -->
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -32,11 +32,11 @@
         <mapstruct.version>1.6.3</mapstruct.version>
         <opentelemetry-instrumentation-bom.version>2.16.0</opentelemetry-instrumentation-bom.version>
         <!--- CH -->
-        <structured-logging.version>3.0.38</structured-logging.version>
-        <private-api-sdk-java.version>4.0.337</private-api-sdk-java.version>
-        <api-sdk-manager-java-library.version>3.0.10</api-sdk-manager-java-library.version>
-        <api-security-java.version>2.0.11</api-security-java.version>
-        <api-helper-java.version>3.0.2</api-helper-java.version>
+        <structured-logging.version>3.0.49</structured-logging.version>
+        <private-api-sdk-java.version>4.0.451</private-api-sdk-java.version>
+        <api-sdk-manager-java-library.version>3.0.15</api-sdk-manager-java-library.version>
+        <api-security-java.version>2.0.20</api-security-java.version>
+        <api-helper-java.version>3.0.3</api-helper-java.version>
         <!--sonar configuration-->
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml,
             ${project.build.directory}/site/jacoco-it/jacoco.xml
@@ -48,8 +48,6 @@
         </sonar.java.binaries>
         <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
         <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
-        <sonar.login/>
-        <sonar.password/>
         <sonar.projectKey>uk.gov.companieshouse:officer-filing-api</sonar.projectKey>
         <sonar.projectName>officer-filing-api</sonar.projectName>
 
@@ -69,6 +67,12 @@
                 <version>${spring-boot-dependencies.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- PINNED: CVE-2025-68161 workaround in spring-boot-starter-actuator@3.5.10 transitive dependency log4j-api@2.24.3 -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>2.25.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

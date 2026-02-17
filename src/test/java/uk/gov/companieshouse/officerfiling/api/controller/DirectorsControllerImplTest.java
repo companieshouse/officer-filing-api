@@ -76,7 +76,7 @@ class DirectorsControllerImplTest {
     when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
     var officers = Arrays.asList(new CompanyOfficerApi(), new CompanyOfficerApi());
     when(officerService.getListOfActiveDirectorsDetails(request, TRANS_ID, COMPANY_NUMBER, PASSTHROUGH_HEADER)).thenReturn(officers);
-    var response = testService.getListActiveDirectorsDetails(transaction, request);
+    var response = testService.getListActiveDirectorsDetails(TRANS_ID, transaction, request);
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(officers, response.getBody());
   }
@@ -88,7 +88,7 @@ class DirectorsControllerImplTest {
             .thenThrow(serviceException);
     when(serviceException.getCause()).thenReturn(serviceException);
     when(serviceException.getMessage()).thenReturn("404 not found\n{}");
-    var response = testService.getListActiveDirectorsDetails(transaction, request);
+    var response = testService.getListActiveDirectorsDetails(TRANS_ID, transaction, request);
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
   }
 
@@ -99,7 +99,7 @@ class DirectorsControllerImplTest {
             .thenThrow(serviceException);
     when(serviceException.getCause()).thenReturn(serviceException);
     when(serviceException.getMessage()).thenReturn("Internal Server Error");
-    var response = testService.getListActiveDirectorsDetails(transaction, request);
+    var response = testService.getListActiveDirectorsDetails(TRANS_ID, transaction, request);
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
   }
   
@@ -116,14 +116,14 @@ class DirectorsControllerImplTest {
     when(officerFilingOptional.get()).thenReturn(officerFiling);
     when(officerFiling.getData()).thenReturn(offData);
     when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, null, PASSTHROUGH_HEADER)).thenReturn(appointmentFullRecordAPI);
-    var response = testService.getRemoveCheckAnswersDirectorDetails(transaction, SUBMISSION_ID, request);
+    var response = testService.getRemoveCheckAnswersDirectorDetails(TRANS_ID, transaction, SUBMISSION_ID, request);
     assertEquals(HttpStatus.OK, response.getStatusCode());
     verify(appointmentFullRecordAPI, times(1)).setResignedOn(
             LocalDate.ofInstant(resignedOn,ZoneId.systemDefault()));
   }
 
   @Test
-  void getRemoveCheckAnswersDirectorDetailsWhenNotFound() throws Exception {
+  void getRemoveCheckAnswersDirectorDetailsWhenNotFound() {
     var offData = new OfficerFilingData(
             "etag",
             null,
@@ -138,11 +138,11 @@ class DirectorsControllerImplTest {
     when(officerFilingOptional.get()).thenReturn(officerFiling);
     when(officerFiling.getData()).thenReturn(offData);
     when(officerFiling.getData()).thenReturn(offData2);
-    var response = testService.getRemoveCheckAnswersDirectorDetails(transaction, SUBMISSION_ID, request);
+    var response = testService.getRemoveCheckAnswersDirectorDetails(TRANS_ID, transaction, SUBMISSION_ID, request);
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 
     when(officerFilingOptional.isPresent()).thenReturn(false);
-    response = testService.getRemoveCheckAnswersDirectorDetails(transaction, SUBMISSION_ID, request);
+    response = testService.getRemoveCheckAnswersDirectorDetails(TRANS_ID, transaction, SUBMISSION_ID, request);
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
   }
 
@@ -150,7 +150,7 @@ class DirectorsControllerImplTest {
   void checkTm01FeatureFlagDisabled() {
     ReflectionTestUtils.setField(testService, "isTm01Enabled", false);
     assertThrows(FeatureNotEnabledException.class,
-        () -> testService.getListActiveDirectorsDetails(transaction, request));
+        () -> testService.getListActiveDirectorsDetails(TRANS_ID, transaction, request));
   }
 
 }

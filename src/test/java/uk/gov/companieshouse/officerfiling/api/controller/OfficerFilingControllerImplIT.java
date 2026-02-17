@@ -39,8 +39,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -92,21 +92,21 @@ class OfficerFilingControllerImplIT {
 
     private static final URI REQUEST_URI = URI.create("/transactions/" + TRANS_ID + "/officers");
 
-    @MockBean
+    @MockitoBean
     private TransactionService transactionService;
-    @MockBean
+    @MockitoBean
     private OfficerFilingService officerFilingService;
-    @MockBean
+    @MockitoBean
     private OfficerFilingMapper filingMapper;
-    @MockBean
+    @MockitoBean
     private CompanyProfileService companyProfileService;
-    @MockBean
+    @MockitoBean
     private CompanyAppointmentService companyAppointmentService;
-    @MockBean
+    @MockitoBean
     private Clock clock;
-    @MockBean
+    @MockitoBean
     private Logger logger;
-    @MockBean
+    @MockitoBean
     private ApiClientService apiClientService;
 
     @Mock
@@ -126,9 +126,6 @@ class OfficerFilingControllerImplIT {
 
     @Mock
     private HttpServletRequest request;
-
-    @Mock
-    private OfficerFilingDto dto;
 
     @Autowired
     private MockMvc mockMvc;
@@ -376,8 +373,6 @@ class OfficerFilingControllerImplIT {
     @Test
     void createFilingWhenResignedOnBlankThenResponse201() throws Exception {
         final var body = "{" + TM01_FRAGMENT.replace("2022-09-13", "") + "}";
-        final var expectedError = createExpectedError(
-            "JSON parse error:", "$.resigned_on", 1, 75);
         var offData = new OfficerFilingData(
                 "etag",
                 FILING_ID,
@@ -604,11 +599,6 @@ class OfficerFilingControllerImplIT {
     @Test
     void createFilingWhenTransactionIsNull() throws Exception {
         final var body = "{" + TM01_FRAGMENT + "}";
-        final var dto = OfficerFilingDto.builder()
-                .referenceEtag("etag")
-                .referenceAppointmentId(FILING_ID)
-                .resignedOn(LocalDate.of(2022, 9, 13))
-                .build();
 
         when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenReturn(apiClientMock);
         when(apiClientMock.transactions()).thenReturn(transactionResourceHandlerMock);

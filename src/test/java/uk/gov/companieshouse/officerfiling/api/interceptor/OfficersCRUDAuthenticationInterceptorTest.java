@@ -205,7 +205,7 @@ class OfficersCRUDAuthenticationInterceptorTest {
 
     @Test
     void invalidERICTokenPermissions() {
-        var officerCRUDAuthenticationInterceptor = new OfficersCRUDAuthenticationInterceptor();
+        var officerCRUDAuthenticationInterceptor = new OfficersCRUDAuthenticationInterceptor(logger, mockTransactionService);
         when(mockRequest.getHeader(OfficersCRUDAuthenticationInterceptor.ERIC_AUTHORISED_TOKEN_PERMISSIONS)).thenReturn("HSU&@AZ123xj*");
         mockRequest.getHeader(ERIC_REQUEST_ID_KEY);
         assertNull(officerCRUDAuthenticationInterceptor.getCompanyNumberInScope(mockRequest));

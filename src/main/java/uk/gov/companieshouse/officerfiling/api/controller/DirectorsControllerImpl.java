@@ -44,9 +44,16 @@ public class DirectorsControllerImpl implements DirectorsController {
         this.logger = logger;
     }
 
+    /**
+     * @param unusedTransactionId {transactionId} in the path is used by TransactionInterceptor, not in Controller.
+     * @param transaction         the Transaction stored by the TransactionInterceptor in the request
+     * @param request             the servlet request
+     * @return list of CompanyOfficerApi for JSON Response
+     */
     @Override
     @GetMapping(value = "/transactions/{transactionId}/officers/active-directors-details", produces = {"application/json"})
     public ResponseEntity<Object> getListActiveDirectorsDetails(
+        @PathVariable("transactionId") String unusedTransactionId,
         @RequestAttribute("transaction") Transaction transaction,
         final HttpServletRequest request) {
 
@@ -78,9 +85,17 @@ public class DirectorsControllerImpl implements DirectorsController {
         }
     }
 
+    /**
+     * @param unusedTransactionId {transactionId} in the path is used by TransactionInterceptor, not in Controller.
+     * @param transaction         the Transaction stored by the TransactionInterceptor in the request
+     * @param filingId            the Officer Filing id
+     * @param request             the servlet request
+     * @return AppointmentFullRecordAPI for a JSON response
+     */
     @Override
     @GetMapping(value = "/transactions/{transactionId}/officers/{filingId}/tm01-check-answers-directors-details", produces = {"application/json"})
     public ResponseEntity<Object> getRemoveCheckAnswersDirectorDetails(
+            @PathVariable("transactionId") String unusedTransactionId,
             @RequestAttribute("transaction") Transaction transaction,
             @PathVariable("filingId") String filingId, final HttpServletRequest request) {
 
