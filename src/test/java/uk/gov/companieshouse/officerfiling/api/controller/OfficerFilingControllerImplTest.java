@@ -19,12 +19,14 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -59,11 +61,6 @@ class OfficerFilingControllerImplTest {
     private static final URI REQUEST_URI = URI.create("/transactions/" + TRANS_ID + "/officers");
     private static final Instant FIRST_INSTANT = Instant.parse("2022-10-15T09:44:08.108Z");
     public static final String COMPANY_NUMBER = "COMPANY_NUMBER";
-    public static final String DIRECTOR_NAME = "director name";
-    private static final String ETAG = "etag";
-    private static final String COMPANY_TYPE = "ltd";
-    private static final String OFFICER_ROLE = "director";
-    private static final String APPOINTMENT_ID = "12345678";
     private static final String FILING_DESCRIPTION = "xyz a company director";
 
     private OfficerFilingControllerImpl testController;
@@ -207,12 +204,20 @@ class OfficerFilingControllerImplTest {
 
     }
 
-    @Test
-    void createFilingWhenReferenceAppointmentIdNull() {
+    @ParameterizedTest
+    @NullAndEmptySource
+    void createFilingWhenReferenceAppointmentIdBlankAndNull(String referenceAppointmentId) {
         when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
         when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
         when(clock.instant()).thenReturn(FIRST_INSTANT);
         when(transaction.getId()).thenReturn(TRANS_ID);
+
+        var offData = new OfficerFilingData(
+                "etag",
+                referenceAppointmentId,
+                Instant.parse("2022-09-13T00:00:00Z"));
+        filing = OfficerFiling.builder().createdAt(FIRST_INSTANT).updatedAt(FIRST_INSTANT).data(offData)
+                .build();
         when(filingMapper.map(dto)).thenReturn(filing);
         final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
                 .build();
@@ -228,33 +233,8 @@ class OfficerFilingControllerImplTest {
         verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
         final OfficerFiling filingResponse = (OfficerFiling) response.getBody();
-        assertThat(filingResponse.getId(), is(FILING_ID));
+        assertThat(Objects.requireNonNull(filingResponse).getId(), is(FILING_ID));
     }
-
-    @Test
-    void createFilingWhenReferenceAppointmentIdBlank() {
-        when(request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(PASSTHROUGH_HEADER);
-        when(request.getRequestURI()).thenReturn(REQUEST_URI.toString());
-        when(clock.instant()).thenReturn(FIRST_INSTANT);
-        when(transaction.getId()).thenReturn(TRANS_ID);
-        when(filingMapper.map(dto)).thenReturn(filing);
-        final var withFilingId = OfficerFiling.builder(filing).id(FILING_ID)
-                .build();
-        final var withLinks = OfficerFiling.builder(withFilingId).links(links)
-                .build();
-        when(officerFilingService.save(filing, TRANS_ID)).thenReturn(withFilingId);
-        when(officerFilingService.save(withLinks, TRANS_ID)).thenReturn(withLinks);
-
-        final var response = testController.createFiling(transaction, dto, result, request);
-
-        // refEq needed to compare Map value objects; Resource does not override equals()
-        verify(transaction).setResources(refEq(resourceMap));
-        verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
-        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
-        final OfficerFiling filingResponse = (OfficerFiling) response.getBody();
-        assertThat(filingResponse.getId(), is(FILING_ID));
-    }
-
 
     @Test
     void createFilingWhenDescriptionNotBlank() {
@@ -277,7 +257,7 @@ class OfficerFilingControllerImplTest {
         verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
         final OfficerFiling filingResponse = (OfficerFiling) response.getBody();
-        assertThat(filingResponse.getId(), is(FILING_ID));
+        assertThat(Objects.requireNonNull(filingResponse).getId(), is(FILING_ID));
     }
 
     @Test
@@ -302,7 +282,7 @@ class OfficerFilingControllerImplTest {
         verify(transactionService).updateTransaction(transaction, PASSTHROUGH_HEADER);
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
         final OfficerFiling filingResponse = (OfficerFiling) response.getBody();
-        assertThat(filingResponse.getId(), is(FILING_ID));
+        assertThat(Objects.requireNonNull(filingResponse).getId(), is(FILING_ID));
     }
 
     @ParameterizedTest(name = "[{index}] null binding result={0}")
@@ -497,16 +477,16 @@ class OfficerFilingControllerImplTest {
     private Map<String, Resource> getResourcesForFiling(String filingId) {
         var resource = new Resource();
         resource.setKind("officer-filing");
-        Map<String, String> links = new HashMap<>();
-        links.put("resource", "/transactions/" + TRANS_ID + "/officers/" + filingId);
-        resource.setLinks(links);
+        Map<String, String> resourceLinks = new HashMap<>();
+        resourceLinks.put("resource", "/transactions/" + TRANS_ID + "/officers/" + filingId);
+        resource.setLinks(resourceLinks);
         Map<String, Resource> resources = new HashMap<>();
         resources.put("resource", resource);
         return resources;
     }
 
     private Map<String, Resource> createResources() {
-        final Map<String, Resource> resourceMap = new HashMap<>();
+        resourceMap = new HashMap<>();
         final var resource = new Resource();
         final var self = REQUEST_URI + "/" + FILING_ID;
         final var linksMap = Map.of("resource", self, VALIDATION_STATUS,

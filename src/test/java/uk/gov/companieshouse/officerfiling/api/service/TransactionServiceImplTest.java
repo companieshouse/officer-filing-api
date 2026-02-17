@@ -78,7 +78,7 @@ class TransactionServiceImplTest {
     }
 
     @Test
-    void getTransactionWhenNotFound() throws IOException, URIValidationException {
+    void getTransactionWhenNotFound() throws IOException {
         when(apiClientService.getApiClient(PASSTHROUGH_HEADER)).thenThrow(IOException.class);
 
         assertThrows(TransactionServiceException.class, () -> testService.getTransaction(TRANS_ID, PASSTHROUGH_HEADER));

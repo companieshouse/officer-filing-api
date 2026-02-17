@@ -42,7 +42,6 @@ class OfficerAppointmentValidatorTest {
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     private static final String ETAG = "etag";
     private static final String COMPANY_TYPE = "ltd";
-    private static final String OFFICER_ROLE = "director";
     private static final AddressDto validResidentialAddress = AddressDto.builder().premises("9")
             .addressLine1("Road").locality("Margate").country("France").build();
     private static final AddressDto validCorrespondenceAddressOutOfUK = AddressDto.builder().premises("61")
@@ -1779,7 +1778,7 @@ class OfficerAppointmentValidatorTest {
 
     @Test
     void validateAppointmentDatePastOrPresentWhenFuture() {
-        final var dto = OfficerFilingDto.builder()
+        dto = OfficerFilingDto.builder()
                 .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .appointedOn(LocalDate.now().plusDays(1))
@@ -1795,7 +1794,7 @@ class OfficerAppointmentValidatorTest {
 
     @Test
     void validateAppointmentDatePastOrPresentWhenPresent() {
-        final var dto = OfficerFilingDto.builder()
+        dto = OfficerFilingDto.builder()
                 .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .appointedOn(LocalDate.now())
@@ -1808,7 +1807,7 @@ class OfficerAppointmentValidatorTest {
 
     @Test
     void validateAppointmentDatePastOrPresentWhenPast() {
-        final var dto = OfficerFilingDto.builder()
+        dto = OfficerFilingDto.builder()
                 .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .appointedOn(LocalDate.now().minusDays(1))
@@ -1898,7 +1897,7 @@ class OfficerAppointmentValidatorTest {
 
     @Test
     void validateDirectorAgeAtAppointmentWhenValidAge() {
-        final var dto = OfficerFilingDto.builder()
+        dto = OfficerFilingDto.builder()
                 .referenceEtag(ETAG)
                 .referenceAppointmentId(FILING_ID)
                 .appointedOn(LocalDate.of(2023, Month.JANUARY, 5))

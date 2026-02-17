@@ -21,7 +21,6 @@ class FilingAPIMapperTest {
 
     private LocalDate localDate1;
     private Instant dob1;
-    private String dob1String;
     private Instant instant1;
     private FilingAPIMapper testMapper;
     @Mock
@@ -32,7 +31,6 @@ class FilingAPIMapperTest {
         testMapper = Mappers.getMapper(FilingAPIMapper.class);
         localDate1 = LocalDate.of(2019, 11, 5);
         dob1 = Instant.parse("1970-09-12T00:00:00Z");
-        dob1String = "1970-09-12";
         instant1 = Instant.parse("2019-11-05T00:00:00Z");
     }
 

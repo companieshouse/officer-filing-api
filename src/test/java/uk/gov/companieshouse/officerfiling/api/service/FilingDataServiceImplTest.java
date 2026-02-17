@@ -64,7 +64,6 @@ class FilingDataServiceImplTest {
     public static final String OCCUPATION = "TEST ANALYST";
 
     private static final Instant DATE_OF_BIRTH_INS = Instant.parse("2000-10-20T00:00:00Z");
-    private static final LocalDate DUMMY_DATE = LocalDate.of(2023, 3, 16);
     public static final Instant DIRECTOR_DETAILS_CHANGED_DATE = Instant.parse("2023-10-01T18:35:24Z");
     public static final Address SERVICE_ADDRESS = Address.builder()
             .premises("11")
@@ -478,7 +477,7 @@ class FilingDataServiceImplTest {
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
                 .thenReturn(companyAppointment);
 
-        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+        testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
 
         verify(filingAPIMapper).map(officerFilingCaptor.capture());
         var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
@@ -556,7 +555,7 @@ class FilingDataServiceImplTest {
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
                 .thenReturn(companyAppointment);
 
-        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+        testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
 
         verify(filingAPIMapper).map(officerFilingCaptor.capture());
         var builtOfficerFilingData = officerFilingCaptor.getValue().getData();
@@ -593,7 +592,7 @@ class FilingDataServiceImplTest {
         when(companyAppointmentService.getCompanyAppointment(TRANS_ID, COMPANY_NUMBER, REF_APPOINTMENT_ID, PASSTHROUGH_HEADER))
                 .thenReturn(companyAppointment);
 
-        final var filingApi = testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
+        testService.generateOfficerFiling(TRANS_ID, FILING_ID, PASSTHROUGH_HEADER);
 
         verify(filingAPIMapper).map(officerFilingCaptor.capture());
         var builtOfficerFilingData = officerFilingCaptor.getValue().getData();

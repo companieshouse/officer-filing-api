@@ -10,7 +10,6 @@ import uk.gov.companieshouse.officerfiling.api.validation.error.AddressErrorProv
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A singular validator to perform validation rules on residential (home) and correspondence (service) addresses.

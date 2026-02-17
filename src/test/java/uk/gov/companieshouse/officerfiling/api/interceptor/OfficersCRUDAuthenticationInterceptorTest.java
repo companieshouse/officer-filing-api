@@ -46,7 +46,7 @@ class OfficersCRUDAuthenticationInterceptorTest {
     @Mock
     private HttpServletResponse mockResponse;
 
-    private OfficersCRUDAuthenticationInterceptor OfficerCRUDAuthenticationInterceptor;
+    private OfficersCRUDAuthenticationInterceptor officersCRUDAuthenticationInterceptor;
 
     private static final String TRANS_ID = "12345";
     private static final String COMPANY_NUMBER = "12345678";
@@ -79,7 +79,7 @@ class OfficersCRUDAuthenticationInterceptorTest {
 
     @BeforeEach
     void setUp() {
-        OfficerCRUDAuthenticationInterceptor = new OfficersCRUDAuthenticationInterceptor(logger, mockTransactionService);
+        officersCRUDAuthenticationInterceptor = new OfficersCRUDAuthenticationInterceptor(logger, mockTransactionService);
         when(mockRequest.getHeader(ERIC_REQUEST_ID_KEY)).thenReturn(REQUEST_ID);
         mockTransaction.setCompanyNumber(COMPANY_NUMBER);
     }
@@ -89,7 +89,7 @@ class OfficersCRUDAuthenticationInterceptorTest {
         pathVariablesMap = new HashMap<>();
         when(mockRequest.getAttribute(any())).thenReturn(pathVariablesMap);
 
-        var response = OfficerCRUDAuthenticationInterceptor.preHandle(mockRequest, mockResponse, handler);
+        var response = officersCRUDAuthenticationInterceptor.preHandle(mockRequest, mockResponse, handler);
 
         assertThat(response, is(false));
         verify(logger, times (1)).errorContext(eq(REQUEST_ID), eq("OfficersCRUDAuthenticationInterceptor unauthorised - no transaction identifier found"), isNull(), any());
@@ -103,7 +103,7 @@ class OfficersCRUDAuthenticationInterceptorTest {
         when(mockRequest.getAttribute(any())).thenReturn(pathVariablesMap);
         when(mockRequest.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(null);
 
-        var response = OfficerCRUDAuthenticationInterceptor.preHandle(mockRequest, mockResponse, handler);
+        var response = officersCRUDAuthenticationInterceptor.preHandle(mockRequest, mockResponse, handler);
 
         assertThat(response, is(false));
         verify(logger, times (1)).errorContext(eq(REQUEST_ID), eq("OfficersCRUDAuthenticationInterceptor unauthorised - no company number in transaction"), isNull(), any());
@@ -118,7 +118,7 @@ class OfficersCRUDAuthenticationInterceptorTest {
         when(mockRequest.getHeader(ApiSdkManager.getEricPassthroughTokenHeader())).thenReturn(null);
         when(mockTransactionService.getTransaction(eq(TRANS_ID), any())).thenReturn(mockTransaction);
 
-        var response = OfficerCRUDAuthenticationInterceptor.preHandle(mockRequest, mockResponse, handler);
+        var response = officersCRUDAuthenticationInterceptor.preHandle(mockRequest, mockResponse, handler);
 
         assertThat(response, is(false));
         verify(logger, times (1)).errorContext(eq(REQUEST_ID), eq("OfficersCRUDAuthenticationInterceptor unauthorised - no company number in scope"), isNull(), any());
@@ -135,7 +135,7 @@ class OfficersCRUDAuthenticationInterceptorTest {
         when(mockTransactionService.getTransaction(eq(TRANS_ID), any())).thenReturn(mockTransaction);
         mockTransaction.setCompanyNumber("87654321");
 
-        var response = OfficerCRUDAuthenticationInterceptor.preHandle(mockRequest, mockResponse, handler);
+        var response = officersCRUDAuthenticationInterceptor.preHandle(mockRequest, mockResponse, handler);
 
         assertThat(response, is(false));
         verify(logger, times (1)).errorContext(eq(REQUEST_ID), eq("OfficersCRUDAuthenticationInterceptor unauthorised - company number in transaction does not match company number in scope"), isNull(), any());
@@ -150,7 +150,7 @@ class OfficersCRUDAuthenticationInterceptorTest {
         when(mockRequest.getHeader(OfficersCRUDAuthenticationInterceptor.ERIC_AUTHORISED_TOKEN_PERMISSIONS)).thenReturn(PERMISSIONS);
         when(mockTransactionService.getTransaction(eq(TRANS_ID), any())).thenReturn(mockTransaction);
 
-        assertThrows(IllegalStateException.class, () -> OfficerCRUDAuthenticationInterceptor.preHandle(mockRequest, mockResponse, handler));
+        assertThrows(IllegalStateException.class, () -> officersCRUDAuthenticationInterceptor.preHandle(mockRequest, mockResponse, handler));
     }
 
     @Test
@@ -182,7 +182,7 @@ class OfficersCRUDAuthenticationInterceptorTest {
         when(mockTransactionService.getTransaction(eq(TRANS_ID), any())).thenReturn(mockTransaction);
         when(mockRequest.getAttribute("token_permissions")).thenReturn(withoutPermission(missingPermission));
 
-        var response = OfficerCRUDAuthenticationInterceptor.preHandle(mockRequest, mockResponse, handler);
+        var response = officersCRUDAuthenticationInterceptor.preHandle(mockRequest, mockResponse, handler);
 
         assertThat(response, is(false));
         verify(logger, times (1)).errorContext(eq(REQUEST_ID), eq("OfficersCRUDAuthenticationInterceptor unauthorised"), isNull(), any());
@@ -198,7 +198,7 @@ class OfficersCRUDAuthenticationInterceptorTest {
         when(mockTransactionService.getTransaction(eq(TRANS_ID), any())).thenReturn(mockTransaction);
         when(mockRequest.getAttribute("token_permissions")).thenReturn(mockAllTokenPermissions);
 
-        var response = OfficerCRUDAuthenticationInterceptor.preHandle(mockRequest, mockResponse, handler);
+        var response = officersCRUDAuthenticationInterceptor.preHandle(mockRequest, mockResponse, handler);
 
         assertThat(response, is(true));
     }

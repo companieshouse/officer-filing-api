@@ -5,7 +5,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -21,7 +20,6 @@ import uk.gov.companieshouse.officerfiling.api.model.dto.IdentificationDto;
 import uk.gov.companieshouse.officerfiling.api.model.dto.OfficerFilingDto;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Address;
 import uk.gov.companieshouse.officerfiling.api.model.entity.Identification;
-import uk.gov.companieshouse.officerfiling.api.model.entity.Links;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFiling;
 import uk.gov.companieshouse.officerfiling.api.model.entity.OfficerFilingData;
 
@@ -39,7 +37,6 @@ class OfficerFilingMapperTest {
     private IdentificationDto identificationDto;
     private Identification identification;
     private OfficerFilingMapper testMapper;
-    private Links links;
     @Mock
     private Clock clock;
 
@@ -72,7 +69,6 @@ class OfficerFilingMapperTest {
         instant1 = Instant.parse("2019-11-05T00:00:00Z");
         identification = new Identification("type", "auth", "legal", "place", "number");
         identificationDto = new IdentificationDto("type", "auth", "legal", "place", "number");
-        links = new Links(URI.create(SELF_URI), URI.create(SELF_URI + "validation_status"));
     }
 
     @Test
@@ -105,38 +101,33 @@ class OfficerFilingMapperTest {
 
         final var filing = testMapper.map(dto);
 
-        assertThat(filing.getData().getServiceAddress(), is(equalTo(address)));
-        assertThat(filing.getData().getServiceAddressBackLink(), is(equalTo("backLink")));
-        assertThat(filing.getData().getServiceManualAddressBackLink(), is(equalTo("serviceManualAddressBackLink")));
-        assertThat(filing.getData().getProtectedDetailsBackLink(), is(equalTo("protectedDetailsBackLink")));
-        assertThat(filing.getData().getIsServiceAddressSameAsRegisteredOfficeAddress(), is(true));
-        assertThat(filing.getData().getAppointedOn(),
-                is(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC)));
-        assertThat(filing.getData().getCountryOfResidence(), is("countryOfResidence"));
-        assertThat(filing.getCreatedAt(), is(nullValue()));
-        assertThat(filing.getData().getDateOfBirth(), is(dob1));
-        assertThat(filing.getData().getFormerNames(), is("Karim,Anton"));
-        assertThat(filing.getIdentification(), is(equalTo(identification)));
-        assertThat(filing.getKind(), is(nullValue()));
-        assertThat(filing.getLinks(), is(nullValue()));
-        assertThat(filing.getData().getName(), is("name"));
-        assertThat(filing.getData().getOfficerRole(), is(nullValue()));
-        assertThat(filing.getData().getReferenceEtag(), is("referenceEtag"));
-        assertThat(filing.getData().getReferenceAppointmentId(), is("referenceAppointmentId"));
-        assertThat(filing.getData().getNationality1(), is("nation"));
-        assertThat(filing.getData().getOccupation(), is("work"));
-        assertThat(filing.getData().getReferenceEtag(), is("referenceEtag"));
-        assertThat(filing.getData().getReferenceAppointmentId(), is("referenceAppointmentId"));
-        assertThat(filing.getData().getReferenceOfficerListEtag(), is("list"));
-        assertThat(filing.getData().getResignedOn(), is(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC)));
-        assertThat(filing.getData().getResidentialAddress(), is(equalTo(address)));
-        assertThat(filing.getData().getResidentialAddressBackLink(), is(equalTo("backLink")));
-        assertThat(filing.getData().getResidentialManualAddressBackLink(), is(equalTo("residentialManualAddressBackLink")));
-        assertThat(filing.getData().getDirectorResidentialAddressChoice(), is(equalTo("different-address")));
-        assertThat(filing.getData().getDirectorServiceAddressChoice(), is(equalTo("different-address")));
-        assertThat(filing.getData().getIsHomeAddressSameAsServiceAddress(), is(true));
-        assertThat(filing.getData().getStatus(), is(nullValue()));
-        assertThat(filing.getUpdatedAt(), is(nullValue()));
+        var expectedOfficerFilingData = OfficerFilingData.builder()
+                .serviceAddress(address)
+                .serviceAddressBackLink("backLink")
+                .serviceManualAddressBackLink("serviceManualAddressBackLink")
+                .protectedDetailsBackLink("protectedDetailsBackLink")
+                .isServiceAddressSameAsRegisteredOfficeAddress(true)
+                .appointedOn(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC))
+                .countryOfResidence("countryOfResidence")
+                .dateOfBirth(dob1)
+                .formerNames("Karim,Anton")
+                .name("name")
+                .referenceEtag("referenceEtag")
+                .referenceAppointmentId("referenceAppointmentId")
+                .nationality1("nation")
+                .occupation("work")
+                .referenceOfficerListEtag("list")
+                .resignedOn(localDate1.atStartOfDay().toInstant(ZoneOffset.UTC))
+                .residentialAddress(address)
+                .residentialAddressBackLink("backLink")
+                .residentialManualAddressBackLink("residentialManualAddressBackLink")
+                .directorResidentialAddressChoice("different-address")
+                .directorServiceAddressChoice("different-address")
+                .isHomeAddressSameAsServiceAddress(true)
+                .build();
+
+        assertThat(filing.getData(), equalTo(expectedOfficerFilingData));
+        assertThat(filing.getIdentification(), equalTo(identification));
     }
 
     @Test
