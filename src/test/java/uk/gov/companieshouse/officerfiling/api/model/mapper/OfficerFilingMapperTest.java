@@ -127,6 +127,7 @@ class OfficerFilingMapperTest {
                 .build();
 
         assertThat(filing.getData(), equalTo(expectedOfficerFilingData));
+        assertThat(filing.getIdentification(), equalTo(identification));
     }
 
     @Test
