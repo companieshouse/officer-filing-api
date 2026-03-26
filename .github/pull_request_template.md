@@ -12,12 +12,14 @@
 
 ## Checklist
 
-- [ ] Adhered to the [coding style guidelines](https://companieshouse.atlassian.net/wiki/spaces/DEV/pages/4290084946/Coding+Standards+and+Styleguides).
-- [ ] Added/updated logging appropriately.
-- [ ] Written tests.
-- [ ] Tested the new code in my local environment.
-- [ ] Updated Docker/ECS configs.
-- [ ] Added all new properties to chs-configs.
-- [ ] Updated release notes.
+Paste the ⭕️ emoji into the respective columns below. If a checklist item *is* applicable but you haven't done it, omit the emoji from both columns. You can optionally add notes to clear up ambiguity. Whitespace isn't important, as long as the emoji is within the cell `|  |` it will render correctly.
 
-Strikethrough (`~~like this~~`) anything not applicable to your changes.
+| Item                                                       | Done | Not applicable | Notes |
+|:-----------------------------------------------------------|:----:|:--------------:|-------|
+| Adhered to the CH style guide (required)                   |  ⭕️  |                |       |
+| Added/updated logging                                      |      |                |       |
+| Written tests                                              |      |                |       |
+| Tested the new code in my local environment                |      |                |       |
+| Updated Docker/ECS configs                                 |      |                |       |
+| Updated release ticket description with any config changes |      |                |       |
+| Updated release ticket to link to this work item           |      |                |       |
