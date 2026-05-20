@@ -30,7 +30,7 @@
         <mockito-inline.version>5.2.0</mockito-inline.version>
         <equalsverifier.version>4.0.3</equalsverifier.version>
         <mapstruct.version>1.6.3</mapstruct.version>
-        <opentelemetry-instrumentation-bom.version>2.23.0</opentelemetry-instrumentation-bom.version>
+        <opentelemetry-instrumentation-bom.version>2.24.0</opentelemetry-instrumentation-bom.version>
         <!--- CH -->
         <structured-logging.version>3.0.51</structured-logging.version>
         <private-api-sdk-java.version>4.0.476</private-api-sdk-java.version>
