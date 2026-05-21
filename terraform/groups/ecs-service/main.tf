@@ -19,7 +19,7 @@ terraform {
 }
 
 module "secrets" {
-  source = "git@github.com:companieshouse/terraform-modules//aws/ecs/secrets?ref=1.0.336"
+  source = "git@github.com:companieshouse/terraform-modules//aws/ecs/secrets?ref=1.0.346"
 
   environment = var.environment
   kms_key_id  = data.aws_kms_key.kms_key.id
