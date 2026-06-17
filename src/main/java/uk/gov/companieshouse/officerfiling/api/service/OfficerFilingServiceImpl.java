@@ -1,14 +1,15 @@
 package uk.gov.companieshouse.officerfiling.api.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
 import org.springframework.stereotype.Service;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.OfficerFilingServiceException;
@@ -78,12 +79,12 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
         extractFields(original, fieldMap);
         extractFields(patch, fieldMap);
         // JavaTimeModule handles Instant serialisation
-        var mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+        var mapper = JsonMapper.builder().enable(DateTimeFeature.WRITE_DATES_WITH_ZONE_ID).build();
 
         try {
             var updatedFilingJson = new ObjectMapper().writeValueAsString(fieldMap);
             mergedFiling = mapper.readerFor(OfficerFiling.class).readValue(updatedFilingJson);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new OfficerFilingServiceException("Failed to patch an officer filing for company "
                     + transaction.getCompanyNumber(), e);
         }

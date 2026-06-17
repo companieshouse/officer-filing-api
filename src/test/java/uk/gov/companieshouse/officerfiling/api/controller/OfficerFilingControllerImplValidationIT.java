@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -83,13 +83,13 @@ class OfficerFilingControllerImplValidationIT {
     @MockitoBean
     private ApiClientService apiClientService;
 
-    @Mock
+    @MockitoBean
     private ApiClient apiClientMock;
-    @Mock
+    @MockitoBean
     private TransactionsResourceHandler transactionResourceHandlerMock;
-    @Mock
+    @MockitoBean
     private TransactionsGet transactionGetMock;
-    @Mock
+    @MockitoBean
     private ApiResponse<Transaction> apiResponse;
 
     private HttpHeaders httpHeaders;
