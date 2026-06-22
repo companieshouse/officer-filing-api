@@ -45,13 +45,13 @@
         <!-- Source: https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
         <mapstruct.version>1.6.3</mapstruct.version>
         <!-- Source: https://mvnrepository.com/artifact/io.opentelemetry.instrumentation/opentelemetry-instrumentation-bom -->
-        <opentelemetry.version>2.28.1</opentelemetry.version>
+        <opentelemetry.version>2.29.0</opentelemetry.version>
         <!-- Source: https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-bom -->
         <kotlin.version>2.3.21</kotlin.version>
 
         <!--- CH -->
         <structured-logging.version>3.0.57</structured-logging.version>
-        <private-api-sdk-java.version>6.0.24</private-api-sdk-java.version>
+        <private-api-sdk-java.version>6.0.33</private-api-sdk-java.version>
         <api-sdk-manager-java-library.version>3.0.23</api-sdk-manager-java-library.version>
         <api-security-java.version>2.0.27</api-security-java.version>
         <api-helper-java.version>3.0.4</api-helper-java.version>
@@ -89,15 +89,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
-            <!-- Source: https://mvnrepository.com/artifact/io.opentelemetry.proto/opentelemetry-proto -->
-            <dependency>
-                <groupId>io.opentelemetry.proto</groupId>
-                <artifactId>opentelemetry-proto</artifactId>
-                <version>1.10.0-alpha</version>
-                <scope>runtime</scope>
-            </dependency>
-
 
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -156,14 +147,6 @@
             <version>${mapstruct.version}</version>
         </dependency>
 
-        <!--  force use of commons-lang3 version 3.18 to avoid vulnerability in 3.17 that is transitive
-         in several CH dependencies.  Can be removed when those are updated -->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.commons</groupId>-->
-<!--            <artifactId>commons-lang3</artifactId>-->
-<!--            <version>3.18.0</version>-->
-<!--        </dependency>-->
-
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>structured-logging</artifactId>
@@ -214,24 +197,6 @@
             <artifactId>spring-boot-starter-webmvc-test</artifactId>
         </dependency>
 
-<!--        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-launcher</artifactId>
-            <scope>test</scope>
-        </dependency>-->
-
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-inline</artifactId>
@@ -245,14 +210,6 @@
             <version>${equalsverifier.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- Dev Tools -->
-<!--        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>-->
 
     </dependencies>
 
@@ -339,7 +296,6 @@
                 </executions>
             </plugin>
 
-<!--
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -352,7 +308,7 @@
                             <goal>prepare-agent-integration</goal>
                         </goals>
                         <configuration>
-                            &lt;!&ndash; Sets the path to the file which contains the execution data. &ndash;&gt;
+                            <!-- Sets the path to the file which contains the execution data. -->
                             <destFile>target/jacoco-it.exec</destFile>
                             <propertyName>failsafeArgLine</propertyName>
                         </configuration>
@@ -364,15 +320,14 @@
                             <goal>report</goal>
                         </goals>
                         <configuration>
-                            &lt;!&ndash; Sets the path to the file which contains the execution data. &ndash;&gt;
+                            <!-- Sets the path to the file which contains the execution data. -->
                             <dataFile>target/jacoco-it.exec</dataFile>
-                            &lt;!&ndash; Sets the output directory for the code coverage report. &ndash;&gt;
+                            <!-- Sets the output directory for the code coverage report. -->
                             <outputDirectory>${sonar.jacoco.reports}/jacoco-it</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
--->
         </plugins>
     </build>
 

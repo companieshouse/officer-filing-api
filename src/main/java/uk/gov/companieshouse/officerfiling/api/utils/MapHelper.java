@@ -2,7 +2,6 @@ package uk.gov.companieshouse.officerfiling.api.utils;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.PropertyNamingStrategy;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.json.JsonMapper;
@@ -13,11 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class MapHelper {
 
-    private static final TypeReference<Map<String, Object>> MAP_TYPE = new TypeReference<>() {
-    };
+    private static final TypeReference<Map<String, Object>> MAP_TYPE = new TypeReference<>() {};
 
-    private static final Map<PropertyNamingStrategy, ObjectMapper> MAPPER_CACHE =
-            new ConcurrentHashMap<>();
+    private static final Map<PropertyNamingStrategy, ObjectMapper> MAPPER_CACHE = new ConcurrentHashMap<>();
 
     private MapHelper() {
         // intentionally blank
