@@ -3,164 +3,169 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>uk.gov.companieshouse</groupId>
         <artifactId>companies-house-parent</artifactId>
-        <version>2.1.12</version>
+        <version>2.1.14</version>
         <relativePath/>
     </parent>
+
     <artifactId>officer-filing-api</artifactId>
     <version>unversioned</version>
     <name>officer-filing-api</name>
     <description>Public API for Officer Filings</description>
+
     <properties>
         <java.version>21</java.version>
         <skip.integration.tests>false</skip.integration.tests>
         <skip.unit.tests>false</skip.unit.tests>
+
         <!-- Spring -->
-        <spring-boot-dependencies.version>3.5.14</spring-boot-dependencies.version>
+        <spring-boot.version>4.1.0</spring-boot.version>
+
         <!-- Maven -->
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
-        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
-        <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
-        <!-- Docker -->
-        <jib-maven-plugin.version>3.4.6</jib-maven-plugin.version>
+
+        <!-- Plugin Versions -->
+        <!-- Source: https://mvnrepository.com/artifact/com.google.cloud.tools/jib-maven-plugin -->
+        <jib-maven-plugin.version>3.5.1</jib-maven-plugin.version>
+        <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
+        <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
+        <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
+        <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+        <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-failsafe-plugin -->
+        <maven-failsafe-plugin.version>3.5.6</maven-failsafe-plugin.version>
+
+        <!-- Source: https://mvnrepository.com/artifact/org.mockito/mockito-inline -->
         <mockito-inline.version>5.2.0</mockito-inline.version>
-        <equalsverifier.version>4.0.3</equalsverifier.version>
+        <!-- Source: https://mvnrepository.com/artifact/nl.jqno.equalsverifier/equalsverifier -->
+        <equalsverifier.version>4.5</equalsverifier.version>
+        <!-- Source: https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
         <mapstruct.version>1.6.3</mapstruct.version>
-        <opentelemetry-instrumentation-bom.version>2.24.0</opentelemetry-instrumentation-bom.version>
+        <!-- Source: https://mvnrepository.com/artifact/io.opentelemetry.instrumentation/opentelemetry-instrumentation-bom -->
+        <opentelemetry.version>2.29.0</opentelemetry.version>
+        <!-- Source: https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-bom -->
+        <kotlin.version>2.3.21</kotlin.version>
+
         <!--- CH -->
-        <structured-logging.version>3.0.51</structured-logging.version>
-        <private-api-sdk-java.version>4.0.476</private-api-sdk-java.version>
-        <api-sdk-manager-java-library.version>3.0.16</api-sdk-manager-java-library.version>
-        <api-security-java.version>2.0.24</api-security-java.version>
-        <api-helper-java.version>3.0.3</api-helper-java.version>
+        <structured-logging.version>3.0.57</structured-logging.version>
+        <private-api-sdk-java.version>6.0.33</private-api-sdk-java.version>
+        <api-sdk-manager-java-library.version>3.0.23</api-sdk-manager-java-library.version>
+        <api-security-java.version>2.0.27</api-security-java.version>
+        <api-helper-java.version>3.0.4</api-helper-java.version>
+
         <!--sonar configuration-->
-        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml,
-            ${project.build.directory}/site/jacoco-it/jacoco.xml
-        </sonar.coverage.jacoco.xmlReportPaths>
-        <sonar.jacoco.reports>${project.build.directory}/site</sonar.jacoco.reports>
-        <sonar.jacoco.reportPath>target/site/jacoco/jacoco.xml</sonar.jacoco.reportPath>
-        <sonar.java.binaries>
-            ${project.basedir}/target
-        </sonar.java.binaries>
-        <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
+        <!--suppress UnresolvedMavenProperty -->
         <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
         <sonar.projectKey>uk.gov.companieshouse:officer-filing-api</sonar.projectKey>
         <sonar.projectName>officer-filing-api</sonar.projectName>
 
     </properties>
+
     <dependencyManagement>
         <dependencies>
+
             <dependency>
                 <groupId>io.opentelemetry.instrumentation</groupId>
                 <artifactId>opentelemetry-instrumentation-bom</artifactId>
-                <version>${opentelemetry-instrumentation-bom.version}</version>
+                <version>${opentelemetry.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot-dependencies.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <!-- PINNED: CVE-2025-68161 workaround in spring-boot-starter-actuator@3.5.10 transitive dependency log4j-api@2.24.3 -->
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-api</artifactId>
-                <version>2.25.4</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-to-slf4j</artifactId>
-                <version>2.25.4</version>
-            </dependency>
-            <dependency>
-                <groupId>io.grpc</groupId>
-                <artifactId>grpc-api</artifactId>
-                <version>1.81.0</version>
-            </dependency>
+
              <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-context</artifactId>
                 <version>1.81.0</version>
             </dependency>
-             <dependency>
-                <groupId>org.apache.tomcat.embed</groupId>
-                <artifactId>tomcat-embed-core</artifactId>
-                <version>10.1.55</version>
+
+            <!-- Source: https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-bom -->
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-bom</artifactId>
+                <version>${kotlin.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
-             <dependency>
-                <groupId>org.apache.tomcat.embed</groupId>
-                <artifactId>tomcat-embed-websocket</artifactId>
-                <version>10.1.55</version>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
         </dependency>
-        <!-- Pinning version to address CVE-2020-29582(5.3) in kotlin-stdlib:jar:1.9.25
-             pulled transitively by opentelemetry-spring-boot-starter:jar:2.23.0 -->
+
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib</artifactId>
-            <version>2.2.21</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-opentelemetry</artifactId>
         </dependency>
+
+        <!-- Source: https://mvnrepository.com/artifact/io.opentelemetry.instrumentation/opentelemetry-logback-appender-1.0 -->
         <dependency>
             <groupId>io.opentelemetry.instrumentation</groupId>
-            <artifactId>opentelemetry-spring-boot-starter</artifactId>
+            <artifactId>opentelemetry-logback-appender-1.0</artifactId>
+            <version>${opentelemetry.version}-alpha</version>
+            <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
         </dependency>
-        <!--  force use of commons-lang3 version 3.18 to avoid vulnerability in 3.17 that is transitive
-         in several CH dependencies.  Can be removed when those are updated -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.18.0</version>
-        </dependency>
+
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>structured-logging</artifactId>
             <version>${structured-logging.version}</version>
         </dependency>
+
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>api-security-java</artifactId>
             <version>${api-security-java.version}</version>
         </dependency>
+
         <!-- SDKs -->
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>private-api-sdk-java</artifactId>
             <version>${private-api-sdk-java.version}</version>
         </dependency>
+
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>api-sdk-manager-java-library</artifactId>
@@ -173,6 +178,7 @@
             </exclusions>
             <version>${api-sdk-manager-java-library.version}</version>
         </dependency>
+
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>api-helper-java</artifactId>
@@ -185,44 +191,31 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <scope>test</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-launcher</artifactId>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-inline</artifactId>
             <version>${mockito-inline.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
             <version>${equalsverifier.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- Dev Tools -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>
+
     </dependencies>
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -241,10 +234,11 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot-dependencies.version}</version>
+                <version>${spring-boot.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -253,6 +247,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
@@ -269,6 +264,7 @@
                     </container>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -277,6 +273,7 @@
                     <skipTests>${skip.unit.tests}</skipTests>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -298,6 +295,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

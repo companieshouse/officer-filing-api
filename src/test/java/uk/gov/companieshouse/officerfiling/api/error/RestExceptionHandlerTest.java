@@ -9,10 +9,6 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -32,6 +28,10 @@ import org.springframework.mock.http.MockHttpInputMessage;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.validation.FieldError;
 import org.springframework.web.context.request.ServletWebRequest;
+import tools.jackson.core.TokenStreamLocation;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.exc.MismatchedInputException;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
@@ -53,14 +53,14 @@ class RestExceptionHandlerTest {
     @Mock
     private MismatchedInputException mismatchedInputException;
     @Mock
-    private JsonParseException jsonParseException;
+    private StreamReadException streamReadException;
     @Mock
     private Logger logger;
 
     private MockHttpServletRequest servletRequest;
 
     @Mock
-    private JsonMappingException.Reference mappingReference;
+    private DatabindException.Reference mappingReference;
 
     @BeforeEach
     void setUp() {
@@ -104,9 +104,9 @@ class RestExceptionHandlerTest {
         final var message = new MockHttpInputMessage("{]".getBytes());
 
         when(mismatchedInputException.getMessage()).thenReturn(msg);
-        when(mismatchedInputException.getLocation()).thenReturn(new JsonLocation(null, 100, 3, 7));
+        when(mismatchedInputException.getLocation()).thenReturn(new TokenStreamLocation(null, 100, 3, 7));
         when(mismatchedInputException.getPath()).thenReturn(List.of(mappingReference));
-        when(mappingReference.getFieldName()).thenReturn("resigned_on");
+        when(mappingReference.getPropertyName()).thenReturn("resigned_on");
 
         final var exceptionMessage =
                 new HttpMessageNotReadableException(msg, mismatchedInputException, message);
@@ -117,7 +117,7 @@ class RestExceptionHandlerTest {
         final var expectedError =
                 new ApiError("JSON parse error: " + msg, "$..resigned_on", "json-path",
                         "ch:validation");
-        expectedError.addErrorValue("offset", "line: 3, column: 7");
+        expectedError.addErrorValue("offset", "byte offset: #UNKNOWN");
         expectedError.addErrorValue("line", "3");
         expectedError.addErrorValue("column", "7");
         final var actualError = Objects.requireNonNull(apiErrors).getErrors().iterator().next();
@@ -133,11 +133,11 @@ class RestExceptionHandlerTest {
         final var message =
                 new MockHttpInputMessage(TM01_FRAGMENT.replaceAll("2022", "ABC").getBytes());
 
-        when(jsonParseException.getMessage()).thenReturn(msg);
-        when(jsonParseException.getLocation()).thenReturn(new JsonLocation(null, 100, 3, 7));
+        when(streamReadException.getMessage()).thenReturn(msg);
+        when(streamReadException.getLocation()).thenReturn(new TokenStreamLocation(null, 100, 3, 7));
 
         final var exceptionMessage =
-                new HttpMessageNotReadableException(msg, jsonParseException, message);
+                new HttpMessageNotReadableException(msg, streamReadException, message);
 
         final var response =
                 testExceptionHandler.handleHttpMessageNotReadable(exceptionMessage, headers,
@@ -146,7 +146,7 @@ class RestExceptionHandlerTest {
         final var apiErrors = (ApiErrors) response.getBody();
         final var expectedError =
                 new ApiError("JSON parse error: " + msg, "$", "json-path", "ch:validation");
-        expectedError.addErrorValue("offset", "line: 3, column: 7");
+        expectedError.addErrorValue("offset", "byte offset: #UNKNOWN");
         expectedError.addErrorValue("line", "3");
         expectedError.addErrorValue("column", "7");
         final var actualError = Objects.requireNonNull(apiErrors).getErrors().iterator().next();
@@ -162,10 +162,10 @@ class RestExceptionHandlerTest {
         final var message =
                 new MockHttpInputMessage(TM01_FRAGMENT.replaceAll("2022", "ABC").getBytes());
 
-        when(jsonParseException.getMessage()).thenReturn(msg);
+        when(streamReadException.getMessage()).thenReturn(msg);
 
         final var exceptionMessage =
-                new HttpMessageNotReadableException(msg, jsonParseException, message);
+                new HttpMessageNotReadableException(msg, streamReadException, message);
 
         final var response =
                 testExceptionHandler.handleHttpMessageNotReadable(exceptionMessage, headers,

@@ -1,37 +1,43 @@
 package uk.gov.companieshouse.officerfiling.api.utils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.PropertyNamingStrategy;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
+
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class MapHelper {
+
+    private static final TypeReference<Map<String, Object>> MAP_TYPE = new TypeReference<>() {};
+
+    private static final Map<PropertyNamingStrategy, ObjectMapper> MAPPER_CACHE = new ConcurrentHashMap<>();
 
     private MapHelper() {
         // intentionally blank
     }
 
-    private static ObjectMapper mapper = null;
-
     /**
      * Convert an Object into a Key/Value property map.
      *
      * @param obj the Object
+     * @param strategy property naming strategy used when serializing object fields
      * @return a Map of property values
      */
     public static Map<String, Object> convertObject(Object obj, PropertyNamingStrategy strategy) {
-        if (mapper == null) {
-            mapper = new ObjectMapper().setPropertyNamingStrategy(
-                    strategy);
-            mapper.registerModule(new JavaTimeModule());
-        }
-        if (mapper.getPropertyNamingStrategy() != strategy){
-            mapper.setPropertyNamingStrategy(strategy);
-        }
+        Objects.requireNonNull(strategy, "strategy must not be null");
 
-        return mapper.convertValue(obj, new TypeReference<>() {
-        });
+        final ObjectMapper mapper = MAPPER_CACHE.computeIfAbsent(strategy, MapHelper::buildMapper);
+        return mapper.convertValue(obj, MAP_TYPE);
     }
 
+    private static ObjectMapper buildMapper(PropertyNamingStrategy strategy) {
+        return JsonMapper.builder()
+                .propertyNamingStrategy(strategy)
+                .enable(DateTimeFeature.WRITE_DATES_WITH_ZONE_ID)
+                .build();
+    }
 }

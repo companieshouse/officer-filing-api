@@ -1,15 +1,14 @@
 package uk.gov.companieshouse.officerfiling.api.error;
 
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -17,8 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -27,6 +24,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.TokenStreamLocation;
+import tools.jackson.databind.exc.MismatchedInputException;
 import uk.gov.companieshouse.api.error.ApiError;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.officerfiling.api.exception.ResourceNotFoundException;
@@ -63,16 +63,16 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         final var baseMessage = "JSON parse error: ";
         final ApiError error;
 
-        if (ex.getCause() instanceof JsonProcessingException jsonProcessingException) {
-            final var msg = baseMessage + jsonProcessingException.getMessage();
-            final var location = jsonProcessingException.getLocation();
+        if (ex.getCause() instanceof JacksonException jacksonException) {
+            final var msg = baseMessage + jacksonException.getMessage();
+            final var location = jacksonException.getLocation();
             var jsonPath = "$";
 
-            if (jsonProcessingException instanceof MismatchedInputException) {
+            if (jacksonException instanceof MismatchedInputException) {
                 final var fieldNameOpt = ((MismatchedInputException) ex.getCause()).getPath()
                         .stream()
                         .findFirst()
-                        .map(JsonMappingException.Reference::getFieldName);
+                        .map(JacksonException.Reference::getPropertyName);
                 jsonPath += fieldNameOpt.map(f -> ".." + f).orElse("");
             }
 
@@ -164,7 +164,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ApiErrors(errorList);
     }
 
-    private static void addLocationInfo(final ApiError error, final JsonLocation location) {
+    private static void addLocationInfo(final ApiError error, final TokenStreamLocation location) {
         error.addErrorValue("offset", location.offsetDescription());
         error.addErrorValue("line", String.valueOf(location.getLineNr()));
         error.addErrorValue("column", String.valueOf(location.getColumnNr()));

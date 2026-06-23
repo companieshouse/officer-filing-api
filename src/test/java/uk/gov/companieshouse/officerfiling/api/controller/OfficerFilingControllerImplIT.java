@@ -36,9 +36,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -94,28 +93,38 @@ class OfficerFilingControllerImplIT {
 
     @MockitoBean
     private TransactionService transactionService;
+
     @MockitoBean
     private OfficerFilingService officerFilingService;
+
     @MockitoBean
     private OfficerFilingMapper filingMapper;
+
     @MockitoBean
     private CompanyProfileService companyProfileService;
+
     @MockitoBean
     private CompanyAppointmentService companyAppointmentService;
+
     @MockitoBean
     private Clock clock;
+
     @MockitoBean
     private Logger logger;
+
     @MockitoBean
     private ApiClientService apiClientService;
 
-    @Mock
+    @MockitoBean
     private ApiClient apiClientMock;
-    @Mock
+
+    @MockitoBean
     private TransactionsResourceHandler transactionResourceHandlerMock;
-    @Mock
+
+    @MockitoBean
     private TransactionsGet transactionGetMock;
-    @Mock
+
+    @MockitoBean
     private ApiResponse<Transaction> apiResponse;
 
     private HttpHeaders httpHeaders;
@@ -124,11 +133,12 @@ class OfficerFilingControllerImplIT {
     private AppointmentFullRecordAPI companyAppointment;
     private Links links;
 
-    @Mock
+    @MockitoBean
     private HttpServletRequest request;
 
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     private OfficerFilingControllerImpl testController;
 
@@ -362,7 +372,7 @@ class OfficerFilingControllerImplIT {
                 .andExpect(jsonPath("$.errors[0].error", containsString(
                         "Cannot coerce empty String")))
                 .andExpect(jsonPath("$.errors[0].error_values",
-                        is(Map.of("offset", "line: 1, column: 1", "line", "1", "column", "1"))));
+                        is(Map.of("offset", "byte offset: #0", "line", "1", "column", "1"))));
     }
 
     @Test
@@ -427,7 +437,7 @@ class OfficerFilingControllerImplIT {
                         "JSON parse error: Unexpected end-of-input: expected close marker for "
                                 + "Object")))
                 .andExpect(jsonPath("$.errors[0].error_values",
-                        is(Map.of("offset", "line: 1, column: 109", "line", "1", "column", "109"))));
+                        is(Map.of("offset", "byte offset: #108", "line", "1", "column", "109"))));
     }
 
     @Test
@@ -593,7 +603,7 @@ class OfficerFilingControllerImplIT {
                         "JSON parse error: Cannot deserialize value of type `java.time.LocalDate`"
                                 + " from String \"" + replacementString + "\"")))
                 .andExpect(jsonPath("$.errors[0].error_values",
-                        is(Map.of("offset", "line: 1, column: 97", "line", "1", "column", "97"))));
+                        is(Map.of("offset", "byte offset: #96", "line", "1", "column", "97"))));
     }
 
     @Test

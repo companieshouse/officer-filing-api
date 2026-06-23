@@ -4,9 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,7 +40,9 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -81,21 +82,21 @@ class DirectorsControllerImplIT {
     private OfficerService officerService;
     @MockitoBean
     private ApiClientService apiClientService;
-    @Mock
+    @MockitoBean
     private HttpServletRequest request;
-    @Mock
+    @MockitoBean
     private TransactionService transactionService;
-    @Mock
+    @MockitoBean
     AppointmentFullRecordAPI appointmentFullRecordAPI;
-    @Mock
+    @MockitoBean
     OfficerServiceException serviceException;
-    @Mock
+    @MockitoBean
     private ApiClient apiClientMock;
-    @Mock
+    @MockitoBean
     private TransactionsResourceHandler transactionResourceHandlerMock;
-    @Mock
+    @MockitoBean
     private TransactionsGet transactionGetMock;
-    @Mock
+    @MockitoBean
     private ApiResponse<Transaction> apiResponse;
     @Autowired
     private MockMvc mockMvc;
