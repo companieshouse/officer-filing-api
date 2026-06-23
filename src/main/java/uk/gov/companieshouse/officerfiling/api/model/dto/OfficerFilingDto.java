@@ -1,10 +1,8 @@
 package uk.gov.companieshouse.officerfiling.api.model.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.springframework.validation.annotation.Validated;
-import uk.gov.companieshouse.JsonBooleanDeserializer;
-
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonPOJOBuilder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -229,8 +227,7 @@ public class OfficerFilingDto {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof OfficerFilingDto)) return false;
-        OfficerFilingDto that = (OfficerFilingDto) o;
+        if (!(o instanceof OfficerFilingDto that)) return false;
         return Objects.equals(getServiceAddress(), that.getServiceAddress()) && Objects.equals(getServiceAddressBackLink(), that.getServiceAddressBackLink()) && Objects.equals(getServiceManualAddressBackLink(), that.getServiceManualAddressBackLink()) && Objects.equals(getProtectedDetailsBackLink(), that.getProtectedDetailsBackLink()) && Objects.equals(getIsServiceAddressSameAsRegisteredOfficeAddress(), that.getIsServiceAddressSameAsRegisteredOfficeAddress()) && Objects.equals(getAppointedOn(), that.getAppointedOn()) && Objects.equals(getCountryOfResidence(), that.getCountryOfResidence()) && Objects.equals(getDateOfBirth(), that.getDateOfBirth()) && Objects.equals(getFormerNames(), that.getFormerNames()) && Objects.equals(getIdentification(), that.getIdentification()) && Objects.equals(getName(), that.getName()) && Objects.equals(getTitle(), that.getTitle()) && Objects.equals(getFirstName(), that.getFirstName()) && Objects.equals(getMiddleNames(), that.getMiddleNames()) && Objects.equals(getLastName(), that.getLastName()) && Objects.equals(getNationality1(), that.getNationality1()) && Objects.equals(getNationality2(), that.getNationality2()) && Objects.equals(getNationality3(), that.getNationality3()) && Objects.equals(getOccupation(), that.getOccupation()) && Objects.equals(getReferenceEtag(), that.getReferenceEtag()) && Objects.equals(getReferenceAppointmentId(), that.getReferenceAppointmentId()) && Objects.equals(getReferenceOfficerListEtag(), that.getReferenceOfficerListEtag()) && Objects.equals(getResignedOn(), that.getResignedOn()) && Objects.equals(getResidentialAddress(), that.getResidentialAddress()) && Objects.equals(getResidentialAddressBackLink(), that.getResidentialAddressBackLink()) && Objects.equals(getResidentialManualAddressBackLink(), that.getResidentialManualAddressBackLink()) && Objects.equals(getIsHomeAddressSameAsServiceAddress(), that.getIsHomeAddressSameAsServiceAddress()) && Objects.equals(getNationality2Link(), that.getNationality2Link()) && Objects.equals(getNationality3Link(), that.getNationality3Link()) && Objects.equals(getDirectorAppliedToProtectDetails(), that.getDirectorAppliedToProtectDetails()) && Objects.equals(getConsentToAct(), that.getConsentToAct()) && Objects.equals(getCheckYourAnswersLink(), that.getCheckYourAnswersLink()) && Objects.equals(getDirectorResidentialAddressChoice(), that.getDirectorResidentialAddressChoice()) && Objects.equals(getDirectorServiceAddressChoice(), that.getDirectorServiceAddressChoice()) && Objects.equals(getNameHasBeenUpdated(), that.getNameHasBeenUpdated()) && Objects.equals(getNationalityHasBeenUpdated(), that.getNationalityHasBeenUpdated()) && Objects.equals(getOccupationHasBeenUpdated(), that.getOccupationHasBeenUpdated()) && Objects.equals(getServiceAddressHasBeenUpdated(), that.getServiceAddressHasBeenUpdated()) && Objects.equals(getResidentialAddressHasBeenUpdated(), that.getResidentialAddressHasBeenUpdated()) && Objects.equals(getDirectorsDetailsChangedDate(), that.getDirectorsDetailsChangedDate()) && Objects.equals(getDescription(), that.getDescription());
     }
 
@@ -326,7 +323,6 @@ public class OfficerFilingDto {
             return this;
         }
 
-        @JsonDeserialize(using = JsonBooleanDeserializer.class)
         public Builder isServiceAddressSameAsRegisteredOfficeAddress(final Boolean value) {
 
             buildSteps.add(data -> data.isServiceAddressSameAsRegisteredOfficeAddress = value);
@@ -476,7 +472,6 @@ public class OfficerFilingDto {
             return this;
         }
 
-        @JsonDeserialize(using = JsonBooleanDeserializer.class)
         public Builder isHomeAddressSameAsServiceAddress(final Boolean value) {
 
             buildSteps.add(data -> data.isHomeAddressSameAsServiceAddress = value);
@@ -493,13 +488,11 @@ public class OfficerFilingDto {
             return this;
         }
 
-        @JsonDeserialize(using = JsonBooleanDeserializer.class)
         public Builder directorAppliedToProtectDetails(final Boolean value) {
             buildSteps.add(data -> data.directorAppliedToProtectDetails = value);
             return this;
         }
 
-        @JsonDeserialize(using = JsonBooleanDeserializer.class)
         public Builder consentToAct(final Boolean value) {
             buildSteps.add(data -> data.consentToAct = value);
             return this;

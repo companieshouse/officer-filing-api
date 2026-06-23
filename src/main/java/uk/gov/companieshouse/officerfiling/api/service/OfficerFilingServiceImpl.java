@@ -78,7 +78,6 @@ public class OfficerFilingServiceImpl implements OfficerFilingService {
         // Original values
         extractFields(original, fieldMap);
         extractFields(patch, fieldMap);
-        // JavaTimeModule handles Instant serialisation
         var mapper = JsonMapper.builder().enable(DateTimeFeature.WRITE_DATES_WITH_ZONE_ID).build();
 
         try {
