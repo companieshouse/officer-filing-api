@@ -50,11 +50,8 @@
         <kotlin.version>2.3.21</kotlin.version>
 
         <!--- CH -->
-        <structured-logging.version>3.0.57</structured-logging.version>
+        <ch-bom.version>0.1.25</ch-bom.version>
         <private-api-sdk-java.version>6.0.33</private-api-sdk-java.version>
-        <api-sdk-manager-java-library.version>3.0.23</api-sdk-manager-java-library.version>
-        <api-security-java.version>2.0.27</api-security-java.version>
-        <api-helper-java.version>3.0.4</api-helper-java.version>
 
         <!--sonar configuration-->
         <!--suppress UnresolvedMavenProperty -->
@@ -66,6 +63,22 @@
 
     <dependencyManagement>
         <dependencies>
+
+            <dependency>
+                <groupId>uk.gov.companieshouse</groupId>
+                <artifactId>ch-dependency-bom</artifactId>
+                <version>${ch-bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>uk.gov.companieshouse</groupId>
+                <artifactId>ch-test-bom</artifactId>
+                <version>${ch-bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
 
             <dependency>
                 <groupId>io.opentelemetry.instrumentation</groupId>
@@ -86,6 +99,16 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-bom</artifactId>
                 <version>${kotlin.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Overrides spring-boot-dependencies' 7.0.8 to fix CVE-2026-47883 through CVE-2026-47893
+                 and CVE-2026-59280 through CVE-2026-59314 (must stay ahead of spring-boot-dependencies) -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-framework-bom</artifactId>
+                <version>7.0.9</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -144,19 +167,16 @@
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
-            <version>${mapstruct.version}</version>
         </dependency>
 
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>structured-logging</artifactId>
-            <version>${structured-logging.version}</version>
         </dependency>
 
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>api-security-java</artifactId>
-            <version>${api-security-java.version}</version>
         </dependency>
 
         <!-- SDKs -->
@@ -176,13 +196,11 @@
                     <artifactId>commons-collections</artifactId>
                 </exclusion>
             </exclusions>
-            <version>${api-sdk-manager-java-library.version}</version>
         </dependency>
 
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>api-helper-java</artifactId>
-            <version>${api-helper-java.version}</version>
         </dependency>
 
         <!-- test -->
