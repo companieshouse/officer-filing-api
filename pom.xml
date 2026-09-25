@@ -51,7 +51,7 @@
 
         <!--- CH -->
         <ch-bom.version>0.1.25</ch-bom.version>
-        <private-api-sdk-java.version>6.0.33</private-api-sdk-java.version>
+        <private-api-sdk-java.version>7.2.29</private-api-sdk-java.version>
 
         <!--sonar configuration-->
         <!--suppress UnresolvedMavenProperty -->
