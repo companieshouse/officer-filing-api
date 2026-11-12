@@ -45,13 +45,13 @@
         <!-- Source: https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
         <mapstruct.version>1.6.3</mapstruct.version>
         <!-- Source: https://mvnrepository.com/artifact/io.opentelemetry.instrumentation/opentelemetry-instrumentation-bom -->
-        <opentelemetry.version>2.29.0</opentelemetry.version>
+        <opentelemetry.version>2.33.1</opentelemetry.version>
         <!-- Source: https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-bom -->
         <kotlin.version>2.3.21</kotlin.version>
 
         <!--- CH -->
-        <ch-bom.version>0.1.25</ch-bom.version>
-        <private-api-sdk-java.version>7.2.29</private-api-sdk-java.version>
+        <ch-bom.version>0.1.40</ch-bom.version>
+        <private-api-sdk-java.version>7.2.49</private-api-sdk-java.version>
 
         <!--sonar configuration-->
         <!--suppress UnresolvedMavenProperty -->
