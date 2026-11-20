@@ -50,7 +50,7 @@
         <kotlin.version>2.3.21</kotlin.version>
 
         <!--- CH -->
-        <ch-bom.version>0.1.40</ch-bom.version>
+        <ch-bom.version>0.1.42</ch-bom.version>
         <private-api-sdk-java.version>7.2.35</private-api-sdk-java.version>
 
         <!--sonar configuration-->
